@@ -102,7 +102,7 @@
     </form>
 
     <div id="previewSection" class="hidden">
-      <h3>Preview of Changes</h3>
+      <h3>Preview of Changes</h3><p id="summaryStats"></p>
       <div class="pdf-viewer-controls">
         <button onclick="prevPage()">Previous</button>
         <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
@@ -173,7 +173,12 @@
         });
 
         downloadFinal.href = finalUrl;
-        document.getElementById('loader').classList.add('hidden'); previewSection.classList.remove('hidden');
+        document.getElementById('loader').classList.add('hidden'); 
+      document.getElementById('summaryStats').textContent = 
+        `✅ ${result.total_links} links updated across ${result.pages_modified} page${result.pages_modified !== 1 ? 's' : ''}`;
+      document.getElementById('loader').classList.add('hidden');
+      previewSection.classList.remove('hidden');
+    
       } else {
         alert('Processing failed.');
       }
