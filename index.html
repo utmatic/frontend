@@ -7,12 +7,25 @@
   <title>Utmatic Upload Tool</title>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-dark: #1a1a1a;
+      --panel: #252525;
+      --primary: #3579c4;
+      --text: #f5f5f5;
+      --subtle: #aaa;
+    }
+
     body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+
       font-family: 'Work Sans', sans-serif;
       background-color: #f5f5f5;
       padding: 2rem;
     }
     .container {
+      background: var(--panel);
+
       max-width: 700px;
       margin: auto;
       background: white;
@@ -29,6 +42,10 @@
       font-weight: 500;
     }
     input, select {
+      background-color: #111;
+      color: #eee;
+      border: 1px solid #444;
+
       width: 100%;
       padding: 0.75rem;
       border: 1px solid #ccc;
@@ -36,6 +53,9 @@
       font-size: 1rem;
     }
     button {
+      background-color: var(--primary);
+      color: white;
+
       background-color: #3579c4;
       color: white;
       padding: 0.75rem 1.25rem;
@@ -102,7 +122,14 @@
     </form>
 
     <div id="previewSection" class="hidden">
-      <h3>Preview of Changes</h3><p id="summaryStats"></p>
+      <h3>Preview of Changes</h3>
+    <div id="summaryStats" style="display: flex; align-items: center; gap: 8px; font-size: 1rem; margin-top: 0.5rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      <span id="summaryStatsText"></span>
+    </div>
+
       <div class="pdf-viewer-controls">
         <button onclick="prevPage()">Previous</button>
         <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
@@ -174,7 +201,7 @@
 
         downloadFinal.href = finalUrl;
         document.getElementById('loader').classList.add('hidden'); 
-      document.getElementById('summaryStats').textContent = 
+      document.getElementById('summaryStatsText').textContent = 
         `✅ ${result.total_links} links updated across ${result.pages_modified} page${result.pages_modified !== 1 ? 's' : ''}`;
       document.getElementById('loader').classList.add('hidden');
       previewSection.classList.remove('hidden');
