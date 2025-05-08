@@ -66,7 +66,7 @@
 <body>
   <div class="container">
     <h2>Upload Your PDF</h2>
-    <form id="uploadForm">
+    <form id="uploadForm"><div id="loader" class="hidden" style="margin-top: 1rem;">Processing... Please wait.</div>
       <div class="field">
         <label for="file">PDF Document</label>
         <input type="file" name="file" id="file" required />
@@ -155,7 +155,7 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
-      previewSection.classList.add('hidden');
+      document.getElementById('loader').classList.remove('hidden'); previewSection.classList.add('hidden');
 
       const response = await fetch('https://utmatic-backend.onrender.com/process/', {
         method: 'POST',
@@ -164,7 +164,7 @@
 
       if (response.ok) {
         const result = await response.json();
-        const previewUrl = `https://utmatic-backend.onrender.com/${result.preview_url}`;
+        const previewUrl = `https://utmatic-backend.onrender.com/preview/${result.preview_url}`;
         const finalUrl = `https://utmatic-backend.onrender.com/${result.download_url}`;
 
         pdfjsLib.getDocument(previewUrl).promise.then(pdf => {
@@ -173,7 +173,7 @@
         });
 
         downloadFinal.href = finalUrl;
-        previewSection.classList.remove('hidden');
+        document.getElementById('loader').classList.add('hidden'); previewSection.classList.remove('hidden');
       } else {
         alert('Processing failed.');
       }
