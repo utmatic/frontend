@@ -55,7 +55,7 @@
     input, select {
       width: 100%;
       padding: 0.75rem;
-      background-color: var(--input);
+      background-color: var(--input); caret-color: white;
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -70,9 +70,9 @@
       position: relative;
     }
 
-    .file-upload-label {
+    .file-upload-label, input, select { background-color: var(--input); color: var(--text); } .file-upload-label {
       display: block;
-      background-color: var(--input);
+      background-color: var(--input); caret-color: white;
       border: 1px solid var(--border);
       padding: 0.75rem;
       text-align: center;
@@ -138,8 +138,8 @@
       background-color: var(--panel);
       padding: 2rem;
       border-radius: 12px;
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 95%;
+      max-height: 95%;
       overflow-y: auto;
       text-align: center;
     }
@@ -180,7 +180,7 @@
       fill: var(--accent);
     }
 
-    .link-btn {
+    .link-btn { color: var(--text); text-decoration: underline; font-weight: 500; }
       color: var(--accent);
       margin-top: 1rem;
       cursor: pointer;
@@ -188,7 +188,7 @@
       display: inline-block;
     }
 
-    #downloadFinal {
+    #downloadFinal { background-color: var(--accent); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 1.2rem; }
       display: inline-block;
       margin-top: 1.2rem;
     }
@@ -223,7 +223,7 @@
       </div>
       <div class="field hidden" id="itemFormatField">
         <label>Item Formats (comma-separated)</label>
-        <input type="text" name="item_format" id="item_format" />
+        <input type="text" name="item_format" placeholder="LLNN-NNNN (use L for letters, N for numbers)" id="item_format" />
       </div>
       <div class="field hidden" id="baseUrlField">
         <label>Base URL</label>
@@ -282,8 +282,8 @@
 
     function renderPage(num) {
       pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: 1.4 });
-        canvas.height = viewport.height;
+        const viewport = page.getViewport({ scale: 1.6 });
+        canvas.height = viewport.height * 1.5; canvas.width = viewport.width * 1.5;
         canvas.width = viewport.width;
         page.render({ canvasContext: ctx, viewport });
       });
@@ -310,7 +310,7 @@
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      loader.classList.remove('hidden');
+      loader.classList.remove('hidden'); setTimeout(() => loader.classList.add('hidden'), 100);
 
       try {
         const res = await fetch('https://utmatic-backend.onrender.com/process/', {
