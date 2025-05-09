@@ -3,120 +3,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utmetic PDF Enhancer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Utmatic PDF Enhancer</title>
   <style>
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: #1a1a1a;
       color: #efefe4;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem;
       min-height: 100vh;
-    }
-    h1 {
-      margin-top: 2rem;
-      font-size: 2rem;
     }
     .container {
       background: #2a2a2a;
-      border-radius: 12px;
       padding: 2rem;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      border-radius: 1rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+    }
+    label {
       margin-top: 1rem;
+      display: block;
+      font-weight: 500;
     }
     input, select {
       width: 100%;
       padding: 0.5rem;
-      margin-bottom: 1rem;
-      border-radius: 6px;
+      margin-top: 0.25rem;
+      border-radius: 0.5rem;
       border: none;
+      margin-bottom: 0.75rem;
       font-size: 1rem;
     }
     button {
-      width: 100%;
-      padding: 0.75rem;
-      background: #3579c4;
+      background-color: #3579c4;
       color: white;
+      font-size: 1rem;
       font-weight: bold;
       border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      width: 100%;
       cursor: pointer;
     }
+    .note {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #aaa;
+      margin-top: 0.75rem;
+    }
+    #linkCounter {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #efefe4;
+    }
+    #linkCounter svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    /* Preview Modal */
     #previewModal {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
       background: rgba(0,0,0,0.85);
-      display: none;
-      align-items: center;
       justify-content: center;
-      z-index: 9999;
+      align-items: center;
+      z-index: 1000;
     }
     #pdfViewer {
-      position: relative;
-      width: 60vw;
-      height: 85vh;
       background: white;
       padding: 1rem;
+      border-radius: 0.75rem;
+      max-height: 90vh;
+      max-width: 60vw;
       overflow: auto;
-      border-radius: 10px;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 1.2rem;
+      cursor: pointer;
     }
     .nav-arrow {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: #3579c4;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-    .nav-left { left: -40px; }
-    .nav-right { right: -40px; }
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 2rem;
       background: none;
       border: none;
-      color: #ff5f5f;
       cursor: pointer;
+      color: #3579c4;
     }
-    .link-counter {
-      margin-top: 1rem;
-      font-size: 1rem;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .icon {
-      width: 20px;
-      height: 20px;
+    .nav-arrow svg {
+      width: 32px;
+      height: 32px;
       stroke: currentColor;
-      stroke-width: 1.5;
     }
-    .note {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #999;
-      text-align: center;
+    .nav-left {
+      left: -60px;
+    }
+    .nav-right {
+      right: -60px;
     }
   </style>
 </head>
 <body>
-  <h1>Power Up Your PDFs</h1>
   <div class="container">
+    <h1>Power Up Your PDFs</h1>
     <form id="pdfForm">
       <label>Upload PDF:</label>
       <input type="file" id="pdfFile" name="file" required />
@@ -143,9 +161,13 @@
 
       <button type="submit">Process PDF</button>
     </form>
-    <p class="note">Note: Larger documents may take up to a minute to process.</p>
-    <div class="link-counter" id="linkCounter">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="icon"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>
+
+    <div class="note">Note: Larger documents may take up to a minute to process.</div>
+
+    <div id="linkCounter">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/>
+      </svg>
       <span id="linkCountText">Links modified: 0</span>
     </div>
   </div>
@@ -154,9 +176,25 @@
     <div id="pdfViewer">
       <button class="close-btn" onclick="document.getElementById('previewModal').style.display='none'">×</button>
       <canvas id="pdfCanvas"></canvas>
-      <button class="nav-arrow nav-left" onclick="changePage(-1)">←</button>
-      <button class="nav-arrow nav-right" onclick="changePage(1)">→</button>
+      <button class="nav-arrow nav-left" onclick="changePage(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </button>
+      <button class="nav-arrow nav-right" onclick="changePage(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </button>
     </div>
   </div>
+
+  <script>
+    document.getElementById("serviceType").addEventListener("change", function () {
+      const showFields = this.value === "hyperlink_and_utm";
+      document.getElementById("conditionalFields").style.display = showFields ? "block" : "none";
+    });
+    document.getElementById("conditionalFields").style.display = "none";
+  </script>
 </body>
 </html>
