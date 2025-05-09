@@ -86,7 +86,7 @@
       <label>PDF Document</label>
       <div class="file-box" onclick="document.getElementById('file').click()">
         <span id="fileLabel">Choose PDF</span>
-        <input type="file" id="file" name="file" style="display:none;" required onchange="handleFileChange()">
+        <input type="file" id="file" name="file" style="display:none;" required>
       </div>
 
       <label>UTM Source</label>
@@ -104,9 +104,9 @@
         <option value="detection">No links — find and add them</option>
       </select>
 
-      <div id="itemFormatContainer" style="display:none;">
+      <div id="itemFormatContainer" style="display: none;">
         <label>Item Formats</label>
-        <input type="text" name="item_format" placeholder="LLNN-NNNN (L=letter, N=number)">
+        <input type="text" name="item_format" id="item_format" placeholder="LLNN-NNNN (L=letter, N=number)">
       </div>
 
       <label>Base URL</label>
@@ -120,65 +120,50 @@
   </div>
 
   <script>
-    function handleFileChange() {
+    document.addEventListener('DOMContentLoaded', () => {
       const fileInput = document.getElementById('file');
       const fileLabel = document.getElementById('fileLabel');
-      if (fileInput.files.length > 0) {
-        fileLabel.textContent = fileInput.files[0].name;
-      }
-    }
+      const modeSelect = document.getElementById('mode');
+      const itemFormatContainer = document.getElementById('itemFormatContainer');
+      const form = document.getElementById('uploadForm');
+      const loader = document.getElementById('loader');
+      const resultBox = document.getElementById('result-box');
 
-    const fileInput = document.getElementById('file');
-    const fileLabel = document.getElementById('fileLabel');
-    const mode = document.getElementById('mode');
-    const itemFormatContainer = document.getElementById('itemFormatContainer');
-    const form = document.getElementById('uploadForm');
-    const loader = document.getElementById('loader');
-    const resultBox = document.getElementById('result-box');
-
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length) {
-        fileLabel.textContent = fileInput.files[0].name;
-      }
-    });
-
-    mode.addEventListener('change', () => {
-      itemFormatContainer.style.display = mode.value === 'detection' ? 'block' : 'none';
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      loader.style.display = "block";
-      resultBox.innerHTML = "";
-
-      const res = await fetch('https://utmatic-backend.onrender.com/process/', {
-        method: 'POST',
-        body: formData
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          fileLabel.textContent = fileInput.files[0].name;
+        }
       });
 
-      const data = await res.json();
-      loader.style.display = "none";
-
-      resultBox.innerHTML = \`
-        <p>\${data.total_links} links updated across \${data.pages_modified} pages.</p>
-        <a href="https://utmatic-backend.onrender.com/\${data.download_url}" download>
-          <button>Download Final PDF</button>
-        </a>
-      \`;
-    });
-  
-    document.addEventListener('DOMContentLoaded', () => {
-      const mode = document.getElementById('mode');
-      const itemFormatContainer = document.getElementById('itemFormatContainer');
-      if (mode && itemFormatContainer) {
-        mode.addEventListener('change', () => {
-          itemFormatContainer.style.display = mode.value === 'detection' ? 'block' : 'none';
-        });
-        itemFormatContainer.style.display = mode.value === 'detection' ? 'block' : 'none';
+      function toggleItemFormatField() {
+        itemFormatContainer.style.display = modeSelect.value === 'detection' ? 'block' : 'none';
       }
+
+      toggleItemFormatField(); // run on page load
+      modeSelect.addEventListener('change', toggleItemFormatField);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        loader.style.display = "block";
+        resultBox.innerHTML = "";
+
+        const res = await fetch('https://utmatic-backend.onrender.com/process/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        loader.style.display = "none";
+
+        resultBox.innerHTML = \`
+          <p>\${data.total_links} links updated across \${data.pages_modified} pages.</p>
+          <a href="https://utmatic-backend.onrender.com/\${data.download_url}" download>
+            <button>Download Final PDF</button>
+          </a>
+        \`;
+      });
     });
   </script>
-
 </body>
 </html>
