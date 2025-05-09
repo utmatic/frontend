@@ -4,24 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic Upload Tool</title>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Utmatic Upload</title>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #1a1a1a;
-      --panel: #222;
-      --input: #1c1c1c;
-      --border: #333;
-      --text: #f0f0f0;
-      --subtext: #aaa;
-      --accent: #3579c4;
-    }
-
-    * { box-sizing: border-box; }
     body {
       font-family: 'Work Sans', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      background: #1a1a1a;
+      color: #f0f0f0;
       margin: 0;
       padding: 2rem;
     }
@@ -29,105 +18,83 @@
     .container {
       max-width: 700px;
       margin: auto;
-      background-color: var(--panel);
+      background: #222;
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
-    }
-
-    h2, label {
-      color: var(--text);
-    }
-
-    .field {
-      margin-bottom: 1.4rem;
+      border-radius: 10px;
     }
 
     label {
       display: block;
-      margin-bottom: 0.4rem;
-      font-weight: 500;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
     }
 
     input, select {
       width: 100%;
       padding: 0.75rem;
-      background-color: var(--input);
-      color: var(--text);
-      border: 1px solid var(--border);
+      background: #1c1c1c;
+      border: 1px solid #333;
       border-radius: 6px;
-      font-size: 1rem;
-      caret-color: white;
+      color: #f0f0f0;
+      margin-bottom: 1rem;
     }
 
     input::placeholder {
-      color: var(--subtext);
+      color: #888;
     }
 
-    .file-upload-wrap {
-      position: relative;
-    }
-
-    .file-upload-label {
-      display: block;
-      background-color: var(--input);
-      border: 1px solid var(--border);
+    .upload-label {
+      background: #1c1c1c;
       padding: 0.75rem;
-      text-align: center;
+      border: 1px solid #333;
       border-radius: 6px;
-      color: var(--subtext);
-      pointer-events: none;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      position: relative;
+      cursor: pointer;
     }
 
-    .file-upload-input {
+    .upload-label input {
       opacity: 0;
       position: absolute;
       inset: 0;
       cursor: pointer;
-      z-index: 2;
     }
 
-    .file-display {
-      margin-top: 0.4rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    #fileName {
       font-size: 0.9rem;
-      color: var(--subtext);
+      margin-top: 0.3rem;
+      color: #aaa;
     }
 
     button {
       background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
+      border: 1px solid #333;
+      color: #f0f0f0;
       padding: 0.6rem 1.2rem;
-      font-size: 1rem;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
     button:hover {
-      background: var(--accent);
+      background: #3579c4;
       color: white;
     }
 
-    .loader {
-      display: none;
-      width: 100%;
+    #loader {
+      margin-top: 1rem;
       height: 4px;
-      background-color: var(--accent);
-      margin-top: 1.5rem;
-      border-radius: 4px;
+      background: #3579c4;
+      display: none;
     }
 
     .modal {
+      display: none;
       position: fixed;
       inset: 0;
-      background-color: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
+      background: rgba(0,0,0,0.8);
       justify-content: center;
+      align-items: center;
       z-index: 1000;
     }
 
@@ -136,68 +103,35 @@
     }
 
     .modal-content {
-      background-color: var(--panel);
+      background: #222;
       padding: 2rem;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 1000px;
+      border-radius: 8px;
+      max-width: 90%;
       max-height: 90vh;
-      overflow-y: auto;
+      overflow: auto;
       text-align: center;
     }
 
-    .modal-content canvas {
-      width: 100%;
+    canvas {
+      max-width: 100%;
+      margin: 1rem 0;
+    }
+
+    a#downloadFinal {
+      display: inline-block;
       margin-top: 1rem;
-    }
-
-    .summary {
-      margin-bottom: 1rem;
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .nav-arrows {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .nav-arrows svg {
-      width: 30px;
-      height: 30px;
-      fill: var(--text);
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .nav-arrows svg:hover {
-      transform: scale(1.2);
-      fill: var(--accent);
+      background: #3579c4;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      text-decoration: none;
     }
 
     .link-btn {
-      color: var(--text);
       margin-top: 1rem;
       cursor: pointer;
-      font-size: 0.95rem;
-      display: inline-block;
+      color: #ccc;
       text-decoration: underline;
-      font-weight: 500;
-    }
-
-    #downloadFinal {
-      background-color: var(--accent);
-      color: white;
-      font-weight: 600;
-      border: none;
-      border-radius: 6px;
-      padding: 0.6rem 1.2rem;
-      text-decoration: none;
-      margin-top: 1rem;
-      display: inline-block;
     }
   </style>
 </head>
@@ -205,146 +139,107 @@
   <div class="container">
     <h2>Upload Your PDF</h2>
     <form id="uploadForm">
-      <div class="field">
-        <label for="file">PDF Document</label>
-        <div class="file-upload-wrap">
-          <input type="file" name="file" id="file" class="file-upload-input" required />
-          <div class="file-upload-label">Choose PDF</div>
-        </div>
-        <div class="file-display" id="fileDisplay" style="display:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
-          </svg>
-          <span id="fileName"></span>
-        </div>
+      <label>PDF Document</label>
+      <div class="upload-label">
+        Choose PDF
+        <input type="file" name="file" id="file" required>
       </div>
-      <div class="field"><label>UTM Source</label><input type="text" name="utm_source" required /></div>
-      <div class="field"><label>UTM Medium</label><input type="text" name="utm_medium" required /></div>
-      <div class="field"><label>UTM Campaign</label><input type="text" name="utm_campaign" required /></div>
-      <div class="field">
-        <label>Document Type</label>
-        <select name="mode" id="mode">
-          <option value="hyperlink">Document contains links</option>
-          <option value="detection">No links — find and add them</option>
-        </select>
-      </div>
-      <div class="field" id="itemFormatField" style="display:none;">
-        <label>Item Formats (comma-separated)</label>
-        <input type="text" name="item_format" id="item_format" placeholder="LLNN-NNNN (use L for letters, N for numbers)" />
-      </div>
-      <div class="field" id="baseUrlField" style="display:none;">
-        <label>Base URL</label>
-        <input type="url" name="base_url" id="base_url" />
-      </div>
+      <div id="fileName"></div>
+
+      <label>UTM Source</label>
+      <input type="text" name="utm_source" required>
+
+      <label>UTM Medium</label>
+      <input type="text" name="utm_medium" required>
+
+      <label>UTM Campaign</label>
+      <input type="text" name="utm_campaign" required>
+
+      <label>Document Type</label>
+      <select name="mode" id="mode">
+        <option value="hyperlink">Document contains links</option>
+        <option value="detection">No links — find and add them</option>
+      </select>
+
+      <label>Item Formats</label>
+      <input type="text" name="item_format" placeholder="LLNN-NNNN (L=letter, N=number)">
+
+      <label>Base URL</label>
+      <input type="url" name="base_url">
+
       <button type="submit">Submit</button>
-      <div id="loader" class="loader"></div>
+      <div id="loader"></div>
     </form>
   </div>
 
   <div class="modal" id="previewModal">
     <div class="modal-content">
-      <div class="summary" id="summaryStatsText"></div>
-      <div class="nav-arrows">
-        <svg onclick="prevPage()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-4.28 9.22a.75.75 0 0 0 0 1.06l3 3a.75.75 0 1 0 1.06-1.06l-1.72-1.72h5.69a.75.75 0 0 0 0-1.5h-5.69l1.72-1.72a.75.75 0 0 0-1.06-1.06l-3 3Z" clip-rule="evenodd"/></svg>
-        <svg onclick="nextPage()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z" clip-rule="evenodd"/></svg>
-      </div>
+      <div id="summaryStatsText"></div>
       <canvas id="pdf-canvas"></canvas>
-      <br>
       <a href="#" id="downloadFinal">Approve & Download</a>
-      <div class="link-btn" onclick="closeModal()">Try again</div>
+      <div class="link-btn" onclick="document.getElementById('previewModal').classList.remove('active')">Try Again</div>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    const fileInput = document.getElementById('file');
-    const fileNameDisplay = document.getElementById('fileName');
-    const fileDisplayWrap = document.getElementById('fileDisplay');
-    const modeSelect = document.getElementById('mode');
-    const itemFormatField = document.getElementById('itemFormatField');
-    const baseUrlField = document.getElementById('baseUrlField');
-    const loader = document.getElementById('loader');
-    const previewModal = document.getElementById('previewModal');
-    const summaryText = document.getElementById('summaryStatsText');
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
-    const downloadFinal = document.getElementById('downloadFinal');
-    let pdfDoc = null, pageNum = 1;
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("file");
+    const fileNameDisplay = document.getElementById("fileName");
+    const loader = document.getElementById("loader");
+    const canvas = document.getElementById("pdf-canvas");
+    const ctx = canvas.getContext("2d");
+    const modal = document.getElementById("previewModal");
+    const summary = document.getElementById("summaryStatsText");
+    const downloadLink = document.getElementById("downloadFinal");
 
-    fileInput.addEventListener('change', () => {
+    let pdfDoc = null, currentPage = 1;
+
+    fileInput.addEventListener("change", () => {
       const file = fileInput.files[0];
-      if (file) {
-        fileNameDisplay.textContent = file.name;
-        fileDisplayWrap.style.display = 'flex';
-      }
-    });
-
-    modeSelect.addEventListener('change', () => {
-      const detection = modeSelect.value === 'detection';
-      itemFormatField.style.display = detection ? "block" : "none";
-      baseUrlField.style.display = detection ? "block" : "none";
+      if (file) fileNameDisplay.textContent = file.name;
     });
 
     function renderPage(num) {
       pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: 1.6 });
+        const viewport = page.getViewport({ scale: 1.4 });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         page.render({ canvasContext: ctx, viewport });
       });
     }
 
-    function nextPage() {
-      if (pageNum < pdfDoc.numPages) {
-        pageNum++;
-        renderPage(pageNum);
-      }
-    }
-
-    function prevPage() {
-      if (pageNum > 1) {
-        pageNum--;
-        renderPage(pageNum);
-      }
-    }
-
-    function closeModal() {
-      previewModal.classList.remove('active');
-    }
-
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
+      const formData = new FormData(form);
       loader.style.display = "block";
 
       try {
-        const res = await fetch('https://utmatic-backend.onrender.com/process/', {
-          method: 'POST',
+        const res = await fetch("https://utmatic-backend.onrender.com/process/", {
+          method: "POST",
           body: formData
         });
-
         const result = await res.json();
         loader.style.display = "none";
-        summaryText.textContent = `${result.total_links} links updated across ${result.pages_modified} pages`;
 
-        const previewUrl = `https://utmatic-backend.onrender.com/preview/${result.preview_url}`;
-        const finalUrl = `https://utmatic-backend.onrender.com/${result.download_url}`;
-        downloadFinal.href = finalUrl;
+        summary.textContent = `${result.total_links} links updated across ${result.pages_modified} pages`;
+        downloadLink.href = "https://utmatic-backend.onrender.com/" + result.download_url;
+        modal.classList.add("active");
 
-        pdfjsLib.getDocument(previewUrl).promise.then(pdf => {
+        const previewURL = "https://utmatic-backend.onrender.com/preview/" + result.preview_url;
+        pdfjsLib.getDocument(previewURL).promise.then(pdf => {
           pdfDoc = pdf;
-          pageNum = 1;
-          renderPage(pageNum);
-          previewModal.classList.add('active');
+          currentPage = 1;
+          renderPage(currentPage);
         });
 
       } catch (err) {
         loader.style.display = "none";
-        alert("Something went wrong. Please try again.");
+        alert("Something went wrong.");
       }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", () => {
       loader.style.display = "none";
     });
   </script>
