@@ -190,6 +190,9 @@
         `;
         reportDiv.style.display = 'block';
 
+        // ✅ Set PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         const loadingTask = pdfjsLib.getDocument(data.pdf_url);
         loadingTask.promise.then(function(pdf) {
           pdfDoc = pdf;
