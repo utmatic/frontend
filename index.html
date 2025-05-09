@@ -63,13 +63,16 @@
       padding: 1rem;
       border-left: 4px solid #3579c4;
       margin-bottom: 2rem;
+      display: none;
     }
     #pdf-controls {
       margin-bottom: 1rem;
+      display: none;
     }
     #pdf-preview {
       border: 1px solid #ccc;
       max-width: 100%;
+      display: none;
     }
   </style>
 </head>
@@ -127,15 +130,16 @@
     const extraFields = document.getElementById('extraFields');
     const loader = document.getElementById('loader');
     const reportDiv = document.getElementById('report');
+    const pdfControls = document.getElementById('pdf-controls');
+    const canvas = document.getElementById('pdf-preview');
 
     serviceSelect.addEventListener('change', () => {
       extraFields.style.display = serviceSelect.value === 'utm_inject' ? 'block' : 'none';
     });
 
-    let pdfDoc = null, pageNum = 1, pageRendering = false, canvas = document.getElementById('pdf-preview'), ctx = canvas.getContext('2d');
+    let pdfDoc = null, pageNum = 1, ctx = canvas.getContext('2d');
 
     function renderPage(num) {
-      pageRendering = true;
       pdfDoc.getPage(num).then(function(page) {
         const viewport = page.getViewport({ scale: 1.5 });
         canvas.height = viewport.height;
@@ -145,9 +149,7 @@
           canvasContext: ctx,
           viewport: viewport
         };
-        page.render(renderContext).promise.then(function() {
-          pageRendering = false;
-        });
+        page.render(renderContext);
       });
       document.getElementById('page-num').textContent = num;
     }
@@ -168,7 +170,9 @@
       e.preventDefault();
       const formData = new FormData(form);
       loader.style.display = 'block';
-      reportDiv.innerHTML = '';
+      reportDiv.style.display = 'none';
+      pdfControls.style.display = 'none';
+      canvas.style.display = 'none';
 
       try {
         const response = await fetch('https://utmatic-backend.onrender.com/process_pdf/', {
@@ -179,17 +183,20 @@
         const data = await response.json();
         loader.style.display = 'none';
 
-        reportDiv.innerHTML = \`
+        reportDiv.innerHTML = `
           <strong>Mini Report:</strong><br>
-          🔗 Links added: \${data.added}<br>
-          ✏️ Links modified: \${data.modified}
-        \`;
+          🔗 Links added: ${data.added}<br>
+          ✏️ Links modified: ${data.modified}
+        `;
+        reportDiv.style.display = 'block';
 
         const loadingTask = pdfjsLib.getDocument(data.pdf_url);
         loadingTask.promise.then(function(pdf) {
           pdfDoc = pdf;
           pageNum = 1;
           document.getElementById('page-count').textContent = pdf.numPages;
+          pdfControls.style.display = 'block';
+          canvas.style.display = 'block';
           renderPage(pageNum);
         });
       } catch (err) {
