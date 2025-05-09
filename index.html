@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic PDF UTM Tool</title>
+  <title>Utmatic PDF Tool</title>
   <style>
     body {
       font-family: sans-serif;
       background: #f7f7f7;
       padding: 2rem;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
     }
     form {
@@ -19,7 +19,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
-    input, label, button {
+    input, label, select, button {
       display: block;
       width: 100%;
       margin-top: 1rem;
@@ -35,13 +35,22 @@
     button:hover {
       background: #285f9e;
     }
+    .conditional {
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h1>Add UTM Tracking to Your PDF</h1>
+  <h1>Utmatic: PDF Link Enhancer</h1>
   <form id="uploadForm" enctype="multipart/form-data">
     <label for="file">Upload PDF:</label>
     <input type="file" name="file" id="file" accept="application/pdf" required />
+
+    <label for="service">Select Service:</label>
+    <select name="service" id="service">
+      <option value="utm_only">Add UTM to Existing Links</option>
+      <option value="utm_inject">Add Hyperlinks + UTM</option>
+    </select>
 
     <label>UTM Source:</label>
     <input type="text" name="utm_source" required />
@@ -52,17 +61,30 @@
     <label>UTM Campaign:</label>
     <input type="text" name="utm_campaign" required />
 
-    <label>UTM Term (optional):</label>
-    <input type="text" name="utm_term" />
+    <div id="extraFields" class="conditional">
+      <label>Item Format(s):</label>
+      <input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
 
-    <label>UTM Content (optional):</label>
-    <input type="text" name="utm_content" />
+      <label>Base URL:</label>
+      <input type="url" name="base_url" placeholder="e.g. https://example.com/store/productDetail.jsp?catalogId=" />
+    </div>
 
-    <button type="submit">Process PDF</button>
+    <button type="submit">Submit</button>
   </form>
 
   <script>
     const form = document.getElementById('uploadForm');
+    const serviceSelect = document.getElementById('service');
+    const extraFields = document.getElementById('extraFields');
+
+    serviceSelect.addEventListener('change', () => {
+      if (serviceSelect.value === 'utm_inject') {
+        extraFields.style.display = 'block';
+      } else {
+        extraFields.style.display = 'none';
+      }
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
@@ -77,12 +99,12 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = "modified.pdf";
+        a.download = "processed.pdf";
         document.body.appendChild(a);
         a.click();
         a.remove();
       } else {
-        alert('Failed to process PDF');
+        alert('Failed to process PDF. Please try again.');
       }
     });
   </script>
