@@ -5,22 +5,70 @@
   <meta charset="UTF-8" />
   <title>Utmatic PDF Processor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; background: #f9f9f9; }
-    form { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    body { font-family: 'Poppins', sans-serif; background: #f9f9f9; padding: 2rem; color: #1A1A1A; }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { font-size: 1rem; color: #666; margin-bottom: 2rem; }
+    form {
+      background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 2rem; max-width: 600px; margin: auto;
+    }
     label, input, select, button { display: block; width: 100%; margin-top: 1rem; }
-    button { background: #3579c4; color: white; border: none; padding: 0.75rem; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #2a5f9d; }
-    #loader { display: none; text-align: center; margin-top: 1rem; }
-    #loader .spinner { border: 4px solid #eee; border-top: 4px solid #3579c4; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    #download { display: none; margin-top: 1rem; }
+    input, select { padding: 0.5rem; border-radius: 8px; border: 1px solid #ccc; }
+    button {
+      background: #3579c4; color: white; padding: 0.75rem; margin-top: 2rem;
+      border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+    }
+    button:hover { background: #285d97; }
     .conditional { display: none; }
+    #loader { text-align: center; margin-top: 2rem; display: none; }
+    .spinner {
+      border: 4px solid #eee; border-top: 4px solid #3579c4; border-radius: 50%;
+      width: 30px; height: 30px; animation: spin 1s linear infinite; margin: auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #download, #linkStats { display: none; margin-top: 2rem; text-align: center; }
+    #linkStats p { font-weight: 500; margin: 0.25rem 0; }
+    .info-message { text-align: center; margin-top: 1rem; color: #999; font-size: 0.9rem; }
+
+    #previewModal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+    }
+    #previewContent {
+      background: white; padding: 1rem; border-radius: 8px; width: 90%; height: 90vh;
+      overflow-y: auto; position: relative; text-align: center;
+    }
+    #previewToolbar {
+      margin-bottom: 1rem;
+    }
+    #closePreview {
+      position: absolute; top: 0.5rem; right: 0.75rem; font-size: 1.2rem;
+      border: none; background: none; color: #3579c4; cursor: pointer; font-weight: bold;
+    }
+    .pdf-page-canvas { display: block; margin: 1rem auto; max-width: 100%; }
+    .nav-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .nav-controls input {
+      width: 50px;
+      text-align: center;
+      padding: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Utmatic PDF Processor</h1>
+  <h1>Power Up Your PDFs</h1>
+  <p class="subtitle">Turn static documents into trackable marketing assets — in seconds.</p>
 
   <form id="pdfForm">
     <label for="file">Upload PDF:</label>
@@ -51,15 +99,108 @@
     <button type="submit">Process PDF</button>
   </form>
 
+  <div class="info-message">Note: Large documents may take a minute or two to process. Sit tight!</div>
+
   <div id="loader"><div class="spinner"></div><p>Processing PDF…</p></div>
-  <a id="download" href="#" download>⬇️ Download Processed PDF</a>
+
+  <div id="linkStats">
+    <p id="addedLinks"></p>
+    <p id="modifiedLinks"></p>
+  </div>
+
+  <div style="text-align:center;">
+    <a id="download" href="#" download>⬇️ Download Processed PDF</a><br />
+    <button id="previewBtn" style="margin-top:1rem; display:none;">👁 Preview PDF</button>
+  </div>
+
+  <div id="previewModal">
+    <div id="previewContent">
+      <button id="closePreview">✖</button>
+      <div id="previewToolbar">
+        <button onclick="changeZoom(0.9)">➖ Zoom Out</button>
+        <button onclick="changeZoom(1.1)">➕ Zoom In</button>
+      </div>
+      <canvas id="singlePageCanvas" class="pdf-page-canvas"></canvas>
+      <div class="nav-controls">
+        <button onclick="prevPage()">⬅️</button>
+        <span>Page</span>
+        <input type="number" id="pageNumInput" value="1" />
+        <span id="pageCount">/ ?</span>
+        <button onclick="nextPage()">➡️</button>
+      </div>
+    </div>
+  </div>
 
   <script>
+    let globalPdf = null;
+    let currentPage = 1;
+    let zoom = 1.2;
+
+    const canvas = document.getElementById("singlePageCanvas");
+    const ctx = canvas.getContext("2d");
+    const pageNumInput = document.getElementById("pageNumInput");
+    const pageCountSpan = document.getElementById("pageCount");
+
+    async function renderPage(num) {
+      const page = await globalPdf.getPage(num);
+      const viewport = page.getViewport({ scale: zoom });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+      pageNumInput.value = currentPage;
+    }
+
+    function changeZoom(factor) {
+      zoom *= factor;
+      renderPage(currentPage);
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < globalPdf.numPages) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    }
+
+    pageNumInput.addEventListener('change', () => {
+      const num = parseInt(pageNumInput.value);
+      if (num >= 1 && num <= globalPdf.numPages) {
+        currentPage = num;
+        renderPage(currentPage);
+      }
+    });
+
+    document.getElementById('previewBtn').onclick = async function () {
+      const url = this.dataset.url;
+      const loadingTask = pdfjsLib.getDocument(url);
+      globalPdf = await loadingTask.promise;
+      currentPage = 1;
+      zoom = 1.2;
+      pageCountSpan.textContent = `/ ${globalPdf.numPages}`;
+      document.getElementById('previewModal').style.display = 'flex';
+      renderPage(currentPage);
+    };
+
+    document.getElementById('closePreview').onclick = () => {
+      document.getElementById('previewModal').style.display = 'none';
+    };
+
     const form = document.getElementById('pdfForm');
     const service = document.getElementById('service');
     const conditionalFields = document.getElementById('conditionalFields');
     const loader = document.getElementById('loader');
     const downloadLink = document.getElementById('download');
+    const addedLinks = document.getElementById('addedLinks');
+    const modifiedLinks = document.getElementById('modifiedLinks');
+    const linkStats = document.getElementById('linkStats');
+    const previewBtn = document.getElementById('previewBtn');
 
     service.addEventListener('change', () => {
       conditionalFields.style.display = service.value === 'utm_inject' ? 'block' : 'none';
@@ -76,6 +217,8 @@
       const file = document.getElementById('file').files[0];
       loader.style.display = 'block';
       downloadLink.style.display = 'none';
+      previewBtn.style.display = 'none';
+      linkStats.style.display = 'none';
 
       try {
         const response = await fetch('https://utmatic-backend.onrender.com/process_pdf/', {
@@ -87,9 +230,17 @@
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
+
+        addedLinks.textContent = `✅ Links added: ${response.headers.get("X-Links-Added") || "—"}`;
+        modifiedLinks.textContent = `🔄 Links updated: ${response.headers.get("X-Links-Modified") || "—"}`;
+        linkStats.style.display = 'block';
+
         downloadLink.href = url;
         downloadLink.download = 'processed_' + file.name;
         downloadLink.style.display = 'block';
+
+        previewBtn.dataset.url = url;
+        previewBtn.style.display = 'inline-block';
       } catch (err) {
         alert("Something went wrong. Try again.");
         console.error(err);
@@ -98,7 +249,6 @@
       }
     });
 
-    // Trigger conditional display on load
     service.dispatchEvent(new Event("change"));
   </script>
 
