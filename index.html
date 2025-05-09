@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utmatic</title>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     body {
       font-family: 'Work Sans', sans-serif;
@@ -45,98 +46,39 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-radius: 6px;
-      cursor: pointer;
       margin-bottom: 1rem;
     }
 
-    #loader {
-      display: none;
-      margin: 1rem auto;
-      border: 4px solid #1c1c1c;
-      border-top: 4px solid #3579c4;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
     button {
-      padding: 0.75rem 1.2rem;
       background: #3579c4;
       border: none;
-      color: white;
+      padding: 0.75rem 1.5rem;
       border-radius: 6px;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    #result-box {
-      margin-top: 2rem;
-    }
-
-    .modal {
-      display: none;
+    #previewModal {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
       justify-content: center;
       align-items: center;
-      z-index: 999;
     }
 
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #222;
+    #previewContent {
+      background: #333;
       padding: 1rem;
-      border-radius: 10px;
-      max-width: 95%;
-      max-height: 90vh;
-      overflow: auto;
+      border-radius: 8px;
+      max-width: 80%;
       text-align: center;
     }
 
-    canvas {
+    #pdfCanvas {
+      margin-top: 1rem;
       max-width: 100%;
-      margin: 1rem 0;
-    }
-
-    .nav-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-    }
-
-    .nav-buttons svg {
-      width: 28px;
-      height: 28px;
-      stroke: white;
-      cursor: pointer;
-    }
-
-    #downloadFinal {
-      display: inline-block;
-      margin-top: 1rem;
-      background: #3579c4;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      text-decoration: none;
-    }
-
-    .link-btn {
-      display: block;
-      margin-top: 1rem;
-      color: #ccc;
-      cursor: pointer;
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -145,150 +87,96 @@
     <h2>Upload Your PDF</h2>
     <form id="uploadForm">
       <label>PDF Document</label>
-      <div class="file-box" id="fileBox">
-        <span id="fileLabel">Choose PDF</span>
-        <input type="file" id="file" name="file" style="display:none;" required>
-      </div>
-
+      <input type="file" id="file" name="file" accept="application/pdf" required />
       <label>UTM Source</label>
-      <input type="text" name="utm_source" required>
-
+      <input type="text" name="utm_source" required />
       <label>UTM Medium</label>
-      <input type="text" name="utm_medium" required>
-
+      <input type="text" name="utm_medium" required />
       <label>UTM Campaign</label>
-      <input type="text" name="utm_campaign" required>
-
+      <input type="text" name="utm_campaign" required />
       <label>Document Type</label>
-      <select name="mode" id="mode">
+      <select name="mode" id="docType" onchange="toggleFormatField()">
         <option value="hyperlink">Document contains links</option>
-        <option value="detection">No links — find and add them</option>
+        <option value="nolinks">No links — find and add them</option>
       </select>
-
-      <div id="itemFormatContainer" style="display: none;">
-        <label>Item Formats</label>
-        <input type="text" name="item_format" placeholder="LLNN-NNNN (L=letter, N=number)">
+      <div id="formatContainer" style="display:none">
+        <label>Item Formats (comma-separated)</label>
+        <input type="text" name="item_format" placeholder="LLNN-NNNN (use L for letters, N for numbers)" />
       </div>
-
       <label>Base URL</label>
-      <input type="url" name="base_url">
-
+      <input type="url" name="base_url" placeholder="https://example.com/item?id=" />
       <button type="submit">Submit</button>
-      <div id="loader"></div>
     </form>
-
-    <div id="result-box"></div>
+    <div id="status" style="margin-top:1rem;"></div>
   </div>
 
-  <div class="modal" id="previewModal">
-    <div class="modal-content">
-      <div id="summaryStatsText"></div>
-      <div class="nav-buttons">
-        <svg id="prevBtn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        <svg id="nextBtn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
+  <div id="previewModal">
+    <div id="previewContent">
+      <p id="linkStats"></p>
+      <button onclick="prevPage()">⬅</button>
+      <button onclick="nextPage()">➡</button>
+      <canvas id="pdfCanvas"></canvas>
+      <div style="margin-top:1rem;">
+        <a id="downloadLink" href="#" download><button>Approve & Download</button></a>
+        <button onclick="location.reload()">Try Again</button>
       </div>
-      <canvas id="pdf-canvas"></canvas>
-      <a href="#" id="downloadFinal">Approve & Download</a>
-      <div class="link-btn" onclick="document.getElementById('previewModal').classList.remove('active')">Try Again</div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const fileInput = document.getElementById('file');
-      const fileLabel = document.getElementById('fileLabel');
-      const fileBox = document.getElementById('fileBox');
-      const modeSelect = document.getElementById('mode');
-      const itemFormatContainer = document.getElementById('itemFormatContainer');
-      const form = document.getElementById('uploadForm');
-      const loader = document.getElementById('loader');
-      const resultBox = document.getElementById('result-box');
+    let pdfDoc, currentPage = 1;
 
-      const modal = document.getElementById("previewModal");
-      const canvas = document.getElementById("pdf-canvas");
-      const ctx = canvas.getContext("2d");
-      const summary = document.getElementById("summaryStatsText");
-      const downloadLink = document.getElementById("downloadFinal");
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
+    function toggleFormatField() {
+      const docType = document.getElementById("docType").value;
+      document.getElementById("formatContainer").style.display = docType === "nolinks" ? "block" : "none";
+    }
 
-      let pdfDoc = null, currentPage = 1;
-
-      function renderPage(num) {
-        pdfDoc.getPage(num).then(page => {
-          const viewport = page.getViewport({ scale: 1.3 });
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-          page.render({ canvasContext: ctx, viewport });
-        });
-      }
-
-      prevBtn.onclick = () => {
-        if (pdfDoc && currentPage > 1) {
-          currentPage--;
-          renderPage(currentPage);
-        }
-      };
-
-      nextBtn.onclick = () => {
-        if (pdfDoc && currentPage < pdfDoc.numPages) {
-          currentPage++;
-          renderPage(currentPage);
-        }
-      };
-
-      fileBox.addEventListener('click', () => fileInput.click());
-
-      fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-          fileLabel.textContent = fileInput.files[0].name;
-        }
+    function renderPage(num) {
+      pdfDoc.getPage(num).then(function(page) {
+        const canvas = document.getElementById('pdfCanvas');
+        const ctx = canvas.getContext('2d');
+        const viewport = page.getViewport({ scale: 1.5 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        page.render({ canvasContext: ctx, viewport: viewport });
       });
+    }
 
-      function toggleItemFormatField() {
-        itemFormatContainer.style.display = modeSelect.value === 'detection' ? 'block' : 'none';
+    function nextPage() {
+      if (currentPage < pdfDoc.numPages) {
+        currentPage++;
+        renderPage(currentPage);
       }
+    }
 
-      toggleItemFormatField();
-      modeSelect.addEventListener('change', toggleItemFormatField);
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        loader.style.display = "block";
-        resultBox.innerHTML = "";
+    document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      const status = document.getElementById("status");
+      status.innerHTML = "Processing...";
+      const res = await fetch("https://utmatic-backend.onrender.com/process/", {
+        method: "POST",
+        body: data
+      });
+      const json = await res.json();
+      status.innerHTML = "";
 
-        try {
-          const res = await fetch('https://utmatic-backend.onrender.com/process/', {
-            method: 'POST',
-            body: formData
-          });
+      document.getElementById("linkStats").textContent = `${json.link_count} links updated across ${json.page_count} pages.`;
+      document.getElementById("previewModal").style.display = "flex";
+      document.getElementById("downloadLink").href = "https://utmatic-backend.onrender.com" + json.final_url;
 
-          const data = await res.json();
-          loader.style.display = "none";
-
-          summary.textContent = `${data.total_links} links updated across ${data.pages_modified} pages.`;
-          downloadLink.href = "https://utmatic-backend.onrender.com/" + data.download_url;
-          modal.classList.add("active");
-
-          const previewURL = "https://utmatic-backend.onrender.com/preview/" + data.preview_url;
-          pdfjsLib.getDocument(previewURL).promise.then(pdf => {
-            pdfDoc = pdf;
-            currentPage = 1;
-            renderPage(currentPage);
-          });
-
-        } catch (error) {
-          loader.style.display = "none";
-          resultBox.innerHTML = "<p style='color:red;'>Something went wrong. Please try again.</p>";
-        }
+      const loadingTask = pdfjsLib.getDocument("https://utmatic-backend.onrender.com" + json.preview_url);
+      loadingTask.promise.then(function(pdf) {
+        pdfDoc = pdf;
+        renderPage(currentPage);
       });
     });
   </script>
