@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic PDF Enhancer</title>
+  <title>Utmatic PDF Processor</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -21,9 +21,6 @@
       max-width: 500px;
       width: 100%;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
-    h1 {
-      text-align: center;
     }
     label {
       display: block;
@@ -135,32 +132,29 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
-      const res = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
-        method: "POST",
-        body: formData
-      });
 
-      if (!res.ok) {
-        alert("Something went wrong.");
-        return;
-      }
+      try {
+        const res = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
+          method: "POST",
+          body: formData
+        });
 
-      const blob = await res.blob();
-      const previewPath = res.headers.get("X-Preview-Path");
-      const added = res.headers.get("X-Links-Added");
-      const modified = res.headers.get("X-Links-Modified");
+        if (!res.ok) throw new Error("Failed to process PDF");
 
-      // Download processed file
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "processed.pdf";
-      a.click();
+        const blob = await res.blob();
+        const previewPath = res.headers.get("X-Preview-Path");
 
-      // Preview annotated file
-      if (previewPath) {
-        const previewURL = "https://utmatic-backend.onrender.com" + previewPath;
-        showPreviewPDF(previewURL);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "processed.pdf";
+        a.click();
+
+        if (previewPath) {
+          showPreviewPDF("https://utmatic-backend.onrender.com" + previewPath);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
       }
     });
 
