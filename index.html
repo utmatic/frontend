@@ -192,7 +192,39 @@
       display: inline-block;
       margin-top: 1.2rem;
     }
-  </style>
+  
+.lds-bar {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.lds-bar div {
+  width: 8px;
+  height: 24px;
+  background: var(--accent);
+  animation: lds-bar 0.8s infinite ease-in-out;
+}
+
+.lds-bar div:nth-child(1) {
+  animation-delay: -0.2s;
+}
+.lds-bar div:nth-child(2) {
+  animation-delay: -0.1s;
+}
+.lds-bar div:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes lds-bar {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+</style>
 </head>
 <body>
   <div class="container">
@@ -230,7 +262,14 @@
         <input type="url" name="base_url" id="base_url" />
       </div>
       <button type="submit">Submit</button>
-      <div id="loader" class="hidden">Processing... Please wait.</div>
+      
+<div id="loader" class="hidden">
+  <div style="margin-top: 1rem; text-align: center;">
+    <div class="lds-bar"><div></div><div></div><div></div></div>
+    <div style="font-size: 0.9rem; color: var(--subtext); margin-top: 0.5rem;">Processing your document...</div>
+  </div>
+</div>
+
     </form>
   </div>
 
@@ -310,7 +349,7 @@
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      loader.classList.remove('hidden'); setTimeout(() => loader.classList.add('hidden'), 100);
+      loader.classList.remove('hidden');
 
       try {
         const res = await fetch('https://utmatic-backend.onrender.com/process/', {
