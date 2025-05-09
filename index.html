@@ -289,7 +289,11 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js">
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loader')?.classList.add('hidden');
+});
+</script>
   <script>
     const fileInput = document.getElementById('file');
     const fileNameDisplay = document.getElementById('fileName');
@@ -377,6 +381,10 @@
         alert("Something went wrong. Please try again.");
       }
     });
-  </script>
+  
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loader')?.classList.add('hidden');
+});
+</script>
 </body>
 </html>
