@@ -7,82 +7,52 @@
   <title>Utmatic PDF Enhancer</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: #1a1a1a;
       color: #efefe4;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
       padding: 2rem;
-      min-height: 100vh;
     }
     .container {
       background: #2a2a2a;
       padding: 2rem;
-      border-radius: 1rem;
+      border-radius: 12px;
       max-width: 500px;
       width: 100%;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
     h1 {
       text-align: center;
-      font-size: 1.8rem;
     }
     label {
-      margin-top: 1rem;
       display: block;
-      font-weight: 500;
+      margin-top: 1rem;
     }
     input, select {
       width: 100%;
       padding: 0.5rem;
       margin-top: 0.25rem;
-      border-radius: 0.5rem;
+      border-radius: 8px;
       border: none;
       margin-bottom: 0.75rem;
-      font-size: 1rem;
     }
     button {
-      background-color: #3579c4;
+      width: 100%;
+      padding: 0.75rem;
+      background: #3579c4;
       color: white;
-      font-size: 1rem;
       font-weight: bold;
       border: none;
-      border-radius: 0.5rem;
-      padding: 0.75rem;
-      width: 100%;
+      border-radius: 8px;
+      font-size: 1rem;
       cursor: pointer;
     }
-    .note {
-      font-size: 0.8rem;
-      text-align: center;
-      color: #aaa;
-      margin-top: 0.75rem;
-    }
-    #linkCounter {
-      display: none;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: #efefe4;
-    }
-    #linkCounter svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-    }
-
-    /* Preview Modal */
     #previewModal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.85);
       justify-content: center;
       align-items: center;
@@ -91,9 +61,9 @@
     #pdfViewer {
       background: white;
       padding: 1rem;
-      border-radius: 0.75rem;
-      max-height: 90vh;
+      border-radius: 1rem;
       max-width: 60vw;
+      max-height: 90vh;
       overflow: auto;
       position: relative;
     }
@@ -116,28 +86,39 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      cursor: pointer;
       color: #3579c4;
+      cursor: pointer;
     }
     .nav-arrow svg {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       stroke: currentColor;
     }
-    .nav-left {
-      left: -60px;
+    .nav-left { left: -50px; }
+    .nav-right { right: -50px; }
+
+    #linkCounter {
+      display: none;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1rem;
     }
-    .nav-right {
-      right: -60px;
+    .note {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Power Up Your PDFs</h1>
-    <form id="pdfForm">
+    <form id="pdfForm" enctype="multipart/form-data">
       <label>Upload PDF:</label>
-      <input type="file" id="pdfFile" name="file" required />
+      <input type="file" name="file" id="pdfFile" required />
 
       <label>Select Service:</label>
       <select id="serviceType" name="serviceType" required>
@@ -162,10 +143,9 @@
       <button type="submit">Process PDF</button>
     </form>
 
-    <div class="note">Note: Larger documents may take up to a minute to process.</div>
-
+    <p class="note">Larger PDFs may take up to a minute to process.</p>
     <div id="linkCounter">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/>
       </svg>
       <span id="linkCountText">Links modified: 0</span>
@@ -191,10 +171,37 @@
 
   <script>
     document.getElementById("serviceType").addEventListener("change", function () {
-      const showFields = this.value === "hyperlink_and_utm";
-      document.getElementById("conditionalFields").style.display = showFields ? "block" : "none";
+      const show = this.value === "hyperlink_and_utm";
+      document.getElementById("conditionalFields").style.display = show ? "block" : "none";
     });
     document.getElementById("conditionalFields").style.display = "none";
+
+    document.getElementById("pdfForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const response = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) {
+        alert("Something went wrong.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const added = response.headers.get("X-Links-Added") || 0;
+      const modified = response.headers.get("X-Links-Modified") || 0;
+      document.getElementById("linkCountText").textContent = `Links modified: ${+added + +modified}`;
+      document.getElementById("linkCounter").style.display = "flex";
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "processed.pdf";
+      a.click();
+    });
   </script>
 </body>
 </html>
