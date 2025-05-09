@@ -138,8 +138,8 @@
       background-color: var(--panel);
       padding: 2rem;
       border-radius: 12px;
-      max-width: 95%;
-      max-height: 95%;
+      max-width: 1100px;
+      max-height: 90vh;
       overflow-y: auto;
       text-align: center;
     }
@@ -188,12 +188,12 @@
       display: inline-block;
     }
 
-    #downloadFinal { background-color: var(--accent); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 1.2rem; }
+    #downloadFinal { background-color: var(--accent); color: white; font-weight: 600; border: none; background-color: var(--accent); color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; display: inline-block; margin-top: 1.2rem; }
       display: inline-block;
       margin-top: 1.2rem;
     }
   
-.lds-bar {
+.loader-bar { height: 4px; width: 100%; background: #333; overflow: hidden; position: relative; margin-top: 1rem; } .loader-bar .bar { width: 40%; height: 100%; background: var(--accent); position: absolute; animation: slide 1.2s infinite; } @keyframes slide { 0% { left: -40%; } 50% { left: 30%; } 100% { left: 100%; } }
   display: flex;
   justify-content: center;
   gap: 0.3rem;
@@ -265,7 +265,7 @@
       
 <div id="loader" class="hidden">
   <div style="margin-top: 1rem; text-align: center;">
-    <div class="lds-bar"><div></div><div></div><div></div></div>
+    <div class="loader-bar"><div class="bar"></div></div><div></div><div></div><div></div></div>
     <div style="font-size: 0.9rem; color: var(--subtext); margin-top: 0.5rem;">Processing your document...</div>
   </div>
 </div>
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPage(num) {
       pdfDoc.getPage(num).then(page => {
         const viewport = page.getViewport({ scale: 1.6 });
-        canvas.height = viewport.height * 1.5; canvas.width = viewport.width * 1.5;
+        const scale = 1.6; const viewport = page.getViewport({ scale }); canvas.height = viewport.height; canvas.width = viewport.width;
         canvas.width = viewport.width;
         page.render({ canvasContext: ctx, viewport });
       });
