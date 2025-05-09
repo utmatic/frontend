@@ -15,6 +15,7 @@
     #loader .spinner { border: 4px solid #eee; border-top: 4px solid #3579c4; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     #download { display: none; margin-top: 1rem; }
+    .conditional { display: none; }
   </style>
 </head>
 <body>
@@ -25,6 +26,12 @@
     <label for="file">Upload PDF:</label>
     <input type="file" id="file" name="file" accept="application/pdf" required />
 
+    <label for="service">Select Service:</label>
+    <select id="service" name="service" required>
+      <option value="utm_only">Add UTM to Existing Links</option>
+      <option value="utm_inject">Add Hyperlinks + UTM</option>
+    </select>
+
     <label for="utm_source">UTM Source:</label>
     <input type="text" name="utm_source" required />
 
@@ -34,11 +41,12 @@
     <label for="utm_campaign">UTM Campaign:</label>
     <input type="text" name="utm_campaign" required />
 
-    <label for="item_formats">Item Format(s):</label>
-    <input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
-
-    <label for="base_url">Base URL:</label>
-    <input type="url" name="base_url" placeholder="e.g. https://example.com/store/productDetail.jsp?catalogId=" />
+    <div id="conditionalFields" class="conditional">
+      <label for="item_formats">Item Format(s):</label>
+      <input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
+      <label for="base_url">Base URL:</label>
+      <input type="url" name="base_url" placeholder="e.g. https://example.com/store/productDetail.jsp?catalogId=" />
+    </div>
 
     <button type="submit">Process PDF</button>
   </form>
@@ -48,12 +56,23 @@
 
   <script>
     const form = document.getElementById('pdfForm');
+    const service = document.getElementById('service');
+    const conditionalFields = document.getElementById('conditionalFields');
     const loader = document.getElementById('loader');
     const downloadLink = document.getElementById('download');
+
+    service.addEventListener('change', () => {
+      conditionalFields.style.display = service.value === 'utm_inject' ? 'block' : 'none';
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
+      if (service.value !== 'utm_inject') {
+        formData.set("item_formats", "");
+        formData.set("base_url", "");
+      }
+
       const file = document.getElementById('file').files[0];
       loader.style.display = 'block';
       downloadLink.style.display = 'none';
@@ -78,6 +97,9 @@
         loader.style.display = 'none';
       }
     });
+
+    // Trigger conditional display on load
+    service.dispatchEvent(new Event("change"));
   </script>
 
 </body>
