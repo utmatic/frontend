@@ -13,108 +13,152 @@
       --accent: #3579c4;
     }
     body {
+      margin: 0;
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
       padding: 2rem;
     }
     .container {
-      max-width: 640px;
-      width: 100%;
       background: #2a2a2a;
       padding: 2rem;
       border-radius: 1rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 700px;
     }
     h1 {
       text-align: center;
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    p.subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-bottom: 1.5rem;
     }
     label {
-      font-weight: 600;
-      display: block;
       margin-top: 1rem;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 0.65rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      border: none;
-      margin-bottom: 1rem;
+      display: block;
+      font-weight: 600;
     }
     input, select {
+      width: 100%;
+      padding: 0.65rem;
+      border-radius: 0.5rem;
       background: #1f1f1f;
       color: var(--text);
       border: 1px solid #555;
+      margin-bottom: 1rem;
     }
     button {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
       background: var(--accent);
       color: white;
       font-weight: bold;
+      font-size: 1rem;
       cursor: pointer;
     }
     button:hover {
       background: #245c91;
     }
     .hidden { display: none; }
+
+    #loader {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .spinner {
+      border: 4px solid #444;
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #previewTrigger, #downloadLink, #tryAgain {
+      margin-top: 1rem;
+    }
+
+    .info-message {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #aaa;
+    }
+
     #previewModal {
       display: none;
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.6);
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 9999;
     }
-    #pdfViewer {
-      position: relative;
-      background: #fff;
+    #previewContent {
+      background: #1a1a1a;
       padding: 1rem;
-      border-radius: 8px;
-      max-width: 80vw;
+      border-radius: 12px;
+      max-width: 90vw;
       max-height: 90vh;
+      position: relative;
       overflow: hidden;
-    }
-    .close-btn {
-      position: absolute;
-      top: 8px; right: 8px;
-      background: #ff4d4d;
-      border: none;
-      color: #fff;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-    .nav-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none;
-      cursor: pointer;
-    }
-    .nav-left { left: -40px; }
-    .nav-right { right: -40px; }
-    .nav-arrow svg {
-      width: 32px; height: 32px;
-      stroke: var(--accent); stroke-width: 1.5;
+      text-align: center;
     }
     #previewCanvas {
       display: block;
-      margin: 0 auto;
+      margin: auto;
+      border-radius: 8px;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .nav button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 2rem;
+      cursor: pointer;
+    }
+    .link-info {
+      margin-top: 1rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: red;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="formContainer">
     <h1>Power Up Your PDFs</h1>
-    <form id="pdfForm" enctype="multipart/form-data">
+    <p class="subtitle">Turn static documents into trackable marketing assets — in seconds.</p>
+    <form id="pdfForm">
       <label>Upload PDF:</label>
       <input type="file" name="file" required />
 
@@ -128,83 +172,125 @@
       <label>UTM Medium:</label><input type="text" name="utm_medium" required />
       <label>UTM Campaign:</label><input type="text" name="utm_campaign" required />
 
-      <div id="conditionalFields" class="hidden">
-        <label>Item Format(s):</label>
-        <input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
-        <label>Base URL:</label>
-        <input type="text" name="base_url" placeholder="https://example.com/product?catalogId=" />
+      <div id="hyperlinkFields" class="hidden">
+        <label>Item Format(s):</label><input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
+        <label>Base URL:</label><input type="text" name="base_url" placeholder="https://example.com/product?catalogId=" />
       </div>
 
       <button type="submit">Process PDF</button>
+      <div class="info-message">Note: Larger documents may take up to a minute to process.</div>
     </form>
+
+    <div id="loader" class="hidden">
+      <div class="spinner"></div>
+      <p>Please wait while we process your file...</p>
+    </div>
+
+    <button id="previewTrigger" class="hidden">👁 Preview PDF</button>
+    <a id="downloadLink" class="hidden" href="#" download>⬇️ Download Processed PDF</a>
+    <button id="tryAgain" class="hidden">🔁 Try Again</button>
   </div>
 
   <div id="previewModal">
-    <div id="pdfViewer">
+    <div id="previewContent">
       <button class="close-btn" onclick="previewModal.style.display='none'">×</button>
       <canvas id="previewCanvas"></canvas>
-      <button class="nav-arrow nav-left" onclick="changePage(-1)">
-        <svg fill="none" viewBox="0 0 24 24"><path d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="nav-arrow nav-right" onclick="changePage(1)">
-        <svg fill="none" viewBox="0 0 24 24"><path d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <div class="link-info" id="linkInfo">🔗 Links modified: —</div>
+      <div class="nav">
+        <button onclick="changePage(-1)">←</button>
+        <span id="pageCounter">Page 1</span>
+        <button onclick="changePage(1)">→</button>
+      </div>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
     const form = document.getElementById('pdfForm');
-    const serviceSelect = document.getElementById('serviceSelect');
-    const conditionalFields = document.getElementById('conditionalFields');
+    const loader = document.getElementById('loader');
     const previewModal = document.getElementById('previewModal');
-    const canvas = document.getElementById('previewCanvas');
-    const ctx = canvas.getContext('2d');
-    let previewPDF=null, currentPage=1, highlightRects={};
+    const previewCanvas = document.getElementById('previewCanvas');
+    const ctx = previewCanvas.getContext('2d');
+    const previewTrigger = document.getElementById('previewTrigger');
+    const downloadLink = document.getElementById('downloadLink');
+    const tryAgain = document.getElementById('tryAgain');
+    const serviceSelect = document.getElementById('serviceSelect');
+    const hyperlinkFields = document.getElementById('hyperlinkFields');
+    const linkInfo = document.getElementById('linkInfo');
+    let previewPDF = null, currentPage = 1, highlights = {}, added = 0, modified = 0;
 
-    serviceSelect.addEventListener('change', ()=> {
-      conditionalFields.classList.toggle("hidden", serviceSelect.value !== 'hyperlink_and_utm');
+    serviceSelect.addEventListener("change", () => {
+      const needsHyperlink = serviceSelect.value === "hyperlink_and_utm";
+      hyperlinkFields.classList.toggle("hidden", !needsHyperlink);
     });
 
-    form.addEventListener('submit', async e=>{
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const formData=new FormData(form);
-      const res=await fetch('https://utmatic-backend.onrender.com/process_pdf/',{method:'POST',body:formData});
-      const data=await res.json();
-      highlightRects=data.highlight_rects||{};
-      const processedUrl=`https://utmatic-backend.onrender.com/get_pdf/${data.filename}`;
-      const blobRes=await fetch(processedUrl);
-      const blob=await blobRes.blob();
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download=data.filename;
-      a.click();
-      pdfjsLib.getDocument(processedUrl).promise.then(pdf=>{
-        previewPDF=pdf; currentPage=1; showPage();
-        previewModal.style.display='flex';
-      });
+      loader.classList.remove("hidden");
+      previewTrigger.classList.add("hidden");
+      downloadLink.classList.add("hidden");
+      tryAgain.classList.add("hidden");
+
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
+          method: "POST", body: formData
+        });
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        previewPDF = await pdfjsLib.getDocument(url).promise;
+        highlights = {};  // Could be populated if backend sends data
+        added = res.headers.get("X-Links-Added") || "—";
+        modified = res.headers.get("X-Links-Modified") || "—";
+        downloadLink.href = url;
+        previewTrigger.classList.remove("hidden");
+        downloadLink.classList.remove("hidden");
+        tryAgain.classList.remove("hidden");
+      } catch (err) {
+        alert("Something went wrong.");
+        console.error(err);
+      } finally {
+        loader.classList.add("hidden");
+      }
     });
 
-    function showPage(){
-      previewPDF.getPage(currentPage).then(page=>{
-        const viewport=page.getViewport({scale:1.5});
-        canvas.width=viewport.width; canvas.height=viewport.height;
-        page.render({canvasContext:ctx,viewport}).promise.then(()=>{
-          const rects=highlightRects[currentPage-1]||[];
-          ctx.strokeStyle='red'; ctx.lineWidth=2;
-          rects.forEach(r=>{
-            const [x0,y0,x1,y1]=r;
-            ctx.strokeRect(x0*1.5,y0*1.5,(x1-x0)*1.5,(y1-y0)*1.5);
-          });
-        });
-      });
+    document.getElementById("previewTrigger").onclick = () => {
+      currentPage = 1;
+      renderPage();
+      previewModal.style.display = "flex";
+    };
+
+    function changePage(delta) {
+      if (!previewPDF) return;
+      const newPage = currentPage + delta;
+      if (newPage >= 1 && newPage <= previewPDF.numPages) {
+        currentPage = newPage;
+        renderPage();
+      }
     }
 
-    function changePage(delta){
-      if(!previewPDF) return;
-      currentPage=Math.min(Math.max(1,currentPage+delta),previewPDF.numPages);
-      showPage();
+    async function renderPage() {
+      const page = await previewPDF.getPage(currentPage);
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
+      previewCanvas.width = viewport.width;
+      previewCanvas.height = viewport.height;
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // Optional: draw red rectangles
+      (highlights[currentPage - 1] || []).forEach(rect => {
+        const [x0, y0, x1, y1] = rect.map(n => n * scale);
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+      });
+
+      document.getElementById("pageCounter").textContent = `Page ${currentPage} / ${previewPDF.numPages}`;
+      linkInfo.textContent = `🔗 Links modified: ${modified}`;
     }
+
+    tryAgain.onclick = () => window.location.reload();
   </script>
 </body>
 </html>
