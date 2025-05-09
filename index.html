@@ -74,6 +74,10 @@
       max-width: 100%;
       display: none;
     }
+    #download-link {
+      display: none;
+      margin-bottom: 2rem;
+    }
   </style>
 </head>
 <body>
@@ -116,6 +120,8 @@
 
   <div id="report"></div>
 
+  <a id="download-link" class="button" href="#" download>⬇️ Download Processed PDF</a>
+
   <div id="pdf-controls">
     <button onclick="prevPage()">Previous</button>
     <span>Page: <span id="page-num"></span> / <span id="page-count"></span></span>
@@ -132,6 +138,7 @@
     const reportDiv = document.getElementById('report');
     const pdfControls = document.getElementById('pdf-controls');
     const canvas = document.getElementById('pdf-preview');
+    const downloadLink = document.getElementById('download-link');
 
     serviceSelect.addEventListener('change', () => {
       extraFields.style.display = serviceSelect.value === 'utm_inject' ? 'block' : 'none';
@@ -171,6 +178,7 @@
       const formData = new FormData(form);
       loader.style.display = 'block';
       reportDiv.style.display = 'none';
+      downloadLink.style.display = 'none';
       pdfControls.style.display = 'none';
       canvas.style.display = 'none';
 
@@ -190,8 +198,11 @@
         `;
         reportDiv.style.display = 'block';
 
-        // ✅ Set PDF.js worker
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        downloadLink.href = data.pdf_url;
+        downloadLink.download = data.download_name;
+        downloadLink.style.display = 'inline-block';
 
         const loadingTask = pdfjsLib.getDocument(data.pdf_url);
         loadingTask.promise.then(function(pdf) {
