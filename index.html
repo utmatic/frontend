@@ -60,6 +60,8 @@
     }
 
     #previewModal {
+  max-width: 90%;
+  max-height: 90vh;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.8);
@@ -99,12 +101,20 @@
         <option value="hyperlink">Document contains links</option>
         <option value="nolinks">No links — find and add them</option>
       </select>
+<script>
+function toggleBaseUrlField() {
+  const docType = document.getElementById('docType').value;
+  document.getElementById('base_url').parentElement.style.display = docType === 'nolinks' ? 'block' : 'none';
+}
+toggleBaseUrlField();
+document.getElementById('docType').addEventListener('change', toggleBaseUrlField);
+</script>
       <div id="formatContainer" style="display:none">
         <label>Item Formats (comma-separated)</label>
         <input type="text" name="item_format" placeholder="LLNN-NNNN (use L for letters, N for numbers)" />
       </div>
       <label>Base URL</label>
-      <input type="url" name="base_url" placeholder="https://example.com/item?id=" />
+      <input type="url" name="base_url" id="base_url" placeholder="https://example.com/item?id=" />
       <button type="submit">Submit</button>
     </form>
     <div id="status" style="margin-top:1rem;"></div>
