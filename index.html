@@ -5,223 +5,165 @@
   <title>Utmatic PDF Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+  </script>
   <style>
-    :root {
-      --bg: #1a1a1a;
-      --text: #efefe4;
-      --accent: #3579c4;
-    }
-
     body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #efefe4;
       margin: 0;
       padding: 0;
     }
-
     .container {
-      max-width: 640px;
-      margin: 3rem auto;
-      padding: 2rem;
+      max-width: 600px;
+      margin: 40px auto;
       background: #2a2a2a;
-      border-radius: 1rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 10px;
     }
-
-    h1, .subtitle {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-weight: 600;
+    label, input, select, button {
       display: block;
-      margin: 1rem 0 0.5rem;
-    }
-
-    input, select, button {
       width: 100%;
-      padding: 0.65rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      margin-top: 0.3rem;
+      margin-bottom: 15px;
     }
-
     input, select {
-      border: 1px solid #555;
+      padding: 10px;
       background: #1f1f1f;
-      color: var(--text);
+      border: 1px solid #555;
+      color: #efefe4;
+      border-radius: 5px;
     }
-
     button {
-      background: var(--accent);
+      background: #3579c4;
       color: white;
+      padding: 12px;
       border: none;
+      border-radius: 5px;
+      font-weight: bold;
       cursor: pointer;
-      margin-top: 2rem;
     }
-
-    #loader, .link-report, .nav-arrows, .info-message {
+    button:hover {
+      background: #245c91;
+    }
+    #loader {
       text-align: center;
-      margin-top: 1rem;
+      display: none;
     }
-
+    #loader .spinner {
+      border: 5px solid #333;
+      border-top: 5px solid #3579c4;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    #linkStats, #previewModal {
+      display: none;
+    }
     #previewModal {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
+      background: rgba(0,0,0,0.85);
+      display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
-
     #previewContent {
       background: #1a1a1a;
-      border-radius: 10px;
-      padding: 1rem;
-      width: 90%;
-      max-width: 960px;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
       max-height: 90vh;
       overflow-y: auto;
-      position: relative;
     }
-
-    .nav-arrows {
+    #previewCanvas {
+      display: block;
+      margin: 0 auto 10px;
+    }
+    #closePreview {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 1rem;
-    }
-
-    .nav-arrows button {
+      top: 20px;
+      right: 30px;
+      font-size: 24px;
       background: none;
+      color: white;
       border: none;
-      font-size: 2rem;
-      color: var(--accent);
       cursor: pointer;
     }
-
-    .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Power Up Your PDFs</h1>
-    <p class="subtitle">Turn static documents into trackable marketing assets — in seconds.</p>
     <form id="pdfForm">
       <label>Upload PDF:</label>
       <input type="file" name="file" required />
 
-      <label>Select Service:</label>
-      <select name="service" id="serviceSelect" required>
-        <option value="utm_only">Add UTM to Existing Links</option>
-        <option value="hyperlink_and_utm">Add Hyperlinks + UTM</option>
-      </select>
+      <label>UTM Source:</label>
+      <input type="text" name="utm_source" required />
 
-      <div id="utmFields">
-        <label>UTM Source:</label>
-        <input type="text" name="utm_source" required />
-        <label>UTM Medium:</label>
-        <input type="text" name="utm_medium" required />
-        <label>UTM Campaign:</label>
-        <input type="text" name="utm_campaign" required />
-      </div>
+      <label>UTM Medium:</label>
+      <input type="text" name="utm_medium" required />
 
-      <div id="hyperlinkFields" class="hidden">
-        <label>Item Format(s):</label>
-        <input type="text" name="item_formats" placeholder="e.g. NNNN-NNNN, LL-NNN" />
-        <label>Base URL:</label>
-        <input type="url" name="base_url" placeholder="https://example.com/product?catalogId=" />
-      </div>
+      <label>UTM Campaign:</label>
+      <input type="text" name="utm_campaign" required />
+
+      <label>Item Formats:</label>
+      <input type="text" name="item_formats" />
+
+      <label>Base URL:</label>
+      <input type="url" name="base_url" />
 
       <button type="submit">Process PDF</button>
-      <div class="info-message">Note: Larger documents may take up to a minute to process.</div>
     </form>
 
-    <div id="loader" class="hidden">
+    <div id="loader">
       <div class="spinner"></div>
-      <p>Please wait, processing your file...</p>
+      <p>Please wait while we process your PDF...</p>
     </div>
 
-    <div id="linkStats" class="hidden link-report">
-      <p><svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg> <strong>Links modified:</strong> <span id="modifiedCount">—</span></p>
+    <div id="linkStats">
+      <p>🔗 Links added: <span id="addedCount"></span></p>
+      <p>✏️ Links modified: <span id="modifiedCount"></span></p>
+      <a id="downloadLink" href="#" download>⬇️ Download Processed PDF</a>
       <button id="openPreview">Preview PDF</button>
-      <a id="downloadLink" href="#" download style="display: block; color: var(--accent); margin-top: 1rem;">⬇️ Download Processed PDF</a>
-      <button onclick="location.reload()">Try Again</button>
     </div>
   </div>
 
   <div id="previewModal">
     <div id="previewContent">
-      <button id="closePreview">✕</button>
-      <div class="nav-arrows">
-        <button id="prevPage">←</button>
-        <button id="nextPage">→</button>
-      </div>
+      <button id="closePreview">×</button>
       <canvas id="previewCanvas"></canvas>
     </div>
   </div>
 
   <script>
-    let previewPDF = null, currentPage = 1;
     const form = document.getElementById("pdfForm");
     const loader = document.getElementById("loader");
     const stats = document.getElementById("linkStats");
-    const downloadLink = document.getElementById("downloadLink");
+    const addedSpan = document.getElementById("addedCount");
     const modifiedSpan = document.getElementById("modifiedCount");
+    const downloadLink = document.getElementById("downloadLink");
     const previewModal = document.getElementById("previewModal");
     const previewCanvas = document.getElementById("previewCanvas");
     const ctx = previewCanvas.getContext("2d");
+    let previewPDF = null, currentPage = 1;
 
-    document.getElementById("serviceSelect").addEventListener("change", e => {
-      const show = e.target.value === "hyperlink_and_utm";
-      document.getElementById("hyperlinkFields").classList.toggle("hidden", !show);
-    });
+    document.getElementById("closePreview").onclick = () => {
+      previewModal.style.display = "none";
+    };
 
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      loader.classList.remove("hidden");
-      stats.classList.add("hidden");
-
-      const formData = new FormData(form);
-      const file = formData.get("file");
-      try {
-        const res = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
-          method: "POST",
-          body: formData
-        });
-        if (!res.ok) throw new Error("Server error");
-
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        previewPDF = await pdfjsLib.getDocument(url).promise;
-        currentPage = 1;
-        renderPage();
-
-        downloadLink.href = url;
-        downloadLink.download = "processed_" + file.name;
-        modifiedSpan.textContent = res.headers.get("X-Links-Modified") || "0";
-
-        stats.classList.remove("hidden");
-      } catch (err) {
-        alert("Something went wrong.");
-        console.error(err);
-      } finally {
-        loader.classList.add("hidden");
-      }
-    });
-
-    document.getElementById("openPreview").onclick = () => previewModal.style.display = "flex";
-    document.getElementById("closePreview").onclick = () => previewModal.style.display = "none";
-    document.getElementById("prevPage").onclick = () => { if (currentPage > 1) { currentPage--; renderPage(); } };
-    document.getElementById("nextPage").onclick = () => { if (currentPage < previewPDF.numPages) { currentPage++; renderPage(); } };
+    document.getElementById("openPreview").onclick = () => {
+      previewModal.style.display = "flex";
+      renderPage();
+    };
 
     async function renderPage() {
       const page = await previewPDF.getPage(currentPage);
@@ -231,6 +173,42 @@
       previewCanvas.height = viewport.height;
       await page.render({ canvasContext: ctx, viewport }).promise;
     }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      loader.style.display = "block";
+      stats.style.display = "none";
+
+      const formData = new FormData(form);
+      const file = formData.get("file");
+
+      try {
+        const res = await fetch("https://utmatic-backend.onrender.com/process_pdf/", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok || res.headers.get("Content-Type") !== "application/pdf") {
+          throw new Error("Invalid response");
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        previewPDF = await pdfjsLib.getDocument(url).promise;
+        currentPage = 1;
+        addedSpan.textContent = res.headers.get("X-Links-Added") || "0";
+        modifiedSpan.textContent = res.headers.get("X-Links-Modified") || "0";
+        downloadLink.href = url;
+        downloadLink.download = "processed_" + file.name;
+        stats.style.display = "block";
+      } catch (err) {
+        alert("Something went wrong.");
+        console.error(err);
+      } finally {
+        loader.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>
