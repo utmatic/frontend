@@ -78,11 +78,13 @@
     const targetInput = document.getElementById("target-format");
     const baseUrlInput = document.getElementById("base-url");
 
-    jobTypeSelect.addEventListener("change", () => {
+    function toggleConditionalFields() {
       const isLinks = jobTypeSelect.value === "links_and_utm";
       targetInput.classList.toggle("hidden", !isLinks);
       baseUrlInput.classList.toggle("hidden", !isLinks);
-    });
+    }
+    jobTypeSelect.addEventListener("change", toggleConditionalFields);
+    toggleConditionalFields();
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
