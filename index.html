@@ -28,6 +28,10 @@
 <body class="bg-[#1e1e1e] text-white min-h-screen flex items-center justify-center">
 
   <div id="form-container" class="bg-[#2a2a2a] p-8 rounded-2xl max-w-md w-full shadow-xl space-y-5">
+    <!-- ✅ Logo -->
+    <div class="flex justify-center">
+      <img src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/681fe01d6a75195cb7742f20/1746919453574/utmatic-logo-white.png" alt="Utmatic Logo" class="w-40 mb-2" />
+    </div>
     <h1 class="text-2xl font-bold text-center text-white">Power Up Your Docs</h1>
     <p class="text-center text-sm text-gray-400">Equip your documents with tracking links – instantly.</p>
 
@@ -96,8 +100,8 @@
     <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-400"></div>
   </div>
 
-  <!-- ✅ Chime Sound -->
-  <audio id="chime-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.wav" preload="auto"></audio>
+  <!-- ✅ Working Chime Sound -->
+  <audio id="chime-sound" src="https://cdn.jsdelivr.net/gh/napthedev/sounds@main/submit-chime.mp3" preload="auto"></audio>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
@@ -123,7 +127,6 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // ✅ Play chime
       const chime = document.getElementById("chime-sound");
       if (chime) {
         chime.currentTime = 0;
