@@ -71,6 +71,7 @@
     </div>
   </div>
 
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
     const form = document.getElementById("upload-form");
@@ -80,11 +81,17 @@
 
     function toggleConditionalFields() {
       const isLinks = jobTypeSelect.value === "links_and_utm";
-      targetInput.classList.toggle("hidden", !isLinks);
-      baseUrlInput.classList.toggle("hidden", !isLinks);
+      targetInput.classList.remove("hidden");
+      baseUrlInput.classList.remove("hidden");
+
+      if (!isLinks) {
+        targetInput.classList.add("hidden");
+        baseUrlInput.classList.add("hidden");
+      }
     }
+
     jobTypeSelect.addEventListener("change", toggleConditionalFields);
-    toggleConditionalFields();
+    document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -122,7 +129,7 @@
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         page.render({ canvasContext: context, viewport });
-        document.getElementById("page-info").textContent = \`Page \${pageNum} of \${pdfDoc.numPages}\`;
+        document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
       });
     }
 
@@ -138,5 +145,6 @@
       renderPage();
     };
   </script>
+
 </body>
 </html>
