@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,7 +70,14 @@
     </div>
   </div>
 
-  
+  <!-- Loading Spinner -->
+  <div id="loading-indicator" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-400"></div>
+  </div>
+
+  <!-- Submit Chime -->
+  <audio id="chime-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_15e31b6a64.mp3?filename=interface-click-124467.mp3" preload="auto"></audio>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
     const form = document.getElementById("upload-form");
@@ -95,6 +101,11 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Show loading and play chime
+      document.getElementById("loading-indicator").classList.remove("hidden");
+      document.getElementById("chime-sound").play();
+
       const formData = new FormData(form);
       const response = await fetch("https://utmatic-backend.onrender.com/process", {
         method: "POST",
@@ -108,6 +119,7 @@
       const pdfUrl = URL.createObjectURL(blob);
       document.getElementById("download-link").href = pdfUrl;
 
+      document.getElementById("loading-indicator").classList.add("hidden");
       loadPdf(pdfUrl);
     });
 
@@ -145,6 +157,5 @@
       renderPage();
     };
   </script>
-
 </body>
 </html>
