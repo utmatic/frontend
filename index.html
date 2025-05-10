@@ -96,7 +96,8 @@
     <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-400"></div>
   </div>
 
-  <audio id="chime-sound" src="https://cdn.jsdelivr.net/gh/napthedev/sounds@main/ui-success.mp3" preload="auto"></audio>
+  <!-- ✅ Chime Sound -->
+  <audio id="chime-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.wav" preload="auto"></audio>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
@@ -114,10 +115,22 @@
     jobTypeSelect.addEventListener("change", toggleConditionalFields);
     document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
+    document.getElementById("file-input").addEventListener("change", function () {
+      const fileName = this.files[0]?.name || "No file chosen";
+      document.getElementById("file-name").textContent = fileName;
+    });
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // ✅ Play chime
+      const chime = document.getElementById("chime-sound");
+      if (chime) {
+        chime.currentTime = 0;
+        chime.play().catch(err => console.warn("Sound play error:", err));
+      }
+
       document.getElementById("loading-indicator").classList.remove("hidden");
-      document.getElementById("chime-sound").play().catch(() => {});
 
       const formData = new FormData(form);
       const response = await fetch("https://utmatic-backend.onrender.com/process", {
@@ -137,11 +150,6 @@
       document.getElementById("download-link").href = pdfUrl;
       document.getElementById("loading-indicator").classList.add("hidden");
       loadPdf(pdfUrl);
-    });
-
-    document.getElementById("file-input").addEventListener("change", function () {
-      const fileName = this.files[0]?.name || "No file chosen";
-      document.getElementById("file-name").textContent = fileName;
     });
 
     let pdfDoc = null, pageNum = 1;
