@@ -44,15 +44,9 @@
           <option value="links_and_utm">Add Links and UTM</option>
         </select>
       </div>
-      <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-2 bg-[#1e1e1e] border border-gray-600 hidden" />
-      <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-2 bg-[#1e1e1e] border border-gray-600 hidden" />
-      <button type="submit" class="w-full bg-blue-600 py-2 rounded hover:bg-blue-700 font-semibold relative">
-        <span id="button-text">Process PDF</span>
-        <svg id="spinner" class="animate-spin h-5 w-5 text-white absolute right-4 top-2 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-        </svg>
-      </button>
+      <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-2 bg-[#1e1e1e] rounded border border-gray-600 hidden" />
+      <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-2 bg-[#1e1e1e] rounded border border-gray-600 hidden" />
+      <button type="submit" class="w-full bg-blue-600 py-2 rounded hover:bg-blue-700 font-semibold">Process PDF</button>
     </form>
   </div>
 
@@ -76,10 +70,13 @@
     </div>
   </div>
 
-  <!-- 🎵 Chime -->
-  <audio id="chime-sound" preload="auto">
-    <source src="https://cdn.jsdelivr.net/gh/napthedev/sounds@main/ui-success.mp3" type="audio/mpeg">
-  </audio>
+  <!-- Loading Spinner -->
+  <div id="loading-indicator" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-400"></div>
+  </div>
+
+  <!-- Submit Chime -->
+  <audio id="chime-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_15e31b6a64.mp3?filename=interface-click-124467.mp3" preload="auto"></audio>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script>
@@ -87,13 +84,16 @@
     const jobTypeSelect = document.getElementById("job-type");
     const targetInput = document.getElementById("target-format");
     const baseUrlInput = document.getElementById("base-url");
-    const spinner = document.getElementById("spinner");
-    const buttonText = document.getElementById("button-text");
 
     function toggleConditionalFields() {
       const isLinks = jobTypeSelect.value === "links_and_utm";
-      targetInput.classList.toggle("hidden", !isLinks);
-      baseUrlInput.classList.toggle("hidden", !isLinks);
+      targetInput.classList.remove("hidden");
+      baseUrlInput.classList.remove("hidden");
+
+      if (!isLinks) {
+        targetInput.classList.add("hidden");
+        baseUrlInput.classList.add("hidden");
+      }
     }
 
     jobTypeSelect.addEventListener("change", toggleConditionalFields);
@@ -101,8 +101,10 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      spinner.classList.remove("hidden");
-      buttonText.textContent = "Processing...";
+
+      // Show loading and play chime
+      document.getElementById("loading-indicator").classList.remove("hidden");
+      document.getElementById("chime-sound").play();
 
       const formData = new FormData(form);
       const response = await fetch("https://utmatic-backend.onrender.com/process", {
@@ -117,11 +119,7 @@
       const pdfUrl = URL.createObjectURL(blob);
       document.getElementById("download-link").href = pdfUrl;
 
-      // ✅ Play the chime
-      document.getElementById("chime-sound").play().catch(err => {
-        console.warn("Chime blocked or failed:", err);
-      });
-
+      document.getElementById("loading-indicator").classList.add("hidden");
       loadPdf(pdfUrl);
     });
 
