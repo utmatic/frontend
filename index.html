@@ -34,7 +34,13 @@
     <form id="upload-form" class="space-y-5">
       <div>
         <label class="block text-sm mb-1">Upload Document</label>
-        <input type="file" name="file" id="file-input" accept=".pdf" class="w-full p-2 bg-[#1e1e1e] rounded border border-gray-600" required />
+        <div class="relative flex items-center">
+          <label for="file-input" class="cursor-pointer bg-[#1e1e1e] border border-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-700 transition">
+            Select File
+          </label>
+          <span id="file-name" class="ml-3 text-sm text-gray-400">No file chosen</span>
+          <input type="file" name="file" id="file-input" accept=".pdf" class="hidden" required />
+        </div>
       </div>
       <div class="grid grid-cols-3 gap-2">
         <input type="text" name="source" placeholder="Source" class="p-2 rounded bg-[#1e1e1e] border border-gray-600" required />
@@ -131,6 +137,11 @@
       document.getElementById("download-link").href = pdfUrl;
       document.getElementById("loading-indicator").classList.add("hidden");
       loadPdf(pdfUrl);
+    });
+
+    document.getElementById("file-input").addEventListener("change", function () {
+      const fileName = this.files[0]?.name || "No file chosen";
+      document.getElementById("file-name").textContent = fileName;
     });
 
     let pdfDoc = null, pageNum = 1;
