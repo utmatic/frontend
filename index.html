@@ -227,7 +227,16 @@
         ${linkCount} links modified`;
 
       document.getElementById("loading-indicator").classList.add("hidden");
-      loadPdf(previewUrl);
+
+// ✅ Show success checkmark, then preview after delay
+const checkmark = document.getElementById("success-checkmark");
+checkmark.classList.remove("hidden");
+
+setTimeout(() => {
+  checkmark.classList.add("hidden");
+  loadPdf(previewUrl); // now show the preview
+}, 1500); // show checkmark for 1.5s
+
     });
 
     let pdfDoc = null, pageNum = 1;
