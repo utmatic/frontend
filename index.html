@@ -87,6 +87,51 @@
     box-shadow: inset 0px 0px 0px 30px #4ade80;
   }
 }
+
+.success-animation {
+  stroke: #4ade80;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #4ade80;
+  animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+.checkmark {
+  stroke-width: 2;
+  stroke: #4ade80;
+  stroke-miterlimit: 10;
+  border-radius: 50%;
+}
+.checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  animation: stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.checkmark__check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .6s forwards;
+}
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+@keyframes fill {
+  100% {
+    box-shadow: inset 0px 0px 0px 30px #4ade80;
+  }
+}
 </style>
 </head>
 <body class="bg-[#1e1e1e] text-white min-h-screen flex items-center justify-center text-base">
@@ -274,10 +319,11 @@ setTimeout(() => {
     };
   </script>
 
+
 <div class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
 <div class="text-center">
-<div class="success-animation">
-<svg class="checkmark" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+<div class="success-animation inline-block w-20 h-20">
+<svg class="checkmark w-full h-full" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
 <circle class="checkmark__circle" cx="26" cy="26" fill="none" r="25"></circle>
 <path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8" fill="none"></path>
 </svg>
