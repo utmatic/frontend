@@ -70,6 +70,16 @@
       </div>
       <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
       <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
+
+      <!-- ✅ New: Filename Input -->
+      <div>
+        <label class="block text-base font-medium mb-1">Name Your PDF</label>
+        <div class="flex items-center gap-2">
+          <input type="text" name="filename" placeholder="MyFileName" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
+          <span class="text-gray-400 text-sm">.pdf</span>
+        </div>
+      </div>
+
       <button type="submit" class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 font-semibold flex items-center justify-center gap-3">
         Process PDF
       </button>
@@ -154,49 +164,4 @@
       const linkCount = response.headers.get("X-Link-Count");
       document.getElementById("link-count").innerHTML = `
         <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-        </svg>
-        ${linkCount} links modified`;
-
-      const pdfUrl = URL.createObjectURL(blob);
-      document.getElementById("download-link").href = pdfUrl;
-      document.getElementById("loading-indicator").classList.add("hidden");
-      loadPdf(pdfUrl);
-    });
-
-    let pdfDoc = null, pageNum = 1;
-
-    async function loadPdf(url) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-      pdfDoc = await pdfjsLib.getDocument(url).promise;
-      document.getElementById("form-container").classList.add("hidden");
-      document.getElementById("preview-container").classList.remove("hidden");
-      renderPage();
-    }
-
-    function renderPage() {
-      pdfDoc.getPage(pageNum).then(page => {
-        const canvas = document.getElementById("pdf-canvas");
-        const context = canvas.getContext("2d");
-        const viewport = page.getViewport({ scale: 1.5 });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        page.render({ canvasContext: context, viewport });
-        document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
-      });
-    }
-
-    document.getElementById("prev-page").onclick = () => {
-      if (pageNum <= 1) return;
-      pageNum--;
-      renderPage();
-    };
-
-    document.getElementById("next-page").onclick = () => {
-      if (pageNum >= pdfDoc.numPages) return;
-      pageNum++;
-      renderPage();
-    };
-  </script>
-</body>
-</html>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0
