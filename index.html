@@ -71,7 +71,7 @@
       <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
       <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
 
-      <!-- ✅ New Filename Input -->
+      <!-- Filename Input -->
       <div>
         <label class="block text-base font-medium mb-1">Name Your PDF</label>
         <div class="flex items-center gap-2">
@@ -147,31 +147,39 @@
       e.preventDefault();
 
       const chime = document.getElementById("chime-sound");
-      if (chime) {
-        chime.currentTime = 0;
-        chime.play().catch(err => console.warn("Sound play error:", err));
-      }
+      chime.currentTime = 0;
+      chime.play().catch(err => console.warn("Sound play error:", err));
 
       document.getElementById("loading-indicator").classList.remove("hidden");
 
       const formData = new FormData(form);
-      const response = await fetch("https://utmatic-backend.onrender.com/process", {
+
+      // 1. Get final clean PDF from /process
+      const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
         method: "POST",
         body: formData
       });
+      const cleanBlob = await cleanResponse.blob();
+      const linkCount = cleanResponse.headers.get("X-Link-Count");
+      const cleanUrl = URL.createObjectURL(cleanBlob);
+      document.getElementById("download-link").href = cleanUrl;
 
-      const blob = await response.blob();
-      const linkCount = response.headers.get("X-Link-Count");
+      // 2. Get red-box preview from /preview
+      const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
+        method: "POST",
+        body: formData
+      });
+      const previewBlob = await previewResponse.blob();
+      const previewUrl = URL.createObjectURL(previewBlob);
+
       document.getElementById("link-count").innerHTML = `
         <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
         </svg>
         ${linkCount} links modified`;
 
-      const pdfUrl = URL.createObjectURL(blob);
-      document.getElementById("download-link").href = pdfUrl;
       document.getElementById("loading-indicator").classList.add("hidden");
-      loadPdf(pdfUrl);
+      loadPdf(previewUrl);
     });
 
     let pdfDoc = null, pageNum = 1;
