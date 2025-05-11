@@ -217,6 +217,11 @@
         ${linkCount} links modified`;
 
       document.getElementById("loading-indicator").classList.add("hidden");
+      
+      document.getElementById("success-checkmark").classList.remove("hidden");
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      document.getElementById("success-checkmark").classList.add("hidden");
+
       loadPdf(previewUrl);
     });
 
