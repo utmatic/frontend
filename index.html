@@ -119,7 +119,33 @@
    <button type="submit" class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 font-semibold flex items-center justify-center gap-3">
     Process PDF
    </button>
-  </form>
+  
+<!-- Advanced Target Format + Base URL Mapping -->
+<div id="advanced-mapping-wrapper" class="space-y-4">
+  <label class="block text-base font-medium mb-1">Target Formats + Base URLs</label>
+  <div id="mapping-rows" class="space-y-3">
+    <div class="flex gap-2">
+      <input type="text" name="target_formats[]" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-1/2 p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
+      <input type="text" name="base_urls[]" placeholder="Base URL (e.g. https://yourcompany.com/)" class="w-1/2 p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
+    </div>
+  </div>
+  <button type="button" onclick="addMappingRow()" class="text-sm text-blue-400 underline">+ Add another format</button>
+</div>
+
+<script>
+  function addMappingRow() {
+    const container = document.getElementById("mapping-rows");
+    const div = document.createElement("div");
+    div.className = "flex gap-2";
+    div.innerHTML = `
+      <input type="text" name="target_formats[]" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-1/2 p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
+      <input type="text" name="base_urls[]" placeholder="Base URL (e.g. https://yourcompany.com/)" class="w-1/2 p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
+    `;
+    container.appendChild(div);
+  }
+</script>
+
+</form>
  </div>
 
  <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
