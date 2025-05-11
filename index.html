@@ -70,20 +70,6 @@
       </div>
       <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
       <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
-
-      <!-- ✅ New Color Picker Controls -->
-      <div>
-        <label class="block text-base font-medium mb-1">Change Linked Text Color?</label>
-        <select name="change_color" id="change-color" class="w-full p-3 bg-[#1e1e1e] rounded border border-gray-600 text-base">
-          <option value="no" selected>No</option>
-          <option value="yes">Yes</option>
-        </select>
-      </div>
-      <div id="color-picker-wrap" class="hidden">
-        <label class="block text-base font-medium mb-1 mt-2">Pick Text Color</label>
-        <input type="color" name="link_color" id="link-color" value="#ff0000" class="w-full h-12 p-2 bg-[#1e1e1e] border border-gray-600 rounded">
-      </div>
-
       <button type="submit" class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 font-semibold flex items-center justify-center gap-3">
         Process PDF
       </button>
@@ -132,8 +118,6 @@
     const jobTypeSelect = document.getElementById("job-type");
     const targetInput = document.getElementById("target-format");
     const baseUrlInput = document.getElementById("base-url");
-    const colorToggle = document.getElementById("change-color");
-    const colorPickerWrap = document.getElementById("color-picker-wrap");
 
     function toggleConditionalFields() {
       const isLinks = jobTypeSelect.value === "links_and_utm";
@@ -141,16 +125,8 @@
       baseUrlInput.classList.toggle("hidden", !isLinks);
     }
 
-    function toggleColorPicker() {
-      colorPickerWrap.classList.toggle("hidden", colorToggle.value !== "yes");
-    }
-
     jobTypeSelect.addEventListener("change", toggleConditionalFields);
-    colorToggle.addEventListener("change", toggleColorPicker);
-    document.addEventListener("DOMContentLoaded", () => {
-      toggleConditionalFields();
-      toggleColorPicker();
-    });
+    document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
     document.getElementById("file-input").addEventListener("change", function () {
       const fileName = this.files[0]?.name || "No file chosen";
