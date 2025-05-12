@@ -316,13 +316,7 @@ fileInput.addEventListener("change", function () {
 
   let pdfDoc = null, pageNum = 1;
 
-  async function loadPdf(url) {
-   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-   pdfDoc = await pdfjsLib.getDocument(url).promise;
-   document.getElementById("form-container").classList.add("hidden");
-   document.getElementById("preview-container").classList.remove("hidden");
-   renderPage();
-  }
+  
 
   
 document.getElementById("close-preview").addEventListener("click", () => {
@@ -347,12 +341,22 @@ document.getElementById("zoom-out").addEventListener("click", () => {
   renderPage();
 });
 
+async function loadPdf(url) {
+   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+   pdfDoc = await pdfjsLib.getDocument(url).promise;
+   document.getElementById("form-container").classList.add("hidden");
+   document.getElementById("preview-container").classList.remove("hidden");
+   renderPage();
+  }
 
-  function renderPage() {
+function renderPage() {
    pdfDoc.getPage(pageNum).then(page => {
     const canvas = document.getElementById("pdf-canvas");
     const context = canvas.getContext("2d");
-    const viewport = page.getViewport({ scale: zoomLevel });
+    const viewport = page.getViewport({ scale: zoomLevel }
+
+
+  );
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     page.render({ canvasContext: context, viewport }););
@@ -501,6 +505,20 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("zoom-level").textContent = Math.round(zoomLevel * 100) + "%";
     renderPage();
   });
+
+async function loadPdf(url) {
+   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+   pdfDoc = await pdfjsLib.getDocument(url).promise;
+   document.getElementById("form-container").classList.add("hidden");
+   document.getElementById("preview-container").classList.remove("hidden");
+   renderPage();
+  }
+
+function renderPage() {
+   pdfDoc.getPage(pageNum).then(page => {
+    const canvas = document.getElementById("pdf-canvas");
+    const context = canvas.getContext("2d");
+    const viewport = page.getViewport({ scale: zoomLevel }
 });
 </script>
 </body>
