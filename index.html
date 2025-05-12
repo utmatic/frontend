@@ -404,7 +404,15 @@ async function runLinkHealthCheck() {
       <p>Total links: <strong>${data.total}</strong></p>
       <p>✅ Healthy: <strong>${data.healthy}</strong></p>
       <p>❌ Broken: <strong>${data.broken}</strong></p>
-      ${data.broken > 0 ? `<div class="text-sm mt-2">🔎 Broken items:<br>${data.broken_links.map(link => `<code class='inline-block bg-red-100 px-2 py-1 rounded text-red-700 mr-1'>${link}</code>`).join("")}</div>` : ""}
+      ${
+        data.broken > 0
+          ? `<div class="text-sm mt-2">🔎 Broken items:<br>${
+              data.broken_links
+                .map(item => `<code class='inline-block bg-red-100 px-2 py-1 rounded text-red-700 mr-1 mb-1'>${item.label} (p.${item.page})</code>`)
+                .join("<br>")
+            }</div>`
+          : ""
+      }
     `;
 
     document.getElementById("link-health-modal").classList.remove("hidden");
