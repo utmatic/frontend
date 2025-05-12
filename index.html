@@ -35,7 +35,15 @@ fileInput.addEventListener("change", function () {
   fileNameDisplay.textContent = fileName;
 });
 
+
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
 </script>
+
  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
  <style>
   body {
@@ -89,8 +97,24 @@ fileInput.addEventListener("change", function () {
 </style>
 
 <!-- Firebase Auth -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
+</script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
@@ -98,7 +122,15 @@ fileInput.addEventListener("change", function () {
     projectId: "utmatic-106080752806"
   };
   firebase.initializeApp(firebaseConfig);
+
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
 </script>
+
 
 </head>
 
@@ -114,7 +146,28 @@ fileInput.addEventListener("change", function () {
 </div>
 
 
+
 <div id="auth-container" class="fixed top-0 left-0 w-full h-full bg-white flex flex-col items-center justify-center z-50">
+  <!-- Login Form -->
+  <div id="login-form" class="bg-white shadow-lg rounded-xl p-10 w-full max-w-md text-center space-y-4">
+    <h2 class="text-2xl font-bold">Login to Utmatic</h2>
+    <input id="login-email" type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" />
+    <input id="login-password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded" />
+    <button onclick="login()" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+    <p class="text-sm text-gray-600">Don't have an account? <a href="#" onclick="toggleAuthForm()" class="text-blue-600 underline">Sign up</a></p>
+    <p id="auth-error" class="text-red-500 text-sm"></p>
+  </div>
+
+  <!-- Sign Up Form -->
+  <div id="signup-form" class="hidden bg-white shadow-lg rounded-xl p-10 w-full max-w-md text-center space-y-4">
+    <h2 class="text-2xl font-bold">Create Your Utmatic Account</h2>
+    <input id="signup-email" type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" />
+    <input id="signup-password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded" />
+    <button onclick="signup()" class="bg-gray-800 text-white px-4 py-2 rounded w-full">Sign Up</button>
+    <p class="text-sm text-gray-600">Already have an account? <a href="#" onclick="toggleAuthForm()" class="text-blue-600 underline">Login</a></p>
+    <p id="auth-error" class="text-red-500 text-sm"></p>
+  </div>
+
   <div class="bg-white shadow-lg rounded-xl p-10 w-full max-w-md text-center space-y-4">
     <h2 class="text-2xl font-bold">Login to Utmatic</h2>
     <input id="email" type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" />
@@ -262,7 +315,15 @@ fileInput.addEventListener("change", function () {
   fileNameDisplay.textContent = fileName;
 });
 
+
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
 </script>
+
  <script>
   const form = document.getElementById("upload-form");
   const jobTypeSelect = document.getElementById("job-type");
@@ -393,12 +454,20 @@ fileInput.addEventListener("change", function () {
   fileNameDisplay.textContent = fileName;
 });
 
+
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
 </script>
+
 
 <script>
 async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
   try {
     const user = await firebase.auth().signInWithEmailAndPassword(email, password);
     const token = await user.user.getIdToken();
@@ -410,8 +479,8 @@ async function login() {
 }
 
 async function signup() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
   try {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
     login();
@@ -429,7 +498,15 @@ firebase.auth().onAuthStateChanged(async (user) => {
     document.getElementById("auth-container").style.display = "flex";
   }
 });
+
+function toggleAuthForm() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+}
 </script>
+
 
 </body>
 </html>
