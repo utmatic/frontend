@@ -165,12 +165,13 @@ fileInput.addEventListener("change", function () {
 
  <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
   <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
-   <div class="text-center text-base mb-4" id="page-info">Page 1</div>
+   <button onclick="document.getElementById('preview-container').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50">&times;</button>
+<div class="text-center text-base mb-4" id="page-info">Page 1</div>
    <div class="relative flex items-center justify-center">
     <button id="prev-page" class="absolute left-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"/></svg>
     </button>
-    <canvas id="pdf-canvas" class="pdf-canvas w-full max-w-3xl h-auto"></canvas>
+    <canvas id="pdf-canvas" class="pdf-canvas w-full max-w-2xl h-auto"></canvas>
     <button id="next-page" class="absolute right-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M8.46 4.46a1.5 1.5 0 012.12 0l6.5 6.5a1.5 1.5 0 010 2.12l-6.5 6.5a1.5 1.5 0 11-2.12-2.12L13.88 12 8.46 6.58a1.5 1.5 0 010-2.12z"/></svg>
     </button>
@@ -182,12 +183,12 @@ fileInput.addEventListener("change", function () {
     —
    </div>
    <div class="mt-6 flex justify-center gap-6">
-    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-lg font-semibold">Download PDF</a>
+    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-white text-lg font-semibold">Download PDF</a>
     <button onclick="location.reload()" class="text-base text-gray-500 underline inline-flex items-center gap-2">
      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
      </svg>
-     Try again
+     Process Another
     </button>
    </div>
   </div>
