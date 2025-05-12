@@ -304,11 +304,44 @@ fileInput.addEventListener("change", function () {
   let pdfDoc = null, pageNum = 1;
 
   async function loadPdf(url) {
+  // After preview loads, validate all links
+  async function validatePdfLinks(pdfDoc) {
+    const linkRegex = /https?:\/\/[\w./?=#-]+/g;
+    const brokenLinks = new Set();
+
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const content = await page.getTextContent();
+      content.items.forEach(item => {
+        const matches = item.str.match(linkRegex);
+        if (matches) {
+          matches.forEach(async link => {
+            try {
+              const res = await fetch(link, { method: 'HEAD' });
+              if (!res.ok) brokenLinks.add(link);
+            } catch {
+              brokenLinks.add(link);
+            }
+          });
+        }
+      });
+    }
+
+    setTimeout(() => {
+      if (brokenLinks.size > 0) {
+        alert("Broken links found:\n" + Array.from(brokenLinks).join("\n"));
+      } else {
+        console.log("No broken links found.");
+      }
+    }, 3000);
+  }
+
    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
    pdfDoc = await pdfjsLib.getDocument(url).promise;
    document.getElementById("form-container").classList.add("hidden");
    document.getElementById("preview-container").classList.remove("hidden");
    renderPage();
+    validatePdfLinks(pdfDoc);
   }
 
   function renderPage() {
@@ -327,12 +360,14 @@ fileInput.addEventListener("change", function () {
    if (pageNum <= 1) return;
    pageNum--;
    renderPage();
+    validatePdfLinks(pdfDoc);
   };
 
   document.getElementById("next-page").onclick = () => {
    if (pageNum >= pdfDoc.numPages) return;
    pageNum++;
    renderPage();
+    validatePdfLinks(pdfDoc);
   };
  
 const dropArea = document.getElementById("drop-area");
