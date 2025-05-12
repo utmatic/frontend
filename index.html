@@ -163,7 +163,7 @@ fileInput.addEventListener("change", function () {
   </form>
  </div>
 
- <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
+ <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50 overflow-y-auto max-h-screen p-8">
   <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
    <button onclick="document.getElementById('preview-container').classList.add('hidden'); document.getElementById('form-container').classList.remove('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50">&times;</button>
 <div class="text-center text-base mb-4" id="page-info">Page 1</div>
@@ -196,9 +196,9 @@ fileInput.addEventListener("change", function () {
 
  
 <div id="loading-indicator" class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4">
-  <h2 class="text-xl font-semibold text-gray-800">Processing...</h2>
-  <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-  <p class="text-sm text-gray-500 max-w-xs">Thanks for your patience! Large documents may take a minute or two to finish processing.</p>
+  <h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
+  <div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a minute or two to finish processing.</p>
 </div>
 
 
