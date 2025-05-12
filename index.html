@@ -429,7 +429,10 @@ fileInput.addEventListener("change", function () {
 
 </script>
 
+
+
 <script>
+document.addEventListener("DOMContentLoaded", function () {
   const dropArea = document.getElementById("drop-area");
   const fileInput = document.getElementById("file-input");
   const fileNameDisplay = document.getElementById("file-name");
@@ -461,7 +464,9 @@ fileInput.addEventListener("change", function () {
       fileNameDisplay.textContent = fileName;
     });
   }
+});
 </script>
 </body>
 </html>
+
 
