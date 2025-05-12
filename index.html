@@ -407,8 +407,11 @@ fileInput.addEventListener("change", function () {
 });
 
 </script>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  let zoomLevel = 1;
   const dropArea = document.getElementById("drop-area");
   const fileInput = document.getElementById("file-input");
   const fileNameDisplay = document.getElementById("file-name");
@@ -506,20 +509,39 @@ document.addEventListener("DOMContentLoaded", function () {
     renderPage();
   });
 
-async function loadPdf(url) {
-   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-   pdfDoc = await pdfjsLib.getDocument(url).promise;
-   document.getElementById("form-container").classList.add("hidden");
-   document.getElementById("preview-container").classList.remove("hidden");
-   renderPage();
+  async function loadPdf(url) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+    pdfDoc = await pdfjsLib.getDocument(url).promise;
+    document.getElementById("form-container").classList.add("hidden");
+    document.getElementById("preview-container").classList.remove("hidden");
+    renderPage();
   }
 
-function renderPage() {
-   pdfDoc.getPage(pageNum).then(page => {
-    const canvas = document.getElementById("pdf-canvas");
-    const context = canvas.getContext("2d");
-    const viewport = page.getViewport({ scale: zoomLevel }
+  function renderPage() {
+    pdfDoc.getPage(pageNum).then(page => {
+      const canvas = document.getElementById("pdf-canvas");
+      const context = canvas.getContext("2d");
+      const viewport = page.getViewport({ scale: zoomLevel });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      page.render({ canvasContext: context, viewport });
+      document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+    });
+  }
+
+  document.getElementById("prev-page").onclick = () => {
+    if (pageNum <= 1) return;
+    pageNum--;
+    renderPage();
+  };
+
+  document.getElementById("next-page").onclick = () => {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    renderPage();
+  };
 });
 </script>
+
 </body>
 </html>
