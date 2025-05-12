@@ -17,7 +17,7 @@
    margin: auto;
   }
   .modal {
-   background-color: rgba(255,255,255,0.95);
+   background-color: rgba(0,0,0,0.8);
   }
   .icon {
    width: 1.5rem;
@@ -30,86 +30,89 @@
   .animate-fade-in {
    animation: fade-in 1s ease-out forwards;
   }
+ 
+ .checkmark {
+  width: 100px;
+  height: 100px;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  stroke-miterlimit: 10;
+ }
+ .checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s ease forwards;
+ }
+ .checkmark__check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 0.6s forwards;
+ }
+ @keyframes stroke {
+  to {
+   stroke-dashoffset: 0;
+  }
+ }
 
-  .checkmark {
-   width: 100px;
-   height: 100px;
-   stroke-width: 2;
-   stroke: #4ade80;
-   fill: none;
-   stroke-miterlimit: 10;
-  }
-  .checkmark__circle {
-   stroke-dasharray: 166;
-   stroke-dashoffset: 166;
-   animation: stroke 0.6s ease forwards;
-  }
-  .checkmark__check {
-   stroke-dasharray: 48;
-   stroke-dashoffset: 48;
-   animation: stroke 0.3s ease 0.6s forwards;
-  }
-  @keyframes stroke {
-   to {
-    stroke-dashoffset: 0;
-   }
-  }
- </style>
+</style>
 </head>
-<body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
 
-<div id="success-checkmark" class="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50 hidden">
+<!-- ✅ Success Checkmark Overlay -->
+<div id="success-checkmark" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
  <div class="text-center">
   <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
    <circle class="checkmark__circle" cx="26" cy="26" r="25"/>
    <path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
   </svg>
-  <p class="mt-4 text-green-600 font-medium text-lg">Success!</p>
+  <p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
  </div>
 </div>
 
-<div id="form-container" class="bg-white p-12 rounded-2xl max-w-2xl w-full shadow-xl space-y-8">
- <div class="flex justify-center">
-  <img src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png" 
-       alt="Utmatic Logo" 
-       class="w-52 mb-3 object-contain" />
- </div>
- <p class="text-center text-lg text-gray-600">
-  Equip your documents with tracking links — <em>instantly</em>.
- </p>
+<body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
+
+ <div id="form-container" class="bg-white p-12 rounded-2xl max-w-2xl w-full shadow-xl space-y-8">
+  <div class="flex justify-center">
+   <img src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png" 
+      alt="Utmatic Logo" 
+      class="w-52 mb-3 object-contain " />
+  </div>
+  <p class="text-center text-lg text-gray-700">
+   Equip your documents with tracking links — <em>instantly</em>.
+  </p>
 
   <form id="upload-form" class="space-y-6">
    <div>
     <label class="block text-base font-medium mb-1">Upload Document</label>
     <div class="relative flex items-center">
-     <label for="file-input" class="cursor-pointer bg-[#1e1e1e] border border-gray-600 text-gray-200 px-5 py-2 rounded hover:bg-gray-700 transition text-base">
+     <label for="file-input" class="cursor-pointer bg-[#f5f5f5] border border-gray-300 text-gray-200 px-5 py-2 rounded hover:bg-gray-100 transition text-base">
       Select File
      </label>
-     <span id="file-name" class="ml-4 text-base text-gray-400">No file chosen</span>
+     <span id="file-name" class="ml-4 text-base text-gray-500">No file chosen</span>
      <input type="file" name="file" id="file-input" accept=".pdf" class="hidden" required />
     </div>
    </div>
    <div class="grid grid-cols-3 gap-4">
-    <input type="text" name="source" placeholder="UTM Source" class="p-3 rounded bg-[#1e1e1e] border border-gray-600 text-base" required />
-    <input type="text" name="medium" placeholder="UTM Medium" class="p-3 rounded bg-[#1e1e1e] border border-gray-600 text-base" required />
-    <input type="text" name="campaign" placeholder="UTM Campaign" class="p-3 rounded bg-[#1e1e1e] border border-gray-600 text-base" required />
+    <input type="text" name="source" placeholder="UTM Source" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
+    <input type="text" name="medium" placeholder="UTM Medium" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
+    <input type="text" name="campaign" placeholder="UTM Campaign" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
    </div>
    <div>
     <label class="block text-base font-medium mb-1">Job Type</label>
-    <select name="job_type" id="job-type" class="w-full p-3 bg-[#1e1e1e] rounded border border-gray-600 text-base" required>
+    <select name="job_type" id="job-type" class="w-full p-3 bg-[#f5f5f5] rounded border border-gray-300 text-base" required>
      <option value="" disabled selected>Select one</option>
      <option value="utm_only">Add UTM Only</option>
      <option value="links_and_utm">Add Links and UTM</option>
     </select>
    </div>
-   <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
-   <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base hidden" />
+   <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base hidden" />
+   <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base hidden" />
 
    <div>
     <label class="block text-base font-medium mb-1">Name Your PDF</label>
     <div class="flex items-center gap-2">
-     <input type="text" name="filename" placeholder="MyFileName" class="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-base" />
-     <span class="text-gray-400 text-sm">.pdf</span>
+     <input type="text" name="filename" placeholder="MyFileName" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" />
+     <span class="text-gray-500 text-sm">.pdf</span>
     </div>
    </div>
 
@@ -120,18 +123,18 @@
  </div>
 
  <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
-  <div class="bg-[#2a2a2a] p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
+  <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
    <div class="text-center text-base mb-4" id="page-info">Page 1</div>
    <div class="relative flex items-center justify-center">
-    <button id="prev-page" class="absolute left-0 text-white">
+    <button id="prev-page" class="absolute left-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"/></svg>
     </button>
     <canvas id="pdf-canvas" class="pdf-canvas w-full max-w-3xl h-auto"></canvas>
-    <button id="next-page" class="absolute right-0 text-white">
+    <button id="next-page" class="absolute right-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M8.46 4.46a1.5 1.5 0 012.12 0l6.5 6.5a1.5 1.5 0 010 2.12l-6.5 6.5a1.5 1.5 0 11-2.12-2.12L13.88 12 8.46 6.58a1.5 1.5 0 010-2.12z"/></svg>
     </button>
    </div>
-   <div class="mt-6 text-center text-lg text-gray-300 flex justify-center items-center gap-2" id="link-count">
+   <div class="mt-6 text-center text-lg text-gray-700 flex justify-center items-center gap-2" id="link-count">
     <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
     </svg>
@@ -139,7 +142,7 @@
    </div>
    <div class="mt-6 flex justify-center gap-6">
     <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-lg font-semibold">Download PDF</a>
-    <button onclick="location.reload()" class="text-base text-gray-400 underline inline-flex items-center gap-2">
+    <button onclick="location.reload()" class="text-base text-gray-500 underline inline-flex items-center gap-2">
      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
      </svg>
@@ -149,7 +152,7 @@
   </div>
  </div>
 
- <div id="loading-indicator" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+ <div id="loading-indicator" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
   <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-400"></div>
  </div>
 
