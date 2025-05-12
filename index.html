@@ -165,7 +165,7 @@ fileInput.addEventListener("change", function () {
 
  <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
   <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
-   <button onclick="document.getElementById('preview-container').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50">&times;</button>
+   <button onclick="document.getElementById('preview-container').classList.add('hidden'); document.getElementById('form-container').classList.remove('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50">&times;</button>
 <div class="text-center text-base mb-4" id="page-info">Page 1</div>
    <div class="relative flex items-center justify-center">
     <button id="prev-page" class="absolute left-0 text-gray-900">
