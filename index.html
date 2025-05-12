@@ -35,40 +35,6 @@ fileInput.addEventListener("change", function () {
   fileNameDisplay.textContent = fileName;
 });
 
-
-document.addEventListener("DOMContentLoaded", function () {
-  const dropArea = document.getElementById("drop-area");
-  const fileInput = document.getElementById("file-input");
-  const fileNameDisplay = document.getElementById("file-name");
-
-  if (dropArea && fileInput && fileNameDisplay) {
-    dropArea.addEventListener("click", () => fileInput.click());
-
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("bg-gray-100");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("bg-gray-100");
-    });
-
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("bg-gray-100");
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        fileNameDisplay.textContent = files[0].name;
-      }
-    });
-
-    fileInput.addEventListener("change", function () {
-      const fileName = this.files[0]?.name || "No file chosen";
-      fileNameDisplay.textContent = fileName;
-    });
-  }
-});
 </script>
  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
  <style>
@@ -201,22 +167,6 @@ document.addEventListener("DOMContentLoaded", function () {
   <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
    <div class="text-center text-base mb-4" id="page-info">Page 1</div>
    <div class="relative flex items-center justify-center">
-
-<div class="absolute top-4 right-4 flex items-center gap-2">
-  <label for="zoom" class="text-sm text-gray-700 font-medium">Zoom:</label>
-  <select id="zoom" class="p-1 border border-gray-300 rounded text-sm">
-    <option value="1">100%</option>
-    <option value="1.25">125%</option>
-    <option value="1.5">150%</option>
-    <option value="2">200%</option>
-  </select>
-  <button id="close-preview" class="ml-4 text-gray-500 hover:text-red-500">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  </button>
-</div>
-
     <button id="prev-page" class="absolute left-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"/></svg>
     </button>
@@ -232,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
     —
    </div>
    <div class="mt-6 flex justify-center gap-6">
-    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-white text-lg font-semibold">Download PDF</a>
+    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-lg font-semibold">Download PDF</a>
     <button onclick="location.reload()" class="text-base text-gray-500 underline inline-flex items-center gap-2">
      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -361,26 +311,14 @@ fileInput.addEventListener("change", function () {
    renderPage();
   }
 
-  
-let zoomLevel = 1;
-document.getElementById("zoom").addEventListener("change", (e) => {
-  zoomLevel = parseFloat(e.target.value);
-  renderPage();
-});
-document.getElementById("close-preview").addEventListener("click", () => {
-  document.getElementById("preview-container").classList.add("hidden");
-  document.getElementById("form-container").classList.remove("hidden");
-});
-
-
   function renderPage() {
    pdfDoc.getPage(pageNum).then(page => {
     const canvas = document.getElementById("pdf-canvas");
     const context = canvas.getContext("2d");
-    const viewport = page.getViewport({ scale: zoomLevel });
+    const viewport = page.getViewport({ scale: 1.5 });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
-    page.render({ canvasContext: context, viewport }););
+    page.render({ canvasContext: context, viewport });
     document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
    });
   }
@@ -428,45 +366,5 @@ fileInput.addEventListener("change", function () {
 });
 
 </script>
-
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const dropArea = document.getElementById("drop-area");
-  const fileInput = document.getElementById("file-input");
-  const fileNameDisplay = document.getElementById("file-name");
-
-  if (dropArea && fileInput && fileNameDisplay) {
-    dropArea.addEventListener("click", () => fileInput.click());
-
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("bg-gray-100");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("bg-gray-100");
-    });
-
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("bg-gray-100");
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        fileNameDisplay.textContent = files[0].name;
-      }
-    });
-
-    fileInput.addEventListener("change", function () {
-      const fileName = this.files[0]?.name || "No file chosen";
-      fileNameDisplay.textContent = fileName;
-    });
-  }
-});
-</script>
 </body>
 </html>
-
-
