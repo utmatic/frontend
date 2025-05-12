@@ -165,21 +165,8 @@ fileInput.addEventListener("change", function () {
 
  <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50">
   <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
-<button id="close-preview" class="absolute top-6 right-4 text-gray-500 hover:text-red-500">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-  </svg>
-</button>
-
    <div class="text-center text-base mb-4" id="page-info">Page 1</div>
    <div class="relative flex items-center justify-center">
-
-<div class="absolute top-6 left-6 flex items-center gap-2 bg-white bg-opacity-90 px-3 py-1 rounded shadow">
-  <button id="zoom-out" class="text-lg font-bold text-gray-600 hover:text-gray-800">−</button>
-  <span id="zoom-level" class="text-sm text-gray-700">100%</span>
-  <button id="zoom-in" class="text-lg font-bold text-gray-600 hover:text-gray-800">+</button>
-</div>
-
     <button id="prev-page" class="absolute left-0 text-gray-900">
      <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"/></svg>
     </button>
@@ -195,7 +182,7 @@ fileInput.addEventListener("change", function () {
     —
    </div>
    <div class="mt-6 flex justify-center gap-6">
-    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-lg font-semibold text-white">Download PDF</a>
+    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-lg font-semibold">Download PDF</a>
     <button onclick="location.reload()" class="text-base text-gray-500 underline inline-flex items-center gap-2">
      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -314,34 +301,10 @@ fileInput.addEventListener("change", function () {
    loadPdf(previewUrl);
   });
 
-  let pdfDoc = null, pageNum = 1;
+  let pageNum = 1;
+let pdfDoc = null, pageNum = 1;
 
-  
-
-  
-document.getElementById("close-preview").addEventListener("click", () => {
-  document.getElementById("preview-container").classList.add("hidden");
-  document.getElementById("form-container").classList.remove("hidden");
-});
-
-
-  
-let zoomLevel = 1;
-const zoomDisplay = document.getElementById("zoom-level");
-
-document.getElementById("zoom-in").addEventListener("click", () => {
-  zoomLevel = Math.min(2, zoomLevel + 0.25);
-  zoomDisplay.textContent = Math.round(zoomLevel * 100) + "%";
-  renderPage();
-});
-
-document.getElementById("zoom-out").addEventListener("click", () => {
-  zoomLevel = Math.max(0.5, zoomLevel - 0.25);
-  zoomDisplay.textContent = Math.round(zoomLevel * 100) + "%";
-  renderPage();
-});
-
-async function loadPdf(url) {
+  async function loadPdf(url) {
    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
    pdfDoc = await pdfjsLib.getDocument(url).promise;
    document.getElementById("form-container").classList.add("hidden");
@@ -349,17 +312,14 @@ async function loadPdf(url) {
    renderPage();
   }
 
-function renderPage() {
+  function renderPage() {
    pdfDoc.getPage(pageNum).then(page => {
     const canvas = document.getElementById("pdf-canvas");
     const context = canvas.getContext("2d");
-    const viewport = page.getViewport({ scale: zoomLevel }
-
-
-  );
+    const viewport = page.getViewport({ scale: 1.5 });
     canvas.height = viewport.height;
     canvas.width = viewport.width;
-    page.render({ canvasContext: context, viewport }););
+    page.render({ canvasContext: context, viewport });
     document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
    });
   }
@@ -407,141 +367,5 @@ fileInput.addEventListener("change", function () {
 });
 
 </script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  let zoomLevel = 1;
-  const dropArea = document.getElementById("drop-area");
-  const fileInput = document.getElementById("file-input");
-  const fileNameDisplay = document.getElementById("file-name");
-
-  if (dropArea && fileInput && fileNameDisplay) {
-    dropArea.addEventListener("click", () => fileInput.click());
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("bg-gray-100");
-    });
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("bg-gray-100");
-    });
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("bg-gray-100");
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        fileNameDisplay.textContent = files[0].name;
-      }
-    });
-    fileInput.addEventListener("change", function () {
-      const fileName = this.files[0]?.name || "No file chosen";
-      fileNameDisplay.textContent = fileName;
-    });
-  }
-
-  const form = document.getElementById("upload-form");
-  const jobTypeSelect = document.getElementById("job-type");
-  const targetInput = document.getElementById("target-format");
-  const baseUrlInput = document.getElementById("base-url");
-
-  function toggleConditionalFields() {
-    const isLinks = jobTypeSelect.value === "links_and_utm";
-    targetInput.classList.toggle("hidden", !isLinks);
-    baseUrlInput.classList.toggle("hidden", !isLinks);
-  }
-
-  jobTypeSelect.addEventListener("change", toggleConditionalFields);
-  toggleConditionalFields();
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    document.getElementById("loading-indicator").classList.remove("hidden");
-
-    const formData = new FormData(form);
-    const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
-
-    const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
-      method: "POST",
-      body: formData
-    });
-    const cleanBlob = await cleanResponse.blob();
-    const cleanUrl = URL.createObjectURL(cleanBlob);
-    document.getElementById("download-link").href = cleanUrl;
-    document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
-
-    const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
-      method: "POST",
-      body: formData
-    });
-    const previewBlob = await previewResponse.blob();
-    const previewUrl = URL.createObjectURL(previewBlob);
-
-    const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
-    document.getElementById("link-count").innerHTML = `
-      <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-      </svg>
-      ${linkCount} links modified`;
-
-    document.getElementById("loading-indicator").classList.add("hidden");
-    document.getElementById("success-checkmark").classList.remove("hidden");
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    document.getElementById("success-checkmark").classList.add("hidden");
-
-    loadPdf(previewUrl);
-  });
-
-  document.getElementById("close-preview").addEventListener("click", () => {
-    document.getElementById("preview-container").classList.add("hidden");
-    document.getElementById("form-container").classList.remove("hidden");
-  });
-
-  document.getElementById("zoom-in").addEventListener("click", () => {
-    zoomLevel = Math.min(2, zoomLevel + 0.25);
-    document.getElementById("zoom-level").textContent = Math.round(zoomLevel * 100) + "%";
-    renderPage();
-  });
-
-  document.getElementById("zoom-out").addEventListener("click", () => {
-    zoomLevel = Math.max(0.5, zoomLevel - 0.25);
-    document.getElementById("zoom-level").textContent = Math.round(zoomLevel * 100) + "%";
-    renderPage();
-  });
-
-  async function loadPdf(url) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-    pdfDoc = await pdfjsLib.getDocument(url).promise;
-    document.getElementById("form-container").classList.add("hidden");
-    document.getElementById("preview-container").classList.remove("hidden");
-    renderPage();
-  }
-
-  function renderPage() {
-    pdfDoc.getPage(pageNum).then(page => {
-      const canvas = document.getElementById("pdf-canvas");
-      const context = canvas.getContext("2d");
-      const viewport = page.getViewport({ scale: zoomLevel });
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      page.render({ canvasContext: context, viewport });
-      document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
-    });
-  }
-
-  document.getElementById("prev-page").onclick = () => {
-    if (pageNum <= 1) return;
-    pageNum--;
-    renderPage();
-  };
-
-  document.getElementById("next-page").onclick = () => {
-    if (pageNum >= pdfDoc.numPages) return;
-    pageNum++;
-    renderPage();
-  };
-});
-</script>
-
 </body>
 </html>
