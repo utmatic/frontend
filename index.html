@@ -87,19 +87,6 @@ fileInput.addEventListener("change", function () {
  }
 
 </style>
-
-<!-- Firebase Auth -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
-    authDomain: "utmatic-106080752806.firebaseapp.com",
-    projectId: "utmatic-106080752806"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
-
 </head>
 
 <!-- ✅ Success Checkmark Overlay -->
@@ -111,31 +98,6 @@ fileInput.addEventListener("change", function () {
   </svg>
   <p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
  </div>
-</div>
-
-
-
-    <p id="auth-error" class="text-red-500 text-sm"></p>
-  </div>
-</div>
-
-
-
-<div id="auth-container" class="fixed top-0 left-0 w-full h-full bg-white flex flex-col items-center justify-center z-50">
-  <div id="auth-form" class="bg-white shadow-lg rounded-xl p-10 w-full max-w-md text-center space-y-4">
-    <h2 id="auth-title" class="text-2xl font-bold">Login to Utmatic</h2>
-    <input id="email" type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" />
-    <input id="password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded" />
-    <button id="auth-button" onclick="login()" class="w-full bg-blue-600 text-white px-4 py-2 rounded">Login</button>
-    <p id="auth-toggle" class="text-sm text-gray-600">
-      Don't have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Sign up</a>
-    </p>
-    <p id="auth-error" class="text-red-500 text-sm"></p>
-  </div>
-</div>
-
-    <p id="auth-error" class="text-red-500 text-sm"></p>
-  </div>
 </div>
 
 <body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
@@ -405,64 +367,5 @@ fileInput.addEventListener("change", function () {
 });
 
 </script>
-
-<script>
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  try {
-    const user = await firebase.auth().signInWithEmailAndPassword(email, password);
-    const token = await user.user.getIdToken();
-    localStorage.setItem("auth_token", token);
-    document.getElementById("auth-container").style.display = "none";
-  } catch (err) {
-    document.getElementById("auth-error").textContent = err.message;
-  }
-}
-
-async function signup() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  try {
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
-    login();
-  } catch (err) {
-    document.getElementById("auth-error").textContent = err.message;
-  }
-}
-
-firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
-    const token = await user.getIdToken();
-    localStorage.setItem("auth_token", token);
-    document.getElementById("auth-container").style.display = "none";
-  } else {
-    document.getElementById("auth-container").style.display = "flex";
-  }
-});
-</script>
-
-
-
-<script>
-let isLogin = true;
-
-function toggleAuthMode() {
-  isLogin = !isLogin;
-  const button = document.getElementById("auth-button");
-  const title = document.getElementById("auth-title");
-  const toggleText = document.getElementById("auth-toggle");
-
-  title.textContent = isLogin ? "Login to Utmatic" : "Create Your Utmatic Account";
-  button.textContent = isLogin ? "Login" : "Sign Up";
-  button.setAttribute("onclick", isLogin ? "login()" : "signup()");
-  button.className = isLogin
-    ? "w-full bg-blue-600 text-white px-4 py-2 rounded"
-    : "w-full bg-[#1a1a1a] text-white px-4 py-2 rounded";
-
-  toggleText.innerHTML = isLogin
-    ? `Don't have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Sign up</a>`
-    : `Already have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Login</a>`;
-}
-</script>
 </body>
+</html>
