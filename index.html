@@ -116,6 +116,13 @@ fileInput.addEventListener("change", function () {
 </svg>
 <p class="text-gray-600" id="drop-text">Drag and drop your PDF here or click to browse</p>
 <p class="text-sm text-gray-500 mt-1" id="file-name">No file chosen</p>
+<p class="text-red-500 text-sm flex justify-center items-center mt-2 hidden" id="file-warning">
+<svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+  Please upload a document
+</p>
+
 <input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -252,14 +259,14 @@ fileInput.addEventListener("change", function () {
   
 form.addEventListener("submit", async (e) => {
   const fileInput = document.getElementById("file-input");
-  const fileMissingIcon = document.getElementById("file-missing-icon");
+  const fileWarning = document.getElementById("file-warning");
   if (!fileInput || fileInput.files.length === 0) {
     e.preventDefault();
     e.stopImmediatePropagation();
-    fileMissingIcon?.classList.remove("hidden");
+    fileWarning?.classList.remove("hidden");
     return;
   } else {
-    fileMissingIcon?.classList.add("hidden");
+    fileWarning?.classList.add("hidden");
   }
 
    e.preventDefault();
@@ -416,13 +423,11 @@ fileInput.addEventListener("change", function () {
     }
   });
 </script>
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("upload-form");
   const fileInput = document.getElementById("file-input");
-  const fileMissingIcon = document.getElementById("file-missing-icon");
+  const fileWarning = document.getElementById("file-warning");
   const jobTypeSelect = document.getElementById("job-type");
   const targetInput = document.getElementById("target-format");
   const baseUrlInput = document.getElementById("base-url");
@@ -439,17 +444,17 @@ document.addEventListener("DOMContentLoaded", function () {
   fileInput.addEventListener("change", function () {
     const fileName = this.files[0]?.name || "No file chosen";
     document.getElementById("file-name").textContent = fileName;
-    fileMissingIcon?.classList.add("hidden");
+    fileWarning?.classList.add("hidden");
   });
 
   form.addEventListener("submit", async (e) => {
     if (!fileInput || fileInput.files.length === 0) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      fileMissingIcon?.classList.remove("hidden");
+      fileWarning?.classList.remove("hidden");
       return;
     } else {
-      fileMissingIcon?.classList.add("hidden");
+      fileWarning?.classList.add("hidden");
     }
 
     e.preventDefault();
