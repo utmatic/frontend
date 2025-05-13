@@ -289,12 +289,26 @@ document.addEventListener("click", function (e) {
 </script>
 
 <script>
-  const form = document.getElementById("upload-form");
+  
+
+function toggleConditionalFields() {
+  const jobType = document.getElementById("job-type").value;
+  const section = document.getElementById("format-map-section");
+  const shouldShow = jobType === "links_and_utm";
+  section.classList.toggle("hidden", !shouldShow);
+  section.querySelectorAll("input").forEach(input => {
+    input.disabled = !shouldShow;
+  });
+}
+document.addEventListener("DOMContentLoaded", toggleConditionalFields);
+document.getElementById("job-type")?.addEventListener("change", toggleConditionalFields);
+
+const form = document.getElementById("upload-form");
   const jobTypeSelect = document.getElementById("job-type");
   
 
   jobTypeSelect.addEventListener("change", toggleConditionalFields);
-  document.addEventListener("DOMContentLoaded", toggleConditionalFields);
+  
 
   document.getElementById("file-input").addEventListener("change", function () {
    const fileName = this.files[0]?.name || "No file chosen";
@@ -507,7 +521,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
 
   jobTypeSelect.addEventListener("change", toggleConditionalFields);
-  document.addEventListener("DOMContentLoaded", toggleConditionalFields);
+  
 
   fileInput.addEventListener("change", function () {
     const fileName = this.files[0]?.name || "No file chosen";
@@ -648,8 +662,8 @@ document.addEventListener("click", function (e) {
     input.disabled = !shouldShow;
   });
 }
-document.getElementById("job-type")?.addEventListener("change", toggleConditionalFields);
-document.addEventListener("DOMContentLoaded", toggleConditionalFields);
+
+
 
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
