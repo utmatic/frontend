@@ -655,10 +655,10 @@ document.addEventListener("click", function (e) {
 <script>
   function toggleConditionalFields() {
     const jobType = document.getElementById("job-type").value;
-    document.getElementById("format-map-section").classList.toggle("hidden", jobType !== "links_and_utm");
+    const formatMapSection = document.getElementById("format-map-section"); if (formatMapSection) { formatMapSection.classList.toggle("hidden", jobType !== "links_and_utm"); }
   }
 
-  document.getElementById("job-type").addEventListener("change", toggleConditionalFields);
+  document.getElementById("job-type")?.addEventListener("change", toggleConditionalFields);
   document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
   function addMappingRow() {
@@ -666,9 +666,9 @@ document.addEventListener("click", function (e) {
     const div = document.createElement("div");
     div.className = "grid grid-cols-2 gap-4 mapping-row items-center";
     div.innerHTML = `
-      <input type="text" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full">
+      <input type="text" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
       <div class="flex items-center gap-2 w-full">
-        <input type="text" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full">
+        <input type="text" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
         <button type="button" class="delete-mapping text-red-500 hover:text-red-700" title="Delete Mapping">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -695,7 +695,7 @@ function toggleConditionalFields() {
   const section = document.getElementById("format-map-section");
   section.classList.toggle("hidden", jobType !== "links_and_utm");
 }
-document.getElementById("job-type").addEventListener("change", toggleConditionalFields);
+document.getElementById("job-type")?.addEventListener("change", toggleConditionalFields);
 document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
 function addMappingRow() {
