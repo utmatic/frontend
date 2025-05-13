@@ -1,227 +1,468 @@
-from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import StreamingResponse, JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import fitz  # PyMuPDF
-import io
-import re
-import urllib.parse
-import unicodedata
-from typing import Optional
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>Utmatic PDF Processor</title>
+ <script src="https://cdn.tailwindcss.com">
+const dropArea = document.getElementById("drop-area");
+const fileInput = document.getElementById("file-input");
+const fileNameDisplay = document.getElementById("file-name");
+
+dropArea.addEventListener("click", () => fileInput.click());
+
+dropArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropArea.classList.add("bg-gray-100");
+});
+
+dropArea.addEventListener("dragleave", () => {
+  dropArea.classList.remove("bg-gray-100");
+});
+
+dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropArea.classList.remove("bg-gray-100");
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    fileInput.files = files;
+    fileNameDisplay.textContent = files[0].name;
+  }
+});
+
+fileInput.addEventListener("change", function () {
+  const fileName = this.files[0]?.name || "No file chosen";
+  fileNameDisplay.textContent = fileName;
+});
+
+</script>
+ <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <style>
+  body {
+   font-family: 'Work Sans', sans-serif;
+  }
+  .pdf-canvas {
+   border: 1px solid #ddd;
+   border-radius: 0.5rem;
+   background: white;
+   margin: auto;
+  }
+  .modal {
+   background-color: rgba(0,0,0,0.8);
+  }
+  .icon {
+   width: 1.5rem;
+   height: 1.5rem;
+  }
+  @keyframes fade-in {
+   from { opacity: 0; }
+   to { opacity: 1; }
+  }
+  .animate-fade-in {
+   animation: fade-in 1s ease-out forwards;
+  }
+ 
+ .checkmark {
+  width: 100px;
+  height: 100px;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  stroke-miterlimit: 10;
+ }
+ .checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s ease forwards;
+ }
+ .checkmark__check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 0.6s forwards;
+ }
+ @keyframes stroke {
+  to {
+   stroke-dashoffset: 0;
+  }
+ }
+
+</style>
+
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
+    authDomain: "utmatic-106080752806.firebaseapp.com",
+    projectId: "utmatic-106080752806"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+</head>
+
+<!-- ✅ Success Checkmark Overlay -->
+<div id="success-checkmark" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
+ <div class="text-center">
+  <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+   <circle class="checkmark__circle" cx="26" cy="26" r="25"/>
+   <path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+  </svg>
+  <p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
+ </div>
+</div>
 
 
-import firebase_admin
-from firebase_admin import credentials, auth
 
-cred = credentials.Certificate("utmatic-firebase.json")
-firebase_admin.initialize_app(cred)
-
-
-from google.cloud import firestore
-db = firestore.Client()
-
-def save_submission(user_id, filename, url):
-    doc = {
-        "user_id": user_id,
-        "filename": filename,
-        "url": url,
-        "timestamp": firestore.SERVER_TIMESTAMP
-    }
-    db.collection("submissions").add(doc)
+    <p id="auth-error" class="text-red-500 text-sm"></p>
+  </div>
+</div>
 
 
 
-app = FastAPI()
+<div id="auth-container" class="fixed top-0 left-0 w-full h-full bg-white flex flex-col items-center justify-center z-50">
+  <div id="auth-form" class="bg-white shadow-lg rounded-xl p-10 w-full max-w-md text-center space-y-4">
+    <h2 id="auth-title" class="text-2xl font-bold">Login to Utmatic</h2>
+    <input id="email" type="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" />
+    <input id="password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded" />
+    <button id="auth-button" onclick="login()" class="w-full bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+    <p id="auth-toggle" class="text-sm text-gray-600">
+      Don't have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Sign up</a>
+    </p>
+    <p id="auth-error" class="text-red-500 text-sm"></p>
+  </div>
+</div>
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://frontend-ten-alpha-65.vercel.app",
-        "https://frontend-baipfc7fn-john-snivelys-projects.vercel.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["X-Link-Count"]
-)
+    <p id="auth-error" class="text-red-500 text-sm"></p>
+  </div>
+</div>
 
-def format_to_regex_list(fmt_string):
-    formats = [f.strip() for f in fmt_string.split(",")]
-    regexes = []
-    for fmt in formats:
-        escaped = re.escape(fmt)
-        regex = escaped.replace("N", r"\d").replace("L", r"[A-Za-z]")
-        regexes.append(re.compile(rf"\b{regex}\b"))
-    return regexes
+<body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
 
-def extract_last_path_segment(url: str) -> str:
-    parsed = urllib.parse.urlparse(url)
-    path = parsed.path.strip("/")
-    return path.split("/")[-1] if path else "link"
+ <div id="form-container" class="bg-white p-12 rounded-2xl max-w-2xl w-full shadow-xl space-y-8">
+  <div class="flex justify-center">
+   <img src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png" 
+      alt="Utmatic Logo" 
+      class="w-52 mb-3 object-contain " />
+  </div>
+  <p class="text-center text-lg text-gray-700">
+   Equip your documents with tracking links — <em>instantly</em>.
+  </p>
 
-def int_to_rgb(color_int):
-    r = ((color_int >> 16) & 255) / 255
-    g = ((color_int >> 8) & 255) / 255
-    b = (color_int & 255) / 255
-    return (r, g, b)
+  <form id="upload-form" class="space-y-6">
+   
 
-def process_pdf_logic(contents, source, medium, campaign, job_type, target_format=None, base_url=None):
-    final_pdf = fitz.open(stream=contents, filetype="pdf")
-    preview_pdf = fitz.open(stream=contents, filetype="pdf")
-    red_rects = []
-    link_count = 0
+<div class="w-full">
+  <label class="block text-base font-medium mb-1">Upload Document</label>
+  <div id="drop-area" class="w-full border border-gray-300 rounded-lg py-10 px-6 text-center cursor-pointer bg-white hover:bg-[#f5f5f5] transition">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 mx-auto mb-2 text-gray-400">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+</svg>
+    <p class="text-gray-600" id="drop-text">Drag and drop your PDF here or click to browse</p>
+    <p class="text-sm text-gray-500 mt-1" id="file-name">No file chosen</p>
+    <input type="file" name="file" id="file-input" accept=".pdf" class="hidden" required />
+  </div>
+</div>
 
-    utm_base = f"?utm_source={urllib.parse.quote(source)}&utm_medium={urllib.parse.quote(medium)}&utm_campaign={urllib.parse.quote(campaign)}"
 
-    for page_num in range(len(final_pdf)):
-        final_page = final_pdf[page_num]
-        preview_page = preview_pdf[page_num]
+   
 
-        if job_type == "utm_only":
-            links = final_page.get_links()
-            for link in links:
-                if "uri" in link:
-                    original = link["uri"]
-                    rect = fitz.Rect(link["from"])
-                    original = link["uri"]
-                    rect = fitz.Rect(link["from"])
-                    visible_text = final_page.get_textbox(rect).strip()
-                    if " " in visible_text:
-                        utm_val = extract_last_path_segment(original)
-                    else:
-                        utm_val = visible_text
-                    utm_content = f"&utm_content={urllib.parse.quote(utm_val)}"
-                    updated_url = original + ("&" if "?" in original else "?") + utm_base[1:] + utm_content
+<div>
+  <label class="block text-base font-medium mb-1">UTM Parameters</label>
+  <div class="grid grid-cols-3 gap-4">
+    <input type="text" name="source" placeholder="UTM Source" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
+    <input type="text" name="medium" placeholder="UTM Medium" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
+    <input type="text" name="campaign" placeholder="UTM Campaign" class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" required />
+     </div>
+</div>
+   <div>
+    <label class="block text-base font-medium mb-1">Job Type</label>
+    <select name="job_type" id="job-type" class="w-full p-3 bg-[#f5f5f5] rounded border border-gray-300 text-base" required>
+     <option value="" disabled selected class="text-gray-400">Select one</option>
+     <option value="utm_only">Add UTM Only</option>
+     <option value="links_and_utm">Add Links and UTM</option>
+    </select>
+   </div>
+   <input type="text" name="target_format" id="target-format" placeholder="Target Format (e.g. LLNN-NNNN)" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base hidden" />
+   <input type="text" name="base_url" id="base-url" placeholder="Base URL (https://yourcompany.com/store/)" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base hidden" />
 
-                    final_page.delete_link(link)
-                    final_page.insert_link({
-                        "from": rect,
-                        "uri": updated_url,
-                        "kind": 2,
-                        "page": final_page.number
-                    })
-                    preview_page.insert_link({
-                        "from": rect,
-                        "uri": updated_url,
-                        "kind": 2,
-                        "page": preview_page.number
-                    })
+   <div>
+    <label class="block text-base font-medium mb-1">Name Your PDF</label>
+    <div class="flex items-center gap-2">
+     <input type="text" name="filename" placeholder="MyFileName" class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" />
+     <span class="text-gray-500 text-sm">.pdf</span>
+    </div>
+   </div>
 
-                    red_rects.append((page_num, rect))
-                    link_count += 1
-                    print(f"🔗 Updated: {original} → {updated_url}")
+   <button type="submit" class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3">
+    Process PDF
+   </button>
+  </form>
+ </div>
 
-        elif job_type == "links_and_utm":
-            if not target_format or not base_url:
-                raise ValueError("Target format and base URL required.")
+ <div id="preview-container" class="hidden fixed inset-0 flex items-center justify-center modal z-50 overflow-y-auto max-h-screen p-8">
+  <div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
+   <button onclick="document.getElementById('preview-container').classList.add('hidden'); document.getElementById('form-container').classList.remove('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50">&times;</button>
+<div class="text-center text-base mb-4" id="page-info">Page 1</div>
+   <div class="relative flex items-center justify-center">
+    <button id="prev-page" class="absolute left-0 text-gray-900">
+     <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"/></svg>
+    </button>
+    <canvas id="pdf-canvas" class="pdf-canvas w-full max-w-2xl h-auto"></canvas>
+    <button id="next-page" class="absolute right-0 text-gray-900">
+     <svg class="icon" fill="currentColor" viewBox="0 0 24 24"><path d="M8.46 4.46a1.5 1.5 0 012.12 0l6.5 6.5a1.5 1.5 0 010 2.12l-6.5 6.5a1.5 1.5 0 11-2.12-2.12L13.88 12 8.46 6.58a1.5 1.5 0 010-2.12z"/></svg>
+    </button>
+   </div>
+   <div class="mt-6 text-center text-lg text-gray-700 flex justify-center items-center gap-2" id="link-count">
+    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+    </svg>
+    —
+   </div>
+   <div class="mt-6 flex justify-center gap-6">
+    <a id="download-link" download class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-white text-lg font-semibold">Download PDF</a>
+    <button onclick="location.reload()" class="text-base text-gray-500 underline inline-flex items-center gap-2">
+     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+     </svg>
+     Process Another
+    </button>
+   </div>
+  </div>
+ </div>
 
-            patterns = format_to_regex_list(target_format)
-            print("Compiled regex patterns:")
-            for p in patterns:
-                print(" →", p.pattern)
+ 
+<div id="loading-indicator" class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4">
+  <h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
+  <div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a minute or two to finish processing.</p>
+</div>
 
-            dict_page = final_page.get_text("dict")
 
-            for block in dict_page["blocks"]:
-                for line in block.get("lines", []):
-                    for span in line.get("spans", []):
-                        raw_text = span.get("text", "")
-                        clean_text = unicodedata.normalize("NFKD", raw_text).replace("–", "-").replace("—", "-").strip()
-                        for pattern in patterns:
-                            if pattern.fullmatch(clean_text):
-                                rect = fitz.Rect(span["bbox"])
-                                full_link = f"{base_url}{clean_text}{utm_base}&utm_content={urllib.parse.quote(clean_text)}"
+ 
 
-                                # Insert hyperlinks
-                                final_page.insert_link({
-                                    "from": rect,
-                                    "uri": full_link,
-                                    "kind": 2,
-                                    "page": final_page.number
-                                })
-                                preview_page.insert_link({
-                                    "from": rect,
-                                    "uri": full_link,
-                                    "kind": 2,
-                                    "page": preview_page.number
-                                })
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js">
+const dropArea = document.getElementById("drop-area");
+const fileInput = document.getElementById("file-input");
+const fileNameDisplay = document.getElementById("file-name");
 
-                                # Underline in original text color
-                                text_color_int = span.get("color", 0)
-                                text_color_rgb = int_to_rgb(text_color_int)
-                                underline_y = span["bbox"][3] - 0.5
-                                final_page.draw_line(
-                                    p1=(span["bbox"][0], underline_y),
-                                    p2=(span["bbox"][2], underline_y),
-                                    color=text_color_rgb,
-                                    width=0.5
-                                )
+dropArea.addEventListener("click", () => fileInput.click());
 
-                                red_rects.append((page_num, rect))
-                                link_count += 1
-                                print(f"🔗 Underlined & Linked: {clean_text} → {full_link}")
-                                break
+dropArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropArea.classList.add("bg-gray-100");
+});
 
-    return final_pdf, preview_pdf, red_rects, link_count
+dropArea.addEventListener("dragleave", () => {
+  dropArea.classList.remove("bg-gray-100");
+});
 
-@app.post("/process")
-async def process_clean_pdf(
-    user=Depends(verify_firebase_token),
-    file: UploadFile = File(...),
-    source: str = Form(...),
-    medium: str = Form(...),
-    campaign: str = Form(...),
-    job_type: str = Form(...),
-    target_format: Optional[str] = Form(None),
-    base_url: Optional[str] = Form(None),
-    filename: Optional[str] = Form(None)
-):
-    try:
-        contents = await file.read()
-        final_pdf, _, _, link_count = process_pdf_logic(contents, source, medium, campaign, job_type, target_format, base_url)
+dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropArea.classList.remove("bg-gray-100");
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    fileInput.files = files;
+    fileNameDisplay.textContent = files[0].name;
+  }
+});
 
-        output_name = f"{filename.strip()}.pdf" if filename else f"{file.filename.rsplit('.', 1)[0]}_processed.pdf"
+fileInput.addEventListener("change", function () {
+  const fileName = this.files[0]?.name || "No file chosen";
+  fileNameDisplay.textContent = fileName;
+});
 
-        buffer = io.BytesIO()
-        final_pdf.save(buffer)
-        buffer.seek(0)
+</script>
+ <script>
+  const form = document.getElementById("upload-form");
+  const jobTypeSelect = document.getElementById("job-type");
+  const targetInput = document.getElementById("target-format");
+  const baseUrlInput = document.getElementById("base-url");
 
-        headers = {
-            "X-Link-Count": str(link_count),
-            "Content-Disposition": f'attachment; filename="{output_name}"'
-        }
-        
-        save_submission(user["uid"], output_name, f"https://yourdomain.com/downloads/{output_name}")print(f"✅ FINAL PDF LINKED: {link_count} as {output_name}")
-        return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
-    except ValueError as ve:
-        return JSONResponse(status_code=400, content={"error": str(ve)})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+  function toggleConditionalFields() {
+   const isLinks = jobTypeSelect.value === "links_and_utm";
+   targetInput.classList.toggle("hidden", !isLinks);
+   baseUrlInput.classList.toggle("hidden", !isLinks);
+  }
 
-@app.post("/preview")
-async def process_preview_pdf(
-    file: UploadFile = File(...),
-    source: str = Form(...),
-    medium: str = Form(...),
-    campaign: str = Form(...),
-    job_type: str = Form(...),
-    target_format: Optional[str] = Form(None),
-    base_url: Optional[str] = Form(None)
-):
-    try:
-        contents = await file.read()
-        _, preview_pdf, red_rects, link_count = process_pdf_logic(contents, source, medium, campaign, job_type, target_format, base_url)
+  jobTypeSelect.addEventListener("change", toggleConditionalFields);
+  document.addEventListener("DOMContentLoaded", toggleConditionalFields);
 
-        for page_num, rect in red_rects:
-            preview_pdf[page_num].draw_rect(rect, color=(1, 0, 0), width=1)
+  document.getElementById("file-input").addEventListener("change", function () {
+   const fileName = this.files[0]?.name || "No file chosen";
+   document.getElementById("file-name").textContent = fileName;
+  });
 
-        buffer = io.BytesIO()
-        preview_pdf.save(buffer)
-        buffer.seek(0)
+  form.addEventListener("submit", async (e) => {
+   e.preventDefault();
 
-        headers = {"X-Link-Count": str(link_count)}
-        print(f"👁️ PREVIEW GENERATED: {link_count}")
-        return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
-    except ValueError as ve:
-        return JSONResponse(status_code=400, content={"error": str(ve)})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+   
+   
+   
+
+   document.getElementById("loading-indicator").classList.remove("hidden");
+
+   const formData = new FormData(form);
+   const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
+
+   // 1. Get final clean PDF
+   const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
+    method: "POST",
+    body: formData
+   });
+   const cleanBlob = await cleanResponse.blob();
+   const cleanUrl = URL.createObjectURL(cleanBlob);
+   document.getElementById("download-link").href = cleanUrl;
+   document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
+
+   // 2. Get preview with red rectangles
+   const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
+    method: "POST",
+    body: formData
+   });
+   const previewBlob = await previewResponse.blob();
+   const previewUrl = URL.createObjectURL(previewBlob);
+
+   const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+   document.getElementById("link-count").innerHTML = `
+    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+    </svg>
+    ${linkCount} links modified`;
+
+   document.getElementById("loading-indicator").classList.add("hidden");
+   
+   document.getElementById("success-checkmark").classList.remove("hidden");
+   await new Promise(resolve => setTimeout(resolve, 2500));
+   document.getElementById("success-checkmark").classList.add("hidden");
+
+   loadPdf(previewUrl);
+  });
+
+  let pdfDoc = null, pageNum = 1;
+
+  async function loadPdf(url) {
+   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+   pdfDoc = await pdfjsLib.getDocument(url).promise;
+   document.getElementById("form-container").classList.add("hidden");
+   document.getElementById("preview-container").classList.remove("hidden");
+   renderPage();
+  }
+
+  function renderPage() {
+   pdfDoc.getPage(pageNum).then(page => {
+    const canvas = document.getElementById("pdf-canvas");
+    const context = canvas.getContext("2d");
+    const viewport = page.getViewport({ scale: 1.5 });
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    page.render({ canvasContext: context, viewport });
+    document.getElementById("page-info").textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+   });
+  }
+
+  document.getElementById("prev-page").onclick = () => {
+   if (pageNum <= 1) return;
+   pageNum--;
+   renderPage();
+  };
+
+  document.getElementById("next-page").onclick = () => {
+   if (pageNum >= pdfDoc.numPages) return;
+   pageNum++;
+   renderPage();
+  };
+ 
+const dropArea = document.getElementById("drop-area");
+const fileInput = document.getElementById("file-input");
+const fileNameDisplay = document.getElementById("file-name");
+
+dropArea.addEventListener("click", () => fileInput.click());
+
+dropArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropArea.classList.add("bg-gray-100");
+});
+
+dropArea.addEventListener("dragleave", () => {
+  dropArea.classList.remove("bg-gray-100");
+});
+
+dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropArea.classList.remove("bg-gray-100");
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    fileInput.files = files;
+    fileNameDisplay.textContent = files[0].name;
+  }
+});
+
+fileInput.addEventListener("change", function () {
+  const fileName = this.files[0]?.name || "No file chosen";
+  fileNameDisplay.textContent = fileName;
+});
+
+</script>
+
+<script>
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    const user = await firebase.auth().signInWithEmailAndPassword(email, password);
+    const token = await user.user.getIdToken();
+    localStorage.setItem("auth_token", token);
+    document.getElementById("auth-container").style.display = "none";
+  } catch (err) {
+    document.getElementById("auth-error").textContent = err.message;
+  }
+}
+
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    login();
+  } catch (err) {
+    document.getElementById("auth-error").textContent = err.message;
+  }
+}
+
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    const token = await user.getIdToken();
+    localStorage.setItem("auth_token", token);
+    document.getElementById("auth-container").style.display = "none";
+  } else {
+    document.getElementById("auth-container").style.display = "flex";
+  }
+});
+</script>
+
+
+
+<script>
+let isLogin = true;
+
+function toggleAuthMode() {
+  isLogin = !isLogin;
+  const button = document.getElementById("auth-button");
+  const title = document.getElementById("auth-title");
+  const toggleText = document.getElementById("auth-toggle");
+
+  title.textContent = isLogin ? "Login to Utmatic" : "Create Your Utmatic Account";
+  button.textContent = isLogin ? "Login" : "Sign Up";
+  button.setAttribute("onclick", isLogin ? "login()" : "signup()");
+  button.className = isLogin
+    ? "w-full bg-blue-600 text-white px-4 py-2 rounded"
+    : "w-full bg-[#1a1a1a] text-white px-4 py-2 rounded";
+
+  toggleText.innerHTML = isLogin
+    ? `Don't have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Sign up</a>`
+    : `Already have an account? <a href="#" class="text-blue-600 underline" onclick="toggleAuthMode()">Login</a>`;
+}
+</script>
+</body>
