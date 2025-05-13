@@ -122,6 +122,7 @@ fileInput.addEventListener("change", function () {
 </svg>
   Please upload a document
 </p>
+
 <input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -176,7 +177,7 @@ fileInput.addEventListener("change", function () {
 <button class="absolute left-0 text-gray-900" id="prev-page">
 <svg class="icon" fill="currentColor" viewbox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"></path></svg>
 </button>
-<canvas class="pdf-canvas w-full max-w-2xl h-auto" id="pdf-canvas" style="max-height: 70vh; height: auto; width: auto;"></canvas>
+<canvas class="pdf-canvas w-full max-w-2xl h-auto" id="pdf-canvas"></canvas>
 <button class="absolute right-0 text-gray-900" id="next-page">
 <svg class="icon" fill="currentColor" viewbox="0 0 24 24"><path d="M8.46 4.46a1.5 1.5 0 012.12 0l6.5 6.5a1.5 1.5 0 010 2.12l-6.5 6.5a1.5 1.5 0 11-2.12-2.12L13.88 12 8.46 6.58a1.5 1.5 0 010-2.12z"></path></svg>
 </button>
@@ -492,64 +493,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("success-checkmark").classList.add("hidden");
 
     loadPdf(previewUrl);
-  });
-});
-</script>
-
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-
-  let scale = 1;
-  let renderTask = null;
-  const canvas = document.getElementById("pdf-canvas");
-  const context = canvas.getContext("2d");
-  const zoomInBtn = document.getElementById("zoom-in");
-  const zoomOutBtn = document.getElementById("zoom-out");
-
-  let pdfDoc = null;
-  let currentPage = 1;
-
-  function renderPage(pdf, pageNum) {
-    pdf.getPage(pageNum).then((page) => {
-      const viewport = page.getViewport({ scale: scale });
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-
-      if (renderTask) {
-        renderTask.cancel(); // cancel any existing render before starting new
-      }
-
-      renderTask = page.render(renderContext);
-    });
-  }
-
-  const loadPdf = async (url) => {
-    const loadingTask = pdfjsLib.getDocument(url);
-    pdfDoc = await loadingTask.promise;
-    renderPage(pdfDoc, currentPage);
-  };
-
-  // Make loadPdf globally accessible
-  window.loadPdf = loadPdf;
-
-  zoomInBtn?.addEventListener("click", () => {
-    if (scale < 3 && pdfDoc) {
-      scale += 0.1;
-      renderPage(pdfDoc, currentPage);
-    }
-  });
-
-  zoomOutBtn?.addEventListener("click", () => {
-    if (scale > 0.3 && pdfDoc) {
-      scale -= 0.1;
-      renderPage(pdfDoc, currentPage);
-    }
   });
 });
 </script>
