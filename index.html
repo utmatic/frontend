@@ -200,6 +200,12 @@ document.addEventListener("click", function (e) {
 <span class="text-gray-500 text-sm">.pdf</span>
 </div>
 </div>
+
+<div class="flex items-center gap-2">
+  <input type="checkbox" id="underline" name="underline" class="w-4 h-4">
+  <label for="underline" class="text-base text-gray-700">Add underline to linked text</label>
+</div>
+
 <button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
     Process PDF
    </button>
@@ -333,6 +339,7 @@ form.addEventListener("submit", async (e) => {
   form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
 
   const formData = new FormData(form);
+  formData.append("underline", document.getElementById("underline").checked);
    const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
 
    // 1. Get final clean PDF
@@ -546,6 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
   form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
 
   const formData = new FormData(form);
+  formData.append("underline", document.getElementById("underline").checked);
     const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
 
     const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
