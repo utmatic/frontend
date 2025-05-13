@@ -495,5 +495,54 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  let scale = 1;
+  const canvas = document.getElementById("pdf-canvas");
+  const context = canvas.getContext("2d");
+  const zoomInBtn = document.getElementById("zoom-in");
+  const zoomOutBtn = document.getElementById("zoom-out");
+
+  const renderPage = (pdf, pageNum) => {
+    pdf.getPage(pageNum).then((page) => {
+      const viewport = page.getViewport({ scale: scale });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+      page.render(renderContext);
+    });
+  };
+
+  let pdfDoc = null;
+  let currentPage = 1;
+
+  const loadPdf = async (url) => {
+    const loadingTask = pdfjsLib.getDocument(url);
+    pdfDoc = await loadingTask.promise;
+    renderPage(pdfDoc, currentPage);
+  };
+
+  // Hook zoom in/out buttons
+  zoomInBtn?.addEventListener("click", () => {
+    if (scale < 3) {
+      scale += 0.1;
+      renderPage(pdfDoc, currentPage);
+    }
+  });
+
+  zoomOutBtn?.addEventListener("click", () => {
+    if (scale > 0.3) {
+      scale -= 0.1;
+      renderPage(pdfDoc, currentPage);
+    }
+  });
+
+  window.loadPdf = loadPdf;
+});
+</script>
 </body>
 </html>
