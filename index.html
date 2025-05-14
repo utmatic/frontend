@@ -163,20 +163,6 @@ document.addEventListener("click", function (e) {
 <option value="links_and_utm">Add Links and UTM</option>
 </select>
 </div>
-<div class="mt-4">
-<label class="block text-base font-medium mb-1">Want to play a game while you wait?</label>
-<select class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" id="play-game" name="play_game">
-<option selected="" value="no">No</option>
-<option value="yes">Yes</option>
-</select>
-</div>
-<div class="hidden mt-4" id="game-options">
-<label class="block text-base font-medium mb-1">Do you think it will take over or under <span class="font-semibold" id="guess-time"></span> seconds?</label>
-<select class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" id="guess-choice" name="guess_choice">
-<option value="over">Over</option>
-<option value="under">Under</option>
-</select>
-</div>
 <div class="hidden space-y-3" id="format-map-section">
 <div class="flex justify-between items-center mb-1">
 <label class="block text-base font-medium">Target Format + Base URL Mapping</label>
@@ -198,18 +184,18 @@ document.addEventListener("click", function (e) {
 <div>
 <label class="block text-base font-medium mb-1">Name Your PDF</label>
 <div class="flex items-center gap-2">
-<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text"/>
+<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text">
 <span class="text-gray-500 text-sm">.pdf</span>
-</div>
+</input></div>
 </div>
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
 <label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
 </div>
 
-<div class="flex items-center gap-2 mt-4">
-<input class="w-4 h-4" id="play-game" name="play_game" type="checkbox"/>
-<label class="text-base text-gray-700" for="play-game">Want to play a game while it processes?</label>
+<div class="flex items-center gap-2">
+<input class="w-4 h-4" id="play-pong" name="play_pong" type="checkbox"/>
+<label class="text-base text-gray-700" for="play-pong">Play Pong while it processes?</label>
 </div>
 <button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
     Process PDF
@@ -691,65 +677,84 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-<!-- Game Result Modal -->
 
-
-<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden" id="game-choice-modal">
-<div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
-<h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Guess the Processing Time</h2>
-<p class="text-gray-600 mb-4">Do you think it will take <strong>over</strong> or <strong>under</strong> <span class="text-blue-600 font-semibold" id="modal-guess-time"></span> seconds?</p>
-<div class="flex justify-around gap-6">
-<button class="w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-over">Over</button>
-<button class="w-1/2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-under">Under</button>
-</div>
-</div>
-</div>
-<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden" id="game-result-modal">
-<div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center">
-<h2 class="text-xl font-bold text-gray-900 mb-2" id="game-result-message"></h2>
-<p class="text-sm text-gray-700 mb-4">Actual processing time: <span class="font-semibold" id="actual-time-display"></span> seconds</p>
-<button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-semibold" onclick="document.getElementById('game-result-modal').classList.add('hidden')">Close</button>
-</div>
+<div class="fixed inset-0 bg-black z-50 hidden items-center justify-center" id="pong-overlay">
+<canvas class="border border-white" height="400" id="pong-canvas" width="600"></canvas>
 </div>
 <script>
-let fileSizeKB = 0;
-let overUnder = 0;
-let userGuess = null;
+const playPongCheckbox = document.getElementById("play-pong");
+const pongOverlay = document.getElementById("pong-overlay");
+const loadingIndicator = document.getElementById("loading-indicator");
 
-document.getElementById("file-input").addEventListener("change", function () {
-  const file = this.files[0];
-  if (file) {
-    fileSizeKB = Math.round(file.size / 1024);
-    const rawTime = fileSizeKB / 10;
-    overUnder = (Math.floor(rawTime) + 0.5).toFixed(1);
-  }
-});
+const canvas = document.getElementById("pong-canvas");
+const ctx = canvas.getContext("2d");
+let pongInterval, ball, paddle;
 
-document.getElementById("upload-form").addEventListener("submit", function(e) {
-  const playGame = document.getElementById("play-game").checked;
-  if (playGame && overUnder) {
-    e.preventDefault();
-    document.getElementById("modal-guess-time").textContent = overUnder;
-    document.getElementById("game-choice-modal").classList.remove("hidden");
-
-    document.getElementById("guess-over").onclick = () => handleGameGuess("over");
-    document.getElementById("guess-under").onclick = () => handleGameGuess("under");
-  }
-});
-
-async function handleGameGuess(guessChoice) {
-  userGuess = guessChoice;
-  document.getElementById("game-choice-modal").classList.add("hidden");
-  await processDocument(true);
+function startPong() {
+  pongOverlay.classList.remove("hidden");
+  ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 4, dy: 4, r: 8 };
+  paddle = { x: canvas.width / 2 - 50, y: canvas.height - 20, w: 100, h: 10 };
+  pongInterval = setInterval(drawPong, 16);
+  document.addEventListener("mousemove", movePaddle);
 }
 
-async function processDocument(played = false) {
-  const form = document.getElementById("upload-form");
-  document.getElementById("loading-indicator").classList.remove("hidden");
+function endPong() {
+  clearInterval(pongInterval);
+  pongOverlay.classList.add("hidden");
+  document.removeEventListener("mousemove", movePaddle);
+}
 
-  let stopwatch = 0;
-  const timer = setInterval(() => stopwatch += 0.1, 100);
+function movePaddle(e) {
+  const rect = canvas.getBoundingClientRect();
+  paddle.x = e.clientX - rect.left - paddle.w / 2;
+}
 
+function drawPong() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Ball
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = "#4ade80";
+  ctx.fill();
+  ctx.closePath();
+  // Paddle
+  ctx.fillStyle = "#60a5fa";
+  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+  // Move ball
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+  if (ball.x < ball.r || ball.x > canvas.width - ball.r) ball.dx *= -1;
+  if (ball.y < ball.r) ball.dy *= -1;
+  if (ball.y > canvas.height - ball.r) ball.dy *= -1;
+  if (ball.y + ball.r >= paddle.y &&
+      ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
+    ball.dy *= -1;
+  }
+}
+
+// Patch the form submit behavior to use Pong instead of the spinner
+const originalFormHandler = form.onsubmit;
+form.addEventListener("submit", async (e) => {
+  const fileInput = document.getElementById("file-input");
+  const fileWarning = document.getElementById("file-warning");
+  if (!fileInput || fileInput.files.length === 0) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    fileWarning?.classList.remove("hidden");
+    return;
+  } else {
+    fileWarning?.classList.add("hidden");
+  }
+
+  e.preventDefault();
+  const shouldPlay = playPongCheckbox.checked;
+  if (shouldPlay) {
+    startPong();
+  } else {
+    loadingIndicator.classList.remove("hidden");
+  }
+
+  // Call original logic after Pong/Spinner starts
   const formatMap = {};
   document.querySelectorAll(".mapping-row").forEach(row => {
     const format = row.querySelector('input[name="format"]').value.trim();
@@ -760,9 +765,7 @@ async function processDocument(played = false) {
 
   const formData = new FormData(form);
   formData.append("underline", document.getElementById("underline").checked);
-  const filename = form.querySelector('input[name="filename"]').value.trim() || 'processed';
-
-  const startTime = performance.now();
+  const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
 
   const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
     method: "POST",
@@ -787,26 +790,14 @@ async function processDocument(played = false) {
     </svg>
     ${linkCount} links modified`;
 
-  clearInterval(timer);
-  const actualTime = ((performance.now() - startTime) / 1000).toFixed(1);
-  const threshold = parseFloat(overUnder);
+  if (shouldPlay) endPong();
+  else loadingIndicator.classList.add("hidden");
 
-  if (played) {
-    const result = (userGuess === "under" && actualTime < threshold) || (userGuess === "over" && actualTime > threshold)
-      ? "You win! 🎉"
-      : (actualTime == threshold ? "It’s a push! 🤝" : "You lose! 😢");
-
-    document.getElementById("actual-time-display").textContent = actualTime;
-    document.getElementById("game-result-message").textContent = result;
-    document.getElementById("game-result-modal").classList.remove("hidden");
-  }
-
-  document.getElementById("loading-indicator").classList.add("hidden");
   document.getElementById("success-checkmark").classList.remove("hidden");
   await new Promise(resolve => setTimeout(resolve, 2500));
   document.getElementById("success-checkmark").classList.add("hidden");
 
   loadPdf(previewUrl);
-}
+});
 </script></body>
 </html>
