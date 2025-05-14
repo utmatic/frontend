@@ -46,7 +46,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <style>
   body {
@@ -132,7 +131,6 @@ document.addEventListener("click", function (e) {
 </svg>
   Please upload a document
 </p>
-
 <input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -165,34 +163,29 @@ document.addEventListener("click", function (e) {
 <option value="links_and_utm">Add Links and UTM</option>
 </select>
 </div>
-
-
-
-
-<div id="format-map-section" class="hidden space-y-3">
-  <div class="flex justify-between items-center mb-1">
-    <label class="block text-base font-medium">Target Format + Base URL Mapping</label>
-    <button type="button" onclick="addMappingRow()" class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium" title="Add Mapping">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-      </svg>
-      Add new
-    </button>
-  </div>
-  <div id="mapping-container" class="space-y-3">
-    <div class="grid grid-cols-2 gap-4 mapping-row items-center">
-      <input type="text" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN"
-        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
-      <input type="text" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/"
-        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
-    </div>
-  </div>
-  
-
+<div class="mt-4">
+<label class="block text-base font-medium mb-1">Want to play a game while you wait?</label>
 
 </div>
-<input type="hidden" name="format_map" id="format-map-field">
 
+<div class="hidden space-y-3" id="format-map-section">
+<div class="flex justify-between items-center mb-1">
+<label class="block text-base font-medium">Target Format + Base URL Mapping</label>
+<button class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="addMappingRow()" title="Add Mapping" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+      Add new
+    </button>
+</div>
+<div class="space-y-3" id="mapping-container">
+<div class="grid grid-cols-2 gap-4 mapping-row items-center">
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN" required="" type="text"/>
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/" required="" type="text"/>
+</div>
+</div>
+</div>
+<input id="format-map-field" name="format_map" type="hidden"/>
 <div>
 <label class="block text-base font-medium mb-1">Name Your PDF</label>
 <div class="flex items-center gap-2">
@@ -200,12 +193,10 @@ document.addEventListener("click", function (e) {
 <span class="text-gray-500 text-sm">.pdf</span>
 </div>
 </div>
-
 <div class="flex items-center gap-2">
-  <input type="checkbox" id="underline" name="underline" class="w-4 h-4">
-  <label for="underline" class="text-base text-gray-700">Add underline to linked text</label>
+<input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
+<label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
 </div>
-
 <button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
     Process PDF
    </button>
@@ -287,7 +278,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
   
 
@@ -457,7 +447,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="tooltip-modal">
 <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full text-left">
 <h2 class="text-xl font-bold mb-4 text-gray-900">What is UTM Content?</h2>
@@ -511,7 +500,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("upload-form");
@@ -597,8 +585,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
-
 <script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
@@ -621,8 +607,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
-
 <script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
@@ -651,7 +635,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
   function toggleConditionalFields() {
   const jobType = document.getElementById("job-type").value;
@@ -694,9 +677,112 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-</body>
+<!-- Game Result Modal -->
 
+
+<!-- Over/Under Game Modal -->
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden" id="game-choice-modal">
+<div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
+<h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Guess the Processing Time</h2>
+<p class="text-gray-600 mb-4">Do you think it will take <strong>over</strong> or <strong>under</strong> <span class="text-blue-600 font-semibold" id="modal-guess-time"></span> seconds?</p>
+<div class="flex justify-around gap-6">
+<button class="w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-over">Over</button>
+<button class="w-1/2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-under">Under</button>
+</div>
+</div>
+</div>
+<script>
+let fileSizeKB = 0;
+let overUnder = 0;
+let userGuess = null;
+
+document.getElementById("file-input").addEventListener("change", function () {
+  const file = this.files[0];
+  if (file) {
+    fileSizeKB = Math.round(file.size / 1024);
+    const rawTime = fileSizeKB / 10;
+    overUnder = (Math.floor(rawTime) + 0.5).toFixed(1);
+  }
+});
+
+const form = document.getElementById("upload-form");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!overUnder) {
+    alert("Please upload a PDF file first.");
+    return;
+  }
+
+  document.getElementById("modal-guess-time").textContent = overUnder;
+  document.getElementById("game-choice-modal").classList.remove("hidden");
+
+  document.getElementById("guess-over").onclick = () => handleGameGuess("over");
+  document.getElementById("guess-under").onclick = () => handleGameGuess("under");
+});
+
+async function handleGameGuess(guessChoice) {
+  userGuess = guessChoice;
+  document.getElementById("game-choice-modal").classList.add("hidden");
+  document.getElementById("loading-indicator").classList.remove("hidden");
+
+  let stopwatch = 0;
+  const timer = setInterval(() => stopwatch += 0.1, 100);
+
+  const formatMap = {};
+  document.querySelectorAll(".mapping-row").forEach(row => {
+    const format = row.querySelector('input[name="format"]').value.trim();
+    const url = row.querySelector('input[name="url"]').value.trim();
+    if (format && url) formatMap[format] = url;
+  });
+  form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
+
+  const formData = new FormData(form);
+  formData.append("underline", document.getElementById("underline").checked);
+  const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
+
+  const startTime = performance.now();
+
+  const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
+    method: "POST",
+    body: formData
+  });
+  const cleanBlob = await cleanResponse.blob();
+  const cleanUrl = URL.createObjectURL(cleanBlob);
+  document.getElementById("download-link").href = cleanUrl;
+  document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
+
+  const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
+    method: "POST",
+    body: formData
+  });
+  const previewBlob = await previewResponse.blob();
+  const previewUrl = URL.createObjectURL(previewBlob);
+
+  const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+  document.getElementById("link-count").innerHTML = `
+    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+    </svg>
+    ${linkCount} links modified`;
+
+  clearInterval(timer);
+  const actualTime = ((performance.now() - startTime) / 1000).toFixed(1);
+  const threshold = parseFloat(overUnder);
+  const result = (userGuess === "under" && actualTime < threshold) || (userGuess === "over" && actualTime > threshold)
+    ? "You win! 🎉"
+    : (actualTime == threshold ? "It’s a push! 🤝" : "You lose! 😢");
+
+  document.getElementById("actual-time-display").textContent = actualTime;
+  document.getElementById("game-result-message").textContent = result;
+  document.getElementById("game-result-modal").classList.remove("hidden");
+
+  document.getElementById("loading-indicator").classList.add("hidden");
+  document.getElementById("success-checkmark").classList.remove("hidden");
+  await new Promise(resolve => setTimeout(resolve, 2500));
+  document.getElementById("success-checkmark").classList.add("hidden");
+
+  loadPdf(previewUrl);
+}
+</script></body>
 </html>
-
-
-
