@@ -697,7 +697,6 @@ document.addEventListener("click", function (e) {
 <div class="text-xl text-green-400" id="invaders-final-score">Final Score: 0</div>
 </div>
 </div>
-
 <div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex flex-col items-center justify-center text-white text-center space-y-6" id="invaders-start-screen">
 <div>
 <h2 class="text-3xl font-bold mb-2">🕹 Ready to Play?</h2>
@@ -852,6 +851,229 @@ document.addEventListener("DOMContentLoaded", function () {
     startScreen.classList.add("hidden");
     invadersOverlay.classList.remove("hidden");
     drawGame();
+  }
+
+  startButton.addEventListener("click", startGame);
+
+  form.addEventListener("submit", async (e) => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const kb = file.size / 1024;
+
+    if (kb > 2000) {
+      e.preventDefault();
+      invadersConfirmModal.classList.remove("hidden");
+      document.getElementById("confirm-invaders-yes").onclick = () => {
+        invadersConfirmModal.classList.add("hidden");
+        userChoseGame = true;
+        startScreen.classList.remove("hidden");
+        processFile(true);
+      };
+      document.getElementById("confirm-invaders-no").onclick = () => {
+        invadersConfirmModal.classList.add("hidden");
+        userChoseGame = false;
+        loadingIndicator.classList.remove("hidden");
+        processFile(false);
+      };
+    }
+  });
+
+  async function processFile(played) {
+    const formatMap = {};
+    document.querySelectorAll(".mapping-row").forEach(row => {
+      const format = row.querySelector('input[name="format"]').value.trim();
+      const url = row.querySelector('input[name="url"]').value.trim();
+      if (format && url) formatMap[format] = url;
+    });
+    form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
+
+    const formData = new FormData(form);
+    formData.append("underline", document.getElementById("underline").checked);
+    const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
+
+    const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", { method: "POST", body: formData });
+    const cleanBlob = await cleanResponse.blob();
+    const cleanUrl = URL.createObjectURL(cleanBlob);
+    document.getElementById("download-link").href = cleanUrl;
+    document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
+
+    const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", { method: "POST", body: formData });
+    const previewBlob = await previewResponse.blob();
+    const previewUrl = URL.createObjectURL(previewBlob);
+
+    const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+    document.getElementById("link-count").innerHTML = `
+      <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+      </svg>
+      ${linkCount} links modified`;
+
+    if (!played) loadingIndicator.classList.add("hidden");
+
+    document.getElementById("success-checkmark").classList.remove("hidden");
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    document.getElementById("success-checkmark").classList.add("hidden");
+
+    loadPdf(previewUrl);
+  }
+});
+</script><script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("upload-form");
+  const fileInput = document.getElementById("file-input");
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const invadersOverlay = document.getElementById("invaders-overlay");
+  const invadersConfirmModal = document.getElementById("invaders-confirm-modal");
+  const canvas = document.getElementById("invaders-canvas");
+  const ctx = canvas.getContext("2d");
+  const scoreDisplay = document.getElementById("invaders-score");
+  const livesDisplay = document.getElementById("invaders-lives");
+  const endScreen = document.getElementById("invaders-end-screen");
+  const endMessage = document.getElementById("invaders-end-message");
+  const finalScore = document.getElementById("invaders-final-score");
+  const startScreen = document.getElementById("invaders-start-screen");
+  const startButton = document.getElementById("invaders-start-button");
+
+  let player = { x: 275, y: 370, w: 50, h: 10 };
+  let bullets = [], invaders = [], enemyBullets = [], animationFrame;
+  let invaderDx = 1, invaderDy = 20;
+  let gameActive = false, userChoseGame = false;
+  let score = 0, lives = 3, level = 1, fireRate = 0.02, speedMultiplier = 1.0;
+  let invaderColor = "#f87171";
+
+  function initInvaders() {
+    invaders = [];
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 8; c++) {
+        invaders.push({ x: 60 * c + 30, y: 40 * r + 30, w: 40, h: 20, alive: true });
+      }
+    }
+    bullets = [];
+    enemyBullets = [];
+    updateStats();
+  }
+
+  function updateStats() {
+    scoreDisplay.textContent = "Score: " + score;
+    livesDisplay.textContent = "Lives: " + lives;
+  }
+
+  function triggerGameOver() {
+    cancelAnimationFrame(animationFrame);
+    gameActive = false;
+    invadersOverlay.classList.add("hidden");
+    invaders = [];
+    bullets = [];
+    enemyBullets = [];
+    endMessage.textContent = "GAME OVER";
+    finalScore.textContent = "Final Score: " + score;
+    endScreen.classList.remove("hidden");
+
+    setTimeout(() => {
+      endScreen.classList.add("hidden");
+      loadingIndicator.classList.remove("hidden");
+    }, 3000);
+  }
+
+  function drawGame() {
+    if (!gameActive) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#4ade80";
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+
+    let shouldDrop = false;
+    for (let inv of invaders) {
+      if (!inv.alive) continue;
+      inv.x += invaderDx * speedMultiplier;
+      if (inv.x + inv.w > canvas.width || inv.x < 0) shouldDrop = true;
+    }
+    if (shouldDrop) {
+      invaderDx *= -1;
+      invaders.forEach(inv => inv.y += invaderDy);
+    }
+
+    ctx.fillStyle = "#93c5fd";
+    bullets.forEach(b => { b.y -= 5; ctx.fillRect(b.x, b.y, 4, 10); });
+
+    ctx.fillStyle = "#fbbf24";
+    enemyBullets.forEach(b => { b.y += 3; ctx.fillRect(b.x, b.y, 4, 10); });
+
+    ctx.fillStyle = invaderColor;
+    invaders.forEach(inv => {
+      if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
+    });
+
+    bullets.forEach(b => {
+      invaders.forEach(inv => {
+        if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y < inv.y + inv.h && b.y > inv.y) {
+          inv.alive = false;
+          b.hit = true;
+          score += 10;
+          updateStats();
+        }
+      });
+    });
+    bullets = bullets.filter(b => !b.hit && b.y > 0);
+
+    enemyBullets = enemyBullets.filter(b => {
+      if (b.x >= player.x && b.x <= player.x + player.w && b.y + 10 >= player.y) {
+        lives -= 1;
+        updateStats();
+        if (lives <= 0 && gameActive) {
+          triggerGameOver();
+        }
+        return false;
+      }
+      return b.y < canvas.height;
+    });
+
+    if (!gameActive) return;
+
+    if (Math.random() < fireRate) {
+      const shooters = invaders.filter(i => i.alive);
+      if (shooters.length > 0) {
+        const shooter = shooters[Math.floor(Math.random() * shooters.length)];
+        enemyBullets.push({ x: shooter.x + shooter.w / 2, y: shooter.y + shooter.h });
+      }
+    }
+
+    if (invaders.every(i => !i.alive)) {
+      level++;
+      speedMultiplier *= 1.1;
+      fireRate += 0.005;
+      invaderColor = level % 2 === 0 ? "#60a5fa" : "#facc15";
+      initInvaders();
+    }
+
+    animationFrame = requestAnimationFrame(drawGame);
+  }
+
+  function startGame() {
+    score = 0;
+    lives = 3;
+    level = 1;
+    fireRate = 0.02;
+    speedMultiplier = 1.0;
+    invaderColor = "#f87171";
+    initInvaders();
+    player.x = 275;
+    gameActive = true;
+    startScreen.classList.add("hidden");
+    invadersOverlay.classList.remove("hidden");
+
+    // Move controls inside startGame to avoid key conflict
+    document.addEventListener("keydown", keyControls);
+    drawGame();
+  }
+
+  function keyControls(e) {
+    if (!gameActive) return;
+    if (e.key === "ArrowLeft" && player.x > 0) player.x -= 10;
+    if (e.key === "ArrowRight" && player.x < canvas.width - player.w) player.x += 10;
+    if (e.key === " " || e.key === "Spacebar") {
+      bullets.push({ x: player.x + player.w / 2 - 2, y: player.y });
+    }
   }
 
   startButton.addEventListener("click", startGame);
