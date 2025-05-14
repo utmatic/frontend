@@ -691,6 +691,13 @@ document.addEventListener("click", function (e) {
 </div>
 </div>
 </div>
+
+<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center text-center" id="invaders-end-screen">
+<div>
+<div class="text-5xl font-bold text-white mb-4 drop-shadow-lg" id="invaders-end-message"></div>
+<div class="text-xl text-green-400" id="invaders-final-score"></div>
+</div>
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("upload-form");
@@ -702,11 +709,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const ctx = canvas.getContext("2d");
   const scoreDisplay = document.getElementById("invaders-score");
   const livesDisplay = document.getElementById("invaders-lives");
+  const endScreen = document.getElementById("invaders-end-screen");
+  const endMessage = document.getElementById("invaders-end-message");
+  const finalScore = document.getElementById("invaders-final-score");
 
   let player = { x: 275, y: 370, w: 50, h: 10 };
   let bullets = [], invaders = [], enemyBullets = [], animationFrame;
   let invaderDx = 1, invaderDy = 20, moveRight = true;
-  let gameActive = false, userChoseGame = false, score = 0, lives = 3;
+  let gameActive = false, userChoseGame = false;
+  let score = 0, lives = 3, level = 1, fireRate = 0.02, speedMultiplier = 1.0;
+  let invaderColor = "#f87171";
 
   function initInvaders() {
     invaders = [];
@@ -715,8 +727,6 @@ document.addEventListener("DOMContentLoaded", function () {
         invaders.push({ x: 60 * c + 30, y: 40 * r + 30, w: 40, h: 20, alive: true });
       }
     }
-    score = 0;
-    lives = 3;
     bullets = [];
     enemyBullets = [];
     updateStats();
@@ -727,6 +737,16 @@ document.addEventListener("DOMContentLoaded", function () {
     livesDisplay.textContent = "Lives: " + lives;
   }
 
+  function endGame(message) {
+    cancelAnimationFrame(animationFrame);
+    gameActive = false;
+    invadersOverlay.classList.add("hidden");
+    endMessage.textContent = message;
+    finalScore.textContent = "Final Score: " + score;
+    endScreen.classList.remove("hidden");
+    setTimeout(() => endScreen.classList.add("hidden"), 3000);
+  }
+
   function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#4ade80";
@@ -735,7 +755,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let shouldDrop = false;
     for (let inv of invaders) {
       if (!inv.alive) continue;
-      inv.x += invaderDx;
+      inv.x += invaderDx * speedMultiplier;
       if (inv.x + inv.w > canvas.width || inv.x < 0) shouldDrop = true;
     }
     if (shouldDrop) {
@@ -749,7 +769,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.fillStyle = "#fbbf24";
     enemyBullets.forEach(b => { b.y += 3; ctx.fillRect(b.x, b.y, 4, 10); });
 
-    ctx.fillStyle = "#f87171";
+    ctx.fillStyle = invaderColor;
     invaders.forEach(inv => {
       if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
     });
@@ -771,14 +791,14 @@ document.addEventListener("DOMContentLoaded", function () {
         lives -= 1;
         updateStats();
         if (lives <= 0) {
-          endGame();
+          endGame("GAME OVER");
         }
         return false;
       }
       return b.y < canvas.height;
     });
 
-    if (Math.random() < 0.02) {
+    if (Math.random() < fireRate) {
       const shooters = invaders.filter(i => i.alive);
       if (shooters.length > 0) {
         const shooter = shooters[Math.floor(Math.random() * shooters.length)];
@@ -786,25 +806,29 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    if (invaders.every(i => !i.alive)) {
+      level++;
+      speedMultiplier *= 1.1;
+      fireRate += 0.005;
+      invaderColor = level % 2 === 0 ? "#60a5fa" : "#facc15";
+      initInvaders();
+    }
+
     animationFrame = requestAnimationFrame(drawGame);
   }
 
   function startGame() {
+    score = 0;
+    lives = 3;
+    level = 1;
+    fireRate = 0.02;
+    speedMultiplier = 1.0;
+    invaderColor = "#f87171";
     initInvaders();
     player.x = 275;
     gameActive = true;
     invadersOverlay.classList.remove("hidden");
     drawGame();
-  }
-
-  function endGame() {
-    cancelAnimationFrame(animationFrame);
-    gameActive = false;
-    invadersOverlay.classList.add("hidden");
-  }
-
-  function stopGame() {
-    endGame();
   }
 
   document.addEventListener("keydown", (e) => {
@@ -867,8 +891,12 @@ document.addEventListener("DOMContentLoaded", function () {
       </svg>
       ${linkCount} links modified`;
 
-    if (played) stopGame();
-    else loadingIndicator.classList.add("hidden");
+    if (played) {
+      endScreen.classList.add("hidden");
+      invadersOverlay.classList.add("hidden");
+    } else {
+      loadingIndicator.classList.add("hidden");
+    }
 
     document.getElementById("success-checkmark").classList.remove("hidden");
     await new Promise(resolve => setTimeout(resolve, 2500));
