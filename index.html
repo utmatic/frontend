@@ -687,7 +687,7 @@ document.addEventListener("click", function (e) {
 <canvas class="border border-white shadow-lg" height="400" id="invaders-canvas" width="600"></canvas>
 <div class="mt-6 text-center text-base text-white font-medium space-y-1">
 <div>🕹 <strong>Controls:</strong> Arrow keys to move · Spacebar to shoot</div>
-<div class="text-green-300 font-semibold" id="invaders-score">Score: 0</div>
+<div class="text-green-300 font-semibold" id="invaders-score">Score: 0</div><div class="text-red-300" id="invaders-lives">Lives: 3</div>
 </div>
 </div>
 </div>
@@ -701,11 +701,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const canvas = document.getElementById("invaders-canvas");
   const ctx = canvas.getContext("2d");
   const scoreDisplay = document.getElementById("invaders-score");
+  const livesDisplay = document.getElementById("invaders-lives");
 
   let player = { x: 275, y: 370, w: 50, h: 10 };
   let bullets = [], invaders = [], enemyBullets = [], animationFrame;
   let invaderDx = 1, invaderDy = 20, moveRight = true;
-  let gameActive = false, userChoseGame = false, score = 0;
+  let gameActive = false, userChoseGame = false, score = 0, lives = 3;
 
   function initInvaders() {
     invaders = [];
@@ -715,13 +716,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
     score = 0;
+    lives = 3;
     bullets = [];
     enemyBullets = [];
-    updateScore();
+    updateStats();
   }
 
-  function updateScore() {
+  function updateStats() {
     scoreDisplay.textContent = "Score: " + score;
+    livesDisplay.textContent = "Lives: " + lives;
   }
 
   function drawGame() {
@@ -729,7 +732,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.fillStyle = "#4ade80";
     ctx.fillRect(player.x, player.y, player.w, player.h);
 
-    // Move invaders
     let shouldDrop = false;
     for (let inv of invaders) {
       if (!inv.alive) continue;
@@ -741,44 +743,41 @@ document.addEventListener("DOMContentLoaded", function () {
       invaders.forEach(inv => inv.y += invaderDy);
     }
 
-    // Draw bullets
     ctx.fillStyle = "#93c5fd";
     bullets.forEach(b => { b.y -= 5; ctx.fillRect(b.x, b.y, 4, 10); });
 
-    // Enemy bullets
     ctx.fillStyle = "#fbbf24";
     enemyBullets.forEach(b => { b.y += 3; ctx.fillRect(b.x, b.y, 4, 10); });
 
-    // Draw invaders
     ctx.fillStyle = "#f87171";
     invaders.forEach(inv => {
       if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
     });
 
-    // Bullet collisions
     bullets.forEach(b => {
       invaders.forEach(inv => {
         if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y < inv.y + inv.h && b.y > inv.y) {
           inv.alive = false;
           b.hit = true;
           score += 10;
-          updateScore();
+          updateStats();
         }
       });
     });
     bullets = bullets.filter(b => !b.hit && b.y > 0);
 
-    // Check if enemy bullets hit player
     enemyBullets = enemyBullets.filter(b => {
       if (b.x >= player.x && b.x <= player.x + player.w && b.y + 10 >= player.y) {
-        score -= 50;
-        updateScore();
+        lives -= 1;
+        updateStats();
+        if (lives <= 0) {
+          endGame();
+        }
         return false;
       }
       return b.y < canvas.height;
     });
 
-    // Random invader fire
     if (Math.random() < 0.02) {
       const shooters = invaders.filter(i => i.alive);
       if (shooters.length > 0) {
@@ -798,10 +797,14 @@ document.addEventListener("DOMContentLoaded", function () {
     drawGame();
   }
 
-  function stopGame() {
+  function endGame() {
     cancelAnimationFrame(animationFrame);
-    invadersOverlay.classList.add("hidden");
     gameActive = false;
+    invadersOverlay.classList.add("hidden");
+  }
+
+  function stopGame() {
+    endGame();
   }
 
   document.addEventListener("keydown", (e) => {
