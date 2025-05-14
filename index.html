@@ -184,9 +184,9 @@ document.addEventListener("click", function (e) {
 <div>
 <label class="block text-base font-medium mb-1">Name Your PDF</label>
 <div class="flex items-center gap-2">
-<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text"/>
+<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text">
 <span class="text-gray-500 text-sm">.pdf</span>
-</div>
+</input></div>
 </div>
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
@@ -672,10 +672,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center flex-col text-white" id="invaders-overlay">
-<canvas class="border border-white" height="400" id="invaders-canvas" width="600"></canvas>
-<p class="mt-4 text-sm text-gray-400">Shoot all invaders while we process your document.</p>
-</div>
 
 <div class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center" id="invaders-confirm-modal">
 <div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
@@ -687,135 +683,137 @@ document.addEventListener("click", function (e) {
 </div>
 </div>
 </div>
+
+<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center flex-col text-white" id="invaders-overlay">
+<canvas class="border border-white" height="400" id="invaders-canvas" width="600"></canvas>
+<p class="mt-4 text-sm text-gray-400">Shoot all invaders while we process your document.</p>
+</div>
 <script>
-const fileInput = document.getElementById("file-input");
-const form = document.getElementById("upload-form");
-const loadingIndicator = document.getElementById("loading-indicator");
-const invadersOverlay = document.getElementById("invaders-overlay");
-const invadersConfirmModal = document.getElementById("invaders-confirm-modal");
-const canvas = document.getElementById("invaders-canvas");
-const ctx = canvas.getContext("2d");
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("upload-form");
+  const fileInput = document.getElementById("file-input");
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const invadersOverlay = document.getElementById("invaders-overlay");
+  const invadersConfirmModal = document.getElementById("invaders-confirm-modal");
+  const canvas = document.getElementById("invaders-canvas");
+  const ctx = canvas.getContext("2d");
 
-let player = { x: 275, y: 370, w: 50, h: 10 };
-let bullets = [], invaders = [], animationFrame, gameActive = false;
-let userChoseGame = false;
+  let player = { x: 275, y: 370, w: 50, h: 10 };
+  let bullets = [], invaders = [], animationFrame, gameActive = false;
+  let userChoseGame = false;
 
-// Setup invaders
-function initInvaders() {
-  invaders = [];
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 8; c++) {
-      invaders.push({ x: 60 * c + 30, y: 40 * r + 30, w: 40, h: 20, alive: true });
+  function initInvaders() {
+    invaders = [];
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 8; c++) {
+        invaders.push({ x: 60 * c + 30, y: 40 * r + 30, w: 40, h: 20, alive: true });
+      }
     }
   }
-}
 
-function drawGame() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#4ade80";
-  ctx.fillRect(player.x, player.y, player.w, player.h);
-  ctx.fillStyle = "#93c5fd";
-  bullets.forEach(b => { b.y -= 5; ctx.fillRect(b.x, b.y, 4, 10); });
-  ctx.fillStyle = "#f87171";
-  invaders.forEach(inv => { if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h); });
-  bullets.forEach(b => {
-    invaders.forEach(inv => {
-      if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y < inv.y + inv.h && b.y > inv.y) {
-        inv.alive = false; b.hit = true;
-      }
+  function drawGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#4ade80";
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.fillStyle = "#93c5fd";
+    bullets.forEach(b => { b.y -= 5; ctx.fillRect(b.x, b.y, 4, 10); });
+    ctx.fillStyle = "#f87171";
+    invaders.forEach(inv => { if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h); });
+    bullets.forEach(b => {
+      invaders.forEach(inv => {
+        if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y < inv.y + inv.h && b.y > inv.y) {
+          inv.alive = false; b.hit = true;
+        }
+      });
     });
+    bullets = bullets.filter(b => !b.hit && b.y > 0);
+    animationFrame = requestAnimationFrame(drawGame);
+  }
+
+  function startGame() {
+    initInvaders();
+    bullets = [];
+    player.x = 275;
+    gameActive = true;
+    invadersOverlay.classList.remove("hidden");
+    drawGame();
+  }
+
+  function stopGame() {
+    cancelAnimationFrame(animationFrame);
+    invadersOverlay.classList.add("hidden");
+    gameActive = false;
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (!gameActive) return;
+    if (e.key === "ArrowLeft" && player.x > 0) player.x -= 10;
+    if (e.key === "ArrowRight" && player.x < canvas.width - player.w) player.x += 10;
+    if (e.key === " " || e.key === "Spacebar") bullets.push({ x: player.x + player.w / 2 - 2, y: player.y });
   });
-  bullets = bullets.filter(b => !b.hit && b.y > 0);
-  animationFrame = requestAnimationFrame(drawGame);
-}
 
-function startGame() {
-  initInvaders();
-  bullets = [];
-  player.x = 275;
-  gameActive = true;
-  invadersOverlay.classList.remove("hidden");
-  drawGame();
-}
+  form.addEventListener("submit", async (e) => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const kb = file.size / 1024;
 
-function stopGame() {
-  cancelAnimationFrame(animationFrame);
-  invadersOverlay.classList.add("hidden");
-  gameActive = false;
-}
+    if (kb > 2000) {
+      e.preventDefault();
+      invadersConfirmModal.classList.remove("hidden");
+      document.getElementById("confirm-invaders-yes").onclick = () => {
+        invadersConfirmModal.classList.add("hidden");
+        userChoseGame = true;
+        startGame();
+        processFile(true);
+      };
+      document.getElementById("confirm-invaders-no").onclick = () => {
+        invadersConfirmModal.classList.add("hidden");
+        userChoseGame = false;
+        loadingIndicator.classList.remove("hidden");
+        processFile(false);
+      };
+    }
+  });
 
-document.addEventListener("keydown", (e) => {
-  if (!gameActive) return;
-  if (e.key === "ArrowLeft" && player.x > 0) player.x -= 10;
-  if (e.key === "ArrowRight" && player.x < canvas.width - player.w) player.x += 10;
-  if (e.key === " " || e.key === "Spacebar") bullets.push({ x: player.x + player.w / 2 - 2, y: player.y });
-});
+  async function processFile(played) {
+    const formatMap = {};
+    document.querySelectorAll(".mapping-row").forEach(row => {
+      const format = row.querySelector('input[name="format"]').value.trim();
+      const url = row.querySelector('input[name="url"]').value.trim();
+      if (format && url) formatMap[format] = url;
+    });
+    form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
 
-form.addEventListener("submit", async (e) => {
-  const file = fileInput.files[0];
-  if (!file) return;
-  const kb = file.size / 1024;
+    const formData = new FormData(form);
+    formData.append("underline", document.getElementById("underline").checked);
+    const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
 
-  if (kb > 2000) {
-    e.preventDefault();
-    invadersConfirmModal.classList.remove("hidden");
-    document.getElementById("confirm-invaders-yes").onclick = () => {
-      invadersConfirmModal.classList.add("hidden");
-      userChoseGame = true;
-      startGame();
-      processFile(true);
-    };
-    document.getElementById("confirm-invaders-no").onclick = () => {
-      invadersConfirmModal.classList.add("hidden");
-      userChoseGame = false;
-      loadingIndicator.classList.remove("hidden");
-      processFile(false);
-    };
-  } else {
-    userChoseGame = false;
-    loadingIndicator.classList.remove("hidden");
-    processFile(false);
+    const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", { method: "POST", body: formData });
+    const cleanBlob = await cleanResponse.blob();
+    const cleanUrl = URL.createObjectURL(cleanBlob);
+    document.getElementById("download-link").href = cleanUrl;
+    document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
+
+    const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", { method: "POST", body: formData });
+    const previewBlob = await previewResponse.blob();
+    const previewUrl = URL.createObjectURL(previewBlob);
+
+    const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+    document.getElementById("link-count").innerHTML = `
+      <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+      </svg>
+      ${linkCount} links modified`;
+
+    if (played) stopGame();
+    else loadingIndicator.classList.add("hidden");
+
+    document.getElementById("success-checkmark").classList.remove("hidden");
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    document.getElementById("success-checkmark").classList.add("hidden");
+
+    loadPdf(previewUrl);
   }
 });
-
-async function processFile(played) {
-  const formatMap = {};
-  document.querySelectorAll(".mapping-row").forEach(row => {
-    const format = row.querySelector('input[name="format"]').value.trim();
-    const url = row.querySelector('input[name="url"]').value.trim();
-    if (format && url) formatMap[format] = url;
-  });
-  form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
-
-  const formData = new FormData(form);
-  formData.append("underline", document.getElementById("underline").checked);
-  const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
-
-  const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", { method: "POST", body: formData });
-  const cleanBlob = await cleanResponse.blob();
-  const cleanUrl = URL.createObjectURL(cleanBlob);
-  document.getElementById("download-link").href = cleanUrl;
-  document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
-
-  const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", { method: "POST", body: formData });
-  const previewBlob = await previewResponse.blob();
-  const previewUrl = URL.createObjectURL(previewBlob);
-
-  const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
-  document.getElementById("link-count").innerHTML = `
-    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-    </svg>
-    ${linkCount} links modified`;
-
-  if (played) stopGame();
-  else loadingIndicator.classList.add("hidden");
-
-  document.getElementById("success-checkmark").classList.remove("hidden");
-  await new Promise(resolve => setTimeout(resolve, 2500));
-  document.getElementById("success-checkmark").classList.add("hidden");
-
-  loadPdf(previewUrl);
-}
 </script></body>
 </html>
