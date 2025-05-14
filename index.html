@@ -691,11 +691,10 @@ document.addEventListener("click", function (e) {
 </div>
 </div>
 </div>
-
-<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center text-center" id="invaders-end-screen">
+<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center text-center transition-opacity duration-500" id="invaders-end-screen">
 <div>
-<div class="text-5xl font-bold text-white mb-4 drop-shadow-lg" id="invaders-end-message"></div>
-<div class="text-xl text-green-400" id="invaders-final-score"></div>
+<div class="text-5xl font-bold text-white mb-4 drop-shadow-lg animate-pulse" id="invaders-end-message">GAME OVER</div>
+<div class="text-xl text-green-400" id="invaders-final-score">Final Score: 0</div>
 </div>
 </div>
 <script>
@@ -715,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let player = { x: 275, y: 370, w: 50, h: 10 };
   let bullets = [], invaders = [], enemyBullets = [], animationFrame;
-  let invaderDx = 1, invaderDy = 20, moveRight = true;
+  let invaderDx = 1, invaderDy = 20;
   let gameActive = false, userChoseGame = false;
   let score = 0, lives = 3, level = 1, fireRate = 0.02, speedMultiplier = 1.0;
   let invaderColor = "#f87171";
@@ -737,14 +736,19 @@ document.addEventListener("DOMContentLoaded", function () {
     livesDisplay.textContent = "Lives: " + lives;
   }
 
-  function endGame(message) {
+  function triggerGameOver() {
     cancelAnimationFrame(animationFrame);
     gameActive = false;
     invadersOverlay.classList.add("hidden");
-    endMessage.textContent = message;
+    endMessage.textContent = "GAME OVER";
     finalScore.textContent = "Final Score: " + score;
     endScreen.classList.remove("hidden");
-    setTimeout(() => endScreen.classList.add("hidden"), 3000);
+    endScreen.classList.add("opacity-100");
+
+    setTimeout(() => {
+      endScreen.classList.add("hidden");
+      loadingIndicator.classList.remove("hidden");
+    }, 3000);
   }
 
   function drawGame() {
@@ -791,7 +795,7 @@ document.addEventListener("DOMContentLoaded", function () {
         lives -= 1;
         updateStats();
         if (lives <= 0) {
-          endGame("GAME OVER");
+          triggerGameOver();
         }
         return false;
       }
