@@ -40,48 +40,6 @@ document.addEventListener("click", function (e) {
 
 
 
-const dropArea = document.getElementById("drop-area");
-const fileInput = document.getElementById("file-input");
-const fileNameDisplay = document.getElementById("file-name");
-
-dropArea.addEventListener("click", () => fileInput.click());
-
-dropArea.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  dropArea.classList.add("bg-gray-100");
-});
-
-dropArea.addEventListener("dragleave", () => {
-  dropArea.classList.remove("bg-gray-100");
-});
-
-dropArea.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropArea.classList.remove("bg-gray-100");
-  const files = e.dataTransfer.files;
-  if (files.length > 0) {
-    fileInput.files = files;
-    fileNameDisplay.textContent = files[0].name;
-  }
-});
-
-fileInput.addEventListener("change", function () {
-  const fileName = this.files[0]?.name || "No file chosen";
-  fileNameDisplay.textContent = fileName;
-});
-
-
-document.addEventListener("click", function (e) {
-  if (e.target.closest(".delete-mapping")) {
-    const allRows = document.querySelectorAll(".mapping-row");
-    if (allRows.length > 1) {
-      e.target.closest(".mapping-row").remove();
-    }
-  }
-});
-
-
-
   
 
 function toggleConditionalFields() {
