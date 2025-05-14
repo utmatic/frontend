@@ -740,6 +740,9 @@ document.addEventListener("DOMContentLoaded", function () {
     cancelAnimationFrame(animationFrame);
     gameActive = false;
     invadersOverlay.classList.add("hidden");
+    invaders = [];
+    bullets = [];
+    enemyBullets = [];
     endMessage.textContent = "GAME OVER";
     finalScore.textContent = "Final Score: " + score;
     endScreen.classList.remove("hidden");
@@ -752,6 +755,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function drawGame() {
+    if (!gameActive) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#4ade80";
     ctx.fillRect(player.x, player.y, player.w, player.h);
@@ -794,13 +799,15 @@ document.addEventListener("DOMContentLoaded", function () {
       if (b.x >= player.x && b.x <= player.x + player.w && b.y + 10 >= player.y) {
         lives -= 1;
         updateStats();
-        if (lives <= 0) {
+        if (lives <= 0 && gameActive) {
           triggerGameOver();
         }
         return false;
       }
       return b.y < canvas.height;
     });
+
+    if (!gameActive) return;
 
     if (Math.random() < fireRate) {
       const shooters = invaders.filter(i => i.alive);
