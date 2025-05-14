@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Utmatic PDF Processor</title>
-<script defer="true" src="https://cdn.tailwindcss.com">
+<script src="https://cdn.tailwindcss.com">
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("file-input");
 const fileNameDisplay = document.getElementById("file-name");
@@ -191,10 +191,6 @@ document.addEventListener("click", function (e) {
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
 <label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
-</div>
-<div class="flex items-center gap-2">
-<input class="w-4 h-4" id="play-pong" name="play_pong" type="checkbox"/>
-<label class="text-base text-gray-700" for="play-pong">Play Pong while it processes?</label>
 </div>
 <button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
     Process PDF
@@ -676,98 +672,113 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-<div class="fixed inset-0 bg-black z-50 hidden flex items-center justify-center" id="pong-overlay">
-<canvas class="border border-white" height="400" id="pong-canvas" width="600"></canvas>
+<div class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center flex-col text-white" id="invaders-overlay">
+<canvas class="border border-white" height="400" id="invaders-canvas" width="600"></canvas>
+<p class="mt-4 text-sm text-gray-400">Shoot all invaders while we process your document.</p>
+</div>
+
+<div class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center" id="invaders-confirm-modal">
+<div class="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
+<h2 class="text-xl font-semibold text-gray-800 mb-4">This is a big file! 🎮</h2>
+<p class="text-sm text-gray-600 mb-6">Would you like to play a quick game of Space Invaders while we process it?</p>
+<div class="flex justify-center gap-4">
+<button class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded font-medium" id="confirm-invaders-yes">Yes</button>
+<button class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded font-medium" id="confirm-invaders-no">No</button>
+</div>
+</div>
 </div>
 <script>
-const playPongCheckbox = document.getElementById("play-pong");
-const pongOverlay = document.getElementById("pong-overlay");
-const loadingIndicator = document.getElementById("loading-indicator");
-
-const canvas = document.getElementById("pong-canvas");
-const ctx = canvas.getContext("2d");
-let pongInterval, ball, paddle, score;
-
-function startPong() {
-  pongOverlay.classList.remove("hidden");
-  ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
-  paddle = { x: canvas.width / 2 - 50, y: canvas.height - 20, w: 100, h: 10 };
-  score = 0;
-  pongInterval = setInterval(drawPong, 16);
-  document.addEventListener("mousemove", movePaddle);
-}
-
-function endPong() {
-  clearInterval(pongInterval);
-  pongOverlay.classList.add("hidden");
-  document.removeEventListener("mousemove", movePaddle);
-}
-
-function movePaddle(e) {
-  const rect = canvas.getBoundingClientRect();
-  paddle.x = e.clientX - rect.left - paddle.w / 2;
-}
-
-function drawPong() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Ball
-  ctx.beginPath();
-  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-  ctx.fillStyle = "#4ade80";
-  ctx.fill();
-  ctx.closePath();
-  // Paddle
-  ctx.fillStyle = "#60a5fa";
-  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
-  // Score
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "20px Work Sans, sans-serif";
-  ctx.fillText(`Score: ${score}`, 20, 30);
-  // Move ball
-  ball.x += ball.dx * ball.speedMultiplier;
-  ball.y += ball.dy * ball.speedMultiplier;
-
-  if (ball.x < ball.r || ball.x > canvas.width - ball.r) ball.dx *= -1;
-  if (ball.y < ball.r) ball.dy *= -1;
-
-  // Paddle collision
-  if (
-    ball.y + ball.r >= paddle.y &&
-    ball.x >= paddle.x && ball.x <= paddle.x + paddle.w
-  ) {
-    ball.dy *= -1;
-    ball.speedMultiplier *= 1.01; // increase speed by 1%
-    score += 1;
-  }
-
-  if (ball.y > canvas.height + ball.r) {
-    ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
-    score = 0;
-  }
-}
-
-// Submit patch
+const fileInput = document.getElementById("file-input");
 const form = document.getElementById("upload-form");
+const loadingIndicator = document.getElementById("loading-indicator");
+const invadersOverlay = document.getElementById("invaders-overlay");
+const invadersConfirmModal = document.getElementById("invaders-confirm-modal");
+const canvas = document.getElementById("invaders-canvas");
+const ctx = canvas.getContext("2d");
+
+let player = { x: 275, y: 370, w: 50, h: 10 };
+let bullets = [], invaders = [], animationFrame, gameActive = false;
+let userChoseGame = false;
+
+// Setup invaders
+function initInvaders() {
+  invaders = [];
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 8; c++) {
+      invaders.push({ x: 60 * c + 30, y: 40 * r + 30, w: 40, h: 20, alive: true });
+    }
+  }
+}
+
+function drawGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#4ade80";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+  ctx.fillStyle = "#93c5fd";
+  bullets.forEach(b => { b.y -= 5; ctx.fillRect(b.x, b.y, 4, 10); });
+  ctx.fillStyle = "#f87171";
+  invaders.forEach(inv => { if (inv.alive) ctx.fillRect(inv.x, inv.y, inv.w, inv.h); });
+  bullets.forEach(b => {
+    invaders.forEach(inv => {
+      if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y < inv.y + inv.h && b.y > inv.y) {
+        inv.alive = false; b.hit = true;
+      }
+    });
+  });
+  bullets = bullets.filter(b => !b.hit && b.y > 0);
+  animationFrame = requestAnimationFrame(drawGame);
+}
+
+function startGame() {
+  initInvaders();
+  bullets = [];
+  player.x = 275;
+  gameActive = true;
+  invadersOverlay.classList.remove("hidden");
+  drawGame();
+}
+
+function stopGame() {
+  cancelAnimationFrame(animationFrame);
+  invadersOverlay.classList.add("hidden");
+  gameActive = false;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!gameActive) return;
+  if (e.key === "ArrowLeft" && player.x > 0) player.x -= 10;
+  if (e.key === "ArrowRight" && player.x < canvas.width - player.w) player.x += 10;
+  if (e.key === " " || e.key === "Spacebar") bullets.push({ x: player.x + player.w / 2 - 2, y: player.y });
+});
+
 form.addEventListener("submit", async (e) => {
-  const fileInput = document.getElementById("file-input");
-  const fileWarning = document.getElementById("file-warning");
-  if (!fileInput || fileInput.files.length === 0) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const kb = file.size / 1024;
+
+  if (kb > 2000) {
     e.preventDefault();
-    e.stopImmediatePropagation();
-    fileWarning?.classList.remove("hidden");
-    return;
+    invadersConfirmModal.classList.remove("hidden");
+    document.getElementById("confirm-invaders-yes").onclick = () => {
+      invadersConfirmModal.classList.add("hidden");
+      userChoseGame = true;
+      startGame();
+      processFile(true);
+    };
+    document.getElementById("confirm-invaders-no").onclick = () => {
+      invadersConfirmModal.classList.add("hidden");
+      userChoseGame = false;
+      loadingIndicator.classList.remove("hidden");
+      processFile(false);
+    };
   } else {
-    fileWarning?.classList.add("hidden");
-  }
-
-  e.preventDefault();
-  const shouldPlay = playPongCheckbox.checked;
-  if (shouldPlay) {
-    startPong();
-  } else {
+    userChoseGame = false;
     loadingIndicator.classList.remove("hidden");
+    processFile(false);
   }
+});
 
+async function processFile(played) {
   const formatMap = {};
   document.querySelectorAll(".mapping-row").forEach(row => {
     const format = row.querySelector('input[name="format"]').value.trim();
@@ -780,19 +791,13 @@ form.addEventListener("submit", async (e) => {
   formData.append("underline", document.getElementById("underline").checked);
   const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
 
-  const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
-    method: "POST",
-    body: formData
-  });
+  const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", { method: "POST", body: formData });
   const cleanBlob = await cleanResponse.blob();
   const cleanUrl = URL.createObjectURL(cleanBlob);
   document.getElementById("download-link").href = cleanUrl;
   document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
 
-  const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
-    method: "POST",
-    body: formData
-  });
+  const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", { method: "POST", body: formData });
   const previewBlob = await previewResponse.blob();
   const previewUrl = URL.createObjectURL(previewBlob);
 
@@ -803,7 +808,7 @@ form.addEventListener("submit", async (e) => {
     </svg>
     ${linkCount} links modified`;
 
-  if (shouldPlay) endPong();
+  if (played) stopGame();
   else loadingIndicator.classList.add("hidden");
 
   document.getElementById("success-checkmark").classList.remove("hidden");
@@ -811,6 +816,6 @@ form.addEventListener("submit", async (e) => {
   document.getElementById("success-checkmark").classList.add("hidden");
 
   loadPdf(previewUrl);
-});
+}
 </script></body>
 </html>
