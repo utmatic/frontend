@@ -184,15 +184,14 @@ document.addEventListener("click", function (e) {
 <div>
 <label class="block text-base font-medium mb-1">Name Your PDF</label>
 <div class="flex items-center gap-2">
-<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text">
+<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text"/>
 <span class="text-gray-500 text-sm">.pdf</span>
-</input></div>
+</div>
 </div>
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
 <label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
 </div>
-
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="play-pong" name="play_pong" type="checkbox"/>
 <label class="text-base text-gray-700" for="play-pong">Play Pong while it processes?</label>
@@ -677,8 +676,7 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
-<div class="fixed inset-0 bg-black z-50 hidden items-center justify-center" id="pong-overlay">
+<div class="fixed inset-0 bg-black z-50 hidden flex items-center justify-center" id="pong-overlay">
 <canvas class="border border-white" height="400" id="pong-canvas" width="600"></canvas>
 </div>
 <script>
@@ -692,7 +690,7 @@ let pongInterval, ball, paddle;
 
 function startPong() {
   pongOverlay.classList.remove("hidden");
-  ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 4, dy: 4, r: 8 };
+  ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
   paddle = { x: canvas.width / 2 - 50, y: canvas.height - 20, w: 100, h: 10 };
   pongInterval = setInterval(drawPong, 16);
   document.addEventListener("mousemove", movePaddle);
@@ -721,19 +719,29 @@ function drawPong() {
   ctx.fillStyle = "#60a5fa";
   ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
   // Move ball
-  ball.x += ball.dx;
-  ball.y += ball.dy;
+  ball.x += ball.dx * ball.speedMultiplier;
+  ball.y += ball.dy * ball.speedMultiplier;
+
   if (ball.x < ball.r || ball.x > canvas.width - ball.r) ball.dx *= -1;
   if (ball.y < ball.r) ball.dy *= -1;
-  if (ball.y > canvas.height - ball.r) ball.dy *= -1;
-  if (ball.y + ball.r >= paddle.y &&
-      ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
+
+  // Paddle collision
+  if (
+    ball.y + ball.r >= paddle.y &&
+    ball.x >= paddle.x && ball.x <= paddle.x + paddle.w
+  ) {
     ball.dy *= -1;
+    ball.speedMultiplier *= 1.01; // increase speed by 1%
+  }
+
+  if (ball.y > canvas.height + ball.r) {
+    // reset ball if missed
+    ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
   }
 }
 
-// Patch the form submit behavior to use Pong instead of the spinner
-const originalFormHandler = form.onsubmit;
+// Override submit logic
+const form = document.getElementById("upload-form");
 form.addEventListener("submit", async (e) => {
   const fileInput = document.getElementById("file-input");
   const fileWarning = document.getElementById("file-warning");
@@ -754,7 +762,6 @@ form.addEventListener("submit", async (e) => {
     loadingIndicator.classList.remove("hidden");
   }
 
-  // Call original logic after Pong/Spinner starts
   const formatMap = {};
   document.querySelectorAll(".mapping-row").forEach(row => {
     const format = row.querySelector('input[name="format"]').value.trim();
