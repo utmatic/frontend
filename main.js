@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Utmatic PDF Processor</title>
+<script src="https://cdn.tailwindcss.com">
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("file-input");
 const fileNameDisplay = document.getElementById("file-name");
@@ -37,9 +45,208 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+  body {
+   font-family: 'Work Sans', sans-serif;
+  }
+  .pdf-canvas {
+   border: 1px solid #ddd;
+   border-radius: 0.5rem;
+   background: white;
+   margin: auto;
+  }
+  .modal {
+   background-color: rgba(0,0,0,0.8);
+  }
+  .icon {
+   width: 1.5rem;
+   height: 1.5rem;
+  }
+  @keyframes fade-in {
+   from { opacity: 0; }
+   to { opacity: 1; }
+  }
+  .animate-fade-in {
+   animation: fade-in 1s ease-out forwards;
+  }
+ 
+ .checkmark {
+  width: 100px;
+  height: 100px;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  stroke-miterlimit: 10;
+ }
+ .checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s ease forwards;
+ }
+ .checkmark__check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 0.6s forwards;
+ }
+ @keyframes stroke {
+  to {
+   stroke-dashoffset: 0;
+  }
+ }
+
+</style>
+</head>
+<!-- ✅ Success Checkmark Overlay -->
+<div class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
+<div class="text-center">
+<svg class="checkmark" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+<circle class="checkmark__circle" cx="26" cy="26" r="25"></circle>
+<path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+</svg>
+<p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
+</div>
+</div>
+<body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
+<div class="bg-white p-12 rounded-2xl max-w-4xl w-full shadow-xl space-y-8" id="form-container">
+<div class="flex justify-center">
+<img alt="Utmatic Logo" class="w-52 mb-3 object-contain" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+</div>
+<p class="text-center text-lg text-gray-700">
+   Equip your documents with tracking links — <em>instantly</em>.
+  </p>
+<form class="space-y-6" id="upload-form">
+<div class="w-full">
+<label class="block text-base font-medium mb-1">Upload Document</label>
+<div class="w-full border border-gray-300 rounded-lg py-10 px-6 text-center cursor-pointer bg-white hover:bg-[#f5f5f5] transition" id="drop-area">
+<svg class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<p class="text-gray-600" id="drop-text">Drag and drop your PDF here or click to browse</p>
+<p class="text-sm text-gray-500 mt-1" id="file-name">No file chosen</p>
+<p class="text-red-500 text-sm flex justify-center items-center mt-2 hidden" id="file-warning">
+<svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+  Please upload a document
+</p>
+
+<input accept=".pdf" multiple class="hidden" id="file-input" name="file" required="" type="file"/>
+<div class="flex justify-center mt-2 hidden" id="file-missing-icon">
+<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-base font-medium mb-1">UTM Parameters</label>
+<div class="grid grid-cols-2 gap-4">
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" name="source" placeholder="UTM Source" required="" type="text"/>
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" name="medium" placeholder="UTM Medium" required="" type="text"/>
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" name="campaign" placeholder="UTM Campaign" required="" type="text"/>
+<div class="relative">
+<input class="p-3 rounded bg-gray-100 border border-gray-300 text-base text-gray-500 cursor-not-allowed w-full" disabled="" name="utm_content" placeholder="UTM Content (automatic)" readonly="" type="text"/>
+<button class="absolute top-1/2 right-3 transform -translate-y-1/2" id="tooltip-btn" type="button">
+<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-base font-medium mb-1">Job Type</label>
+<select class="w-full p-3 bg-[#f5f5f5] rounded border border-gray-300 text-base" id="job-type" name="job_type" required="">
+<option class="text-gray-400" disabled="" selected="" value="">Select one</option>
+<option value="utm_only">Add UTM Only</option>
+<option value="links_and_utm">Add Links and UTM</option>
+</select>
+</div>
 
 
 
+
+<div id="format-map-section" class="hidden space-y-3">
+  <div class="flex justify-between items-center mb-1">
+    <label class="block text-base font-medium">Target Format + Base URL Mapping</label>
+    <button type="button" onclick="addMappingRow()" class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium" title="Add Mapping">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add new
+    </button>
+  </div>
+  <div id="mapping-container" class="space-y-3">
+    <div class="grid grid-cols-2 gap-4 mapping-row items-center">
+      <input type="text" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN"
+        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
+      <input type="text" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/"
+        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
+    </div>
+  </div>
+  
+
+
+</div>
+<input type="hidden" name="format_map" id="format-map-field">
+
+<div>
+<label class="block text-base font-medium mb-1">Name Your PDF</label>
+<div class="flex items-center gap-2">
+<input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text"/>
+<span class="text-gray-500 text-sm">.pdf</span>
+</div>
+</div>
+
+<div class="flex items-center gap-2">
+  <input type="checkbox" id="underline" name="underline" class="w-4 h-4">
+  <label for="underline" class="text-base text-gray-700">Add underline to linked text</label>
+</div>
+
+<button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
+    Process PDF
+   </button>
+</form>
+</div>
+<div class="hidden fixed inset-0 flex items-center justify-center modal z-50 overflow-y-auto max-h-screen p-8" id="preview-container">
+<div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
+<button class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50" onclick="document.getElementById('preview-container').classList.add('hidden'); document.getElementById('form-container').classList.remove('hidden')">×</button>
+<div class="text-center text-base mb-4" id="page-info">Page 1</div>
+<div class="relative flex items-center justify-center">
+<button class="absolute left-0 text-gray-900" id="prev-page">
+<svg class="icon" fill="currentColor" viewbox="0 0 24 24"><path d="M15.54 4.46a1.5 1.5 0 010 2.12L10.12 12l5.42 5.42a1.5 1.5 0 01-2.12 2.12l-6.5-6.5a1.5 1.5 0 010-2.12l6.5-6.5a1.5 1.5 0 012.12 0z"></path></svg>
+</button>
+<canvas class="pdf-canvas w-full max-w-2xl h-auto" id="pdf-canvas"></canvas>
+<button class="absolute right-0 text-gray-900" id="next-page">
+<svg class="icon" fill="currentColor" viewbox="0 0 24 24"><path d="M8.46 4.46a1.5 1.5 0 012.12 0l6.5 6.5a1.5 1.5 0 010 2.12l-6.5 6.5a1.5 1.5 0 11-2.12-2.12L13.88 12 8.46 6.58a1.5 1.5 0 010-2.12z"></path></svg>
+</button>
+</div>
+<div class="mt-6 text-center text-lg text-gray-700 flex justify-center items-center gap-2" id="link-count">
+<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24">
+<path d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+    —
+   </div>
+<div class="mt-6 flex justify-center gap-6">
+<a class="bg-blue-600 px-5 py-3 rounded hover:bg-blue-700 text-white text-lg font-semibold" download="" id="download-link">Download PDF</a>
+<button class="text-base text-gray-500 underline inline-flex items-center gap-2" onclick="location.reload()">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+     Process Another
+    </button>
+</div>
+</div>
+</div>
+<div class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4" id="loading-indicator">
+<h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
+<div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+<p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a couple of minutes to process.</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js">
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("file-input");
 const fileNameDisplay = document.getElementById("file-name");
@@ -79,9 +286,9 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
-
-
+<script>
   
 
 function toggleConditionalFields() {
@@ -249,9 +456,41 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
-
-
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="tooltip-modal">
+<div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full text-left">
+<h2 class="text-xl font-bold mb-4 text-gray-900">What is UTM Content?</h2>
+<p class="text-sm text-gray-700 mb-4">
+<strong>UTM Content</strong> helps you know exactly which link someone clicked in your PDF — even if multiple links go to the same place. 
+      It’s used to tell links apart, like when you have different product numbers, buttons, or “Learn More” links in the same document.
+    </p>
+<h3 class="text-base font-semibold text-gray-800 mb-2">Why is it filled in automatically?</h3>
+<p class="text-sm text-gray-700 mb-4">
+      We automatically set the <code>utm_content</code> for each link so you don’t have to. This keeps your tracking clear and consistent without extra effort.
+    </p>
+<h3 class="text-base font-semibold text-gray-800 mb-2">Example: Part number links</h3>
+<p class="text-sm text-gray-700 mb-4">
+      If the link text is something like <strong>“9610-2164”</strong>, your final tracked URL will include:
+      <code class="block bg-gray-100 text-blue-700 px-2 py-1 mt-1 rounded text-sm">utm_content=9610-2164</code>
+</p>
+<h3 class="text-base font-semibold text-gray-800 mb-2">Example: Word-based CTAs</h3>
+<p class="text-sm text-gray-700 mb-4">
+      When a link says something like <strong>“Click here to learn more”</strong>, we don’t use that text. Instead, we look at where the link goes and use the last part of the URL.<br/><br/>
+      If the link goes to:<br/>
+<code class="block bg-gray-100 text-blue-700 px-2 py-1 mt-2 rounded text-sm">https://examplecompany.com/products/accessories</code><br/>
+      Then the UTM content will be:
+      <code class="block bg-gray-100 text-blue-700 px-2 py-1 mt-2 rounded text-sm">utm_content=accessories</code>
+<span class="text-xs text-gray-500 block mt-1">(*This makes your analytics easier to read and more useful.)</span>
+</p>
+<h3 class="text-base font-semibold text-gray-800 mb-2">Why does it matter?</h3>
+<p class="text-sm text-gray-700 mb-4">
+      This helps you see what people are clicking in your PDF — like a specific product link, a call-to-action, or a section of content — so you can better understand what’s working.
+    </p>
+<button class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full text-sm font-semibold" onclick="document.getElementById('tooltip-modal').classList.add('hidden')">Close</button>
+</div>
+</div>
+<script>
   document.addEventListener("DOMContentLoaded", function () {
     const tooltipBtn = document.getElementById("tooltip-btn");
     const tooltipModal = document.getElementById("tooltip-modal");
@@ -271,9 +510,9 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
-
-
+<script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("upload-form");
   const fileInput = document.getElementById("file-input");
@@ -357,9 +596,10 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
 
-
+<script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
   const div = document.createElement("div");
@@ -380,9 +620,10 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
 
-
+<script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
   const div = document.createElement("div");
@@ -409,9 +650,9 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
 
-
-
+<script>
   function toggleConditionalFields() {
   const jobType = document.getElementById("job-type").value;
   const section = document.getElementById("format-map-section");
@@ -452,3 +693,10 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+</script>
+</body>
+
+</html>
+
+
+
