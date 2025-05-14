@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Utmatic PDF Processor</title>
-<script src="https://cdn.tailwindcss.com">
+<script defer="true" src="https://cdn.tailwindcss.com">
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("file-input");
 const fileNameDisplay = document.getElementById("file-name");
@@ -686,12 +686,13 @@ const loadingIndicator = document.getElementById("loading-indicator");
 
 const canvas = document.getElementById("pong-canvas");
 const ctx = canvas.getContext("2d");
-let pongInterval, ball, paddle;
+let pongInterval, ball, paddle, score;
 
 function startPong() {
   pongOverlay.classList.remove("hidden");
   ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
   paddle = { x: canvas.width / 2 - 50, y: canvas.height - 20, w: 100, h: 10 };
+  score = 0;
   pongInterval = setInterval(drawPong, 16);
   document.addEventListener("mousemove", movePaddle);
 }
@@ -718,6 +719,10 @@ function drawPong() {
   // Paddle
   ctx.fillStyle = "#60a5fa";
   ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+  // Score
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "20px Work Sans, sans-serif";
+  ctx.fillText(`Score: ${score}`, 20, 30);
   // Move ball
   ball.x += ball.dx * ball.speedMultiplier;
   ball.y += ball.dy * ball.speedMultiplier;
@@ -732,15 +737,16 @@ function drawPong() {
   ) {
     ball.dy *= -1;
     ball.speedMultiplier *= 1.01; // increase speed by 1%
+    score += 1;
   }
 
   if (ball.y > canvas.height + ball.r) {
-    // reset ball if missed
     ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 3, dy: 3, r: 8, speedMultiplier: 1.0 };
+    score = 0;
   }
 }
 
-// Override submit logic
+// Submit patch
 const form = document.getElementById("upload-form");
 form.addEventListener("submit", async (e) => {
   const fileInput = document.getElementById("file-input");
