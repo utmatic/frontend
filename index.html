@@ -133,7 +133,7 @@ document.addEventListener("click", function (e) {
   Please upload a document
 </p>
 
-<input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/>
+<input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/ multiple>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -742,7 +742,7 @@ document.addEventListener("DOMContentLoaded", function () {
       section.innerHTML =
         '<h3 class="text-lg font-semibold mb-2">Document ' + (index + 1) + ': ' + file.name + '</h3>' +
         '<input type="hidden" name="filename" value="' + file.name.replace(/\.pdf$/, "") + '" />' +
-        '<input type="file" name="files" class="hidden" />' +
+        '<input type="file" name="files" class="hidden" / multiple>' +
         '<div class="grid grid-cols-2 gap-4">' +
         '<input type="text" name="source" placeholder="UTM Source" required class="p-2 border rounded w-full" />' +
         '<input type="text" name="medium" placeholder="UTM Medium" required class="p-2 border rounded w-full" />' +
