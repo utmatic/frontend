@@ -165,9 +165,18 @@ document.addEventListener("click", function (e) {
 </div>
 <div class="mt-4">
 <label class="block text-base font-medium mb-1">Want to play a game while you wait?</label>
-
+<select class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" id="play-game" name="play_game">
+<option selected="" value="no">No</option>
+<option value="yes">Yes</option>
+</select>
 </div>
-
+<div class="hidden mt-4" id="game-options">
+<label class="block text-base font-medium mb-1">Do you think it will take over or under <span class="font-semibold" id="guess-time"></span> seconds?</label>
+<select class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" id="guess-choice" name="guess_choice">
+<option value="over">Over</option>
+<option value="under">Under</option>
+</select>
+</div>
 <div class="hidden space-y-3" id="format-map-section">
 <div class="flex justify-between items-center mb-1">
 <label class="block text-base font-medium">Target Format + Base URL Mapping</label>
@@ -196,6 +205,11 @@ document.addEventListener("click", function (e) {
 <div class="flex items-center gap-2">
 <input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
 <label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
+</div>
+
+<div class="flex items-center gap-2 mt-4">
+<input class="w-4 h-4" id="play-game" name="play_game" type="checkbox"/>
+<label class="text-base text-gray-700" for="play-game">Want to play a game while it processes?</label>
 </div>
 <button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
     Process PDF
@@ -680,7 +694,6 @@ document.addEventListener("click", function (e) {
 <!-- Game Result Modal -->
 
 
-<!-- Over/Under Game Modal -->
 <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden" id="game-choice-modal">
 <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full text-center animate-fade-in">
 <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Guess the Processing Time</h2>
@@ -689,6 +702,13 @@ document.addEventListener("click", function (e) {
 <button class="w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-over">Over</button>
 <button class="w-1/2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-lg transition" id="guess-under">Under</button>
 </div>
+</div>
+</div>
+<div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden" id="game-result-modal">
+<div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center">
+<h2 class="text-xl font-bold text-gray-900 mb-2" id="game-result-message"></h2>
+<p class="text-sm text-gray-700 mb-4">Actual processing time: <span class="font-semibold" id="actual-time-display"></span> seconds</p>
+<button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-semibold" onclick="document.getElementById('game-result-modal').classList.add('hidden')">Close</button>
 </div>
 </div>
 <script>
@@ -705,25 +725,26 @@ document.getElementById("file-input").addEventListener("change", function () {
   }
 });
 
-const form = document.getElementById("upload-form");
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.getElementById("upload-form").addEventListener("submit", function(e) {
+  const playGame = document.getElementById("play-game").checked;
+  if (playGame && overUnder) {
+    e.preventDefault();
+    document.getElementById("modal-guess-time").textContent = overUnder;
+    document.getElementById("game-choice-modal").classList.remove("hidden");
 
-  if (!overUnder) {
-    alert("Please upload a PDF file first.");
-    return;
+    document.getElementById("guess-over").onclick = () => handleGameGuess("over");
+    document.getElementById("guess-under").onclick = () => handleGameGuess("under");
   }
-
-  document.getElementById("modal-guess-time").textContent = overUnder;
-  document.getElementById("game-choice-modal").classList.remove("hidden");
-
-  document.getElementById("guess-over").onclick = () => handleGameGuess("over");
-  document.getElementById("guess-under").onclick = () => handleGameGuess("under");
 });
 
 async function handleGameGuess(guessChoice) {
   userGuess = guessChoice;
   document.getElementById("game-choice-modal").classList.add("hidden");
+  await processDocument(true);
+}
+
+async function processDocument(played = false) {
+  const form = document.getElementById("upload-form");
   document.getElementById("loading-indicator").classList.remove("hidden");
 
   let stopwatch = 0;
@@ -739,7 +760,7 @@ async function handleGameGuess(guessChoice) {
 
   const formData = new FormData(form);
   formData.append("underline", document.getElementById("underline").checked);
-  const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
+  const filename = form.querySelector('input[name="filename"]').value.trim() || 'processed';
 
   const startTime = performance.now();
 
@@ -769,13 +790,16 @@ async function handleGameGuess(guessChoice) {
   clearInterval(timer);
   const actualTime = ((performance.now() - startTime) / 1000).toFixed(1);
   const threshold = parseFloat(overUnder);
-  const result = (userGuess === "under" && actualTime < threshold) || (userGuess === "over" && actualTime > threshold)
-    ? "You win! 🎉"
-    : (actualTime == threshold ? "It’s a push! 🤝" : "You lose! 😢");
 
-  document.getElementById("actual-time-display").textContent = actualTime;
-  document.getElementById("game-result-message").textContent = result;
-  document.getElementById("game-result-modal").classList.remove("hidden");
+  if (played) {
+    const result = (userGuess === "under" && actualTime < threshold) || (userGuess === "over" && actualTime > threshold)
+      ? "You win! 🎉"
+      : (actualTime == threshold ? "It’s a push! 🤝" : "You lose! 😢");
+
+    document.getElementById("actual-time-display").textContent = actualTime;
+    document.getElementById("game-result-message").textContent = result;
+    document.getElementById("game-result-modal").classList.remove("hidden");
+  }
 
   document.getElementById("loading-indicator").classList.add("hidden");
   document.getElementById("success-checkmark").classList.remove("hidden");
