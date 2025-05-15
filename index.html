@@ -133,7 +133,7 @@ document.addEventListener("click", function (e) {
   Please upload a document
 </p>
 
-<input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/>
+<input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file" multiple/>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -490,113 +490,9 @@ document.addEventListener("click", function (e) {
 <button class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full text-sm font-semibold" onclick="document.getElementById('tooltip-modal').classList.add('hidden')">Close</button>
 </div>
 </div>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const tooltipBtn = document.getElementById("tooltip-btn");
-    const tooltipModal = document.getElementById("tooltip-modal");
 
-    if (tooltipBtn && tooltipModal) {
-      tooltipBtn.addEventListener("click", () => {
-        tooltipModal.classList.remove("hidden");
-      });
-    }
-  });
 
-document.addEventListener("click", function (e) {
-  if (e.target.closest(".delete-mapping")) {
-    const allRows = document.querySelectorAll(".mapping-row");
-    if (allRows.length > 1) {
-      e.target.closest(".mapping-row").remove();
-    }
-  }
-});
-</script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("upload-form");
-  const fileInput = document.getElementById("file-input");
-  const fileWarning = document.getElementById("file-warning");
-  const jobTypeSelect = document.getElementById("job-type");
-  
-
-  jobTypeSelect.addEventListener("change", toggleConditionalFields);
-  
-
-  fileInput.addEventListener("change", function () {
-    const fileName = this.files[0]?.name || "No file chosen";
-    document.getElementById("file-name").textContent = fileName;
-    fileWarning?.classList.add("hidden");
-  });
-
-  form.addEventListener("submit", async (e) => {
-    if (!fileInput || fileInput.files.length === 0) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      fileWarning?.classList.remove("hidden");
-      return;
-    } else {
-      fileWarning?.classList.add("hidden");
-    }
-
-    e.preventDefault();
-
-    document.getElementById("loading-indicator").classList.remove("hidden");
-
-    
-  const formatMap = {};
-  document.querySelectorAll(".mapping-row").forEach(row => {
-    const format = row.querySelector('input[name="format"]').value.trim();
-    const url = row.querySelector('input[name="url"]').value.trim();
-    if (format && url) formatMap[format] = url;
-  });
-  form.querySelector("#format-map-field").value = JSON.stringify(formatMap);
-
-  const formData = new FormData(form);
-  formData.append("underline", document.getElementById("underline").checked);
-    const filename = form.querySelector('input[name="filename"]')?.value?.trim() || 'processed';
-
-    const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
-      method: "POST",
-      body: formData
-    });
-    const cleanBlob = await cleanResponse.blob();
-    const cleanUrl = URL.createObjectURL(cleanBlob);
-    document.getElementById("download-link").href = cleanUrl;
-    document.getElementById("download-link").setAttribute("download", `${filename}.pdf`);
-
-    const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
-      method: "POST",
-      body: formData
-    });
-    const previewBlob = await previewResponse.blob();
-    const previewUrl = URL.createObjectURL(previewBlob);
-
-    const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
-    document.getElementById("link-count").innerHTML = `
-      <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-      </svg>
-      ${linkCount} links modified`;
-
-    document.getElementById("loading-indicator").classList.add("hidden");
-    document.getElementById("success-checkmark").classList.remove("hidden");
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    document.getElementById("success-checkmark").classList.add("hidden");
-
-    loadPdf(previewUrl);
-  });
-});
-
-document.addEventListener("click", function (e) {
-  if (e.target.closest(".delete-mapping")) {
-    const allRows = document.querySelectorAll(".mapping-row");
-    if (allRows.length > 1) {
-      e.target.closest(".mapping-row").remove();
-    }
-  }
-});
-</script>
 
 
 <script>
@@ -694,6 +590,129 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let droppedFiles = null;
+  const fileInput = document.getElementById("file-input");
+  const dropArea = document.getElementById("drop-area");
+  const fileNameDisplay = document.getElementById("file-name");
+  const form = document.getElementById("upload-form");
+  const previewContainer = document.getElementById("preview-container");
+
+  dropArea.addEventListener("click", () => fileInput.click());
+
+  dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("bg-gray-100");
+  });
+
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("bg-gray-100");
+  });
+
+  dropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropArea.classList.remove("bg-gray-100");
+    droppedFiles = e.dataTransfer.files;
+    fileNameDisplay.textContent = Array.from(droppedFiles).map(f => f.name).join(", ");
+  });
+
+  fileInput.addEventListener("change", () => {
+    droppedFiles = fileInput.files;
+    fileNameDisplay.textContent = Array.from(droppedFiles).map(f => f.name).join(", ");
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const files = droppedFiles;
+    if (!files || !files.length) return;
+
+    const formatMap = {};
+    document.querySelectorAll(".mapping-row").forEach(row => {
+      const format = row.querySelector('input[name="format"]').value.trim();
+      const url = row.querySelector('input[name="url"]').value.trim();
+      if (format && url) formatMap[format] = url;
+    });
+
+    const source = form.querySelector('input[name="source"]').value.trim();
+    const medium = form.querySelector('input[name="medium"]').value.trim();
+    const campaign = form.querySelector('input[name="campaign"]').value.trim();
+    const jobType = form.querySelector('select[name="job_type"]').value;
+    const filename = form.querySelector('input[name="filename"]').value.trim();
+    const underline = form.querySelector('input[name="underline"]').checked;
+
+    const previews = [];
+
+    document.getElementById("loading-indicator").classList.remove("hidden");
+
+    for (let i = 0; i < files.length; i++) {
+      const formData = new FormData();
+      formData.append("file", files[i]);
+      formData.append("source", source);
+      formData.append("medium", medium);
+      formData.append("campaign", campaign);
+      formData.append("job_type", jobType);
+      formData.append("filename", filename + "_" + i);
+      formData.append("underline", underline);
+      formData.append("format_map", JSON.stringify(formatMap));
+
+      const previewResponse = await fetch("https://utmatic-backend.onrender.com/preview", {
+        method: "POST",
+        body: formData
+      });
+      const previewBlob = await previewResponse.blob();
+      const previewUrl = URL.createObjectURL(previewBlob);
+
+      const cleanResponse = await fetch("https://utmatic-backend.onrender.com/process", {
+        method: "POST",
+        body: formData
+      });
+      const cleanBlob = await cleanResponse.blob();
+      const cleanUrl = URL.createObjectURL(cleanBlob);
+
+      previews.push({ name: files[i].name, previewUrl, cleanUrl });
+    }
+
+    document.getElementById("loading-indicator").classList.add("hidden");
+
+    const previewWrapper = document.createElement("div");
+    previewWrapper.className = "space-y-10";
+
+    for (const [index, file] of previews.entries()) {
+      const container = document.createElement("div");
+      container.className = "border-t pt-6";
+      const header = document.createElement("h2");
+      header.textContent = `Preview: ${file.name}`;
+      header.className = "text-xl font-semibold text-gray-800 mb-4";
+      container.appendChild(header);
+
+      const pdfFrame = document.createElement("iframe");
+      pdfFrame.src = file.previewUrl;
+      pdfFrame.className = "w-full h-[600px] border rounded";
+      container.appendChild(pdfFrame);
+
+      const download = document.createElement("a");
+      download.href = file.cleanUrl;
+      download.download = file.name.replace(/\.pdf$/, "") + "_processed.pdf";
+      download.textContent = "Download Processed PDF";
+      download.className = "inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700";
+      container.appendChild(download);
+
+      previewWrapper.appendChild(container);
+    }
+
+    previewContainer.innerHTML = "";
+    previewContainer.appendChild(previewWrapper);
+    previewContainer.classList.remove("hidden");
+    form.classList.add("hidden");
+  });
+});
+</script>
+
 </body>
 
 </html>
