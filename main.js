@@ -2196,26 +2196,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
 function updateBatchList() {
   if (!uploadedFiles.length) return;
   batchList.style.display = 'block';
   batchList.innerHTML = `<h2 class='text-lg font-bold mb-2'>Batch List</h2><ul class='space-y-2'>`;
   uploadedFiles.forEach((file, idx) => {
-    const committed = committedFiles.has(file.name);
+    const name = file.name;
+    const committed = committedFiles.has(name);
     const isCurrent = idx === currentFileIndex;
-    const isLocked = lockedFiles.has(file.name);
+    const isLocked = lockedFiles.has(name);
     const highlight = isCurrent ? 'bg-blue-100 font-semibold rounded-lg' : 'text-gray-700';
     const lockIconHTML = isLocked
       ? `<svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-[#1a1a1a]' viewBox='0 0 24 24' fill='currentColor'><path fill-rule='evenodd' d='M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Z' clip-rule='evenodd'/></svg>`
-      : `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor' class='w-5 h-5'><path d='M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z'/></svg>`;
+      : `<svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-[#1a1a1a]' viewBox='0 0 24 24' fill='currentColor'><path d='M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z'/></svg>`;
+    const lockClass = isLocked ? 'text-gray-400 cursor-not-allowed' : 'cursor-pointer';
+    const clickAction = isLocked ? '' : `onclick='selectFile(${idx})'`;
+
     batchList.innerHTML += `
-      <li class='flex justify-between items-center gap-2 ${highlight} px-2 py-1 rounded'>` +
-      `<div class='truncate max-w-[60%] cursor-pointer' onclick='window.selectFile(${idx})'>${file.name}</div>` +
-      `<div class='flex items-center gap-2'>` +
-        `<span>${committed ? '✅' : '❗'}</span>` +
-        `<button onclick='event.stopPropagation(); window.toggleLock(${idx})'>${lockIconHTML}</button>` +
-      `</div>` +
-    `</li>`;
+      <li class='flex justify-between items-center gap-2 ${highlight} px-2 py-1 rounded'>
+        <div class='truncate max-w-[60%] ${lockClass}' ${clickAction}>${file.name}</div>
+        <div class='flex items-center gap-2'>
+          <span>${committed ? '✅' : '❗'}</span>
+          <button onclick='event.stopPropagation(); toggleLock(${idx})'>${lockIconHTML}</button>
+        </div>
+      </li>`;
   });
   batchList.innerHTML += `</ul><button id='process-pdfs-button' class='mt-4 bg-blue-600 text-white px-4 py-2 rounded w-full'>Process PDFs</button>`;
   const processBtn = document.getElementById('process-pdfs-button');
@@ -2227,6 +2232,7 @@ function updateBatchList() {
     processBtn.removeAttribute('disabled');
     processBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
   }
+}
 }
 
 
