@@ -308,7 +308,7 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+   const linkCount = cleanResponse.headers.get("X-Link-Count") || "";
 
 
 
@@ -1016,7 +1016,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    const linkCount = cleanResponse.headers.get("X-Link-Count") || "—";
+    const linkCount = cleanResponse.headers.get("X-Link-Count") || "";
 
 
 
@@ -2178,7 +2178,7 @@ function updateBatchList() {
       <li class='flex justify-between items-center gap-2 ${highlight} px-2 py-1 rounded'>` +
       `<div class='truncate max-w-[60%] cursor-pointer' onclick='window.selectFile(${idx})'>${file.name}</div>` +
       `<div class='flex items-center gap-2'>` +
-        `<span>${committed ? '✅' : '❗'}</span>` +
+        `<span>${committed ? '' : ''}</span>` +
         `<button onclick='event.stopPropagation(); window.toggleLock(${idx})'>${lockIconHTML}</button>` +
       `</div>` +
     `</li>`;
