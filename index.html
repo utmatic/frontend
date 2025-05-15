@@ -1,43 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic Modular</title>
-  <style>
-    body { font-family: sans-serif; margin: 2rem; background: #f9f9f9; }
-    .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-    .tab { padding: 0.5rem 1rem; background: #eee; border: none; cursor: pointer; }
-    .tab.active { font-weight: bold; background: #ddd; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; background: white; padding: 1rem; border-radius: 6px; border: 1px solid #ccc; max-width: 640px; }
-    .field-group { margin-bottom: 1.25rem; }
-    .field-group label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
-    .field-group input[type="text"],
-    .field-group input[type="file"],
-    .field-group select { width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-    .checkbox-wrapper { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem; }
-    .form-actions { margin-top: 1.5rem; }
-    .file-list { position: absolute; right: 2rem; top: 2rem; background: white; padding: 1rem; border: 1px solid #ccc; border-radius: 6px; }
-    .file-list ul { list-style: none; padding: 0; margin: 0.5rem 0; }
-    .file-list li { margin-bottom: 0.5rem; }
-  </style>
-</head>
-<body>
-  <h1>Utmatic</h1>
-  <p>Equip your documents with tracking links — <em>instantly.</em></p>
-  <div class="tab-bar">
-    <button id="add-tab" class="tab">+ New document</button>
-  </div>
-  <div id="tab-contents"></div>
-
-  <div class="file-list">
-    <strong>File List</strong>
-    <ul id="file-list"></ul>
-    <button id="process-btn" disabled>Process PDFs</button>
-  </div>
-
   <script>
     const formFields = [
       { id: "pdf", label: "Upload PDF", type: "file" },
@@ -190,5 +150,3 @@
       }
     });
   </script>
-</body>
-</html>
