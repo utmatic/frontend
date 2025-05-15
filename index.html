@@ -45,8 +45,14 @@ document.addEventListener("click", function (e) {
     }
   }
 });
-</script>
 
+document.getElementById("commit-button").addEventListener("click", () => {
+  const name = uploadedFiles[currentFileIndex].name;
+  formDataPerFile[name] = serializeForm();
+  committedFiles.add(name);
+  updateBatchList();
+});
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <style>
   body {
@@ -109,12 +115,11 @@ document.addEventListener("click", function (e) {
 <p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
 </div>
 </div>
-<body class="bg-[#f5f5f5] text-gray-900 min-h-screen flex items-center justify-center text-base">
-<div class="bg-white p-12 rounded-2xl max-w-4xl w-full shadow-xl space-y-8" id="form-container">
-<div class="flex justify-center">
+<body class="bg-white text-gray-900 min-h-screen flex items-center justify-center text-base"><div class="flex justify-center items-center gap-12 max-w-7xl mx-auto px-6" id="batch-wrapper"><div class="bg-white p-12 rounded-2xl max-w-4xl w-full space-y-8 w-[42rem] w-[48rem]" id="form-container" style="width: 840px;">
+<div class="flex justify-left">
 <img alt="Utmatic Logo" class="w-52 mb-3 object-contain" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
 </div>
-<p class="text-center text-lg text-gray-700">
+<p class="text-left text-lg text-gray-700">
    Equip your documents with tracking links — <em>instantly</em>.
   </p>
 <form class="space-y-6" id="upload-form">
@@ -132,8 +137,7 @@ document.addEventListener("click", function (e) {
 </svg>
   Please upload a document
 </p>
-
-<input accept=".pdf" class="hidden" id="file-input" name="file" required="" type="file"/ multiple>
+<input accept=".pdf" class="hidden" id="file-input" multiple="multiple" name="files" required="" type="file"/>
 <div class="flex justify-center mt-2 hidden" id="file-missing-icon">
 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -141,7 +145,31 @@ document.addEventListener("click", function (e) {
 </div>
 </div>
 </div>
-<div>
+<input id="format-map-field" name="format_map" type="hidden"/>
+<div class="" id="job-type-section">
+<label class="block text-base font-medium mb-1">Job Type</label>
+<select class="w-full p-3 bg-[#f5f5f5] rounded border border-gray-300 text-base" id="job-type" name="job_type" required="">
+<option class="text-gray-400" disabled="" selected="" value="">Select one</option>
+<option value="utm_only">Add UTM Only</option>
+<option value="links_and_utm">Add Links and UTM</option>
+</select>
+</div><div class="space-y-3" id="format-map-section">
+<div class="flex justify-between items-center mb-1">
+<label class="block text-base font-medium">Target Format + Base URL Mapping</label>
+<button class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="addMappingRow()" title="Add Mapping" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+      Add new
+    </button>
+</div>
+<div class="space-y-3" id="mapping-container">
+<div class="grid grid-cols-2 gap-4 mapping-row items-center">
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN" required="" type="text"/>
+<input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/" required="" type="text"/>
+</div>
+</div>
+</div><div class="" id="utm-section">
 <label class="block text-base font-medium mb-1">UTM Parameters</label>
 <div class="grid grid-cols-2 gap-4">
 <input class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base" name="source" placeholder="UTM Source" required="" type="text"/>
@@ -156,63 +184,24 @@ document.addEventListener("click", function (e) {
 </button>
 </div>
 </div>
-</div>
-<div>
-<label class="block text-base font-medium mb-1">Job Type</label>
-<select class="w-full p-3 bg-[#f5f5f5] rounded border border-gray-300 text-base" id="job-type" name="job_type" required="">
-<option class="text-gray-400" disabled="" selected="" value="">Select one</option>
-<option value="utm_only">Add UTM Only</option>
-<option value="links_and_utm">Add Links and UTM</option>
-</select>
-</div>
-
-
-
-
-<div id="format-map-section" class="hidden space-y-3">
-  <div class="flex justify-between items-center mb-1">
-    <label class="block text-base font-medium">Target Format + Base URL Mapping</label>
-    <button type="button" onclick="addMappingRow()" class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium" title="Add Mapping">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-      </svg>
-      Add new
-    </button>
-  </div>
-  <div id="mapping-container" class="space-y-3">
-    <div class="grid grid-cols-2 gap-4 mapping-row items-center">
-      <input type="text" name="format" placeholder="Format(s) e.g. NNNN-NNNN,CPNNNN"
-        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
-      <input type="text" name="url" placeholder="Base URL e.g. https://yourcompany.com/store/"
-        class="p-3 rounded bg-[#f5f5f5] border border-gray-300 text-base w-full" required>
-    </div>
-  </div>
-  
-
-
-</div>
-<input type="hidden" name="format_map" id="format-map-field">
-
-<div>
+</div><div class="" id="name-section">
 <label class="block text-base font-medium mb-1">Name Your PDF</label>
 <div class="flex items-center gap-2">
 <input class="w-full p-3 bg-[#f5f5f5] border border-gray-300 rounded text-base" name="filename" placeholder="MyFileName" type="text"/>
 <span class="text-gray-500 text-sm">.pdf</span>
 </div>
+</div><div class="flex items-center gap-2 hidden">
+<input class="w-4 h-4" id="underline" name="underline" type="checkbox"/>
+<label class="text-base text-gray-700" for="underline">Add underline to linked text</label>
 </div>
-
-<div class="flex items-center gap-2">
-  <input type="checkbox" id="underline" name="underline" class="w-4 h-4">
-  <label for="underline" class="text-base text-gray-700">Add underline to linked text</label>
-</div>
-
-<button class="w-full bg-blue-600 py-3 text-lg rounded hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-3" type="submit">
-    Process PDF
-   </button>
+<!-- Separated Buttons -->
+<button class="text-[#1a1a1a] gap-3 flex border-[#1a1a1a] text-lg rounded items-center bg-white justify-center py-3 font-semibold w-full border opacity-50 pointer-events-none" disabled="" id="commit-button" type="button">
+  Commit to Batch
+</button>
 </form>
-</div>
+</div><div class="bg-white p-6 rounded-xl w-80" id="batch-list"></div></div>
 <div class="hidden fixed inset-0 flex items-center justify-center modal z-50 overflow-y-auto max-h-screen p-8" id="preview-container">
-<div class="bg-white p-8 rounded-2xl shadow-lg relative max-w-5xl w-full">
+<div class="bg-white p-8 rounded-2xl relative max-w-5xl w-full">
 <button class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold z-50" onclick="document.getElementById('preview-container').classList.add('hidden'); document.getElementById('form-container').classList.remove('hidden')">×</button>
 <div class="text-center text-base mb-4" id="page-info">Page 1</div>
 <div class="relative flex items-center justify-center">
@@ -287,7 +276,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
   
 
@@ -456,10 +444,16 @@ document.addEventListener("click", function (e) {
     }
   }
 });
-</script>
 
+document.getElementById("commit-button").addEventListener("click", function () {
+  const name = uploadedFiles[currentFileIndex].name;
+  formDataPerFile[name] = serializeForm();
+  committedFiles.add(name);
+  updateBatchList();
+});
+</script>
 <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="tooltip-modal">
-<div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full text-left">
+<div class="bg-white rounded-lg p-6 max-w-lg w-full text-left">
 <h2 class="text-xl font-bold mb-4 text-gray-900">What is UTM Content?</h2>
 <p class="text-sm text-gray-700 mb-4">
 <strong>UTM Content</strong> helps you know exactly which link someone clicked in your PDF — even if multiple links go to the same place. 
@@ -511,7 +505,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("upload-form");
@@ -597,8 +590,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
-
 <script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
@@ -621,8 +612,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
-
 <script>
 function addMappingRow() {
   const container = document.getElementById("mapping-container");
@@ -651,7 +640,6 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
   function toggleConditionalFields() {
   const jobType = document.getElementById("job-type").value;
@@ -694,131 +682,353 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  var dropArea = document.getElementById("drop-area");
-  var fileInput = document.getElementById("file-input");
-  var fileNameDisplay = document.getElementById("file-name");
-  var uploadForm = document.getElementById("upload-form");
-  var submitBtn = document.getElementById("batch-submit");
-  var results = document.getElementById("results");
+  const fileInput = document.getElementById("file-input");
+  const jobType = document.getElementById("job-type");
+  const jobTypeSection = document.getElementById("job-type-section");
+  const formatMapSection = document.getElementById("format-map-section");
+  const utmSection = document.getElementById("utm-section");
+  const nameSection = document.getElementById("name-section");
+  const underlineSection = document.getElementById("underline").closest("div");
+  const commitButton = document.getElementById("commit-button");
+  const processButton = document.getElementById("process-button");
+  const fileNameLabel = document.getElementById("file-name");
+  const batchList = document.getElementById("batch-list");
+  const form = document.getElementById("upload-form");
 
-  dropArea.addEventListener("click", function () {
-    fileInput.click();
-  });
+  const utmInputs = utmSection.querySelectorAll("input");
+  const nameInput = document.querySelector("input[name='filename']");
 
-  dropArea.addEventListener("dragover", function (e) {
-    e.preventDefault();
-    dropArea.classList.add("bg-gray-100");
-  });
+  let uploadedFiles = [];
+  let formDataPerFile = {};
+  let committedFiles = new Set();
+  let currentFileIndex = 0;
 
-  dropArea.addEventListener("dragleave", function () {
-    dropArea.classList.remove("bg-gray-100");
-  });
+  function updateButtonState() {
+  const allUTM = Array.from(utmInputs)
+    .filter(i => i.name !== "utm_content")
+    .every(i => i.value.trim() !== "");
+  const named = nameInput.value.trim() !== "";
+  const shouldEnable = allUTM && named;
+  if (commitButton) {
+    
+commitButton.disabled = !shouldEnable;
+    
+if (shouldEnable) {
+  commitButton.classList.remove("cursor-not-allowed", "opacity-50", "pointer-events-none");
+} else {
+  commitButton.classList.add("cursor-not-allowed", "opacity-50", "pointer-events-none");
+}
 
-  dropArea.addEventListener("drop", function (e) {
-    e.preventDefault();
-    dropArea.classList.remove("bg-gray-100");
-    if (e.dataTransfer.files.length > 0) {
-      fileInput.files = e.dataTransfer.files;
-      handleFiles(e.dataTransfer.files);
-    }
-  });
-
-  fileInput.addEventListener("change", function () {
-    if (this.files.length > 0) {
-      handleFiles(this.files);
-    }
-  });
-
-  function handleFiles(files) {
-    uploadForm.innerHTML = "";
-    var fileNames = [];
-    Array.from(files).forEach(function (file, index) {
-      fileNames.push(file.name);
-      var section = document.createElement("div");
-      section.className = "border border-gray-200 rounded-xl p-6 mb-6 space-y-4 bg-white";
-      section.innerHTML =
-        '<h3 class="text-lg font-semibold mb-2">Document ' + (index + 1) + ': ' + file.name + '</h3>' +
-        '<input type="hidden" name="filename" value="' + file.name.replace(/\.pdf$/, "") + '" />' +
-        '<input type="file" name="files" class="hidden" / multiple>' +
-        '<div class="grid grid-cols-2 gap-4">' +
-        '<input type="text" name="source" placeholder="UTM Source" required class="p-2 border rounded w-full" />' +
-        '<input type="text" name="medium" placeholder="UTM Medium" required class="p-2 border rounded w-full" />' +
-        '<input type="text" name="campaign" placeholder="UTM Campaign" required class="p-2 border rounded w-full" />' +
-        '<select name="job_type" class="p-2 border rounded w-full" required>' +
-        '<option value="">Select Job Type</option>' +
-        '<option value="utm_only">Add UTM Only</option>' +
-        '<option value="links_and_utm">Add Links and UTM</option>' +
-        '</select>' +
-        '</div>' +
-        '<textarea name="format_map" placeholder="Optional format map (JSON string)" class="w-full p-2 border rounded"></textarea>' +
-        '<label class="inline-flex items-center space-x-2">' +
-        '<input type="checkbox" name="underline" />' +
-        '<span>Add underline to links</span>' +
-        '</label>';
-      section.querySelector('input[type="file"]').files = createFileList([file]);
-      uploadForm.appendChild(section);
-    });
-    fileNameDisplay.textContent = fileNames.join(", ");
   }
 
-  function createFileList(files) {
-    var dt = new DataTransfer();
-    Array.from(files).forEach(function (file) {
-      dt.items.add(file);
-    });
-    return dt.files;
+  if (commitButton) {
+    
+commitButton.disabled = !shouldEnable;
+    
+if (shouldEnable) {
+  commitButton.classList.remove("cursor-not-allowed", "opacity-50", "pointer-events-none");
+} else {
+  commitButton.classList.add("cursor-not-allowed", "opacity-50", "pointer-events-none");
+}
+
   }
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", function () {
-      var formSections = Array.from(uploadForm.children);
-      if (!formSections.length) {
-        alert("Please upload at least one document.");
-        return;
+    // Check if form changes match previous committed version
+    try {
+      let name = uploadedFiles[currentFileIndex]?.name;
+      if (committedFiles.has(name)) {
+        const currentData = serializeForm();
+        const previousData = formDataPerFile[name];
+        if (JSON.stringify(currentData) !== JSON.stringify(previousData)) {
+          committedFiles.delete(name);
+          updateBatchList();
+        }
       }
+    } catch (err) {
+      console.warn("Error comparing form state:", err);
+    }
 
-      var formData = new FormData();
+    if (uploadedFiles.length > 1) {
+      commitButton.classList.remove("cursor-not-allowed", "hidden");
+      processButton.classList.add("hidden");
+      commitButton.classList.toggle("opacity-50", !shouldEnable);
+      commitButton.classList.toggle("pointer-events-none", !shouldEnable);
+    } else {
+      processButton.classList.remove("hidden");
+      commitButton.classList.add("cursor-not-allowed", "hidden");
+      processButton.classList.toggle("opacity-50", !shouldEnable);
+      processButton.classList.toggle("pointer-events-none", !shouldEnable);
+    }
 
-      formSections.forEach(function (section) {
-        var inputs = section.querySelectorAll("input, select, textarea");
-        inputs.forEach(function (input) {
-          if (input.type === "checkbox") {
-            formData.append("underlines", input.checked);
-          } else if (input.name === "files") {
-            formData.append("files", input.files[0]);
-          } else {
-            formData.append(input.name + "s", input.value);
-          }
-        });
-      });
+    // Show underline option if job type is 'links_and_utm' AND name field is filled
+    
+  }
 
-      results.innerHTML = "Processing...";
-      fetch("https://utmatic-backend.onrender.com/batch-process", {
-        method: "POST",
-        body: formData
-      })
-        .then(function (res) {
-          if (!res.ok) {
-            results.innerHTML = "<p class='text-red-500'>Batch processing failed.</p>";
-            throw new Error("Failed");
-          }
-          return res.blob();
-        })
-        .then(function (blob) {
-          var url = URL.createObjectURL(blob);
-          results.innerHTML = '<a href="' + url + '" download="batch_processed.zip" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block mt-4">Download Batch Results</a>';
-        });
+  fileInput.addEventListener("change", () => {
+    uploadedFiles = [...fileInput.files];
+    committedFiles.clear();
+    formDataPerFile = {};
+    currentFileIndex = 0;
+
+    if (uploadedFiles.length > 0) {
+      fileNameLabel.textContent = uploadedFiles[0].name;
+      
+    }
+
+    if (uploadedFiles.length > 1) {
+      
+      commitButton.classList.remove("cursor-not-allowed", "hidden");
+      processButton.classList.add("hidden");
+    } else {
+      
+      processButton.classList.remove("hidden");
+      commitButton.classList.add("cursor-not-allowed", "hidden");
+    }
+
+    updateButtonState();
+  });
+
+  jobType.addEventListener("change", () => {
+  if (jobType.value === "links_and_utm") {
+    underlineSection.classList.remove("hidden");
+  } else {
+    underlineSection.classList.add("hidden");
+  }
+    const job = jobType.value;
+    if (job === "links_and_utm") {
+      
+    } else {
+      
+    }
+    
+    updateButtonState();
+  });
+
+  utmInputs.forEach(input => {
+    input.addEventListener("input", () => {
+      const allFilled = Array.from(utmInputs)
+        .filter(i => i.name !== "utm_content")
+        .every(i => i.value.trim() !== "");
+      if (allFilled) {
+        
+      } else {
+        
+      }
+      updateButtonState();
+    });
+  });
+
+  nameInput.addEventListener("input", updateButtonState);
+});
+</script><script>
+document.addEventListener("DOMContentLoaded", function () {
+  const fileInput = document.getElementById("file-input");
+  const jobType = document.getElementById("job-type");
+  const jobTypeSection = document.getElementById("job-type-section");
+  const formatMapSection = document.getElementById("format-map-section");
+  const utmSection = document.getElementById("utm-section");
+  const nameSection = document.getElementById("name-section");
+  const underlineSection = document.getElementById("underline").closest("div");
+  const commitButton = document.getElementById("commit-button");
+  const processButton = document.getElementById("process-button");
+  const fileNameLabel = document.getElementById("file-name");
+  const batchList = document.getElementById("batch-list");
+  const form = document.getElementById("upload-form");
+
+  const utmInputs = utmSection.querySelectorAll("input");
+  const nameInput = document.querySelector("input[name='filename']");
+
+  let uploadedFiles = [];
+  let formDataPerFile = {};
+  let committedFiles = new Set();
+  let currentFileIndex = 0;
+
+  function serializeForm() {
+    const data = {};
+    new FormData(form).forEach((v, k) => data[k] = v);
+    return data;
+  }
+
+  function restoreForm(data = {}) {
+    Object.entries(data).forEach(([key, value]) => {
+      const field = form.querySelector(`[name="${key}"]`);
+      if (!field || field.type === "file") return;
+      if (field.type === "checkbox") {
+        field.checked = value === "true";
+      } else {
+        field.value = value;
+      }
     });
   }
+
+  function updateBatchList() {
+    if (!uploadedFiles.length) return;
+     batchList.style.display = 'block';
+     batchList.style.display = 'block';
+    batchList.innerHTML = `<h2 class='text-lg font-bold mb-2'>Batch List</h2><ul class='space-y-2'>`;
+    uploadedFiles.forEach((file, idx) => {
+      const committed = committedFiles.has(file.name);
+      const isCurrent = idx === currentFileIndex;
+      const highlight = isCurrent ? 'bg-blue-100 font-semibold rounded-lg' : 'text-gray-700';
+      batchList.innerHTML += `
+        <li class='flex justify-between items-center whitespace-nowrap overflow-hidden ${highlight} cursor-pointer' onclick='window.selectFile(${idx})'>
+          <span class='truncate max-w-[85%] inline-block align-middle'>${file.name}</span><span class='truncate max-w-[85%] inline-block align-middle'>${committed ? "✅" : "❗"}</span>
+        </li>`;
+    });
+    batchList.innerHTML += "</ul><button id='process-pdfs-button' class='mt-4 bg-blue-600 text-white px-4 py-2 rounded w-full'>Process PDFs</button>";  const processBtn = document.getElementById('process-pdfs-button');  const allCommitted = uploadedFiles.every(file => committedFiles.has(file.name));  if (!allCommitted) {    processBtn.setAttribute('disabled', 'true');    processBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');  } else {    processBtn.removeAttribute('disabled');    processBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');  }
+  }
+
+  function updateButtonState() {
+  const allUTM = Array.from(utmInputs)
+    .filter(i => i.name !== "utm_content")
+    .every(i => i.value.trim() !== "");
+  const named = nameInput.value.trim() !== "";
+  const shouldEnable = allUTM && named;
+  if (commitButton) {
+    
+commitButton.disabled = !shouldEnable;
+    
+if (shouldEnable) {
+  commitButton.classList.remove("cursor-not-allowed", "opacity-50", "pointer-events-none");
+} else {
+  commitButton.classList.add("cursor-not-allowed", "opacity-50", "pointer-events-none");
+}
+
+  }
+
+  if (commitButton) {
+    
+commitButton.disabled = !shouldEnable;
+    
+if (shouldEnable) {
+  commitButton.classList.remove("cursor-not-allowed", "opacity-50", "pointer-events-none");
+} else {
+  commitButton.classList.add("cursor-not-allowed", "opacity-50", "pointer-events-none");
+}
+
+  }
+
+    // Check if form changes match previous committed version
+    try {
+      let name = uploadedFiles[currentFileIndex]?.name;
+      if (committedFiles.has(name)) {
+        const currentData = serializeForm();
+        const previousData = formDataPerFile[name];
+        if (JSON.stringify(currentData) !== JSON.stringify(previousData)) {
+          committedFiles.delete(name);
+          updateBatchList();
+        }
+      }
+    } catch (err) {
+      console.warn("Error comparing form state:", err);
+    }
+
+    if (uploadedFiles.length > 1) {
+      commitButton.classList.remove("cursor-not-allowed", "hidden");
+      processButton.classList.add("hidden");
+      commitButton.classList.toggle("opacity-50", !shouldEnable);
+      commitButton.classList.toggle("pointer-events-none", !shouldEnable);
+    } else {
+      processButton.classList.remove("hidden");
+      commitButton.classList.add("cursor-not-allowed", "hidden");
+      processButton.classList.toggle("opacity-50", !shouldEnable);
+      processButton.classList.toggle("pointer-events-none", !shouldEnable);
+    }
+
+    
+
+    // Check if form changes match previous committed version
+    const currentFile = uploadedFiles[currentFileIndex];
+    if (committedFiles.has(currentFile.name)) {
+      const currentData = serializeForm();
+      const previousData = formDataPerFile[currentFile.name];
+      const changed = JSON.stringify(currentData) !== JSON.stringify(previousData);
+      if (changed) {
+        committedFiles.delete(currentFile.name);
+        updateBatchList();
+      }
+    }
+  }
+
+  fileInput.addEventListener("change", () => {
+    uploadedFiles = [...fileInput.files];
+    updateBatchList();
+    committedFiles.clear();
+    formDataPerFile = {};
+    currentFileIndex = 0;
+
+    if (uploadedFiles.length > 0) {
+      fileNameLabel.textContent = uploadedFiles[0].name;
+      
+    }
+
+    if (uploadedFiles.length > 1) {
+       batchList.style.display = 'block';
+      commitButton.classList.remove("cursor-not-allowed", "hidden");
+      processButton.classList.add("hidden");
+    } else {
+      
+      processButton.classList.remove("hidden");
+      commitButton.classList.add("cursor-not-allowed", "hidden");
+    }
+
+    updateButtonState();
+  });
+
+  jobType.addEventListener("change", () => {
+    const job = jobType.value;
+    if (job === "links_and_utm") {
+      
+    } else {
+      
+    }
+    
+    updateButtonState();
+  });
+
+  utmInputs.forEach(input => {
+    input.addEventListener("input", () => {
+      const allFilled = Array.from(utmInputs)
+        .filter(i => i.name !== "utm_content")
+        .every(i => i.value.trim() !== "");
+      if (allFilled) {
+        
+      } else {
+        
+      }
+      updateButtonState();
+    });
+  });
+
+  nameInput.addEventListener("input", updateButtonState);
+
+  document.getElementById("underline").addEventListener("change", updateButtonState);
+
+  commitButton.addEventListener("click", () => {
+    const name = uploadedFiles[currentFileIndex].name;
+    formDataPerFile[name] = serializeForm();
+    committedFiles.add(name);
+    updateBatchList();
+
+    commitButton.classList.add("cursor-not-allowed", "ring", "ring-green-300");
+    setTimeout(() => commitButton.classList.remove("cursor-not-allowed", "ring", "ring-green-300"), 300);
+  });
+
+  window.selectFile = function(i) {
+    formDataPerFile[uploadedFiles[currentFileIndex].name] = serializeForm();
+    currentFileIndex = i;
+    const selected = uploadedFiles[i];
+    fileNameLabel.textContent = selected.name;
+    restoreForm(formDataPerFile[selected.name] || {});
+    updateBatchList();
+    updateButtonState();
+  };
+
+  window.submitBatch = function() {
+    alert("Batch would be submitted here.");
+  };
 });
-</script>
-
-</body>
-
+</script></body>
 </html>
-
-
-
