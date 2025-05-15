@@ -1548,26 +1548,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-  let uploadedFiles = [];
-
-
-
-  let formDataPerFile = {};
-
-
-
-  let committedFiles = new Set(); let lockedFiles = new Set();
-
-
-
-  let currentFileIndex = 0;
-
-
-
-
-
-
-
   function updateButtonState() {
 
 
@@ -2103,26 +2083,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   const nameInput = document.querySelector("input[name='filename']");
-
-
-
-
-
-
-
-  let uploadedFiles = [];
-
-
-
-  let formDataPerFile = {};
-
-
-
-  let committedFiles = new Set(); let lockedFiles = new Set();
-
-
-
-  let currentFileIndex = 0;
 
 
 
