@@ -1,3 +1,9 @@
+let uploadedFiles = [];
+let formDataPerFile = {};
+let committedFiles = new Set();
+let lockedFiles = new Set();
+let currentFileIndex = 0;
+
 function toggleConditionalFields() {
 
 
