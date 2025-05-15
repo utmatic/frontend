@@ -1,3 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Utmatic Modular</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2rem;
+      padding: 2rem;
+    }
+    .form-container {
+      background: white;
+      padding: 2rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .file-list {
+      background: white;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 350px; /* Increased width */
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .file-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0;
+    }
+    .file-list li {
+      margin-bottom: 0.5rem;
+      color: gray; /* Default color for unsaved documents */
+    }
+    .file-list li.saved {
+      color: #1a1a1a; /* Saved documents color */
+    }
+    .file-list li.saved::before {
+      content: "✔";
+      color: green;
+      margin-right: 0.5rem;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: #eee;
+      border: none;
+      cursor: pointer;
+    }
+    .tab.active {
+      font-weight: bold;
+      background: #ddd;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .field-group {
+      margin-bottom: 1.25rem;
+    }
+    .field-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .field-group input[type="text"],
+    .field-group input[type="file"],
+    .field-group select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .utm-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem; /* Match spacing with other fields */
+    }
+    .utm-row .field-group {
+      flex: 1;
+    }
+    .form-actions button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-actions button.save-btn {
+      background-color: #007bff;
+      color: white;
+    }
+    .form-actions button.process-btn {
+      background-color: #28a745;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Utmatic</h1>
+  <p>Equip your documents with tracking links — <em>instantly.</em></p>
+
+<!-- Start Part 2 -->
+
+  <div class="container">
+    <div class="form-container">
+      <div class="tab-bar">
+        <button id="add-tab" class="tab">+ New document</button>
+      </div>
+      <div id="tab-contents"></div>
+    </div>
+    <div class="file-list">
+      <strong>File List</strong>
+      <ul id="file-list"></ul>
+      <button id="process-btn" class="process-btn" disabled>Process PDFs</button>
+    </div>
+  </div>
+
   <script>
     const formFields = [
       { id: "pdf", label: "Upload PDF", type: "file" },
@@ -11,16 +155,18 @@
       { id: "utm_source", label: "UTM Source", type: "text" },
       { id: "utm_medium", label: "UTM Medium", type: "text" },
       { id: "utm_campaign", label: "UTM Campaign", type: "text" },
+      { id: "utm_content", label: "UTM Content", type: "text", readonly: true, placeholder: "Automatic" },
       { id: "filename", label: "Document Name", type: "text", placeholder: "MyFileName" },
       { id: "underline", label: "Add underline to links?", type: "checkbox" }
     ];
 
-    let docCount = 1;
+    let docCount = 1; // Keeps track of the number of documents
     const tabBar = document.querySelector(".tab-bar");
     const tabContents = document.getElementById("tab-contents");
     const fileList = document.getElementById("file-list");
     const processBtn = document.getElementById("process-btn");
 
+    // Add a new document tab
     document.getElementById("add-tab").addEventListener("click", createTab);
 
     function setActiveTab(tabId) {
@@ -33,32 +179,45 @@
     function updateFileListStatus(tabId, name, saved) {
       const item = fileList.querySelector(`[data-tab="${tabId}"]`);
       item.textContent = name || "Untitled Document";
-      item.style.color = saved ? "green" : "orange";
-      processBtn.disabled = ![...fileList.children].every(li => li.style.color === "green");
+      item.className = saved ? "saved" : "";
+      processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved"));
     }
 
     function renderFormFields(form) {
+      const utmRow1 = document.createElement("div");
+      utmRow1.className = "utm-row";
+
+      const utmRow2 = document.createElement("div");
+      utmRow2.className = "utm-row";
+
       formFields.forEach(field => {
         let wrapper;
 
         if (field.type === "checkbox") {
           wrapper = document.createElement("div");
           wrapper.className = "checkbox-wrapper";
+          wrapper.dataset.fieldId = field.id;
+
           const input = document.createElement("input");
           input.type = "checkbox";
           input.name = field.id;
           input.id = field.id;
+
           const label = document.createElement("label");
           label.htmlFor = field.id;
           label.textContent = field.label;
+
           wrapper.appendChild(input);
           wrapper.appendChild(label);
         } else {
           wrapper = document.createElement("div");
           wrapper.className = "field-group";
+          wrapper.dataset.fieldId = field.id;
+
           const label = document.createElement("label");
           label.htmlFor = field.id;
           label.textContent = field.label;
+
           let input;
           if (field.type === "select") {
             input = document.createElement("select");
@@ -72,22 +231,62 @@
             input = document.createElement("input");
             input.type = field.type;
             if (field.placeholder) input.placeholder = field.placeholder;
+            if (field.readonly) {
+              input.readOnly = true;
+              input.style.backgroundColor = "#f9f9f9";
+              input.style.cursor = "not-allowed";
+            }
           }
+
           input.name = field.id;
           input.id = field.id;
+
           wrapper.appendChild(label);
           wrapper.appendChild(input);
         }
 
-        form.appendChild(wrapper);
+        // Add UTM fields to rows
+        if (field.id === "utm_source" || field.id === "utm_medium") {
+          utmRow1.appendChild(wrapper);
+        } else if (field.id === "utm_campaign" || field.id === "utm_content") {
+          utmRow2.appendChild(wrapper);
+        } else if (field.id === "filename") {
+          // Add the "Document Name" field AFTER the UTM fields
+          form.appendChild(utmRow1);
+          form.appendChild(utmRow2);
+          form.appendChild(wrapper);
+        } else {
+          form.appendChild(wrapper);
+        }
       });
+
+      form.appendChild(utmRow1);
+      form.appendChild(utmRow2);
+
+      const underlineWrapper = document.createElement("div");
+      underlineWrapper.dataset.fieldId = "underline";
+      underlineWrapper.className = "checkbox-wrapper";
+      const underlineInput = document.createElement("input");
+      underlineInput.type = "checkbox";
+      underlineInput.name = "underline";
+      underlineInput.id = "underline";
+      const underlineLabel = document.createElement("label");
+      underlineLabel.htmlFor = "underline";
+      underlineLabel.textContent = "Add underline to links?";
+      underlineWrapper.appendChild(underlineInput);
+      underlineWrapper.appendChild(underlineLabel);
+
+      form.appendChild(underlineWrapper);
 
       const submit = document.createElement("button");
       submit.type = "submit";
       submit.textContent = "Save";
-      submit.className = "form-actions";
+      submit.className = "form-actions save-btn";
+
       form.appendChild(submit);
     }
+
+<!-- Start Part 3 -->
 
     function createTab() {
       const tabId = `doc-${docCount}`;
@@ -106,13 +305,13 @@
 
       form.addEventListener("submit", e => {
         e.preventDefault();
-        const name = form.filename?.value || "Document " + docCount;
+        const name = form.filename?.value || `Document ${docCount}`;
         updateFileListStatus(tabId, name, true);
       });
 
       const filenameInput = form.querySelector("input[name='filename']");
       filenameInput.addEventListener("input", () => {
-        tabBtn.textContent = filenameInput.value || "Document " + docCount;
+        tabBtn.textContent = filenameInput.value || `Document ${docCount}`;
         updateFileListStatus(tabId, filenameInput.value, false);
       });
 
@@ -128,10 +327,21 @@
       docCount++;
     }
 
-    createTab(); // load initial tab
+    createTab(); // Load initial tab (first document)
+
+    // Prevent deletion of the first document
+    function preventFirstTabDeletion() {
+      const firstTab = document.querySelector(".tab-bar .tab[data-tab='doc-1']");
+      if (firstTab) {
+        const deleteIcon = firstTab.querySelector(".delete-tab");
+        if (deleteIcon) deleteIcon.style.display = "none"; // Hide delete icon for the first tab
+      }
+    }
+
+    preventFirstTabDeletion();
 
     // Delegate deletion of document tabs and their forms
-    document.addEventListener("click", function(e) {
+    document.addEventListener("click", function (e) {
       if (e.target.classList.contains("delete-tab")) {
         const tabId = e.target.dataset.tab;
         const tab = document.querySelector(`[data-tab="${tabId}"]`);
@@ -150,3 +360,5 @@
       }
     });
   </script>
+</body>
+</html>
