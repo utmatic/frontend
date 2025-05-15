@@ -1,3 +1,9 @@
+let uploadedFiles = [];
+let formDataPerFile = {};
+let committedFiles = new Set();
+let lockedFiles = new Set();
+let currentFileIndex = 0;
+
 function toggleConditionalFields() {
 
 
@@ -170,7 +176,7 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   document.getElementById("loading-indicator").classList.remove("hidden");
+   document.getElementById(\"loading-indicator\")?.classList.remove("hidden");
 
 
 
@@ -330,7 +336,7 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   document.getElementById("loading-indicator").classList.add("hidden");
+   document.getElementById(\"loading-indicator\")?.classList.add("hidden");
 
 
 
@@ -338,7 +344,7 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   document.getElementById("success-checkmark").classList.remove("hidden");
+   document.getElementById(\"success-checkmark\")?.classList.remove("hidden");
 
 
 
@@ -346,7 +352,7 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   document.getElementById("success-checkmark").classList.add("hidden");
+   document.getElementById(\"success-checkmark\")?.classList.add("hidden");
 
 
 
@@ -386,11 +392,11 @@ form.addEventListener("submit", async (e) => {
 
 
 
-   document.getElementById("form-container").classList.add("hidden");
+   document.getElementById(\"form-container\")?.classList.add("hidden");
 
 
 
-   document.getElementById("preview-container").classList.remove("hidden");
+   document.getElementById(\"preview-container\")?.classList.remove("hidden");
 
 
 
@@ -886,7 +892,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    document.getElementById("loading-indicator").classList.remove("hidden");
+    document.getElementById(\"loading-indicator\")?.classList.remove("hidden");
 
 
 
@@ -1038,11 +1044,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    document.getElementById("loading-indicator").classList.add("hidden");
+    document.getElementById(\"loading-indicator\")?.classList.add("hidden");
 
 
 
-    document.getElementById("success-checkmark").classList.remove("hidden");
+    document.getElementById(\"success-checkmark\")?.classList.remove("hidden");
 
 
 
@@ -1050,7 +1056,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    document.getElementById("success-checkmark").classList.add("hidden");
+    document.getElementById(\"success-checkmark\")?.classList.add("hidden");
 
 
 
@@ -1535,26 +1541,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   const nameInput = document.querySelector("input[name='filename']");
-
-
-
-
-
-
-
-  let uploadedFiles = [];
-
-
-
-  let formDataPerFile = {};
-
-
-
-  let committedFiles = new Set(); let lockedFiles = new Set();
-
-
-
-  let currentFileIndex = 0;
 
 
 
@@ -2097,26 +2083,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   const nameInput = document.querySelector("input[name='filename']");
-
-
-
-
-
-
-
-  let uploadedFiles = [];
-
-
-
-  let formDataPerFile = {};
-
-
-
-  let committedFiles = new Set(); let lockedFiles = new Set();
-
-
-
-  let currentFileIndex = 0;
 
 
 
