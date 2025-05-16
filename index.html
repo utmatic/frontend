@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic Modular</title>
-  <!-- Work Sans Google Fonts import -->
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- PDF.js CSS (for built-in viewer toolbar, optional but recommended) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.css">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Utmatic Modular</title>
+<!-- Work Sans Google Fonts import -->
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- PDF.js CSS (for built-in viewer toolbar, optional but recommended) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.css" rel="stylesheet"/>
+<style>
     :root {
       --primary: #2563eb;
       --primary-dark: #1e40af;
@@ -821,72 +822,68 @@
     }
   </style>
 </head>
-<body>
-  <!-- Spinner Overlay -->
-  <div id="spinner-overlay">
-    <div class="spinner-headline">
+<body><script src="https://unpkg.com/pdfjs-dist@4.2.67/build/pdf.min.js"></script><script src="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.js"></script><script>
+  window.pdfjsLib = window['pdfjs-dist/build/pdf'];
+  window.pdfjsViewer = window['pdfjs-dist/web/pdf_viewer'];
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.2.67/build/pdf.worker.min.js';
+</script>
+<!-- Spinner Overlay -->
+<div id="spinner-overlay">
+<div class="spinner-headline">
       Processing
       <span class="processing-dots">...</span>
-    </div>
-    <div class="dots-spinner">
-      <span class="dot-1"></span>
-      <span class="dot-2"></span>
-      <span class="dot-3"></span>
-    </div>
-  </div>
-  <!-- PDF Previewer Modal -->
-  <div id="pdf-previewer-modal">
-    <div class="pdf-previewer-content">
-      <div class="pdf-previewer-header">
-        <span class="pdf-previewer-title" id="pdf-previewer-title"></span>
-        <div class="pdf-previewer-switcher" id="pdf-previewer-switcher"></div>
-        <button class="pdf-previewer-download-btn" id="pdf-previewer-download">Download</button>
-        <button class="pdf-previewer-close" id="pdf-previewer-close" title="Close Preview" aria-label="Close Preview">&times;</button>
-      </div>
-      <div class="pdf-preview-pdfjs-root">
-        <div id="pdfjs-viewer"></div>
-      </div>
-    </div>
-  </div>
-  <div class="page-wrapper">
-    <div class="main-group">
-      <div class="header-container">
-        <img class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png" alt="Utmatic Logo" />
-        <div class="header-text">
-          <p>Equip your documents with tracking links — <em>instantly.</em></p>
-        </div>
-      </div>
-      <div class="container">
-        <div class="form-container">
-          <div class="tab-bar" id="tab-bar">
-            <button id="add-tab" class="tab" title="Add New Document" aria-label="Add New Document">+</button>
-            <!-- Hidden multi-file upload input for batch add -->
-            <input type="file" id="multi-pdf-upload" accept=".pdf,application/pdf" multiple style="display: none;">
-          </div>
-          <div id="tab-contents"></div>
-        </div>
-        <div class="file-list">
-          <strong>File List</strong>
-          <ul id="file-list"></ul>
-          <button id="process-btn" class="process-btn" disabled>Process PDFs</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <datalist id="base-url-datalist"></datalist>
-  <!-- PDF.js library (core and viewer) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.js"></script>
-<script>
-  // Ensure PDF.js worker is set up properly
-  if (window['pdfjsLib']) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
-  } else {
-    console.error("PDF.js Viewer library is not loaded. Cannot preview PDF.");
-  }
-</script>
+</div>
+<div class="dots-spinner">
+<span class="dot-1"></span>
+<span class="dot-2"></span>
+<span class="dot-3"></span>
+</div>
+</div>
+<!-- PDF Previewer Modal -->
+<div id="pdf-previewer-modal">
+<div class="pdf-previewer-content">
+<div class="pdf-previewer-header">
+<span class="pdf-previewer-title" id="pdf-previewer-title"></span>
+<div class="pdf-previewer-switcher" id="pdf-previewer-switcher"></div>
+<button class="pdf-previewer-download-btn" id="pdf-previewer-download">Download</button>
+<button aria-label="Close Preview" class="pdf-previewer-close" id="pdf-previewer-close" title="Close Preview">×</button>
+</div>
+<div class="pdf-preview-pdfjs-root">
+<div id="pdfjs-viewer"></div>
+</div>
+</div>
+</div>
+<div class="page-wrapper">
+<div class="main-group">
+<div class="header-container">
+<img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+<div class="header-text">
+<p>Equip your documents with tracking links — <em>instantly.</em></p>
+</div>
+</div>
+<div class="container">
+<div class="form-container">
+<div class="tab-bar" id="tab-bar">
+<button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
+<!-- Hidden multi-file upload input for batch add -->
+<input accept=".pdf,application/pdf" id="multi-pdf-upload" multiple="" style="display: none;" type="file"/>
+</div>
+<div id="tab-contents"></div>
+</div>
+<div class="file-list">
+<strong>File List</strong>
+<ul id="file-list"></ul>
+<button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
+</div>
+</div>
+</div>
+</div>
+<datalist id="base-url-datalist"></datalist>
+<!-- PDF.js library (core and viewer) -->
 
-  <script>
+
+
+<script>
     (function animateProcessingDots(){
       var dots = document.querySelector('.processing-dots');
       if (!dots) return;
@@ -2319,7 +2316,7 @@
   <datalist id="base-url-datalist"></datalist>
   <!-- PDF.js library (core and viewer) -->
   <script src="https://unpkg.com/pdfjs-dist@4.2.67/build/pdf.min.js"></script>
-  <script src="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.js"></script>
+<script src="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.js"></script>
 <script>
   // Guarantee pdfjsViewer is available globally for all UMD/CDN environments
   window.pdfjsViewer =
@@ -2328,7 +2325,7 @@
     window['pdfjs-dist/web/pdf_viewer'] ||
     undefined;
 </script>
-  <script>
+<script>
     // SVG ICONS
     const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/></svg>`;
     const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
@@ -3142,6 +3139,5 @@ async function renderPdfInViewer(pdfUrl) {
 </body>
 </html>
 
-  </script>
-</body>
-</html>
+
+
