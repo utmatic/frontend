@@ -27,8 +27,6 @@
       --input-shadow: 0 0 0 2px rgba(37,99,235,.08);
       --label: #334155;
       --placeholder: #94a3b8;
-
-      /* Spinner theme colors */
       --col1: #2563eb;
       --col2: #1e40af;
       --col3: #22c55e;
@@ -518,8 +516,6 @@
       letter-spacing: 0.01em;
       font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
     }
-
-    /* Modern File Input Styles */
     .custom-file-input-wrapper {
       position: relative;
       display: flex;
@@ -577,8 +573,6 @@
       display: inline-block;
       vertical-align: middle;
     }
-
-    /* Spinner Overlay */
     #spinner-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -621,7 +615,6 @@
       transition: color 0.18s;
       vertical-align: middle;
     }
-    /* Dots Spinner (Pinterest-inspired, themed) */
     .dots-spinner {
       width: 3.6rem;
       height: 3.4rem;
@@ -685,7 +678,6 @@
         transform: rotate(360deg);
       }
     }
-    /* PDF Previewer Modal */
     #pdf-previewer-modal {
       display: none;
       position: fixed;
@@ -823,7 +815,6 @@
       max-height: 70vh;
       overflow: auto;
     }
-    /* Hide PDF.js built-in find bar and sidebar for clean look */
     #pdfjs-viewer .toolbar,
     #pdfjs-viewer .sidebarContainer {
       display: none !important;
@@ -869,6 +860,8 @@
         <div class="form-container">
           <div class="tab-bar" id="tab-bar">
             <button id="add-tab" class="tab" title="Add New Document" aria-label="Add New Document">+</button>
+            <!-- Hidden multi-file upload input for batch add -->
+            <input type="file" id="multi-pdf-upload" accept=".pdf,application/pdf" multiple style="display: none;">
           </div>
           <div id="tab-contents"></div>
         </div>
@@ -885,7 +878,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.js"></script>
   <script>
-    // Animate ... in Processing headline
     (function animateProcessingDots(){
       var dots = document.querySelector('.processing-dots');
       if (!dots) return;
@@ -913,7 +905,7 @@
     }
     updateBaseUrlMemory("");
     let docCount = 1;
-    const MAX_DOCS = 3;
+    const MAX_DOCS = 5;
     const MAX_TARGET_ROWS = 5;
     const tabBar = document.getElementById("tab-bar");
     const tabContents = document.getElementById("tab-contents");
@@ -928,23 +920,68 @@
       document.getElementById('spinner-overlay').classList.remove('active');
     }
 
-    document.getElementById("add-tab").addEventListener("click", function() {
-      if (tabBar.querySelectorAll(".tab[data-tab]").length < MAX_DOCS) {
-        createTab();
+    // Util to get the number of open document tabs
+    function getTabCount() {
+      return tabBar.querySelectorAll(".tab[data-tab]").length;
+    }
+
+    // Deletion logic for tabs - update delete button state based on number of tabs
+    function updateDeleteTabButtons() {
+      const tabs = tabBar.querySelectorAll(".tab[data-tab]");
+      const count = tabs.length;
+      tabs.forEach(tab => {
+        const delBtn = tab.querySelector(".delete-tab");
+        if (delBtn) {
+          delBtn.disabled = (count === 1);
+          if (count === 1) {
+            delBtn.setAttribute("disabled", "true");
+            delBtn.style.opacity = "0.3";
+            delBtn.style.cursor = "not-allowed";
+          } else {
+            delBtn.removeAttribute("disabled");
+            delBtn.style.opacity = "";
+            delBtn.style.cursor = "";
+          }
+        }
+      });
+    }
+
+    // Multi-upload logic
+    function openMultiUploadDialog() {
+      const multiInput = document.getElementById("multi-pdf-upload");
+      multiInput.value = ""; // Reset previous
+      multiInput.click();
+    }
+    document.getElementById("add-tab").addEventListener("click", function(e) {
+      if (getTabCount() < MAX_DOCS) {
+        openMultiUploadDialog();
       }
       updateAddTabButton();
       updateTabBarCount();
     });
+    document.getElementById("multi-pdf-upload").addEventListener("change", function(e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+      let slots = MAX_DOCS - getTabCount();
+      for (let i = 0; i < files.length && slots > 0; ++i, --slots) {
+        createTab(files[i]);
+      }
+      updateAddTabButton();
+      updateTabBarCount();
+      updateDeleteTabButtons();
+    });
+
     function updateAddTabButton() {
       const addTabBtn = document.getElementById("add-tab");
-      const numDocs = tabBar.querySelectorAll(".tab[data-tab]").length;
+      const numDocs = getTabCount();
       addTabBtn.disabled = numDocs >= MAX_DOCS;
       addTabBtn.style.opacity = numDocs >= MAX_DOCS ? "0.5" : "1";
       addTabBtn.style.cursor = numDocs >= MAX_DOCS ? "not-allowed" : "pointer";
     }
     function updateTabBarCount() {
-      const numTabs = tabBar.querySelectorAll(".tab[data-tab]").length;
+      const numTabs = getTabCount();
       tabBar.setAttribute('data-tabs', numTabs);
+      updateDeleteTabButtons();
     }
     function setActiveTab(tabId) {
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -987,7 +1024,8 @@
       }
       processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
     }
-    function renderFormFields(form, tabId, docName) {
+
+    function renderFormFields(form, tabId, docName, fileObj) {
       // --- PDF Upload ---
       const pdfField = document.createElement("div");
       pdfField.className = "field-group";
@@ -1017,6 +1055,26 @@
       fileNameSpan.className = "custom-file-filename";
       fileNameSpan.textContent = "No file chosen";
       
+      // If fileObj is passed in (from batch upload), prefill file input
+      if (fileObj instanceof File) {
+        // To programmatically set an <input type="file">'s value, we have to use DataTransfer:
+        const dt = new DataTransfer();
+        dt.items.add(fileObj);
+        fileInput.files = dt.files;
+        fileNameSpan.textContent = fileObj.name;
+        setTimeout(() => { // Wait for DOM
+          const filenameInput = form.querySelector("input[name='filename']");
+          if (filenameInput) {
+            let base = fileObj.name.replace(/\.pdf$/i, "");
+            filenameInput.value = base;
+            // Also update tab label and file list
+            const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+            if (tabLabel) tabLabel.textContent = base;
+            updateFileListStatus(tabId, base, false);
+          }
+        });
+      }
+
       fileInput.addEventListener("change", function() {
         if (fileInput.files && fileInput.files.length > 0) {
           const file = fileInput.files[0];
@@ -1185,7 +1243,7 @@
       const utmContentInput = document.createElement("input");
       utmContentInput.type = "text";
       utmContentInput.name = "utm_content";
-      utmContentInput.placeholder = "Automatic";
+      utmContentInput.placeholder = "Content (automatic)";
       utmContentInput.readOnly = true;
       utmContentInput.style.backgroundColor = "#f9f9f9";
       utmContentInput.style.cursor = "not-allowed";
@@ -1272,7 +1330,8 @@
         saveBtn.disabled = !valid;
       }
     }
-    function createTab() {
+
+    function createTab(fileObj) {
       const tabId = `doc-${docCount}`;
       const tabBtn = document.createElement("button");
       tabBtn.className = "tab";
@@ -1289,7 +1348,6 @@
       delBtn.setAttribute("title", "Delete tab");
       delBtn.dataset.tab = tabId;
       delBtn.innerHTML = "&times;";
-      if (tabId === "doc-1") delBtn.setAttribute("disabled", "true");
       tabBtn.appendChild(delBtn);
       tabBtn.addEventListener("click", function(e) {
         if (e.target.classList.contains("delete-tab")) return;
@@ -1301,7 +1359,7 @@
       tabContent.id = tabId;
       const form = document.createElement("form");
       form.setAttribute("autocomplete", "off");
-      renderFormFields(form, tabId, `Document ${docCount}`);
+      renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
       const filenameInput = form.querySelector("input[name='filename']");
       filenameInput.addEventListener("input", () => {
         tabLabel.textContent = filenameInput.value || `Document ${docCount}`;
@@ -1314,8 +1372,12 @@
       docCount++;
       updateAddTabButton();
       updateTabBarCount();
+      updateDeleteTabButtons();
     }
+    // Initial tab
     createTab();
+
+    // Tab deletion logic
     document.addEventListener("click", function (e) {
       if (e.target.classList && e.target.classList.contains("delete-tab")) {
         if (e.target.hasAttribute('disabled')) return;
@@ -1335,6 +1397,7 @@
         if (newActive) setActiveTab(newActive.dataset.tab);
         updateAddTabButton();
         updateTabBarCount();
+        updateDeleteTabButtons();
       }
     });
     updateTabBarCount();
