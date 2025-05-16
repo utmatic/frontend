@@ -1689,7 +1689,7 @@ async function renderPdfInViewer(pdfUrl) {
           const name = formData.get("filename") || `Document ${i+1}`;
           // To allow download, create an object URL
           const url = URL.createObjectURL(blob);
-          ppreviewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
+          previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
         } catch (err) {
           encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
           break;
