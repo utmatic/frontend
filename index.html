@@ -1579,20 +1579,24 @@
     });
 
     // PDF.js Render Helper
-    async function renderPdfInViewer(pdfUrl) {
-      pdfjsViewer.innerHTML = '';
-      // PDF.js setup
-      const CMAP_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/cmaps/";
-      const CMAP_PACKED = true;
-      const eventBus = new window.pdfjsViewer.EventBus();
-      const pdfLinkService = new window.pdfjsViewer.PDFLinkService({ eventBus });
-      const pdfFindController = new window.pdfjsViewer.PDFFindController({ eventBus, linkService: pdfLinkService });
-      const pdfViewer = new window.pdfjsViewer.PDFViewer({
-        container: pdfjsViewer,
-        eventBus,
-        linkService: pdfLinkService,
-        findController: pdfFindController,
-      });
+async function renderPdfInViewer(pdfUrl) {
+  pdfjsViewer.innerHTML = '';
+  // Fix: check if viewer library is loaded
+  if (!window.pdfjsViewer) {
+    alert("PDF.js Viewer library is not loaded. Cannot preview PDF.");
+    return;
+  }
+  const CMAP_URL = "https://unpkg.com/pdfjs-dist@4.2.67/cmaps/";
+  const CMAP_PACKED = true;
+  const eventBus = new window.pdfjsViewer.EventBus();
+  const pdfLinkService = new window.pdfjsViewer.PDFLinkService({ eventBus });
+  const pdfFindController = new window.pdfjsViewer.PDFFindController({ eventBus, linkService: pdfLinkService });
+  const pdfViewer = new window.pdfjsViewer.PDFViewer({
+    container: pdfjsViewer,
+    eventBus,
+    linkService: pdfLinkService,
+    findController: pdfFindController,
+  });
       pdfjsViewer.classList.add('pdfViewer');
       eventBus.on("pagesinit", function() {
         pdfViewer.currentScaleValue = "page-width";
