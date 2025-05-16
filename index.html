@@ -5,24 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utmatic Modular</title>
   <style>
-    /* Add the new styles here */
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Utmatic Modular</title>
-  <style>
-    /* Add the new styles here */
-
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
     .page-wrapper {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 2rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
+    .main-group {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Aligns header and content left together */
+    }
+    .header-container {
+      width: 100%;
+      max-width: 600px;
+      text-align: left;
+      margin-bottom: 1.5rem;
+      padding-left: 0;
+    }
     .container {
       display: flex;
       justify-content: flex-start;
@@ -30,30 +40,6 @@
       gap: 2rem;
       width: 100%;
     }
-
-    .header-container {
-      text-align: center;
-    }
-    
-    /* Existing styles start below */
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-    }
-    /* ... */
-  </style>
-</head>
-    
-    .container {
-    display: flex;
-    justify-content: flex-start; /* Change from center to flex-start */
-    align-items: flex-start;
-    gap: 2rem;
-    padding: 2rem;
-    }
-
     .form-container {
       background: white;
       padding: 2rem;
@@ -63,20 +49,12 @@
       max-width: 600px;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    .header-container {
-      width: 100%;
-      max-width: 600px;
-      padding-left: 2rem; /* Aligns with form padding */
-      text-align: left; /* Ensures left alignment for text */
-    }
-
     .file-list {
       background: white;
       padding: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
-      width: 350px; /* Increased width */
+      width: 350px;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .file-list ul {
@@ -86,10 +64,10 @@
     }
     .file-list li {
       margin-bottom: 0.5rem;
-      color: gray; /* Default color for unsaved documents */
+      color: gray;
     }
     .file-list li.saved {
-      color: #1a1a1a; /* Saved documents color */
+      color: #1a1a1a;
     }
     .file-list li.saved::before {
       content: "✔";
@@ -143,7 +121,7 @@
     .utm-row {
       display: flex;
       gap: 1.5rem;
-      margin-bottom: 1.25rem; /* Match spacing with other fields */
+      margin-bottom: 1.25rem;
     }
     .utm-row .field-group {
       flex: 1;
@@ -156,39 +134,38 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .form-actions button.save-btn {
+    .form-actions.save-btn {
       background-color: #007bff;
       color: white;
     }
-    .form-actions button.process-btn {
+    .form-actions.process-btn {
       background-color: #28a745;
       color: white;
     }
   </style>
 </head>
 <body>
-  
-<div class="page-wrapper">
-  <div class="header-container">
-    <h1>Utmatic</h1>
-    <p>Equip your documents with tracking links — <em>instantly.</em></p>
-  </div>
-
-  <div class="container">
-    <div class="form-container">
-      <div class="tab-bar">
-        <button id="add-tab" class="tab">+ New document</button>
+  <div class="page-wrapper">
+    <div class="main-group">
+      <div class="header-container">
+        <h1>Utmatic</h1>
+        <p>Equip your documents with tracking links — <em>instantly.</em></p>
       </div>
-      <div id="tab-contents"></div>
-    </div>
-    <div class="file-list">
-      <strong>File List</strong>
-      <ul id="file-list"></ul>
-      <button id="process-btn" class="process-btn" disabled>Process PDFs</button>
+      <div class="container">
+        <div class="form-container">
+          <div class="tab-bar">
+            <button id="add-tab" class="tab">+ New document</button>
+          </div>
+          <div id="tab-contents"></div>
+        </div>
+        <div class="file-list">
+          <strong>File List</strong>
+          <ul id="file-list"></ul>
+          <button id="process-btn" class="process-btn" disabled>Process PDFs</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
   <script>
     const formFields = [
       { id: "pdf", label: "Upload PDF", type: "file" },
@@ -207,13 +184,12 @@
       { id: "underline", label: "Add underline to links?", type: "checkbox" }
     ];
 
-    let docCount = 1; // Keeps track of the number of documents
+    let docCount = 1;
     const tabBar = document.querySelector(".tab-bar");
     const tabContents = document.getElementById("tab-contents");
     const fileList = document.getElementById("file-list");
     const processBtn = document.getElementById("process-btn");
 
-    // Add a new document tab
     document.getElementById("add-tab").addEventListener("click", createTab);
 
     function setActiveTab(tabId) {
@@ -244,27 +220,22 @@
           wrapper = document.createElement("div");
           wrapper.className = "checkbox-wrapper";
           wrapper.dataset.fieldId = field.id;
-
           const input = document.createElement("input");
           input.type = "checkbox";
           input.name = field.id;
           input.id = field.id;
-
           const label = document.createElement("label");
           label.htmlFor = field.id;
           label.textContent = field.label;
-
           wrapper.appendChild(input);
           wrapper.appendChild(label);
         } else {
           wrapper = document.createElement("div");
           wrapper.className = "field-group";
           wrapper.dataset.fieldId = field.id;
-
           const label = document.createElement("label");
           label.htmlFor = field.id;
           label.textContent = field.label;
-
           let input;
           if (field.type === "select") {
             input = document.createElement("select");
@@ -284,21 +255,17 @@
               input.style.cursor = "not-allowed";
             }
           }
-
           input.name = field.id;
           input.id = field.id;
-
           wrapper.appendChild(label);
           wrapper.appendChild(input);
         }
 
-        // Add UTM fields to rows
         if (field.id === "utm_source" || field.id === "utm_medium") {
           utmRow1.appendChild(wrapper);
         } else if (field.id === "utm_campaign" || field.id === "utm_content") {
           utmRow2.appendChild(wrapper);
         } else if (field.id === "filename") {
-          // Add the "Document Name" field AFTER the UTM fields
           form.appendChild(utmRow1);
           form.appendChild(utmRow2);
           form.appendChild(wrapper);
@@ -332,8 +299,6 @@
 
       form.appendChild(submit);
     }
-
-<!-- Start Part 3 -->
 
     function createTab() {
       const tabId = `doc-${docCount}`;
@@ -374,20 +339,17 @@
       docCount++;
     }
 
-    createTab(); // Load initial tab (first document)
+    createTab(); // Load initial tab
 
-    // Prevent deletion of the first document
     function preventFirstTabDeletion() {
       const firstTab = document.querySelector(".tab-bar .tab[data-tab='doc-1']");
       if (firstTab) {
         const deleteIcon = firstTab.querySelector(".delete-tab");
-        if (deleteIcon) deleteIcon.style.display = "none"; // Hide delete icon for the first tab
+        if (deleteIcon) deleteIcon.style.display = "none";
       }
     }
-
     preventFirstTabDeletion();
 
-    // Delegate deletion of document tabs and their forms
     document.addEventListener("click", function (e) {
       if (e.target.classList.contains("delete-tab")) {
         const tabId = e.target.dataset.tab;
@@ -397,8 +359,6 @@
         if (tab) tab.remove();
         if (content) content.remove();
         if (fileItem) fileItem.remove();
-
-        // Activate the last available tab
         const lastTab = document.querySelector(".tab-bar .tab:last-of-type");
         if (lastTab) {
           const newTabId = lastTab.dataset.tab;
