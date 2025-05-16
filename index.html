@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utmatic Modular</title>
   <style>
+    /* Add the new styles here */
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 2rem;
+      width: 100%;
+    }
+
+    .header-container {
+      text-align: center;
+    }
+
     body {
       font-family: sans-serif;
       margin: 0;
@@ -134,12 +157,11 @@
 </head>
 <body>
   
+<div class="page-wrapper">
   <div class="header-container">
-  <h1>Utmatic</h1>
-  <p>Equip your documents with tracking links — <em>instantly.</em></p>
-</div>
-
-<!-- Start Part 2 -->
+    <h1>Utmatic</h1>
+    <p>Equip your documents with tracking links — <em>instantly.</em></p>
+  </div>
 
   <div class="container">
     <div class="form-container">
@@ -154,6 +176,7 @@
       <button id="process-btn" class="process-btn" disabled>Process PDFs</button>
     </div>
   </div>
+</div>
 
   <script>
     const formFields = [
