@@ -1006,6 +1006,7 @@
       
       const fileInput = document.createElement("input");
       fileInput.type = "file";
+      fileInput.accept = ".pdf,application/pdf";
       fileInput.name = "pdf";
       fileInput.id = "pdf";
       fileInput.required = true;
@@ -1018,7 +1019,18 @@
       
       fileInput.addEventListener("change", function() {
         if (fileInput.files && fileInput.files.length > 0) {
-          fileNameSpan.textContent = fileInput.files[0].name;
+          const file = fileInput.files[0];
+          fileNameSpan.textContent = file.name;
+          // Set Document Name to file name minus .pdf if not already changed by user
+          const filenameInput = form.querySelector("input[name='filename']");
+          if (filenameInput && (!filenameInput.value || filenameInput.value.startsWith('Document '))) {
+            let base = file.name.replace(/\.pdf$/i, "");
+            filenameInput.value = base;
+            // Also update tab label and file list
+            const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+            if (tabLabel) tabLabel.textContent = base;
+            updateFileListStatus(tabId, base, false);
+          }
         } else {
           fileNameSpan.textContent = "No file chosen";
         }
@@ -1442,13 +1454,14 @@
       // Prepare all preview requests
       const previewDocsToShow = [];
       let encounteredError = null;
+      const API_BASE = "https://utmatic-backend.onrender.com";
       for (let i = 0; i < tabData.length; ++i) {
         const { form, tabId } = tabData[i];
         const formData = new FormData(form);
         // Fix: ensure correct boolean value for "underline"
         if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
         try {
-          const res = await fetch("/preview", {
+          const res = await fetch(`${API_BASE}/preview`, {
             method: "POST",
             body: formData
           });
