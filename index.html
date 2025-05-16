@@ -727,22 +727,58 @@
     }
   </style>
 </head>
-<body><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script><script>
+<body><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js">
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+<script>
 window.addEventListener("load", () => {
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
   }
 });
+
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf_viewer.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf_viewer.min.js">
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+
 
 <!-- Spinner Overlay -->
 
 </div>
 <!-- PDF Previewer Modal -->
-<button class="pdf-previewer-download-btn" id="pdf-previewer-download">Download</button>
-<button aria-label="Close Preview" class="pdf-previewer-close" id="pdf-previewer-close" title="Close Preview">×</button>
+
+
 </div>
 <div class="pdf-preview-pdfjs-root">
 </div>
@@ -780,7 +816,19 @@ window.addEventListener("load", () => {
     window.pdfjsDistWebPdf_viewer ||
     window['pdfjs-dist/web/pdf_viewer'] ||
     undefined;
+
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 </script>
+
 <script>
     // SVG ICONS
     const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/></svg>`;
@@ -1581,7 +1629,19 @@ async function renderPdfInViewer(pdfUrl) {
       updateAddTabButton();
       updateTabBarCount();
     });
-  </script>
+  
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+
 
 <!-- ✅ Success Checkmark Overlay -->
 <div class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
@@ -1625,10 +1685,13 @@ async function renderPdfInViewer(pdfUrl) {
 </style>
 
 <!-- Basic PDF Previewer -->
+
 <div id="pdf-preview-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:10000; flex-direction:column; align-items:center; justify-content:flex-start; padding:1rem;">
-  <div style="width:100%; text-align:right; margin-bottom:0.5rem;">
+  <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
     <button onclick="closePdfPreview()" style="padding:0.4rem 0.8rem;">Close</button>
+    <button onclick="downloadCurrentPdf()" style="padding:0.4rem 0.8rem;">Download PDF</button>
   </div>
+
   <div style="margin-bottom:1rem;">
     <select id="doc-selector" onchange="switchDocument(this.value)"></select>
   </div>
@@ -1714,7 +1777,19 @@ function prevPage() {
     renderPage();
   }
 }
+
+function downloadCurrentPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.url;
+  a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 </script>
+
 
 </body>
 </html>
