@@ -148,6 +148,24 @@
       gap: 0.4em;
       position: relative;
       font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      /* Disable text wrapping for file names in File List */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-list li .file-list-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .file-list li .job-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.18em;
+      margin-right: 0.2em;
     }
     .file-list li .checkmark {
       width: 24px;
@@ -890,6 +908,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf_viewer.min.js"></script>
   <script>
+    // SVG ICONS
+    const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/></svg>`;
+    const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
+
     (function animateProcessingDots(){
       var dots = document.querySelector('.processing-dots');
       if (!dots) return;
@@ -923,6 +945,9 @@
     const tabContents = document.getElementById("tab-contents");
     const fileList = document.getElementById("file-list");
     const processBtn = document.getElementById("process-btn");
+
+    // Track per-tab last saved state for Save/Dirty logic
+    let tabLastSavedState = {};
 
     function showSpinner() { document.getElementById('spinner-overlay').classList.add('active'); }
     function hideSpinner() { document.getElementById('spinner-overlay').classList.remove('active'); }
@@ -964,12 +989,46 @@
       document.querySelector(`.tab-content#${tabId}`)?.classList.add("active");
       document.querySelector(`.tab-bar .tab[data-tab="${tabId}"]`)?.classList.add("active");
     }
-    function updateFileListStatus(tabId, name, saved) {
+
+    // Helper to build a unique hash of form data (for Save/Dirty logic)
+    function formToHash(form) {
+      // Custom serialization: input type, name, value, checked, selectedIndex, file name if any
+      let arr = [];
+      Array.from(form.elements).forEach(el => {
+        if (el.name && !el.disabled && !el.closest('.hidden')) {
+          if (el.type === "file") {
+            arr.push(el.name + ":" + (el.files[0]?.name || ""));
+          } else if (el.type === "checkbox" || el.type === "radio") {
+            arr.push(el.name + ":" + (el.checked ? "1" : "0"));
+          } else if (el.tagName === "SELECT") {
+            arr.push(el.name + ":" + el.selectedIndex);
+          } else {
+            arr.push(el.name + ":" + el.value);
+          }
+        }
+      });
+      return arr.join("|");
+    }
+
+    function updateFileListStatus(tabId, name, saved, jobType) {
       let item = fileList.querySelector(`[data-tab="${tabId}"]`);
       if (!item) {
         item = document.createElement("li");
         item.dataset.tab = tabId;
         fileList.appendChild(item);
+      }
+      let jobIcons = item.querySelector('.job-icons');
+      if (!jobIcons) {
+        jobIcons = document.createElement('span');
+        jobIcons.className = 'job-icons';
+        item.insertBefore(jobIcons, item.firstChild);
+      }
+      // Update job icons
+      jobIcons.innerHTML = "";
+      if (jobType === "utm_only") {
+        jobIcons.innerHTML = TAG_ICON;
+      } else if (jobType === "links_and_utm") {
+        jobIcons.innerHTML = LINK_ICON;
       }
       let existingCheck = item.querySelector(".checkmark");
       if (existingCheck) existingCheck.remove();
@@ -980,6 +1039,10 @@
         item.appendChild(nameSpan);
       }
       nameSpan.textContent = name || "Untitled Document";
+      // Make sure nameSpan is after jobIcons (for ellipsis to work)
+      if (nameSpan.previousSibling !== jobIcons) {
+        item.insertBefore(nameSpan, null);
+      }
       if (saved) {
         item.className = "saved";
         const checkSvg = document.createElement('span');
@@ -987,7 +1050,7 @@
           <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
           <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
         </svg>`;
-        item.insertBefore(checkSvg, nameSpan);
+        item.insertBefore(checkSvg, jobIcons.nextSibling);
       } else {
         item.className = "";
       }
@@ -1034,7 +1097,10 @@
             filenameInput.value = base;
             const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
             if (tabLabel) tabLabel.textContent = base;
-            updateFileListStatus(tabId, base, false);
+            // Fix: update file list with correct job type (if select is present)
+            let jtSelect = form.querySelector('select[name="job_type"]');
+            let jt = jtSelect ? jtSelect.value : "";
+            updateFileListStatus(tabId, base, false, jt);
           }
         });
       }
@@ -1057,7 +1123,12 @@
               filenameInput.value = base;
               const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
               if (tabLabel) tabLabel.textContent = base;
-              updateFileListStatus(tabId, base, false);
+              let jtSelect = form.querySelector('select[name="job_type"]');
+              let jt = jtSelect ? jtSelect.value : "";
+              updateFileListStatus(tabId, base, false, jt);
+              // On file change, always clear last saved state (force Save to be enabled)
+              tabLastSavedState[tabId] = "";
+              form.querySelector('.save-btn').disabled = false;
             }
             // Now create tabs for each subsequent file, if space left
             let slots = MAX_DOCS - getTabCount();
@@ -1067,12 +1138,17 @@
           } else {
             fileNameSpan.textContent = files[0].name;
             const filenameInput = form.querySelector("input[name='filename']");
-            if (filenameInput && (!filenameInput.value || filenameInput.value.startsWith('Document '))) {
+            if (filenameInput) {
               let base = files[0].name.replace(/\.pdf$/i, "");
               filenameInput.value = base;
               const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
               if (tabLabel) tabLabel.textContent = base;
-              updateFileListStatus(tabId, base, false);
+              let jtSelect = form.querySelector('select[name="job_type"]');
+              let jt = jtSelect ? jtSelect.value : "";
+              updateFileListStatus(tabId, base, false, jt);
+              // Always clear last saved state (force Save to be enabled)
+              tabLastSavedState[tabId] = "";
+              form.querySelector('.save-btn').disabled = false;
             }
           }
         } else {
@@ -1098,15 +1174,33 @@
       jobTypeSelect.id = "job_type";
       jobTypeSelect.required = true;
       [
-        { value: "", label: "Select one" },
-        { value: "utm_only", label: "Add UTM Only" },
-        { value: "links_and_utm", label: "Add Links and UTM" }
+        { value: "", label: "Select one", icon: "" },
+        { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
+        { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
       ].forEach(opt => {
         const option = document.createElement("option");
         option.value = opt.value;
         option.textContent = opt.label;
         jobTypeSelect.appendChild(option);
       });
+      // Add icons to job type select (visually, not in option text)
+      const decorateJobTypeSelect = () => {
+        // Remove any existing decorations
+        jobTypeSelect.querySelectorAll(".icon-option").forEach(n => n.remove());
+        Array.from(jobTypeSelect.options).forEach((opt, idx) => {
+          // Only for non-defaults
+          if (idx === 0) return;
+          opt.textContent = "";
+          let span = document.createElement("span");
+          span.style.display = "inline-flex";
+          span.style.alignItems = "center";
+          span.innerHTML = (idx === 1 ? TAG_ICON : idx === 2 ? LINK_ICON : "") + " " +
+            (idx === 1 ? "Add UTM Only" : idx === 2 ? "Add Links and UTM" : "");
+          opt.appendChild(span);
+        });
+      };
+      // For native selects, cannot inject icons, so use a small CSS hack for Chrome/Edge, and fallback otherwise.
+      // We'll update the file list with icons instead.
       jobTypeField.appendChild(jobTypeLabel);
       jobTypeField.appendChild(jobTypeSelect);
       form.appendChild(jobTypeField);
@@ -1268,35 +1362,17 @@
       saveBtn.disabled = true;
       actionsDiv.appendChild(saveBtn);
       form.appendChild(actionsDiv);
-      // Save handler
-      form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const filenameInput = form.querySelector("input[name='filename']");
-        const name = filenameInput?.value || docName;
-        updateFileListStatus(tabId, name, true);
-      });
-      jobTypeSelect.addEventListener("change", function() {
-        const show = jobTypeSelect.value === "links_and_utm";
-        targetBaseRowsWrapper.classList.toggle("hidden", !show);
-        underlineWrapper.classList.toggle("hidden", !show);
-        targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
-          input.required = show;
-        });
-        underlineInput.required = false;
-        validateForm(form);
-      });
-      form.addEventListener("input", function(e){
-        if (e.target.name === "target_format" || e.target.name === "base_url") {
-          validateForm(form);
-        }
-      });
-      form.addEventListener("input", function() {
-        validateForm(form);
-      });
-      targetBaseRowsWrapper.addEventListener("input", function() {
-        validateForm(form);
-      });
-      function validateForm(form) {
+
+      // --- Save/Dirty logic ---
+      // Track last saved hash for this tab
+      tabLastSavedState[tabId] = "";
+
+      function checkDirtyAndUpdateSaveBtn() {
+        let current = formToHash(form);
+        let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+        saveBtn.disabled = !formIsValid(form) || !dirty;
+      }
+      function formIsValid(form) {
         let valid = true;
         form.querySelectorAll("input, select").forEach(input => {
           if (
@@ -1308,8 +1384,74 @@
             valid = false;
           }
         });
-        saveBtn.disabled = !valid;
+        return valid;
       }
+      // Validate and update save button whenever form changes
+      form.addEventListener("input", function() {
+        checkDirtyAndUpdateSaveBtn();
+      });
+      form.addEventListener("change", function() {
+        checkDirtyAndUpdateSaveBtn();
+      });
+
+      // Save handler
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const filenameInput = form.querySelector("input[name='filename']");
+        const name = filenameInput?.value || docName;
+        const jt = jobTypeSelect.value;
+        updateFileListStatus(tabId, name, true, jt);
+        // Save hash
+        tabLastSavedState[tabId] = formToHash(form);
+        saveBtn.disabled = true;
+        saveBtn.dataset.justSaved = "1";
+        setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
+      });
+
+      // Job type select: update file list with correct icon
+      jobTypeSelect.addEventListener("change", function() {
+        const show = jobTypeSelect.value === "links_and_utm";
+        targetBaseRowsWrapper.classList.toggle("hidden", !show);
+        underlineWrapper.classList.toggle("hidden", !show);
+        targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+          input.required = show;
+        });
+        underlineInput.required = false;
+        // Update icon in file list
+        const filenameInput = form.querySelector("input[name='filename']");
+        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+        checkDirtyAndUpdateSaveBtn();
+      });
+
+      // When filename is changed, update tab label and file list (don't mark as saved)
+      filenameInput.addEventListener("input", () => {
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
+        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+        checkDirtyAndUpdateSaveBtn();
+      });
+
+      // File input change: update filename and clear saved state
+      fileInput.addEventListener("change", function() {
+        if (fileInput.files && fileInput.files.length > 0) {
+          let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          updateFileListStatus(tabId, base, false, jobTypeSelect.value);
+          tabLastSavedState[tabId] = "";
+          saveBtn.disabled = false;
+        }
+      });
+
+      // Initial file list status update
+      updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+
+      // Validate at startup
+      checkDirtyAndUpdateSaveBtn();
+
+      // Show/hide job type icons in select
+      decorateJobTypeSelect();
     }
 
     function createTab(fileObj) {
@@ -1341,14 +1483,8 @@
       const form = document.createElement("form");
       form.setAttribute("autocomplete", "off");
       renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
-      const filenameInput = form.querySelector("input[name='filename']");
-      filenameInput.addEventListener("input", () => {
-        tabLabel.textContent = filenameInput.value || `Document ${docCount}`;
-        updateFileListStatus(tabId, filenameInput.value, false);
-      });
       tabContent.appendChild(form);
       tabContents.appendChild(tabContent);
-      updateFileListStatus(tabId, "", false);
       setActiveTab(tabId);
       docCount++;
       updateAddTabButton();
