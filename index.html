@@ -1559,16 +1559,47 @@
       });
     }
 
-    previewerDownload.addEventListener('click', function() {
-      const doc = previewDocs[currentPreviewIdx];
-      if (!doc) return;
+    previewerDownload.addEventListener('click', async function() {
+  const doc = previewDocs[currentPreviewIdx];
+  if (!doc) return;
+  // Download the clean PDF from /process using the original formData
+  if (doc.formData) {
+    // Optionally, show a spinner
+    document.getElementById('spinner-overlay').classList.add('active');
+    const API_BASE = "https://utmatic-backend.onrender.com";
+    try {
+      const res = await fetch(`${API_BASE}/process`, {
+        method: "POST",
+        body: doc.formData
+      });
+      document.getElementById('spinner-overlay').classList.remove('active');
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert("Download failed: " + errorText);
+        return;
+      }
+      const blob = await res.blob();
       const a = document.createElement('a');
-      a.href = doc.url;
-      a.download = doc.name?.replace(/[^\w.-]+/g, '_') + '_preview.pdf';
+      a.href = URL.createObjectURL(blob);
+      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
       document.body.appendChild(a);
       a.click();
+      URL.revokeObjectURL(a.href);
       document.body.removeChild(a);
-    });
+    } catch (err) {
+      document.getElementById('spinner-overlay').classList.remove('active');
+      alert("Download failed: " + err);
+    }
+  } else {
+    // fallback: download the preview file
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+});
 
     previewerClose.addEventListener('click', function() {
       previewerModal.classList.remove('active');
@@ -1658,7 +1689,7 @@ async function renderPdfInViewer(pdfUrl) {
           const name = formData.get("filename") || `Document ${i+1}`;
           // To allow download, create an object URL
           const url = URL.createObjectURL(blob);
-          previewDocsToShow.push({ name, blob, url, _tempUrl: url });
+          ppreviewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
         } catch (err) {
           encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
           break;
