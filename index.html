@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -697,23 +696,6 @@
         transform: rotate(360deg);
       }
     }
-    #pdf-previewer-modal.active {
-      display: flex;
-    }
-    .pdf-previewer-close:hover {
-      background: #334155;
-      color: #fff;
-    }
-    .pdf-previewer-switch-btn.active,
-    .pdf-previewer-switch-btn:focus {
-      background: #2563eb;
-      color: #fff;
-      opacity: 1;
-    }
-    .pdf-preview-pdfjs-root > #pdfjs-viewer .toolbar,
-    #pdfjs-viewer .sidebarContainer {
-      display: none !important;
-    }
     /* Remove all carets except in editable fields */
     *:not(input):not(textarea):not(select):not([contenteditable="true"]) {
       caret-color: transparent !important;
@@ -722,56 +704,105 @@
       caret-color: auto !important;
     }
     /* Keep text selectable everywhere */
-    body, .tab, .tab-label, .file-list, .file-list li, .pdf-previewer-title, .pdf-previewer-header, button:not([contenteditable="true"]) {
+    body, .tab, .tab-label, .file-list, .file-list li {
       user-select: none;
     }
-  </style>
+</style>
 </head>
-<body><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script><script>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script>
 window.addEventListener("load", () => {
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
   }
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf_viewer.min.js"></script>
-<!-- Spinner Overlay -->
-
-<!-- PDF Previewer Modal -->
-
-
-
-<div class="pdf-preview-pdfjs-root">
-</div>
-
 
 <div class="page-wrapper">
-<div class="main-group">
-<div class="header-container">
-<img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
-<div class="header-text">
-<p>Equip your documents with tracking links — <em>instantly.</em></p>
-</div>
-</div>
-<div class="container">
-<div class="form-container">
-<div class="tab-bar" id="tab-bar">
-<button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
-</div>
-<div id="tab-contents"></div>
-</div>
-<div class="file-list">
-<strong>File List</strong>
-<ul id="file-list"></ul>
-<button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
-</div>
-</div>
-</div>
+  <div class="main-group">
+    <div class="header-container">
+      <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+      <div class="header-text">
+        <p>Equip your documents with tracking links — <em>instantly.</em></p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="form-container">
+        <div class="tab-bar" id="tab-bar">
+          <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
+        </div>
+        <div id="tab-contents"></div>
+      </div>
+      <div class="file-list">
+        <strong>File List</strong>
+        <ul id="file-list"></ul>
+        <button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
+      </div>
+    </div>
+  </div>
 </div>
 <datalist id="base-url-datalist"></datalist>
-<!-- PDF.js library (core and viewer) -->
+
+<!-- ✅ Success Checkmark Overlay -->
+<div class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
+  <div class="text-center">
+    <svg class="checkmark" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25"></circle>
+      <path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+    </svg>
+    <p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
+  </div>
+</div>
+<div class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4" id="loading-indicator">
+  <h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
+  <div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a couple of minutes to process.</p>
+</div>
+<style>
+.checkmark {
+  width: 100px;
+  height: 100px;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  stroke-miterlimit: 10;
+}
+.checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s ease forwards;
+}
+.checkmark__check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 0.6s forwards;
+}
+@keyframes stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+</style>
+
+<!-- Basic PDF Previewer -->
+<div id="pdf-preview-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:10000; flex-direction:column; align-items:center; justify-content:flex-start; padding:1rem;">
+  <div style="width:100%; text-align:right; margin-bottom:0.5rem;">
+    <button onclick="closePdfPreview()" style="padding:0.4rem 0.8rem;">Close</button>
+  </div>
+  <div style="margin-bottom:1rem;">
+    <select id="doc-selector" onchange="switchDocument(this.value)"></select>
+  </div>
+  <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
+    <button onclick="prevPage()">← Prev</button>
+    <span id="page-info">Page 1 / 1</span>
+    <button onclick="nextPage()">Next →</button>
+  </div>
+  <canvas id="pdf-canvas" style="border:1px solid #ccc; max-width:90vw; max-height:80vh;"></canvas>
+</div>
+
 <script>
-  // Guarantee pdfjsViewer is available globally for all UMD/CDN environments
+  // Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
   window.pdfjsViewer =
     window.pdfjsViewer ||
     window.pdfjsDistWebPdf_viewer ||
@@ -810,8 +841,12 @@ window.addEventListener("load", () => {
     // Track per-tab last saved state for Save/Dirty logic
     let tabLastSavedState = {};
 
-    function showSpinner() { const el = document.createElement("div"); el.id = "basic-spinner"; el.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:#fffdfdba;display:flex;align-items:center;justify-content:center;z-index:9999;font-size:2rem;color:#000;"; el.innerText = "Processing..."; document.body.appendChild(el); }
-    function hideSpinner() { const el = document.getElementById("basic-spinner"); if (el) el.remove(); }
+    function showSpinner() { 
+      document.getElementById('loading-indicator').classList.remove('hidden');
+    }
+    function hideSpinner() { 
+      document.getElementById('loading-indicator').classList.add('hidden');
+    }
     function getTabCount() { return tabBar.querySelectorAll(".tab[data-tab]").length; }
     function updateDeleteTabButtons() {
       const tabs = tabBar.querySelectorAll(".tab[data-tab]");
@@ -1044,24 +1079,6 @@ window.addEventListener("load", () => {
         option.textContent = opt.label;
         jobTypeSelect.appendChild(option);
       });
-      // Add icons to job type select (visually, not in option text)
-      const decorateJobTypeSelect = () => {
-        // Remove any existing decorations
-        jobTypeSelect.querySelectorAll(".icon-option").forEach(n => n.remove());
-        Array.from(jobTypeSelect.options).forEach((opt, idx) => {
-          // Only for non-defaults
-          if (idx === 0) return;
-          opt.textContent = "";
-          let span = document.createElement("span");
-          span.style.display = "inline-flex";
-          span.style.alignItems = "center";
-          span.innerHTML = (idx === 1 ? TAG_ICON : idx === 2 ? LINK_ICON : "") + " " +
-            (idx === 1 ? "Add UTM Only" : idx === 2 ? "Add Links and UTM" : "");
-          opt.appendChild(span);
-        });
-      };
-      // For native selects, cannot inject icons, so use a small CSS hack for Chrome/Edge, and fallback otherwise.
-      // We'll update the file list with icons instead.
       jobTypeField.appendChild(jobTypeLabel);
       jobTypeField.appendChild(jobTypeSelect);
       form.appendChild(jobTypeField);
@@ -1158,7 +1175,6 @@ window.addEventListener("load", () => {
       form.appendChild(utmLabel);
       const utmRow = document.createElement("div");
       utmRow.className = "utm-row";
-      // FIXED: use correct field names for backend
       [
         { id: "source", placeholder: "Source", required: true },
         { id: "medium", placeholder: "Medium", required: true },
@@ -1168,7 +1184,7 @@ window.addEventListener("load", () => {
         group.className = "field-group";
         const input = document.createElement("input");
         input.type = "text";
-        input.name = field.id; // FIXED
+        input.name = field.id;
         input.placeholder = field.placeholder;
         input.required = true;
         group.appendChild(input);
@@ -1311,9 +1327,6 @@ window.addEventListener("load", () => {
 
       // Validate at startup
       checkDirtyAndUpdateSaveBtn();
-
-      // Show/hide job type icons in select
-      decorateJobTypeSelect();
     }
 
     function createTab(fileObj) {
@@ -1380,130 +1393,6 @@ window.addEventListener("load", () => {
     });
     updateTabBarCount();
 
-    // PDF Previewer Logic
-    const previewerModal = document.getElementById('pdf-previewer-modal');
-    const previewerTitle = document.getElementById('pdf-previewer-title');
-    const previewerSwitcher = document.getElementById('pdf-previewer-switcher');
-    const previewerDownload = document.getElementById('pdf-previewer-download');
-    const previewerClose = document.getElementById('pdf-previewer-close');
-    const pdfjsViewer = document.getElementById('pdfjs-viewer');
-
-    let previewDocs = []; // Each: { name, blob, url }
-    let currentPreviewIdx = 0;
-
-    function openPdfPreviewer(docs, idx) {
-      previewDocs = docs;
-      currentPreviewIdx = idx || 0;
-      if (!previewDocs.length) return;
-      updatePreviewerHeader();
-      renderPdfInViewer(previewDocs[currentPreviewIdx].url);
-      previewerModal.classList.add('active');
-    }
-
-    function updatePreviewerHeader() {
-      // Title
-      previewerTitle.textContent = previewDocs[currentPreviewIdx]?.name || 'Preview';
-      // Switcher buttons
-      previewerSwitcher.innerHTML = '';
-      previewDocs.forEach((doc, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'pdf-previewer-switch-btn' + (idx === currentPreviewIdx ? ' active' : '');
-        btn.textContent = doc.name || `Document ${idx+1}`;
-        btn.disabled = idx === currentPreviewIdx;
-        btn.addEventListener('click', () => {
-          currentPreviewIdx = idx;
-          updatePreviewerHeader();
-          renderPdfInViewer(doc.url);
-        });
-        previewerSwitcher.appendChild(btn);
-      });
-    }
-
-    previewerDownload.addEventListener('click', async function() {
-  const doc = previewDocs[currentPreviewIdx];
-  if (!doc) return;
-  // Download the clean PDF from /process using the original formData
-  if (doc.formData) {
-    // Optionally, show a spinner
-    document.getElementById('spinner-overlay').classList.add('active');
-    const API_BASE = "https://utmatic-backend.onrender.com";
-    try {
-      const res = await fetch(`${API_BASE}/process`, {
-        method: "POST",
-        body: doc.formData
-      });
-      document.getElementById('spinner-overlay').classList.remove('active');
-      if (!res.ok) {
-        const errorText = await res.text();
-        alert("Download failed: " + errorText);
-        return;
-      }
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(a.href);
-      document.body.removeChild(a);
-    } catch (err) {
-      document.getElementById('spinner-overlay').classList.remove('active');
-      alert("Download failed: " + err);
-    }
-  } else {
-    // fallback: download the preview file
-    const a = document.createElement('a');
-    a.href = doc.url;
-    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-});
-
-    previewerClose.addEventListener('click', function() {
-      previewerModal.classList.remove('active');
-      pdfjsViewer.innerHTML = '';
-      // Cleanup object URLs
-      previewDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
-      previewDocs = [];
-    });
-
-    // PDF.js Render Helper
-async function renderPdfInViewer(pdfUrl) {
-  pdfjsViewer.innerHTML = '';
-  // Fix: check if viewer library is loaded
-  if (!window.pdfjsViewer) {
-    alert("PDF.js Viewer library is not loaded. Cannot preview PDF.");
-    return;
-  }
-  // Ensure container has the correct class before instantiation
-  pdfjsViewer.classList.add('pdfViewer');
-  const CMAP_URL = "https://unpkg.com/pdfjs-dist@4.2.67/cmaps/";
-  const CMAP_PACKED = true;
-  const eventBus = new window.pdfjsViewer.EventBus();
-  const pdfLinkService = new window.pdfjsViewer.PDFLinkService({ eventBus });
-  const pdfFindController = new window.pdfjsViewer.PDFFindController({ eventBus, linkService: pdfLinkService });
-  const pdfViewer = new window.pdfjsViewer.PDFViewer({
-    container: pdfjsViewer,
-    eventBus,
-    linkService: pdfLinkService,
-    findController: pdfFindController,
-  });
-  eventBus.on("pagesinit", function() {
-    pdfViewer.currentScaleValue = "page-width";
-  });
-  const loadingTask = pdfjsLib.getDocument({
-    url: pdfUrl,
-    cMapUrl: CMAP_URL,
-    cMapPacked: CMAP_PACKED,
-  });
-  const pdfDoc = await loadingTask.promise;
-  pdfViewer.setDocument(pdfDoc);
-  pdfLinkService.setDocument(pdfDoc, null);
-  pdfLinkService.setViewer(pdfViewer);
-}
     // Multi-document processing and preview
     processBtn.addEventListener("click", async function() {
       if (processBtn.disabled) return;
@@ -1578,178 +1467,87 @@ async function renderPdfInViewer(pdfUrl) {
       updateAddTabButton();
       updateTabBarCount();
     });
-  </script>
-<!-- ✅ Success Checkmark Overlay -->
-<div class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
-<div class="text-center">
-<svg class="checkmark" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-<circle class="checkmark__circle" cx="26" cy="26" r="25"></circle>
-<path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
-</svg>
-<p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
-</div>
-</div>
-<div class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4" id="loading-indicator">
-<h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
-<div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-<p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a couple of minutes to process.</p>
-</div>
-<style>
-.checkmark {
-  width: 100px;
-  height: 100px;
-  stroke-width: 2;
-  stroke: #4ade80;
-  fill: none;
-  stroke-miterlimit: 10;
-}
-.checkmark__circle {
-  stroke-dasharray: 166;
-  stroke-dashoffset: 166;
-  animation: stroke 0.6s ease forwards;
-}
-.checkmark__check {
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  animation: stroke 0.3s ease 0.6s forwards;
-}
-@keyframes stroke {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-</style>
-<!-- Basic PDF Previewer -->
-<div id="pdf-preview-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:10000; flex-direction:column; align-items:center; justify-content:flex-start; padding:1rem;">
-<div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;"><button aria-label="Close Preview" class="pdf-previewer-close" id="pdf-previewer-close" title="Close Preview">×</button><button class="pdf-previewer-download-btn" id="pdf-previewer-download">Download</button></div>
-<div style="margin-bottom:1rem;">
-<select id="doc-selector" onchange="switchDocument(this.value)"></select>
-</div>
-<div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
-<button onclick="prevPage()">← Prev</button>
-<span id="page-info">Page 1 / 1</span>
-<button onclick="nextPage()">Next →</button>
-</div>
-<canvas id="pdf-canvas" style="border:1px solid #ccc; max-width:90vw; max-height:80vh;"></canvas>
-</div>
-<script>
-let pdfDocs = [];
-let currentDocIndex = 0;
-let currentPage = 1;
-let totalPages = 1;
-let pdfInstance = null;
-let pdfCanvas = null;
-let pdfCtx = null;
 
-function openPdfPreviewer(docs, index=0) {
-  pdfDocs = docs;
-  currentDocIndex = index;
-  document.getElementById("pdf-preview-container").style.display = "flex";
+    // PDF Previewer logic (BASIC)
+    let pdfDocs = [];
+    let currentDocIndex = 0;
+    let currentPage = 1;
+    let totalPages = 1;
+    let pdfInstance = null;
+    let pdfCanvas = null;
+    let pdfCtx = null;
 
-  // Populate selector
-  const selector = document.getElementById("doc-selector");
-  selector.innerHTML = "";
-  pdfDocs.forEach((doc, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = doc.name || `Document ${i+1}`;
-    selector.appendChild(opt);
-  });
-  selector.value = index;
-  loadDocument(currentDocIndex);
-}
+    window.openPdfPreviewer = function(docs, index=0) {
+      pdfDocs = docs;
+      currentDocIndex = index;
+      document.getElementById("pdf-preview-container").style.display = "flex";
 
-function closePdfPreview() {
-  document.getElementById("pdf-preview-container").style.display = "none";
-  if (pdfCanvas) {
-    const ctx = pdfCanvas.getContext("2d");
-    ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
-  }
-}
+      // Populate selector
+      const selector = document.getElementById("doc-selector");
+      selector.innerHTML = "";
+      pdfDocs.forEach((doc, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = doc.name || `Document ${i+1}`;
+        selector.appendChild(opt);
+      });
+      selector.value = index;
+      loadDocument(currentDocIndex);
+    }
 
-function switchDocument(index) {
-  currentDocIndex = parseInt(index);
-  loadDocument(currentDocIndex);
-}
-
-async function loadDocument(index) {
-  const url = pdfDocs[index].url;
-  const loadingTask = pdfjsLib.getDocument(url);
-  pdfInstance = await loadingTask.promise;
-  currentPage = 1;
-  totalPages = pdfInstance.numPages;
-  renderPage();
-}
-
-async function renderPage() {
-  const page = await pdfInstance.getPage(currentPage);
-  const viewport = page.getViewport({ scale: 1.5 });
-  pdfCanvas = document.getElementById("pdf-canvas");
-  pdfCanvas.height = viewport.height;
-  pdfCanvas.width = viewport.width;
-  pdfCtx = pdfCanvas.getContext("2d");
-  await page.render({ canvasContext: pdfCtx, viewport }).promise;
-  document.getElementById("page-info").textContent = `Page ${currentPage} / ${totalPages}`;
-}
-
-function nextPage() {
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage();
-  }
-}
-
-function prevPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    renderPage();
-  }
-}
-</script>
-<script>
-window.addEventListener('DOMContentLoaded', function() {
-  const previewerDownload = document.getElementById('pdf-previewer-download');
-  if (previewerDownload) {
-    previewerDownload.addEventListener('click', async function() {
-      const doc = pdfDocs[currentDocIndex];
-      if (!doc) return;
-      if (doc.formData) {
-        const API_BASE = "https://utmatic-backend.onrender.com";
-        try {
-          showSpinner();
-          const res = await fetch(`${API_BASE}/process`, {
-            method: "POST",
-            body: doc.formData
-          });
-          hideSpinner();
-          if (!res.ok) {
-            const errorText = await res.text();
-            alert("Download failed: " + errorText);
-            return;
-          }
-          const blob = await res.blob();
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(a.href);
-          document.body.removeChild(a);
-        } catch (err) {
-          hideSpinner();
-          alert("Download failed: " + err);
-        }
-      } else {
-        const a = document.createElement('a');
-        a.href = doc.url;
-        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    window.closePdfPreview = function() {
+      document.getElementById("pdf-preview-container").style.display = "none";
+      if (pdfCanvas) {
+        const ctx = pdfCanvas.getContext("2d");
+        ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
       }
-    });
-  }
-});
+      // Cleanup object URLs
+      pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+      pdfDocs = [];
+      pdfInstance = null;
+      currentDocIndex = 0;
+      currentPage = 1;
+      totalPages = 1;
+    }
+
+    window.switchDocument = function(index) {
+      currentDocIndex = parseInt(index);
+      loadDocument(currentDocIndex);
+    }
+
+    async function loadDocument(index) {
+      const url = pdfDocs[index].url;
+      const loadingTask = pdfjsLib.getDocument(url);
+      pdfInstance = await loadingTask.promise;
+      currentPage = 1;
+      totalPages = pdfInstance.numPages;
+      renderPage();
+    }
+
+    async function renderPage() {
+      const page = await pdfInstance.getPage(currentPage);
+      const viewport = page.getViewport({ scale: 1.5 });
+      pdfCanvas = document.getElementById("pdf-canvas");
+      pdfCanvas.height = viewport.height;
+      pdfCanvas.width = viewport.width;
+      pdfCtx = pdfCanvas.getContext("2d");
+      await page.render({ canvasContext: pdfCtx, viewport }).promise;
+      document.getElementById("page-info").textContent = `Page ${currentPage} / ${totalPages}`;
+    }
+
+    window.nextPage = function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage();
+      }
+    }
+
+    window.prevPage = function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+      }
+    }
 </script>
 </body>
 </html>
