@@ -945,7 +945,6 @@
     const tabContents = document.getElementById("tab-contents");
     const fileList = document.getElementById("file-list");
     const processBtn = document.getElementById("process-btn");
-let savedDocs = {}; // Stores { [tabId]: { file: File, fields: {...} } }
 
     // Track per-tab last saved state for Save/Dirty logic
     let tabLastSavedState = {};
@@ -1064,7 +1063,7 @@ let savedDocs = {}; // Stores { [tabId]: { file: File, fields: {...} } }
       const pdfField = document.createElement("div");
       pdfField.className = "field-group";
       const pdfLabel = document.createElement("label");
-      pdfLabel.htmlFor = "pdf";
+      pdfLabel.htmlFor = "file";
       pdfLabel.textContent = "Upload PDF";
       const fileInputWrapper = document.createElement("div");
       fileInputWrapper.className = "custom-file-input-wrapper";
@@ -1076,8 +1075,8 @@ let savedDocs = {}; // Stores { [tabId]: { file: File, fields: {...} } }
       const fileInput = document.createElement("input");
       fileInput.type = "file";
       fileInput.accept = ".pdf,application/pdf";
-      fileInput.name = "pdf";
-      fileInput.id = "pdf";
+      fileInput.name = "file"; // FIXED: must match backend
+      fileInput.id = "file";
       fileInput.required = true;
       fileInput.className = "custom-file-input";
       fileInput.tabIndex = -1;
@@ -1298,16 +1297,17 @@ let savedDocs = {}; // Stores { [tabId]: { file: File, fields: {...} } }
       form.appendChild(utmLabel);
       const utmRow = document.createElement("div");
       utmRow.className = "utm-row";
+      // FIXED: use correct field names for backend
       [
-        { id: "utm_source", placeholder: "Source", required: true },
-        { id: "utm_medium", placeholder: "Medium", required: true },
-        { id: "utm_campaign", placeholder: "Campaign", required: true }
+        { id: "source", placeholder: "Source", required: true },
+        { id: "medium", placeholder: "Medium", required: true },
+        { id: "campaign", placeholder: "Campaign", required: true }
       ].forEach(field => {
         const group = document.createElement("div");
         group.className = "field-group";
         const input = document.createElement("input");
         input.type = "text";
-        input.name = field.id;
+        input.name = field.id; // FIXED
         input.placeholder = field.placeholder;
         input.required = true;
         group.appendChild(input);
@@ -1396,43 +1396,18 @@ let savedDocs = {}; // Stores { [tabId]: { file: File, fields: {...} } }
       });
 
       // Save handler
-form.addEventListener("submit", function(e) {
-  e.preventDefault();
-  const filenameInput = form.querySelector("input[name='filename']");
-  const name = filenameInput?.value || "Untitled Document";
-  const jt = form.querySelector('select[name="job_type"]').value;
-
-  // 1. Get the file input and file object
-  const fileInput = form.querySelector('input[type="file"][name="pdf"]');
-  let file = null;
-  if (fileInput && fileInput.files && fileInput.files[0]) {
-    file = fileInput.files[0];
-  }
-
-  // 2. Gather all relevant fields
-  const fields = {};
-  for (const el of form.elements) {
-    if (el.name && !el.disabled && !el.closest(".hidden")) {
-      if (el.type === "file") {
-        // skip, handled above
-      } else if (el.type === "checkbox" || el.type === "radio") {
-        fields[el.name] = el.checked;
-      } else {
-        fields[el.name] = el.value;
-      }
-    }
-  }
-
-  // 3. Store for this tab
-  savedDocs[tabId] = { file, fields: { ...fields } };
-
-  // Update file list and UI as before
-  updateFileListStatus(tabId, name, true, jt);
-  tabLastSavedState[tabId] = formToHash(form);
-  form.querySelector('.save-btn').disabled = true;
-  form.querySelector('.save-btn').dataset.justSaved = "1";
-  setTimeout(()=>{ form.querySelector('.save-btn').dataset.justSaved = ""; }, 500);
-});
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const filenameInput = form.querySelector("input[name='filename']");
+        const name = filenameInput?.value || docName;
+        const jt = jobTypeSelect.value;
+        updateFileListStatus(tabId, name, true, jt);
+        // Save hash
+        tabLastSavedState[tabId] = formToHash(form);
+        saveBtn.disabled = true;
+        saveBtn.dataset.justSaved = "1";
+        setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
+      });
 
       // Job type select: update file list with correct icon
       jobTypeSelect.addEventListener("change", function() {
@@ -1531,7 +1506,6 @@ form.addEventListener("submit", function(e) {
         if (tab) tab.remove();
         if (content) content.remove();
         if (fileItem) fileItem.remove();
-	delete savedDocs[tabId];
         const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
         let newActive = null;
         if (remainingTabs.length) {
@@ -1635,77 +1609,42 @@ form.addEventListener("submit", function(e) {
     }
 
     // Multi-document processing and preview
-processBtn.addEventListener("click", async function() {
-  if (processBtn.disabled) return;
-  showSpinner();
+    processBtn.addEventListener("click", async function() {
+      if (processBtn.disabled) return;
+      showSpinner();
 
-  // Collect all saved docs
-  const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
-  const tabData = [];
-  for (const tab of docTabs) {
-    const tabId = tab.dataset.tab;
-    // Only include if in file list as "saved"
-    if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
-    // Use saved data
-    if (savedDocs[tabId] && savedDocs[tabId].file) {
-      tabData.push({ ...savedDocs[tabId], tabId });
-    }
-  }
-  if (!tabData.length) {
-    hideSpinner();
-    return;
-  }
-
-  // Prepare all preview requests
-  const previewDocsToShow = [];
-  let encounteredError = null;
-  const API_BASE = "https://utmatic-backend.onrender.com";
-  for (let i = 0; i < tabData.length; ++i) {
-    const { fields, file, tabId } = tabData[i];
-    if (!file) {
-      encounteredError = `Document "${fields.filename || `#${i+1}`}" has no file selected.`;
-      break;
-    }
-    const formData = new FormData();
-    formData.append("file", file);
-    if (fields.utm_source !== undefined) formData.append("source", fields.utm_source);
-    if (fields.utm_medium !== undefined) formData.append("medium", fields.utm_medium);
-    if (fields.utm_campaign !== undefined) formData.append("campaign", fields.utm_campaign);
-    if (fields.filename !== undefined) formData.append("filename", fields.filename);
-    if (fields.job_type !== undefined) formData.append("job_type", fields.job_type);
-    if (fields.utm_content !== undefined) formData.append("utm_content", fields.utm_content);
-    if (fields.target_format !== undefined) formData.append("target_format", fields.target_format);
-    if (fields.base_url !== undefined) formData.append("base_url", fields.base_url);
-    if (fields.underline !== undefined) formData.append("underline", fields.underline ? "true" : "false");
-    try {
-      const res = await fetch(`${API_BASE}/preview`, {
-        method: "POST",
-        body: formData
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        encounteredError = `Document "${fields.filename || `#${i+1}`}" failed: ${errorText}`;
-        break;
+      // Collect all saved docs
+      const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+      const tabData = [];
+      for (const tab of docTabs) {
+        const tabId = tab.dataset.tab;
+        const tabContent = document.getElementById(tabId);
+        if (!tabContent) continue;
+        const form = tabContent.querySelector("form");
+        if (!form) continue;
+        // Only include if in file list as "saved"
+        if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
+        tabData.push({ form, tabId });
       }
-      const blob = await res.blob();
-      const name = fields.filename || `Document ${i+1}`;
-      const url = URL.createObjectURL(blob);
-      previewDocsToShow.push({ name, blob, url, _tempUrl: url });
-    } catch (err) {
-      encounteredError = `Document "${fields.filename || `#${i+1}`}" failed: ${err}`;
-      break;
-    }
-  }
+      if (!tabData.length) {
+        hideSpinner();
+        return;
+      }
 
-  hideSpinner();
-
-  if (encounteredError) {
-    alert(encounteredError);
-    previewDocsToShow.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
-    return;
-  }
-  openPdfPreviewer(previewDocsToShow, 0);
-});
+      // Prepare all preview requests
+      const previewDocsToShow = [];
+      let encounteredError = null;
+      const API_BASE = "https://utmatic-backend.onrender.com";
+      for (let i = 0; i < tabData.length; ++i) {
+        const { form, tabId } = tabData[i];
+        const formData = new FormData(form);
+        // Fix: ensure correct boolean value for "underline"
+        if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
+        try {
+          const res = await fetch(`${API_BASE}/preview`, {
+            method: "POST",
+            body: formData
+          });
           if (!res.ok) {
             const errorText = await res.text();
             encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
