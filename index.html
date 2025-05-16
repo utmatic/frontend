@@ -1584,10 +1584,10 @@
       // PDF.js setup
       const CMAP_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/cmaps/";
       const CMAP_PACKED = true;
-      const eventBus = new pdfjsViewerLib.EventBus();
-      const pdfLinkService = new pdfjsViewerLib.PDFLinkService({ eventBus });
-      const pdfFindController = new pdfjsViewerLib.PDFFindController({ eventBus, linkService: pdfLinkService });
-      const pdfViewer = new pdfjsViewerLib.PDFViewer({
+      const eventBus = new window.pdfjsViewer.EventBus();
+      const pdfLinkService = new window.pdfjsViewer.PDFLinkService({ eventBus });
+      const pdfFindController = new window.pdfjsViewer.PDFFindController({ eventBus, linkService: pdfLinkService });
+      const pdfViewer = new window.pdfjsViewer.PDFViewer({
         container: pdfjsViewer,
         eventBus,
         linkService: pdfLinkService,
