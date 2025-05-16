@@ -697,92 +697,12 @@
         transform: rotate(360deg);
       }
     }
-    #pdf-previewer-modal {
-      display: none;
-      position: fixed;
-      z-index: 100000;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(20,24,32,0.96);
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      transition: opacity 0.19s;
-    }
     #pdf-previewer-modal.active {
       display: flex;
-    }
-    .pdf-previewer-content {
-      background: #181e2b;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px #0007;
-      max-width: 93vw;
-      max-height: 90vh;
-      padding: 0 0 26px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      overflow: hidden;
-      position: relative;
-    }
-    .pdf-previewer-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 26px 10px 26px;
-      background: #232c46;
-      border-radius: 16px 16px 0 0;
-    }
-    .pdf-previewer-title {
-      color: #fff;
-      font-size: 1.18rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      flex: 1 1 auto;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      margin-right: 1.5rem;
-    }
-    .pdf-previewer-close {
-      font-size: 1.9rem;
-      color: #cdd4e7;
-      background: none;
-      border: none;
-      cursor: pointer;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, color 0.15s;
-      margin-left: 1.5rem;
     }
     .pdf-previewer-close:hover {
       background: #334155;
       color: #fff;
-    }
-    .pdf-previewer-switcher {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-left: 0.4rem;
-    }
-    .pdf-previewer-switch-btn {
-      background: #232c46;
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      font-size: 1.13rem;
-      font-weight: 600;
-      padding: 4px 14px;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      margin: 0 0.1rem;
-      opacity: 0.86;
     }
     .pdf-previewer-switch-btn.active,
     .pdf-previewer-switch-btn:focus {
@@ -790,51 +710,7 @@
       color: #fff;
       opacity: 1;
     }
-    .pdf-previewer-switch-btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-    .pdf-previewer-download-btn {
-      background: #22c55e;
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      padding: 5px 20px;
-      cursor: pointer;
-      margin-left: 1.6rem;
-      margin-right: 0;
-      transition: background 0.16s, color 0.16s;
-      display: flex;
-      align-items: center;
-    }
-    .pdf-previewer-download-btn:hover {
-      background: #15803d;
-    }
-    .pdf-preview-pdfjs-root {
-      background: #232c46;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: auto;
-      max-width: 100vw;
-      max-height: 72vh;
-      padding: 0 0.5vw;
-    }
-    .pdf-preview-pdfjs-root > #pdfjs-viewer {
-      width: auto;
-      min-width: 340px;
-      min-height: 440px;
-      background: #232c46;
-      border-radius: 0 0 12px 12px;
-      box-shadow: 0 0px 5px #0007;
-      margin: 0 auto;
-      max-width: 85vw;
-      max-height: 70vh;
-      overflow: auto;
-    }
-    #pdfjs-viewer .toolbar,
+    .pdf-preview-pdfjs-root > #pdfjs-viewer .toolbar,
     #pdfjs-viewer .sidebarContainer {
       display: none !important;
     }
@@ -846,10 +722,7 @@
       caret-color: auto !important;
     }
     /* Keep text selectable everywhere */
-    body, .tab, .tab-label, .file-list, .file-list li, .pdf-previewer-title, .pdf-previewer-header, .pdf-previewer-content {
-      user-select: text;
-    }
-    button:not([contenteditable="true"]) {
+    body, .tab, .tab-label, .file-list, .file-list li, .pdf-previewer-title, .pdf-previewer-header, button:not([contenteditable="true"]) {
       user-select: none;
     }
   </style>
@@ -872,7 +745,6 @@ window.addEventListener("load", () => {
 <button aria-label="Close Preview" class="pdf-previewer-close" id="pdf-previewer-close" title="Close Preview">×</button>
 </div>
 <div class="pdf-preview-pdfjs-root">
-<div id="pdfjs-viewer"></div>
 </div>
 </div>
 </div>
