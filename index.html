@@ -823,11 +823,14 @@
   </style>
 </head>
 <body><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script><script>
+window.addEventListener("load", () => {
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js";
+    console.log("pdfjsLib initialized successfully");
   } else {
     console.error("pdfjsLib is not defined");
   }
+});
 </script>
 <!-- Spinner Overlay -->
 <div id="spinner-overlay">
