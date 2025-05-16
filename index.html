@@ -1644,49 +1644,6 @@ let pdfCtx = null;
 function openPdfPreviewer(docs, index=0) {
   pdfDocs = docs;
   currentDocIndex = index;
-  // Attach download listener when opening preview
-  const previewerDownload = document.getElementById('pdf-previewer-download');
-  if (previewerDownload) {
-    previewerDownload.onclick = async function() {
-      const doc = pdfDocs[currentDocIndex];
-      if (!doc) return;
-      if (doc.formData) {
-        const API_BASE = "https://utmatic-backend.onrender.com";
-        try {
-          showSpinner();
-          const res = await fetch(`${API_BASE}/process`, {
-            method: "POST",
-            body: doc.formData
-          });
-          hideSpinner();
-          if (!res.ok) {
-            const errorText = await res.text();
-            alert("Download failed: " + errorText);
-            return;
-          }
-          const blob = await res.blob();
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
-          document.body.appendChild(a);
-          a.click();
-          URL.revokeObjectURL(a.href);
-          document.body.removeChild(a);
-        } catch (err) {
-          hideSpinner();
-          alert("Download failed: " + err);
-        }
-      } else {
-        const a = document.createElement('a');
-        a.href = doc.url;
-        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    };
-  }
-
   document.getElementById("pdf-preview-container").style.display = "flex";
 
   // Populate selector
@@ -1748,6 +1705,51 @@ function prevPage() {
     renderPage();
   }
 }
+</script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  const previewerDownload = document.getElementById('pdf-previewer-download');
+  if (previewerDownload) {
+    previewerDownload.addEventListener('click', async function() {
+      const doc = pdfDocs[currentDocIndex];
+      if (!doc) return;
+      if (doc.formData) {
+        const API_BASE = "https://utmatic-backend.onrender.com";
+        try {
+          showSpinner();
+          const res = await fetch(`${API_BASE}/process`, {
+            method: "POST",
+            body: doc.formData
+          });
+          hideSpinner();
+          if (!res.ok) {
+            const errorText = await res.text();
+            alert("Download failed: " + errorText);
+            return;
+          }
+          const blob = await res.blob();
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+        } catch (err) {
+          hideSpinner();
+          alert("Download failed: " + err);
+        }
+      } else {
+        const a = document.createElement('a');
+        a.href = doc.url;
+        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
