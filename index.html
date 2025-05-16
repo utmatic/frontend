@@ -5,57 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utmatic Modular</title>
   <style>
-    body {
-      font-family: sans-serif;
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --success: #22c55e;
+      --gray-bg: #f5f7fa;
+      --gray-100: #e5e7eb;
+      --gray-200: #d1d5db;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --danger: #f43f5e;
+      --radius: 10px;
+      --shadow: 0 2px 16px 0 rgba(40,60,90,0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+      --transition: 0.18s cubic-bezier(.4,0,.2,1);
+      --input-bg: #fff;
+      --input-border: #cbd5e1;
+      --input-focus: #2563eb;
+      --input-shadow: 0 0 0 2px rgba(37,99,235,.08);
+      --label: #334155;
+      --placeholder: #94a3b8;
+    }
+    html, body {
+      height: 100%;
+      background: var(--gray-bg);
       margin: 0;
       padding: 0;
-      background: #f9f9f9;
+    }
+    body {
+      font-family: 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      color: #23272f;
+      min-height: 100vh;
+      letter-spacing: 0.01em;
+      font-size: 16px;
     }
     .page-wrapper {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 2.5rem 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .main-group {
       width: 100%;
-      max-width: 1000px;
+      max-width: 1080px;
       display: flex;
       flex-direction: column;
-      align-items: flex-start; /* Aligns header and content left together */
+      align-items: flex-start;
     }
     .header-container {
       width: 100%;
       max-width: 600px;
       text-align: left;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       padding-left: 0;
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+    }
+    .logo {
+      height: 42px;
+      width: auto;
+      display: block;
+    }
+    .header-text {
+      flex: 1;
+      padding-top: 4px;
+    }
+    .header-container p {
+      color: var(--gray-400);
+      font-size: 1.1rem;
+      margin: 0.2rem 0 0 0;
+      letter-spacing: 0.01em;
+      font-weight: 500;
     }
     .container {
       display: flex;
       justify-content: flex-start;
       align-items: flex-start;
-      gap: 2rem;
+      gap: 2.5rem;
       width: 100%;
     }
     .form-container {
-      background: white;
-      padding: 2rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border: none;
+      border-radius: var(--radius);
       width: 100%;
-      max-width: 600px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 650px;
+      box-shadow: var(--shadow);
+      min-width: 370px;
+      min-height: 610px;
+      display: flex;
+      flex-direction: column;
     }
     .file-list {
-      background: white;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      background: #fff;
+      padding: 1.3rem 1.2rem 1.5rem 1.2rem;
+      border: none;
+      border-radius: var(--radius);
       width: 350px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .file-list strong {
+      font-size: 1.1rem;
+      color: var(--label);
+      margin-bottom: 0.4rem;
     }
     .file-list ul {
       list-style: none;
@@ -64,31 +122,89 @@
     }
     .file-list li {
       margin-bottom: 0.5rem;
-      color: gray;
+      color: var(--gray-400);
+      font-size: 1.01rem;
+      background: var(--gray-100);
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+      transition: background var(--transition);
     }
     .file-list li.saved {
       color: #1a1a1a;
+      background: var(--gray-bg);
+      font-weight: 600;
     }
     .file-list li.saved::before {
       content: "✔";
-      color: green;
+      color: var(--success);
       margin-right: 0.5rem;
+      font-size: 1.02em;
     }
     .tab-bar {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.3rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gray-200) #fff;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .tab-bar::-webkit-scrollbar {
+      height: 6px;
+      background: #fff;
+    }
+    .tab-bar::-webkit-scrollbar-thumb {
+      background: var(--gray-200);
+      border-radius: 5px;
     }
     .tab {
-      padding: 0.5rem 1rem;
-      background: #eee;
+      flex: 1 1 0px;
+      min-width: 100px;
+      max-width: 200px;
+      padding: 0.45rem 1.15rem;
+      background: var(--gray-100);
       border: none;
+      border-radius: 7px 7px 0 0;
       cursor: pointer;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      font-size: 1.01rem;
+      color: var(--label);
+      transition: background var(--transition), color var(--transition), font-size 0.18s, padding 0.18s;
+      position: relative;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-bottom: -1px;
     }
     .tab.active {
       font-weight: bold;
-      background: #ddd;
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(40,60,90,0.03);
+      z-index: 2;
+      border-bottom: 2.5px solid var(--primary);
     }
+    .tab .delete-tab {
+      font-size: 1.11em;
+      color: var(--danger);
+      margin-left: 8px;
+      cursor: pointer;
+      transition: color 0.18s;
+      vertical-align: middle;
+      background: none;
+      border: none;
+      display: inline;
+    }
+    .tab .delete-tab:hover {
+      color: #b91c1c;
+    }
+    .tab-bar[data-tabs="2"] .tab { font-size: 1.00rem; padding: 0.45rem 1.05rem; min-width: 95px; }
+    .tab-bar[data-tabs="3"] .tab { font-size: 0.98rem; padding: 0.44rem 0.95rem; min-width: 85px; }
+    .tab-bar[data-tabs="4"] .tab { font-size: 0.96rem; padding: 0.43rem 0.85rem; min-width: 74px; }
+    .tab-bar[data-tabs="5"] .tab { font-size: 0.94rem; padding: 0.42rem 0.75rem; min-width: 62px; }
     .tab-content {
       display: none;
     }
@@ -96,82 +212,206 @@
       display: block;
     }
     .field-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.13rem;
+      width: 100%;
     }
     .field-group label {
       display: block;
       font-weight: 600;
-      margin-bottom: 0.25rem;
+      color: var(--label);
+      margin-bottom: 0.28rem;
+      font-size: 1.01rem;
+      letter-spacing: 0.01em;
     }
-    .field-group input[type="text"],
-    .field-group input[type="file"],
-    .field-group select {
+    .field-row-wrapper {
+      width:100%;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      margin-bottom: 1.2rem;
       width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    }
+    .field-row .field-group {
+      margin-bottom: 0 !important;
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .field-row .field-group input {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .field-row .delete-col {
+      width: 2.3em;
+      min-width: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .utm-label {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 0.3rem;
+      display: block;
+      font-size: 1.01rem;
     }
     .checkbox-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
+      gap: 0.6rem;
+      margin-bottom: 1.12rem;
+      font-size: 1rem;
     }
-    .utm-row {
-      display: flex;
-      gap: 1.5rem;
-      margin-bottom: 1.25rem;
+    .add-new-row-btn {
+      color: var(--primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 0.98rem;
+      font-weight: 500;
+      padding: 0;
+      float: right;
+      margin-bottom: 0.25rem;
+      text-align: right;
+      transition: color var(--transition);
     }
-    .utm-row .field-group {
-      flex: 1;
+    .add-new-row-btn:disabled {
+      color: var(--gray-300);
+      cursor: not-allowed;
     }
-.form-actions button,
-.save-btn,
-.process-btn {
-  width: 100%;
-  font-size: 1rem;
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, opacity 0.2s;
-}
-
-/* Save button default (enabled) */
-.save-btn {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Process PDFs button default (enabled) */
-.process-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-/* Disabled state for both buttons */
-.save-btn:disabled,
-.process-btn:disabled {
-  background-color: #cccccc !important;
-  color: #666666 !important;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-button:hover { cursor: pointer; }
-
+    .form-actions {
+      margin-top: 1rem;
+    }
+    .save-btn,
+    .process-btn {
+      width: 100%;
+      font-size: 1.09rem;
+      padding: 0.68rem 1rem;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.19s, color 0.19s, opacity 0.19s, box-shadow 0.19s;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      box-shadow: 0 2px 16px 0 rgba(37,99,235,0.07);
+      letter-spacing: 0.01em;
+    }
+    .save-btn {
+      background: linear-gradient(90deg, var(--primary) 70%, var(--primary-dark) 100%);
+      color: #fff;
+      border: none;
+    }
+    .save-btn:hover:enabled {
+      background: linear-gradient(90deg, #1e40af 40%, #2563eb 100%);
+      box-shadow: 0 4px 24px 0 rgba(37,99,235,0.13);
+    }
+    .process-btn {
+      background: linear-gradient(90deg, var(--success) 80%, #16a34a 100%);
+      color: #fff;
+      border: none;
+    }
+    .process-btn:hover:enabled {
+      background: linear-gradient(90deg, #16a34a 30%, var(--success) 100%);
+      box-shadow: 0 4px 24px 0 rgba(34,197,94,0.13);
+    }
+    .save-btn:disabled,
+    .process-btn:disabled {
+      background: var(--gray-200) !important;
+      color: #818a97 !important;
+      cursor: not-allowed;
+      opacity: 0.75;
+      box-shadow: none;
+    }
+    button:hover { cursor: pointer; }
+    .hidden { display: none !important; }
+    input[type="text"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 0.62rem 0.68rem;
+      font-size: 1.03rem;
+      border: 1.5px solid var(--input-border);
+      border-radius: 7px;
+      background: var(--input-bg);
+      color: #23272f;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+    }
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--input-focus);
+      box-shadow: var(--input-shadow);
+      background: #f8fafc;
+    }
+    input[readonly] {
+      background: #f4f4f4;
+      color: #a3a3a3;
+      cursor: not-allowed;
+    }
+    input::placeholder {
+      color: var(--placeholder);
+      opacity: 1;
+      font-size: 0.99em;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    /* Responsive */
+    @media (max-width: 950px) {
+      .container {
+        flex-direction: column;
+      }
+      .file-list {
+        width: 100%;
+        max-width: 100%;
+      }
+      .form-container {
+        max-width: 100%;
+      }
+    }
+    @media (max-width: 600px) {
+      .form-container, .file-list {
+        padding: 1rem !important;
+        min-width: 0;
+      }
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.7rem;
+      }
+      .tab-bar {
+        flex-wrap: wrap;
+      }
+      .tab {
+        min-width: 75px;
+        font-size: 0.90rem;
+      }
+      .field-row {
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="page-wrapper">
     <div class="main-group">
       <div class="header-container">
-        <h1>Utmatic</h1>
-        <p>Equip your documents with tracking links — <em>instantly.</em></p>
+        <img class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png" alt="Utmatic Logo" />
+        <div class="header-text">
+          <p>Equip your documents with tracking links — <em>instantly.</em></p>
+        </div>
       </div>
       <div class="container">
         <div class="form-container">
-          <div class="tab-bar">
+          <div class="tab-bar" id="tab-bar">
             <button id="add-tab" class="tab">+ New document</button>
           </div>
           <div id="tab-contents"></div>
@@ -184,31 +424,65 @@ button:hover { cursor: pointer; }
       </div>
     </div>
   </div>
+  <!-- URL memory for Base URL suggestions -->
+  <datalist id="base-url-datalist"></datalist>
   <script>
+    let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
+
+    function updateBaseUrlMemory(newUrl) {
+      if (newUrl && !baseUrlMemory.includes(newUrl)) {
+        baseUrlMemory.push(newUrl);
+        if (baseUrlMemory.length > 15) baseUrlMemory.shift();
+        localStorage.setItem('baseUrlMemory', JSON.stringify(baseUrlMemory));
+      }
+      let dl = document.getElementById('base-url-datalist');
+      if (!dl) {
+        dl = document.createElement('datalist');
+        dl.id = 'base-url-datalist';
+        document.body.appendChild(dl);
+      }
+      dl.innerHTML = baseUrlMemory.map(url => `<option value="${url}">`).join('');
+    }
+    updateBaseUrlMemory(""); // Ensure datalist is always present
+
     const formFields = [
-      { id: "pdf", label: "Upload PDF", type: "file" },
-      { id: "job_type", label: "Job Type", type: "select", options: [
+      { id: "pdf", label: "Upload PDF", type: "file", required: true },
+      { id: "job_type", label: "Job Type", type: "select", required: true, options: [
         { value: "", label: "Select one" },
         { value: "utm_only", label: "Add UTM Only" },
         { value: "links_and_utm", label: "Add Links and UTM" }
       ]},
-      { id: "target_format", label: "Target Format", type: "text" },
-      { id: "base_url", label: "Base URL", type: "text" },
-      { id: "utm_source", label: "UTM Source", type: "text" },
-      { id: "utm_medium", label: "UTM Medium", type: "text" },
-      { id: "utm_campaign", label: "UTM Campaign", type: "text" },
-      { id: "utm_content", label: "UTM Content", type: "text", readonly: true, placeholder: "Automatic" },
-      { id: "filename", label: "Document Name", type: "text", placeholder: "MyFileName" },
-      { id: "underline", label: "Add underline to links?", type: "checkbox" }
+      { id: "filename", label: "Document Name", type: "text", placeholder: "MyFileName", required: true },
     ];
 
     let docCount = 1;
-    const tabBar = document.querySelector(".tab-bar");
+    const tabBar = document.getElementById("tab-bar");
     const tabContents = document.getElementById("tab-contents");
     const fileList = document.getElementById("file-list");
     const processBtn = document.getElementById("process-btn");
+    const MAX_DOCS = 5;
+    const MAX_TARGET_ROWS = 5;
 
-    document.getElementById("add-tab").addEventListener("click", createTab);
+    document.getElementById("add-tab").addEventListener("click", function() {
+      if (tabBar.querySelectorAll(".tab[data-tab]").length < MAX_DOCS) {
+        createTab();
+      }
+      updateAddTabButton();
+      updateTabBarCount();
+    });
+
+    function updateAddTabButton() {
+      const addTabBtn = document.getElementById("add-tab");
+      const numDocs = tabBar.querySelectorAll(".tab[data-tab]").length;
+      addTabBtn.disabled = numDocs >= MAX_DOCS;
+      addTabBtn.style.opacity = numDocs >= MAX_DOCS ? "0.5" : "1";
+      addTabBtn.style.cursor = numDocs >= MAX_DOCS ? "not-allowed" : "pointer";
+    }
+
+    function updateTabBarCount() {
+      const numTabs = tabBar.querySelectorAll(".tab[data-tab]").length;
+      tabBar.setAttribute('data-tabs', numTabs);
+    }
 
     function setActiveTab(tabId) {
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -221,83 +495,208 @@ button:hover { cursor: pointer; }
       const item = fileList.querySelector(`[data-tab="${tabId}"]`);
       item.textContent = name || "Untitled Document";
       item.className = saved ? "saved" : "";
-      processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved"));
+      processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
     }
 
-    function renderFormFields(form) {
-      const utmRow1 = document.createElement("div");
-      utmRow1.className = "utm-row";
+    function renderFormFields(form, tabId) {
+      // --- PDF Upload ---
+      const pdfField = document.createElement("div");
+      pdfField.className = "field-group";
+      const pdfLabel = document.createElement("label");
+      pdfLabel.htmlFor = "pdf";
+      pdfLabel.textContent = "Upload PDF";
+      const pdfInput = document.createElement("input");
+      pdfInput.type = "file";
+      pdfInput.name = "pdf";
+      pdfInput.id = "pdf";
+      pdfInput.required = true;
+      pdfField.appendChild(pdfLabel);
+      pdfField.appendChild(pdfInput);
+      form.appendChild(pdfField);
 
-      const utmRow2 = document.createElement("div");
-      utmRow2.className = "utm-row";
+      // --- Job Type ---
+      const jobTypeField = document.createElement("div");
+      jobTypeField.className = "field-group";
+      const jobTypeLabel = document.createElement("label");
+      jobTypeLabel.htmlFor = "job_type";
+      jobTypeLabel.textContent = "Job Type";
+      const jobTypeSelect = document.createElement("select");
+      jobTypeSelect.name = "job_type";
+      jobTypeSelect.id = "job_type";
+      jobTypeSelect.required = true;
+      [
+        { value: "", label: "Select one" },
+        { value: "utm_only", label: "Add UTM Only" },
+        { value: "links_and_utm", label: "Add Links and UTM" }
+      ].forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.textContent = opt.label;
+        jobTypeSelect.appendChild(option);
+      });
+      jobTypeField.appendChild(jobTypeLabel);
+      jobTypeField.appendChild(jobTypeSelect);
+      form.appendChild(jobTypeField);
 
-      formFields.forEach(field => {
-        let wrapper;
+      // --- Target Format & Base URL dynamic rows ---
+      const targetBaseRowsWrapper = document.createElement("div");
+      targetBaseRowsWrapper.className = "field-row-wrapper hidden";
 
-        if (field.type === "checkbox") {
-          wrapper = document.createElement("div");
-          wrapper.className = "checkbox-wrapper";
-          wrapper.dataset.fieldId = field.id;
-          const input = document.createElement("input");
-          input.type = "checkbox";
-          input.name = field.id;
-          input.id = field.id;
-          const label = document.createElement("label");
-          label.htmlFor = field.id;
-          label.textContent = field.label;
-          wrapper.appendChild(input);
-          wrapper.appendChild(label);
-        } else {
-          wrapper = document.createElement("div");
-          wrapper.className = "field-group";
-          wrapper.dataset.fieldId = field.id;
-          const label = document.createElement("label");
-          label.htmlFor = field.id;
-          label.textContent = field.label;
-          let input;
-          if (field.type === "select") {
-            input = document.createElement("select");
-            field.options.forEach(opt => {
-              const option = document.createElement("option");
-              option.value = opt.value;
-              option.textContent = opt.label;
-              input.appendChild(option);
-            });
-          } else {
-            input = document.createElement("input");
-            input.type = field.type;
-            if (field.placeholder) input.placeholder = field.placeholder;
-            if (field.readonly) {
-              input.readOnly = true;
-              input.style.backgroundColor = "#f9f9f9";
-              input.style.cursor = "not-allowed";
-            }
-          }
-          input.name = field.id;
-          input.id = field.id;
-          wrapper.appendChild(label);
-          wrapper.appendChild(input);
-        }
-
-        if (field.id === "utm_source" || field.id === "utm_medium") {
-          utmRow1.appendChild(wrapper);
-        } else if (field.id === "utm_campaign" || field.id === "utm_content") {
-          utmRow2.appendChild(wrapper);
-        } else if (field.id === "filename") {
-          form.appendChild(utmRow1);
-          form.appendChild(utmRow2);
-          form.appendChild(wrapper);
-        } else {
-          form.appendChild(wrapper);
-        }
+      // Add New Row button
+      const addNewRowBtn = document.createElement("button");
+      addNewRowBtn.type = "button";
+      addNewRowBtn.className = "add-new-row-btn";
+      addNewRowBtn.textContent = "+ Add new";
+      addNewRowBtn.style.float = "right";
+      addNewRowBtn.style.marginBottom = "4px";
+      addNewRowBtn.addEventListener("click", function() {
+        addTargetBaseRow(targetBaseRowsWrapper, form);
+        updateAddNewRowBtn();
       });
 
-      form.appendChild(utmRow1);
-      form.appendChild(utmRow2);
+      targetBaseRowsWrapper.appendChild(addNewRowBtn);
 
+      // Add initial row
+      addTargetBaseRow(targetBaseRowsWrapper, form);
+
+      function addTargetBaseRow(wrapper, form) {
+        const fieldRow = document.createElement("div");
+        fieldRow.className = "field-row";
+
+        // Target Format
+        const tfGroup = document.createElement("div");
+        tfGroup.className = "field-group";
+        tfGroup.style.flex = "1";
+        tfGroup.style.minWidth = 0;
+        const tfInput = document.createElement("input");
+        tfInput.type = "text";
+        tfInput.name = "target_format";
+        tfInput.placeholder = "Target Format";
+        tfInput.required = true;
+        tfInput.style.width = "100%";
+        tfInput.style.boxSizing = "border-box";
+        tfGroup.appendChild(tfInput);
+
+        // Base URL
+        const buGroup = document.createElement("div");
+        buGroup.className = "field-group";
+        buGroup.style.flex = "1";
+        buGroup.style.minWidth = 0;
+        const buInput = document.createElement("input");
+        buInput.type = "text";
+        buInput.name = "base_url";
+        buInput.placeholder = "Base URL";
+        buInput.required = true;
+        buInput.setAttribute('list', 'base-url-datalist');
+        buInput.style.width = "100%";
+        buInput.style.boxSizing = "border-box";
+        buGroup.appendChild(buInput);
+
+        // Listen for blur/change to remember entered Base URLs
+        buInput.addEventListener('change', () => {
+          updateBaseUrlMemory(buInput.value.trim());
+        });
+
+        // Remove Button (except for first row)
+        const delCol = document.createElement("div");
+        delCol.className = "delete-col";
+        if (wrapper.querySelectorAll(".field-row").length > 0) {
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.textContent = "✕";
+          removeBtn.style.background = "none";
+          removeBtn.style.border = "none";
+          removeBtn.style.color = "#f43f5e";
+          removeBtn.style.fontSize = "1.25rem";
+          removeBtn.style.cursor = "pointer";
+          removeBtn.title = "Remove row";
+          removeBtn.addEventListener("click", function() {
+            fieldRow.remove();
+            updateAddNewRowBtn();
+            validateForm(form);
+          });
+          delCol.appendChild(removeBtn);
+        } else {
+          delCol.innerHTML = "&nbsp;"; // Keep space for delete button
+        }
+
+        fieldRow.appendChild(tfGroup);
+        fieldRow.appendChild(buGroup);
+        fieldRow.appendChild(delCol);
+
+        wrapper.appendChild(fieldRow);
+        updateAddNewRowBtn();
+        updateBaseUrlMemory(""); // update datalist on row add
+      }
+
+      function updateAddNewRowBtn() {
+        const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
+        addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
+      }
+
+      form.appendChild(targetBaseRowsWrapper);
+
+      // --- UTM Parameters group ---
+      const utmLabel = document.createElement("span");
+      utmLabel.className = "utm-label";
+      utmLabel.textContent = "UTM Parameters";
+      form.appendChild(utmLabel);
+
+      // Row for UTM Source, Medium, Campaign
+      const utmRow = document.createElement("div");
+      utmRow.className = "utm-row";
+
+      [
+        { id: "utm_source", placeholder: "Source", required: true },
+        { id: "utm_medium", placeholder: "Medium", required: true },
+        { id: "utm_campaign", placeholder: "Campaign", required: true }
+      ].forEach(field => {
+        const group = document.createElement("div");
+        group.className = "field-group";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = field.id;
+        input.placeholder = field.placeholder;
+        input.required = true;
+        group.appendChild(input);
+        utmRow.appendChild(group);
+      });
+      form.appendChild(utmRow);
+
+      // --- UTM Content (automatic, readonly) ---
+      const utmContentGroup = document.createElement("div");
+      utmContentGroup.className = "field-group";
+      const utmContentInput = document.createElement("input");
+      utmContentInput.type = "text";
+      utmContentInput.name = "utm_content";
+      utmContentInput.placeholder = "Automatic";
+      utmContentInput.readOnly = true;
+      utmContentInput.style.backgroundColor = "#f9f9f9";
+      utmContentInput.style.cursor = "not-allowed";
+      utmContentGroup.appendChild(utmContentInput);
+      form.appendChild(utmContentGroup);
+
+      // --- Document Name ---
+      const filenameGroup = document.createElement("div");
+      filenameGroup.className = "field-group";
+      const filenameLabel = document.createElement("label");
+      filenameLabel.htmlFor = "filename";
+      filenameLabel.textContent = "Document Name";
+      const filenameInput = document.createElement("input");
+      filenameInput.type = "text";
+      filenameInput.name = "filename";
+      filenameInput.id = "filename";
+      filenameInput.placeholder = "MyFileName";
+      filenameInput.required = true;
+      filenameGroup.appendChild(filenameLabel);
+      filenameGroup.appendChild(filenameInput);
+      form.appendChild(filenameGroup);
+
+      // --- Add Underline Checkbox (conditionally rendered) ---
       const underlineWrapper = document.createElement("div");
-      underlineWrapper.dataset.fieldId = "underline";
-      underlineWrapper.className = "checkbox-wrapper";
+      underlineWrapper.className = "checkbox-wrapper hidden";
+      underlineWrapper.style.marginBottom = "0.75rem";
+      underlineWrapper.style.marginTop = "-0.5rem";
       const underlineInput = document.createElement("input");
       underlineInput.type = "checkbox";
       underlineInput.name = "underline";
@@ -307,15 +706,60 @@ button:hover { cursor: pointer; }
       underlineLabel.textContent = "Add underline to links?";
       underlineWrapper.appendChild(underlineInput);
       underlineWrapper.appendChild(underlineLabel);
-
       form.appendChild(underlineWrapper);
 
-      const submit = document.createElement("button");
-      submit.type = "submit";
-      submit.textContent = "Save";
-      submit.className = "form-actions save-btn";
+      // --- Save Button ---
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "form-actions";
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "submit";
+      saveBtn.textContent = "Save";
+      saveBtn.className = "save-btn";
+      saveBtn.disabled = true;
+      actionsDiv.appendChild(saveBtn);
+      form.appendChild(actionsDiv);
 
-      form.appendChild(submit);
+      // --- Conditional logic for job type ---
+      jobTypeSelect.addEventListener("change", function() {
+        const show = jobTypeSelect.value === "links_and_utm";
+        targetBaseRowsWrapper.classList.toggle("hidden", !show);
+        underlineWrapper.classList.toggle("hidden", !show);
+        targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+          input.required = show;
+        });
+        underlineInput.required = false;
+        validateForm(form);
+      });
+
+      // --- Ensure Target/Base fields required only if shown ---
+      form.addEventListener("input", function(e){
+        if (e.target.name === "target_format" || e.target.name === "base_url") {
+          validateForm(form);
+        }
+      });
+
+      form.addEventListener("input", function() {
+        validateForm(form);
+      });
+
+      targetBaseRowsWrapper.addEventListener("input", function() {
+        validateForm(form);
+      });
+
+      function validateForm(form) {
+        let valid = true;
+        form.querySelectorAll("input, select").forEach(input => {
+          if (
+            !input.closest(".hidden") &&
+            input.required &&
+            ((input.type === "file" && input.files.length === 0) ||
+             (input.type !== "file" && !input.value.trim()))
+          ) {
+            valid = false;
+          }
+        });
+        saveBtn.disabled = !valid;
+      }
     }
 
     function createTab() {
@@ -325,17 +769,20 @@ button:hover { cursor: pointer; }
       tabBtn.innerHTML = `Document ${docCount} <span style="color:red; cursor:pointer; margin-left:8px;" title="Delete" class="delete-tab" data-tab="${tabId}">&times;</span>`;
       tabBtn.dataset.tab = tabId;
       tabBtn.addEventListener("click", () => setActiveTab(tabId));
-      tabBar.appendChild(tabBtn);
+      tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
 
       const tabContent = document.createElement("div");
       tabContent.className = "tab-content";
       tabContent.id = tabId;
       const form = document.createElement("form");
-      renderFormFields(form);
+      form.setAttribute("autocomplete", "off");
+
+      renderFormFields(form, tabId);
 
       form.addEventListener("submit", e => {
         e.preventDefault();
-        const name = form.filename?.value || `Document ${docCount}`;
+        const filenameInput = form.querySelector("input[name='filename']");
+        const name = filenameInput?.value || `Document ${docCount}`;
         updateFileListStatus(tabId, name, true);
       });
 
@@ -355,9 +802,11 @@ button:hover { cursor: pointer; }
 
       setActiveTab(tabId);
       docCount++;
+      updateAddTabButton();
+      updateTabBarCount();
     }
 
-    createTab(); // Load initial tab
+    createTab();
 
     function preventFirstTabDeletion() {
       const firstTab = document.querySelector(".tab-bar .tab[data-tab='doc-1']");
@@ -382,8 +831,12 @@ button:hover { cursor: pointer; }
           const newTabId = lastTab.dataset.tab;
           setActiveTab(newTabId);
         }
+        updateAddTabButton();
+        updateTabBarCount();
       }
     });
+
+    updateTabBarCount();
   </script>
 </body>
 </html>
