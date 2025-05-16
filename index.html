@@ -854,14 +854,16 @@
     }
   </style>
 </head>
-<body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf_viewer.min.js"></script>
-<script>
+<body><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script><script>
 window.addEventListener("load", () => {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+  }
 });
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf_viewer.min.js"></script>
+
 <!-- Spinner Overlay -->
 <div id="spinner-overlay">
 <div class="spinner-headline">
@@ -913,8 +915,6 @@ window.addEventListener("load", () => {
 </div>
 <datalist id="base-url-datalist"></datalist>
 <!-- PDF.js library (core and viewer) -->
-
-
 <script>
   // Guarantee pdfjsViewer is available globally for all UMD/CDN environments
   window.pdfjsViewer =
@@ -1734,5 +1734,46 @@ async function renderPdfInViewer(pdfUrl) {
       updateTabBarCount();
     });
   </script>
+
+<!-- ✅ Success Checkmark Overlay -->
+<div class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden" id="success-checkmark">
+<div class="text-center">
+<svg class="checkmark" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+<circle class="checkmark__circle" cx="26" cy="26" r="25"></circle>
+<path class="checkmark__check" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+</svg>
+<p class="mt-4 text-green-400 font-medium text-lg">Success!</p>
+</div>
+</div>
+<div class="hidden fixed inset-0 bg-white bg-opacity-80 flex flex-col items-center justify-center z-50 text-center space-y-4" id="loading-indicator">
+<h2 class="text-3xl font-bold text-gray-800">Processing...</h2>
+<div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+<p class="text-lg text-gray-500 max-w-md">Thanks for your patience! Large documents may take a couple of minutes to process.</p>
+</div>
+<style>
+.checkmark {
+  width: 100px;
+  height: 100px;
+  stroke-width: 2;
+  stroke: #4ade80;
+  fill: none;
+  stroke-miterlimit: 10;
+}
+.checkmark__circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke 0.6s ease forwards;
+}
+.checkmark__check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 0.6s forwards;
+}
+@keyframes stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+</style>
 </body>
 </html>
