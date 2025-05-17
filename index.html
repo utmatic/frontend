@@ -1191,7 +1191,11 @@ window.addEventListener("load", () => {
 <script>
     // SVG ICONS
     const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/></svg>`;
-    const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
+    const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 217.59 76.43" style="height:1.15em;vertical-align:-0.13em;">
+  <path fill="currentColor" d="M50.88,44.58c0,10.47-5.74,17.67-17.22,17.67s-17.45-7.2-17.45-17.67V0H0v45.14c0,18.46,10.69,31.29,33.66,31.29s33.43-12.72,33.43-31.41V0h-16.21v44.58Z"/>
+  <polygon fill="currentColor" points="71.7 14.07 93.65 14.07 93.65 75.08 109.75 75.08 109.75 14.07 131.59 14.07 131.59 0 71.7 0 71.7 14.07"/>
+  <polygon fill="currentColor" points="195.07 0 176.84 46.83 158.6 0 136.2 0 136.2 75.08 152.19 75.08 152.19 21.05 173.35 75.08 180.33 75.08 201.49 21.05 201.49 75.08 217.59 75.08 217.59 0 195.07 0"/>
+</svg>`;
 
     let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
     function updateBaseUrlMemory(newUrl) {
