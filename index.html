@@ -873,9 +873,9 @@ window.addEventListener("load", () => {
         <select id="doc-selector" onchange="switchDocument(this.value)"></select>
       </div>
       <div class="right">
-        <button onclick="closePdfPreview()" class="danger" title="Return to Form">Return to Form</button>
-        <button onclick="processNew()" title="Process New Document">Process New</button>
-        <button id="download-final-btn" class="primary" title="Download Final PDF">Download PDF</button>
+        <button onclick="closePdfPreview()" class="danger" title="✕">✕</button>
+        <button onclick="processNew()" title="<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> Start new Document"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg> Start new</button>
+        <button id="download-final-btn" class="primary" title="Download Final PDF">Download</button>
       </div>
     </div>
     <div class="previewer-controls">
@@ -1510,7 +1510,7 @@ window.addEventListener("load", () => {
         return;
       }
 
-      // Save forms for "Return to Form" functionality
+      // Save forms for "✕" functionality
       lastProcessedForms = tabData.map(({form, tabId}) => {
         // Save the form's HTML and its values for each element
         let values = {};
@@ -1734,7 +1734,7 @@ window.addEventListener("load", () => {
             const errorText = await res.text();
             alert("Download failed: " + errorText);
             btn.disabled = false;
-            btn.textContent = "Download PDF";
+            btn.textContent = "Download";
             return;
           }
           const blob = await res.blob();
@@ -1749,7 +1749,7 @@ window.addEventListener("load", () => {
           alert("Download failed: " + err);
         }
         btn.disabled = false;
-        btn.textContent = "Download PDF";
+        btn.textContent = "Download";
       } else {
         // fallback: download the preview file
         const a = document.createElement('a');
