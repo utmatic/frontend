@@ -1733,8 +1733,8 @@ window.addEventListener("load", () => {
       document.getElementById("pdf-preview-modal-overlay").classList.add("active");
       document.body.style.overflow = "hidden";
       // Populate selector and title
-      const selector = document.getElementById("doc-selector");
-      selector.innerHTML = "";
+      const docList = document.getElementById("pdf-previewer-doclist");
+      docList.innerHTML = "..."; // fill with your document list items
       pdfDocs.forEach((doc, i) => {
         const opt = document.createElement("option");
         opt.value = i;
