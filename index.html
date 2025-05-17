@@ -563,63 +563,80 @@
       margin-top: 1rem;
       font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
     }
-    .save-btn,
-    .process-btn {
-      width: 100%;
-      font-size: 1.09rem;
-      padding: 0.68rem 1rem;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: background 0.19s, color 0.19s, opacity 0.19s, box-shadow 0.19s;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      box-shadow: none;
-      letter-spacing: 0.01em;
-      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
-    }
-    .save-btn {
-      background: linear-gradient(90deg, var(--primary) 70%, var(--primary-dark) 100%);
-      color: #fff;
-      border: none;
-    }
-    .save-btn:hover:enabled {
-      background: linear-gradient(90deg, #1e40af 40%, #2563eb 100%);
-    }
-    .process-btn {
-      background: linear-gradient(90deg, var(--success) 80%, #16a34a 100%);
-      color: #fff;
-      border: none;
-    }
-    .process-btn:hover:enabled {
-      background: linear-gradient(90deg, #16a34a 30%, var(--success) 100%);
-    }
-    .save-btn:disabled,
-    .process-btn:disabled {
-      background: var(--gray-200) !important;
-      color: #818a97 !important;
-      cursor: not-allowed;
-      opacity: 0.75;
-      box-shadow: none;
-    }
-    button:hover { cursor: pointer; }
-    .hidden { display: none !important; }
-    input[type="text"],
-    input[type="file"],
-    select {
-      width: 100%;
-      padding: 0.62rem 0.68rem;
-      font-size: 1.03rem;
-      border: 1.5px solid var(--input-border);
-      border-radius: 7px;
-      background: var(--input-bg);
-      color: #23272f;
-      transition: border-color var(--transition), box-shadow var(--transition);
-      outline: none;
-      box-sizing: border-box;
-      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
-      letter-spacing: 0.01em;
-    }
+.save-btn,
+.process-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  font-size: 1.09rem;
+  padding: 0.68rem 1rem;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.19s, color 0.19s, opacity 0.19s, box-shadow 0.19s;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  box-shadow: none;
+  letter-spacing: 0.01em;
+  font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+  background: #2563eb; /* Default for .save-btn, overridden below for .process-btn */
+  color: #fff;
+}
+
+.save-btn {
+  background: #2563eb;
+}
+
+.process-btn {
+  background: #22c55e;
+}
+
+.save-btn::after,
+.process-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 7px;
+}
+
+.save-btn:hover:enabled::after,
+.process-btn:hover:enabled::after {
+  opacity: 1;
+}
+
+.save-btn:disabled,
+.process-btn:disabled {
+  background: var(--gray-200) !important;
+  color: #818a97 !important;
+  cursor: not-allowed;
+  opacity: 0.75;
+  box-shadow: none;
+}
+
+button:hover { cursor: pointer; }
+.hidden { display: none !important; }
+
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 0.62rem 0.68rem;
+  font-size: 1.03rem;
+  border: 1.5px solid var(--input-border);
+  border-radius: 7px;
+  background: var(--input-bg);
+  color: #23272f;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  box-sizing: border-box;
+  font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
     input[type="text"]:focus,
     select:focus {
       border-color: var(--input-focus);
