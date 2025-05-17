@@ -991,6 +991,19 @@ select {
   letter-spacing: 0.005em;
 }
  
+/* Add this overlay for the light hover effect */
+#download-final-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.18); /* Controls "lightness" */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 9px; /* Match button's border radius */
+}
+
 #download-final-btn:hover:enabled::after {
   opacity: 1;
 }
