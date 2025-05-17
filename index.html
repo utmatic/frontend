@@ -1082,21 +1082,21 @@ window.addEventListener("load", () => {
         if (pdfZoomLevel < pdfZoomMax) {
           pdfZoomLevel = Math.min(pdfZoomLevel + pdfZoomStep, pdfZoomMax);
           updateZoomDisplay();
-          renderCurrentPage();
+          renderPage();
         }
       });
       document.getElementById("zoom-out-btn").addEventListener("click", () => {
         if (pdfZoomLevel > pdfZoomMin) {
           pdfZoomLevel = Math.max(pdfZoomLevel - pdfZoomStep, pdfZoomMin);
           updateZoomDisplay();
-          renderCurrentPage();
+          renderPage();
         }
       });
       document.getElementById("zoom-reset-btn").addEventListener("click", () => {
         if (pdfZoomLevel !== 1.0) {
           pdfZoomLevel = 1.0;
           updateZoomDisplay();
-          renderCurrentPage();
+          renderPage();
         }
       });
       updateZoomDisplay();
