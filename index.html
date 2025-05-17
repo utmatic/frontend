@@ -1718,183 +1718,254 @@ window.addEventListener("load", () => {
       updateTabBarCount();
     });
 
-    // PDF Previewer logic (MODERN, MODAL)
-    let pdfDocs = [];
-    let currentDocIndex = 0;
-    let currentPage = 1;
-    let totalPages = 1;
-    let pdfInstance = null;
-    let pdfCanvas = null;
-    let pdfCtx = null;
+// PDF Previewer logic (MODERN, MODAL)
+let pdfDocs = [];
+let currentDocIndex = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pdfInstance = null;
+let pdfCanvas = null;
+let pdfCtx = null;
 
-    window.openPdfPreviewer = function(docs, index=0) {
-      pdfDocs = docs;
-      currentDocIndex = index;
-      document.getElementById("pdf-preview-modal-overlay").classList.add("active");
-      document.body.style.overflow = "hidden";
-      // Populate selector and title
-      const docList = document.getElementById("pdf-previewer-doclist");
-      docList.innerHTML = "..."; // fill with your document list items
-      pdfDocs.forEach((doc, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = doc.name || `Document ${i+1}`;
-        selector.appendChild(opt);
-      });
-      selector.value = index;
-      // Set title (no text wrapping)
-      const titleSpan = document.getElementById("previewer-title");
-      titleSpan.textContent = pdfDocs[index]?.name || "Preview";
-      titleSpan.title = pdfDocs[index]?.name || "Preview";
+// Utility: Get doc name safely
+function getDocName(idx) {
+  return pdfDocs[idx]?.name || `Document ${idx+1}`;
+}
+
+window.openPdfPreviewer = function(docs, index=0) {
+  pdfDocs = docs;
+  currentDocIndex = index;
+  document.getElementById("pdf-preview-modal-overlay").classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  // Populate Document Switcher (Title + Dropdown)
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docList = document.getElementById("pdf-previewer-doclist");
+  // Set title (first child should be a span for the doc name)
+  let docNameSpan = docSwitch.querySelector("span");
+  if (!docNameSpan) {
+    docNameSpan = document.createElement("span");
+    docSwitch.prepend(docNameSpan);
+  }
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+
+  // Populate doc list dropdown
+  docList.innerHTML = "";
+  pdfDocs.forEach((doc, i) => {
+    const div = document.createElement("div");
+    div.textContent = getDocName(i);
+    div.className = (i === currentDocIndex) ? "active" : "";
+    div.onclick = function(e) {
+      e.stopPropagation();
+      currentDocIndex = i;
+      docNameSpan.textContent = getDocName(i);
+      docSwitch.title = getDocName(i);
+      docSwitch.classList.remove("open");
+      docList.style.display = "none";
       loadDocument(currentDocIndex);
+    };
+    docList.appendChild(div);
+  });
 
-      // Setup download button
-      document.getElementById("download-final-btn").onclick = downloadFinalPdf;
+  // Enable clicking to open/close doc dropdown
+  docSwitch.onclick = function(e) {
+    // Only toggle if click is not on the caret or doclist
+    if (
+      e.target === docSwitch ||
+      e.target === docNameSpan ||
+      e.target.classList.contains("caret")
+    ) {
+      docSwitch.classList.toggle("open");
+      docList.style.display = docSwitch.classList.contains("open") ? "block" : "none";
     }
+  };
 
-    window.closePdfPreview = function() {
-      document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
-      document.body.style.overflow = "";
-      if (pdfCanvas) {
-        const ctx = pdfCanvas.getContext("2d");
-        ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+  // Hide the dropdown if clicking outside
+  document.addEventListener(
+    "click",
+    function outsideClick(e) {
+      if (!docSwitch.contains(e.target)) {
+        docSwitch.classList.remove("open");
+        docList.style.display = "none";
       }
-      // Cleanup object URLs
-      pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
-      pdfDocs = [];
-      pdfInstance = null;
-      currentDocIndex = 0;
-      currentPage = 1;
-      totalPages = 1;
+    },
+    { capture: true, once: true }
+  );
 
-      // Restore form UI with previous values
-      if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
-        document.getElementById("main-form-wrapper").style.display = "";
-        // Restore values
-        window.lastProcessedForms.forEach((tab, idx) => {
-          const tabId = `doc-${idx+1}`;
-          // If tab exists, update; otherwise, create
-          let content = document.getElementById(tabId);
-          if (!content) return;
-          let form = content.querySelector("form");
-          if (!form) return;
-          Object.entries(tab.values).forEach(([name, value]) => {
-            let el = form.elements[name];
-            if (!el) return;
-            if (el.type === "checkbox" || el.type === "radio") {
-              el.checked = value;
-            } else {
-              el.value = value;
-            }
-          });
-        });
-      }
-    }
+  // Set up close button
+  const closeBtn = document.getElementById("pdf-previewer-close");
+  if (closeBtn) {
+    closeBtn.onclick = window.closePdfPreview;
+  }
 
-    window.processNew = function() {
-      document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
-      document.body.style.overflow = "";
-      // Remove all tabs except the first, and clear all form inputs
-      window.lastProcessedForms = [];
-      tabContents.innerHTML = "";
-      tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
-      fileList.innerHTML = "";
-      docCount = 1;
-      createTab();
-      updateAddTabButton();
-      updateTabBarCount();
-      setActiveTab("doc-1");
-      document.getElementById("main-form-wrapper").style.display = "";
-    }
+  // Setup download button
+  const downloadBtn = document.getElementById("download-final-btn");
+  if (downloadBtn) {
+    downloadBtn.onclick = downloadFinalPdf;
+  }
 
-    window.switchDocument = function(index) {
-      currentDocIndex = parseInt(index);
-      const titleSpan = document.getElementById("previewer-title");
-      titleSpan.textContent = pdfDocs[currentDocIndex]?.name || "Preview";
-      titleSpan.title = pdfDocs[currentDocIndex]?.name || "Preview";
-      loadDocument(currentDocIndex);
-    }
+  // Set up page navigation
+  const prevBtn = document.getElementById("pdf-arrow-prev");
+  const nextBtn = document.getElementById("pdf-arrow-next");
+  if (prevBtn) prevBtn.onclick = window.prevPage;
+  if (nextBtn) nextBtn.onclick = window.nextPage;
 
-    async function loadDocument(index) {
-      const url = pdfDocs[index].url;
-      const loadingTask = pdfjsLib.getDocument(url);
-      pdfInstance = await loadingTask.promise;
-      currentPage = 1;
-      totalPages = pdfInstance.numPages;
-      renderPage();
-    }
+  // Set up start new doc button
+  const startNewBtn = document.getElementById("pdf-previewer-startnew");
+  if (startNewBtn) startNewBtn.onclick = window.processNew;
 
-    async function renderPage() {
-      const page = await pdfInstance.getPage(currentPage);
-      const viewport = page.getViewport({ scale: 1.5 });
-      pdfCanvas = document.getElementById("pdf-canvas");
-      pdfCanvas.height = viewport.height;
-      pdfCanvas.width = viewport.width;
-      pdfCtx = pdfCanvas.getContext("2d");
-      await page.render({ canvasContext: pdfCtx, viewport }).promise;
-      document.getElementById("page-info").textContent = `Page ${currentPage} / ${totalPages}`;
-    }
+  // Update page counter (initially)
+  document.getElementById("pdf-preview-page-counter").textContent = "";
 
-    window.nextPage = function() {
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderPage();
-      }
-    }
+  // Load the current document
+  loadDocument(currentDocIndex);
+};
 
-    window.prevPage = function() {
-      if (currentPage > 1) {
-        currentPage--;
-        renderPage();
-      }
-    }
+window.closePdfPreview = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  if (pdfCanvas) {
+    const ctx = pdfCanvas.getContext("2d");
+    ctx && ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+  }
+  // Cleanup object URLs
+  pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+  pdfDocs = [];
+  pdfInstance = null;
+  currentDocIndex = 0;
+  currentPage = 1;
+  totalPages = 1;
 
-    // Download the FINAL processed PDF for the current document
-    async function downloadFinalPdf() {
-      const doc = pdfDocs[currentDocIndex];
-      if (!doc) return;
-      // Download the clean PDF from /process using the original formData
-      if (doc.formData) {
-        // Subtle feedback: disable button briefly
-        const btn = document.getElementById("download-final-btn");
-        btn.disabled = true;
-        btn.textContent = "Downloading...";
-        const API_BASE = "https://utmatic-backend.onrender.com";
-        try {
-          const res = await fetch(`${API_BASE}/process`, {
-            method: "POST",
-            body: doc.formData
-          });
-          if (!res.ok) {
-            const errorText = await res.text();
-            alert("Download failed: " + errorText);
-            btn.disabled = false;
-            btn.textContent = "Download PDF";
-            return;
-          }
-          const blob = await res.blob();
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-          document.body.removeChild(a);
-        } catch (err) {
-          alert("Download failed: " + err);
+  // Restore form UI with previous values
+  if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
+    document.getElementById("main-form-wrapper").style.display = "";
+    // Restore values
+    window.lastProcessedForms.forEach((tab, idx) => {
+      const tabId = `doc-${idx+1}`;
+      // If tab exists, update; otherwise, create
+      let content = document.getElementById(tabId);
+      if (!content) return;
+      let form = content.querySelector("form");
+      if (!form) return;
+      Object.entries(tab.values).forEach(([name, value]) => {
+        let el = form.elements[name];
+        if (!el) return;
+        if (el.type === "checkbox" || el.type === "radio") {
+          el.checked = value;
+        } else {
+          el.value = value;
         }
+      });
+    });
+  }
+};
+
+window.processNew = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  // Remove all tabs except the first, and clear all form inputs
+  window.lastProcessedForms = [];
+  tabContents.innerHTML = "";
+  tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
+  fileList.innerHTML = "";
+  docCount = 1;
+  createTab();
+  updateAddTabButton();
+  updateTabBarCount();
+  setActiveTab("doc-1");
+  document.getElementById("main-form-wrapper").style.display = "";
+};
+
+window.switchDocument = function(index) {
+  currentDocIndex = parseInt(index);
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docNameSpan = docSwitch.querySelector("span");
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+  loadDocument(currentDocIndex);
+};
+
+async function loadDocument(index) {
+  const url = pdfDocs[index].url;
+  const loadingTask = pdfjsLib.getDocument(url);
+  pdfInstance = await loadingTask.promise;
+  currentPage = 1;
+  totalPages = pdfInstance.numPages;
+  renderPage();
+}
+
+async function renderPage() {
+  const page = await pdfInstance.getPage(currentPage);
+  const viewport = page.getViewport({ scale: 1.5 });
+  pdfCanvas = document.getElementById("pdf-canvas");
+  pdfCanvas.height = viewport.height;
+  pdfCanvas.width = viewport.width;
+  pdfCtx = pdfCanvas.getContext("2d");
+  await page.render({ canvasContext: pdfCtx, viewport }).promise;
+  document.getElementById("pdf-preview-page-counter").textContent = `Page ${currentPage} / ${totalPages}`;
+}
+
+window.nextPage = function() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage();
+  }
+};
+
+window.prevPage = function() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage();
+  }
+};
+
+// Download the FINAL processed PDF for the current document
+async function downloadFinalPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  // Download the clean PDF from /process using the original formData
+  if (doc.formData) {
+    // Subtle feedback: disable button briefly
+    const btn = document.getElementById("download-final-btn");
+    btn.disabled = true;
+    btn.textContent = "Downloading...";
+    const API_BASE = "https://utmatic-backend.onrender.com";
+    try {
+      const res = await fetch(`${API_BASE}/process`, {
+        method: "POST",
+        body: doc.formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert("Download failed: " + errorText);
         btn.disabled = false;
         btn.textContent = "Download PDF";
-      } else {
-        // fallback: download the preview file
-        const a = document.createElement('a');
-        a.href = doc.url;
-        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        return;
       }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Download failed: " + err);
     }
+    btn.disabled = false;
+    btn.textContent = "Download PDF";
+  } else {
+    // fallback: download the preview file
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
 </script>
 </body>
 </html>
