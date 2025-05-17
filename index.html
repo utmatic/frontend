@@ -990,8 +990,14 @@ select {
   cursor: pointer;
   letter-spacing: 0.005em;
 }
-#download-final-btn:hover {
+ 
+#download-final-btn:hover:enabled::after {
   opacity: 1;
+}
+
+/* You can remove the old hover rule if you want */
+#download-final-btn:hover {
+  /* opacity: 1;  <-- This line is not needed */
 }
     
     /* Loader/Spinner Overlay Style */
