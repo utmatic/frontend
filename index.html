@@ -1946,6 +1946,7 @@ async function loadDocument(index) {
 }
 
 async function renderPage() {
+console.log("Zoom level:", pdfZoomLevel);
   const page = await pdfInstance.getPage(currentPage);
   const viewport = page.getViewport({ scale: pdfZoomLevel });
   pdfCanvas = document.getElementById("pdf-canvas");
