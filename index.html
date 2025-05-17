@@ -989,28 +989,24 @@ select {
   white-space: nowrap;
   cursor: pointer;
   letter-spacing: 0.005em;
+  position: relative;
+  overflow: hidden;
 }
- 
-/* Add this overlay for the light hover effect */
+
 #download-final-btn::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.18); /* Controls "lightness" */
+  background: rgba(255,255,255,0.18);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s;
   z-index: 2;
-  border-radius: 9px; /* Match button's border radius */
+  border-radius: 9px;
 }
 
 #download-final-btn:hover:enabled::after {
   opacity: 1;
-}
-
-/* You can remove the old hover rule if you want */
-#download-final-btn:hover {
-  /* opacity: 1;  <-- This line is not needed */
 }
     
     /* Loader/Spinner Overlay Style */
