@@ -1769,5 +1769,23 @@ window.addEventListener("load", () => {
       }
     }
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const closeBtn = document.querySelector('[onclick="closePdfPreview()"]');
+    if (closeBtn) closeBtn.onclick = closePdfPreview;
+
+    const startNew = document.querySelector('[onclick="processNew()"]');
+    if (startNew) startNew.onclick = processNew;
+
+    const downloadBtn = document.getElementById("download-final-btn");
+    if (downloadBtn) downloadBtn.onclick = downloadFinalPDF;
+
+    if (typeof renderPage === 'function' && typeof currentPage !== 'undefined') {
+      renderPage(currentPage);
+    }
+  });
+</script>
+
 </body>
 </html>
