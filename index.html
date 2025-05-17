@@ -1891,17 +1891,6 @@ const pdfZoomMin = 0.5; // 50%
 const pdfZoomMax = 3.0; // 300%
 const pdfZoomStep = 0.1; // 10% step
 
-function updateZoomDisplay() {
-  const display = document.getElementById("zoom-level-display");
-  if (display) {
-    display.textContent = Math.round(pdfZoomLevel * 100) + "%";
-  }
-  // Enable/disable buttons if at min/max
-  document.getElementById("zoom-in-btn").disabled = pdfZoomLevel >= pdfZoomMax;
-  document.getElementById("zoom-out-btn").disabled = pdfZoomLevel <= pdfZoomMin;
-  document.getElementById("zoom-reset-btn").disabled = pdfZoomLevel === 1.0;
-}
-
 // Utility: Get doc name safely
 function getDocName(idx) {
   return pdfDocs[idx]?.name || `Document ${idx+1}`;
@@ -2143,53 +2132,6 @@ async function downloadFinalPdf() {
   }
 }
 </script>
-
-<script>
-  // === PDF Fullscreen Modal Logic ===
-
-  // Get the buttons and modal
-  const expandBtn = document.getElementById('expand-btn');
-  const modal = document.getElementById('pdf-modal');
-  const collapseBtn = document.getElementById('collapse-btn');
-
-  // Open modal when expand button is clicked
-  if (expandBtn && modal) {
-    expandBtn.addEventListener('click', () => {
-      modal.classList.add('open');
-    });
-  }
-
-  // Close modal when collapse button is clicked
-  if (collapseBtn && modal) {
-    collapseBtn.addEventListener('click', () => {
-      modal.classList.remove('open');
-    });
-  }
-
-  // Optional: Escape key closes modal
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
-      modal.classList.remove('open');
-    }
-  });
-</script>
-
-<!-- PDF Fullscreen Modal Overlay -->
-<div id="pdf-modal" class="pdf-modal">
-  <div class="pdf-modal-content">
-    <!-- Collapse Button (Arrows Pointing In) -->
-    <button id="collapse-btn" class="pdf-modal-close" title="Exit Fullscreen" aria-label="Exit Fullscreen">
-      <!-- Heroicon: Arrows Pointing In -->
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15V21H3m6 0H3m12-6v6h6m-6 0h6M3.75 9V3.75H9m6 0h5.25V9" />
-      </svg>
-    </button>
-    <!-- Modal PDF Canvas Area -->
-    <div id="modal-pdf-container" style="overflow:auto; width:100%; height:75vh; display:flex;align-items:center;justify-content:center;">
-      <canvas id="modal-pdf-canvas"></canvas>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
