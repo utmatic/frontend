@@ -867,36 +867,18 @@ window.addEventListener("load", () => {
 <!-- PDF Previewer Modal Overlay -->
 <div id="pdf-preview-modal-overlay">
   <div id="pdf-preview-container">
-    <div class="previewer-toolbar" style="flex-direction: column; align-items: center; gap: 0.4rem;">
-  <div style="display:flex; flex-direction:column; align-items:center;">
-    <div style="font-weight:700;font-size:1.5rem;color:#1a1a1a;user-select:text;text-align:center;">
-      <span id="previewer-title">Purification Guide</span>
-      <span style="margin-left:0.3rem;">▼</span>
-    </div>
-    <div id="page-info" style="font-weight:500;font-size:1rem;margin-top:0.2rem;color:#1a1a1a;">Page 1 / 9</div>
-  </div>
-  <div style="position:absolute;top:1.25rem;right:1.5rem;font-size:1.6rem;cursor:pointer;" onclick="closePdfPreview()">✕</div>
-</div>
+    <div class="previewer-toolbar">
       <div class="left">
         <span class="pdf-preview-title" id="previewer-title" title="Document Name"></span>
         <select id="doc-selector" onchange="switchDocument(this.value)"></select>
       </div>
       <div class="right">
         <button onclick="closePdfPreview()" class="danger" title="Return to Form">Return to Form</button>
-        <div style="margin-top:1rem;font-weight:500;font-size:1rem;color:#1a1a1a;cursor:pointer;" onclick="processNew()">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display:inline-block;vertical-align:-0.2em;height:1.2em;margin-right:0.3em;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-      Start new
-    </div>
-        <button id="download-final-btn" class="primary" title="Download">Download</button>
+        <button onclick="processNew()" title="Process New Document">Process New</button>
+        <button id="download-final-btn" class="primary" title="Download Final PDF">Download PDF</button>
       </div>
     </div>
-    <div class="previewer-controls" style="position:relative;">
-  <div onclick="prevPage()" style="position:absolute;left:-40px;top:50%;transform:translateY(-50%);cursor:pointer;">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:2rem;width:2rem;color:#1a1a1a;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-  </div>
-  <div onclick="nextPage()" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);cursor:pointer;">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:2rem;width:2rem;color:#1a1a1a;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-  </div>
+    <div class="previewer-controls">
       <button onclick="prevPage()" title="Previous Page">← Prev</button>
       <span id="page-info">Page 1 / 1</span>
       <button onclick="nextPage()" title="Next Page">Next →</button>
