@@ -867,23 +867,35 @@ window.addEventListener("load", () => {
 <!-- PDF Previewer Modal Overlay -->
 <div id="pdf-preview-modal-overlay">
   <div id="pdf-preview-container">
-    <div class="previewer-toolbar">
-      <div class="left">
-        <span class="pdf-preview-title" id="previewer-title" title="Document Name"></span>
-        <select id="doc-selector" onchange="switchDocument(this.value)"></select>
-      </div>
-      <div class="right">
-        <button onclick="closePdfPreview()" class="danger" title="Return to Form">Return to Form</button>
-        <button onclick="processNew()" title="Process New Document">Process New</button>
-        <button id="download-final-btn" class="primary" title="Download Final PDF">Download PDF</button>
-      </div>
-    </div>
-    <div class="previewer-controls">
-      <button onclick="prevPage()" title="Previous Page">← Prev</button>
-      <span id="page-info">Page 1 / 1</span>
-      <button onclick="nextPage()" title="Next Page">Next →</button>
-    </div>
-    <canvas id="pdf-canvas"></canvas>
+    
+<div class="previewer-header" style="position: relative; text-align: center; padding-top: 1rem;">
+  <div style="font-size: 1.4rem; font-weight: bold; color: #1a1a1a;" id="previewer-title">Document Name <span style="font-size: 0.9rem;">▼</span></div>
+  <div style="font-size: 1rem; color: #1a1a1a; margin-top: 0.2rem;" id="page-info">Page 1 / 9</div>
+  <div onclick="closePdfPreview()" style="position:absolute; top: 0.8rem; right: 1.3rem; font-size: 1.4rem; cursor: pointer;">✕</div>
+</div>
+<div class="previewer-body" style="position: relative; display: flex; justify-content: center; align-items: center; margin-top: 1rem; margin-bottom: 1rem;">
+  <div onclick="prevPage()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);cursor:pointer;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:2rem;width:2rem;color:#1a1a1a;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+  </div>
+  <canvas id="pdf-canvas" style="max-width:90%;border:1px solid #ccc;border-radius:8px;"></canvas>
+  <div onclick="nextPage()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:2rem;width:2rem;color:#1a1a1a;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+    </svg>
+  </div>
+</div>
+<div class="previewer-footer" style="display:flex;flex-direction:column;align-items:center;margin-top:1rem;margin-bottom:1rem;">
+  <button id="download-final-btn" class="primary" title="Download" style="margin-bottom: 0.5rem;">Download</button>
+  <div onclick="processNew()" style="display:flex;align-items:center;gap:0.4em;font-size:1rem;color:#1a1a1a;cursor:pointer;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.3em;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+    Start new
+  </div>
+</div>
+<canvas id="pdf-canvas"></canvas>
   </div>
 </div>
 
