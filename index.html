@@ -31,6 +31,9 @@
       --col2: #1e40af;
       --col3: #22c55e;
       --spinner-overlay-bg: rgba(20,24,32,0.92);
+      --previewer-bg: #f5f8ff;
+      --previewer-border: #d1e0ff;
+      --previewer-accent: #2563eb;
     }
     html, body {
       height: 100%;
@@ -707,6 +710,142 @@
     body, .tab, .tab-label, .file-list, .file-list li {
       user-select: none;
     }
+
+    /* --- PDF Previewer Polished Styles --- */
+    #pdf-preview-container {
+      background: var(--previewer-bg);
+      border: 2px solid var(--previewer-border);
+      box-shadow: 0 6px 40px 0 rgba(37,99,235,.08), 0 1.5px 7px 0 rgba(80,80,80,0.10);
+      border-radius: 16px;
+      padding: 1.6rem 1.2rem 1.5rem 1.2rem;
+      max-width: 98vw;
+      max-height: 97vh;
+      margin: 1.5vh auto;
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    #pdf-preview-container .previewer-toolbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+    }
+    #pdf-preview-container .previewer-toolbar .left,
+    #pdf-preview-container .previewer-toolbar .right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #pdf-preview-container .previewer-toolbar .left {
+      gap: 0.8rem;
+    }
+    #pdf-preview-container .previewer-toolbar .pdf-preview-title {
+      font-weight: 700;
+      font-size: 1.27rem;
+      color: var(--previewer-accent);
+      letter-spacing: 0.01em;
+      user-select: text;
+      margin-right: 1.1rem;
+    }
+    #pdf-preview-container select#doc-selector {
+      border: 1.5px solid var(--previewer-border);
+      border-radius: 7px;
+      padding: 0.32rem 1.1rem 0.32rem 0.6rem;
+      background: #fff;
+      font-size: 1.03rem;
+      min-width: 120px;
+      color: #23272f;
+      margin-right: 0.5rem;
+    }
+    #pdf-preview-container button {
+      background: #fff;
+      border: 1.5px solid var(--previewer-border);
+      color: var(--previewer-accent);
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 1.02rem;
+      padding: 0.4rem 1rem;
+      transition: background 0.15s, color 0.15s, border 0.15s;
+      margin: 0 1px;
+      outline: none;
+      box-shadow: none;
+    }
+    #pdf-preview-container button:active,
+    #pdf-preview-container button:focus {
+      background: #e9f0ff;
+      color: var(--primary-dark);
+    }
+    #pdf-preview-container button.primary {
+      background: linear-gradient(90deg, var(--primary) 80%, var(--primary-dark) 100%);
+      color: #fff;
+      border: none;
+    }
+    #pdf-preview-container button.primary:hover {
+      background: linear-gradient(90deg, var(--primary-dark) 40%, var(--primary) 100%);
+      color: #fff;
+    }
+    #pdf-preview-container button.danger {
+      color: #fff;
+      background: var(--danger);
+      border: none;
+    }
+    #pdf-preview-container button.danger:hover {
+      background: #b91c1c;
+    }
+    #pdf-preview-container .previewer-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 1rem;
+    }
+    #pdf-preview-container #page-info {
+      font-weight: 500;
+      color: #334155;
+      font-size: 1.02rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 7px;
+      background: #e7f0ff;
+      margin: 0 0.1rem;
+    }
+    #pdf-preview-container #pdf-canvas {
+      border: 1.5px solid #ced5e6;
+      background: #fff;
+      border-radius: 7px;
+      box-shadow: 0 1px 14px #dde6f6;
+      margin-top: 0.5rem;
+      max-width: 95vw;
+      box-sizing: border-box;
+    }
+    #pdf-preview-container .previewer-actions {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      margin-top: 1.8rem;
+      margin-bottom: 0.1rem;
+    }
+    @media (max-width: 700px) {
+      #pdf-preview-container {
+        padding: 0.3rem 0.2rem 0.7rem 0.2rem;
+      }
+      #pdf-preview-container .previewer-toolbar .pdf-preview-title {
+        font-size: 1.07rem;
+        margin-right: 0.4rem;
+      }
+      #pdf-preview-container .previewer-controls {
+        gap: 0.25rem;
+      }
+      #pdf-preview-container .previewer-actions {
+        flex-direction: column;
+        align-items: stretch;
+        margin-top: 1.1rem;
+        gap: 0.25rem;
+      }
+    }
 </style>
 </head>
 <body>
@@ -719,7 +858,7 @@ window.addEventListener("load", () => {
 });
 </script>
 
-<div class="page-wrapper">
+<div class="page-wrapper" id="main-form-wrapper">
   <div class="main-group">
     <div class="header-container">
       <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
@@ -785,20 +924,25 @@ window.addEventListener("load", () => {
 }
 </style>
 
-<!-- Basic PDF Previewer -->
-<div id="pdf-preview-container" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#fff; z-index:10000; flex-direction:column; align-items:center; justify-content:flex-start; padding:1rem;">
-  <div style="width:100%; text-align:right; margin-bottom:0.5rem;">
-    <button onclick="closePdfPreview()" style="padding:0.4rem 0.8rem;">Close</button>
+<!-- PDF Previewer -->
+<div id="pdf-preview-container" style="display:none;">
+  <div class="previewer-toolbar">
+    <div class="left">
+      <span class="pdf-preview-title" id="previewer-title">Preview</span>
+      <select id="doc-selector" onchange="switchDocument(this.value)"></select>
+    </div>
+    <div class="right">
+      <button onclick="closePdfPreview()" class="danger" title="Return to Form">Return to Form</button>
+      <button onclick="processNew()" title="Process New Document">Process New</button>
+    </div>
   </div>
-  <div style="margin-bottom:1rem;">
-    <select id="doc-selector" onchange="switchDocument(this.value)"></select>
-  </div>
-  <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
-    <button onclick="prevPage()">← Prev</button>
+  <div class="previewer-controls">
+    <button onclick="prevPage()" title="Previous Page">← Prev</button>
     <span id="page-info">Page 1 / 1</span>
-    <button onclick="nextPage()">Next →</button>
+    <button onclick="nextPage()" title="Next Page">Next →</button>
+    <button id="download-final-btn" class="primary" title="Download Final PDF">Download PDF</button>
   </div>
-  <canvas id="pdf-canvas" style="border:1px solid #ccc; max-width:90vw; max-height:80vh;"></canvas>
+  <canvas id="pdf-canvas"></canvas>
 </div>
 
 <script>
@@ -1394,6 +1538,7 @@ window.addEventListener("load", () => {
     updateTabBarCount();
 
     // Multi-document processing and preview
+    let lastProcessedForms = [];
     processBtn.addEventListener("click", async function() {
       if (processBtn.disabled) return;
       showSpinner();
@@ -1415,6 +1560,27 @@ window.addEventListener("load", () => {
         hideSpinner();
         return;
       }
+
+      // Save forms for "Return to Form" functionality
+      lastProcessedForms = tabData.map(({form, tabId}) => {
+        // Save the form's HTML and its values for each element
+        let values = {};
+        Array.from(form.elements).forEach(el => {
+          if (el.name) {
+            if (el.type === "file") {
+              // Skip actual files; can't serialize
+            } else if (el.type === "checkbox" || el.type === "radio") {
+              values[el.name] = el.checked;
+            } else {
+              values[el.name] = el.value;
+            }
+          }
+        });
+        return {
+          tabId,
+          values
+        };
+      });
 
       // Prepare all preview requests
       const previewDocsToShow = [];
@@ -1468,7 +1634,7 @@ window.addEventListener("load", () => {
       updateTabBarCount();
     });
 
-    // PDF Previewer logic (BASIC)
+    // PDF Previewer logic (POLISHED)
     let pdfDocs = [];
     let currentDocIndex = 0;
     let currentPage = 1;
@@ -1481,8 +1647,8 @@ window.addEventListener("load", () => {
       pdfDocs = docs;
       currentDocIndex = index;
       document.getElementById("pdf-preview-container").style.display = "flex";
-
-      // Populate selector
+      document.body.style.overflow = "hidden";
+      // Populate selector and title
       const selector = document.getElementById("doc-selector");
       selector.innerHTML = "";
       pdfDocs.forEach((doc, i) => {
@@ -1492,11 +1658,17 @@ window.addEventListener("load", () => {
         selector.appendChild(opt);
       });
       selector.value = index;
+      // Set title
+      document.getElementById("previewer-title").textContent = pdfDocs[index]?.name || "Preview";
       loadDocument(currentDocIndex);
+
+      // Setup download button
+      document.getElementById("download-final-btn").onclick = downloadFinalPdf;
     }
 
     window.closePdfPreview = function() {
       document.getElementById("pdf-preview-container").style.display = "none";
+      document.body.style.overflow = "";
       if (pdfCanvas) {
         const ctx = pdfCanvas.getContext("2d");
         ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
@@ -1508,10 +1680,50 @@ window.addEventListener("load", () => {
       currentDocIndex = 0;
       currentPage = 1;
       totalPages = 1;
+
+      // Restore form UI with previous values
+      if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
+        document.getElementById("main-form-wrapper").style.display = "";
+        // Restore values
+        window.lastProcessedForms.forEach((tab, idx) => {
+          const tabId = `doc-${idx+1}`;
+          // If tab exists, update; otherwise, create
+          let content = document.getElementById(tabId);
+          if (!content) return;
+          let form = content.querySelector("form");
+          if (!form) return;
+          Object.entries(tab.values).forEach(([name, value]) => {
+            let el = form.elements[name];
+            if (!el) return;
+            if (el.type === "checkbox" || el.type === "radio") {
+              el.checked = value;
+            } else {
+              el.value = value;
+            }
+          });
+        });
+      }
+    }
+
+    window.processNew = function() {
+      document.getElementById("pdf-preview-container").style.display = "none";
+      document.body.style.overflow = "";
+      // Remove all tabs except the first, and clear all form inputs
+      window.lastProcessedForms = [];
+      tabContents.innerHTML = "";
+      tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
+      fileList.innerHTML = "";
+      docCount = 1;
+      createTab();
+      updateAddTabButton();
+      updateTabBarCount();
+      setActiveTab("doc-1");
+      document.getElementById("main-form-wrapper").style.display = "";
     }
 
     window.switchDocument = function(index) {
       currentDocIndex = parseInt(index);
+      document.getElementById("previewer-title").textContent = pdfDocs[currentDocIndex]?.name || "Preview";
       loadDocument(currentDocIndex);
     }
 
@@ -1546,6 +1758,49 @@ window.addEventListener("load", () => {
       if (currentPage > 1) {
         currentPage--;
         renderPage();
+      }
+    }
+
+    // Download the FINAL processed PDF for the current document
+    async function downloadFinalPdf() {
+      const doc = pdfDocs[currentDocIndex];
+      if (!doc) return;
+      // Download the clean PDF from /process using the original formData
+      if (doc.formData) {
+        // Optionally, show a spinner
+        showSpinner();
+        const API_BASE = "https://utmatic-backend.onrender.com";
+        try {
+          const res = await fetch(`${API_BASE}/process`, {
+            method: "POST",
+            body: doc.formData
+          });
+          hideSpinner();
+          if (!res.ok) {
+            const errorText = await res.text();
+            alert("Download failed: " + errorText);
+            return;
+          }
+          const blob = await res.blob();
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+        } catch (err) {
+          hideSpinner();
+          alert("Download failed: " + err);
+        }
+      } else {
+        // fallback: download the preview file
+        const a = document.createElement('a');
+        a.href = doc.url;
+        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
     }
 </script>
