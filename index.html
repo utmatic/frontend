@@ -37,6 +37,16 @@
       transition: background 0.2s;
     }
     
+    #pdf-canvas,
+    #pdf-container,
+    #pdf-preview-inner-container {
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
+      caret-color: transparent;
+    }
+
     #pdf-preview-inner-container::-webkit-scrollbar-thumb:hover,
     #pdf-canvas::-webkit-scrollbar-thumb:hover,
     #modal-pdf-container::-webkit-scrollbar-thumb:hover {
@@ -1027,10 +1037,10 @@
   gap: 0.35em;
   margin-bottom: 1.2rem;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;   /* <-- Center horizontally */
   width: 100%;
   max-width: 720px;
-  margin-left: 0;
+  margin: 0 auto 1.2rem auto; /* <-- Center the block itself */
 }
 .zoom-btn {
   background: none;
