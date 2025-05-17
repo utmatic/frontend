@@ -1583,455 +1583,183 @@ window.addEventListener("load", () => {
       updateTabBarCount();
     });
 
-<!-- PDF Previewer Modal Overlay -->
+    // PDF Previewer logic (MODERN, MODAL)
+    let pdfDocs = [];
+    let currentDocIndex = 0;
+    let currentPage = 1;
+    let totalPages = 1;
+    let pdfInstance = null;
+    let pdfCanvas = null;
+    let pdfCtx = null;
 
-#pdf-preview-modal-overlay {
-  position: fixed;
-  z-index: 9998;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(30,32,48,0.65);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s;
-}
-#pdf-preview-modal-overlay.active {
-  display: flex;
-}
-#pdf-preview-container {
-  position: relative;
-  background: #f8faff;
-  border: 2px solid #dde6f6;
-  box-shadow: 0 12px 48px 0 rgba(37,99,235,.15), 0 2.5px 12px 0 rgba(80,80,80,0.12);
-  border-radius: 26px;
-  padding: 2.6rem 3rem 2.5rem 3rem;
-  width: 1080px;
-  max-width: 97vw;
-  max-height: 92vh;
-  margin: 1.5vh auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: auto;
-  z-index: 9999;
-  box-sizing: border-box;
-  transition: box-shadow 0.24s, border 0.18s;
-}
-#pdf-preview-close-x {
-  position: absolute;
-  top: 26px;
-  right: 34px;
-  background: none;
-  border: none;
-  color: #999;
-  font-size: 2.15rem;
-  cursor: pointer;
-  z-index: 100;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.15s;
-}
-#pdf-preview-close-x:hover {
-  color: #f43f5e;
-}
-.previewer-docname-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.48rem;
-  position: relative;
-  font-size: 1.38rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: 0.01em;
-  gap: 0.4rem;
-  width: 100%;
-  min-width: 0;
-  user-select: text;
-  text-align: center;
-  line-height: 1.14;
-  white-space: nowrap;
-  overflow: auto;
-}
-.previewer-docname-row .docname-caret {
-  display: inline-block;
-  width: 22px;
-  height: 22px;
-  vertical-align: middle;
-  margin-left: 2px;
-  fill: #b3b8be;
-  cursor: pointer;
-  transition: fill 0.13s;
-  position: relative;
-}
-.previewer-docname-row:hover .docname-caret,
-.previewer-docname-row:focus-within .docname-caret {
-  fill: #2563eb;
-}
-#doc-selector {
-  appearance: none;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0; top: 0;
-  cursor: pointer;
-  z-index: 3;
-}
-.previewer-page-row {
-  width: 100%;
-  text-align: center;
-  font-size: 1.09rem;
-  color: #434343;
-  font-weight: 500;
-  margin-bottom: 0.64rem;
-  user-select: none;
-  letter-spacing: 0.01em;
-}
-.previewer-arrows {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin: 0.1rem 0 0.15rem 0;
-  pointer-events: none;
-  position: relative;
-  z-index: 10;
-}
-.previewer-arrow-btn {
-  background: rgba(255,255,255,0.93);
-  border: none;
-  box-shadow: 0 2px 8px #dde6f6b4, 0 1px 4px #dde6f655;
-  color: #b3b8be;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.05rem;
-  cursor: pointer;
-  transition: color 0.13s, box-shadow 0.15s, background 0.18s;
-  pointer-events: auto;
-  position: relative;
-  z-index: 11;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.previewer-arrow-btn:active,
-.previewer-arrow-btn:focus,
-.previewer-arrow-btn:hover {
-  color: #2563eb;
-  background: #f3f9ff;
-  box-shadow: 0 3px 16px #2563eb33, 0 1px 4px #dde6f655;
-}
-.previewer-arrow-btn:disabled {
-  color: #ececec;
-  background: #f8f8f8;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-#pdf-canvas {
-  border: 1.5px solid #ced5e6;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 32px #dde6f6, 0 1.5px 6px #dde6f699;
-  margin: 0.5rem auto 0 auto;
-  max-width: 880px;
-  min-width: 360px;
-  max-height: 64vh;
-  min-height: 290px;
-  box-sizing: border-box;
-  display: block;
-  transition: box-shadow 0.18s, border 0.13s;
-}
-.previewer-zoom-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.1rem;
-  margin: 0.7rem 0 1.2rem 0;
-  width: 100%;
-  user-select: none;
-}
-.previewer-zoom-btn {
-  background: #fff;
-  border: 1.5px solid #dde6f6;
-  color: #2563eb;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1.18rem;
-  padding: 0.34rem 1.05rem;
-  transition: background 0.13s, color 0.13s, border 0.13s;
-  outline: none;
-  box-shadow: 0 1px 7px #dde6f6cc;
-}
-.previewer-zoom-btn:hover {
-  background: #e9f0ff;
-  color: #1e40af;
-}
-.previewer-zoom-label {
-  font-size: 1.01rem;
-  font-weight: 500;
-  color: #334155;
-  min-width: 38px;
-  text-align: center;
-  letter-spacing: 0.01em;
-  margin: 0 0.4rem;
-  user-select: none;
-}
-.previewer-actions-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.2rem;
-  margin: 2.1rem auto 0.2rem auto;
-  width: 100%;
-}
-.previewer-actions-row button {
-  font-size: 1.05rem;
-  padding: 0.68rem 1.4rem;
-  border-radius: 8px;
-  border: none;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  background: linear-gradient(90deg, #2563eb 80%, #1e40af 100%);
-  color: #fff;
-  box-shadow: 0 1px 16px #dde6f6b0;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-  outline: none;
-}
-.previewer-actions-row button:active,
-.previewer-actions-row button:focus,
-.previewer-actions-row button:hover {
-  background: linear-gradient(90deg, #1e40af 40%, #2563eb 100%);
-  color: #fff;
-  box-shadow: 0 2px 20px #2563eb22;
-}
-.previewer-actions-row button:disabled {
-  background: #cbd5e1;
-  color: #fff;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-</style>
-<div id="pdf-preview-modal-overlay">
-  <div id="pdf-preview-container">
-    <!-- Close X Icon -->
-    <button id="pdf-preview-close-x" title="Close" onclick="closePdfPreview()">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8.7 8.7L19.3 19.3M8.7 19.3L19.3 8.7" stroke="#b3b8be" stroke-width="2.3" stroke-linecap="round"/></svg>
-    </button>
-    <!-- Document Name + Selector (centered, uncut, caret for dropdown) -->
-    <div class="previewer-docname-row">
-      <span id="previewer-title" class="pdf-preview-title" title="Document Name"></span>
-      <span class="docname-caret" tabindex="0" onclick="document.getElementById('doc-selector').focus()" aria-label="Switch Document">
-        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M6.5 9l4.5 4.5L15.5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </span>
-      <select id="doc-selector" onchange="switchDocument(this.value)" aria-label="Switch Document"></select>
-    </div>
-    <!-- Page Counter (centered, no container) -->
-    <div class="previewer-page-row">
-      <span id="page-info">Page 1 / 1</span>
-    </div>
-    <!-- Floating arrows, center aligned with canvas -->
-    <div class="previewer-arrows">
-      <button class="previewer-arrow-btn" id="btn-prev" onclick="prevPage()" title="Previous Page">
-        <svg width="28" height="28" viewBox="0 0 28 28"><path d="M18 22L10 14L18 6" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
-      <button class="previewer-arrow-btn" id="btn-next" onclick="nextPage()" title="Next Page">
-        <svg width="28" height="28" viewBox="0 0 28 28"><path d="M10 6L18 14L10 22" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </button>
-    </div>
-    <!-- Canvas for PDF page -->
-    <div style="position:relative; display:flex; align-items:center; justify-content:center; width:100%;">
-      <canvas id="pdf-canvas"></canvas>
-    </div>
-    <!-- Zoom Controls (centered, airy) -->
-    <div class="previewer-zoom-row">
-      <button class="previewer-zoom-btn" onclick="zoomOut()" title="Zoom Out">–</button>
-      <span class="previewer-zoom-label" id="zoom-label">100%</span>
-      <button class="previewer-zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
-    </div>
-    <!-- Action buttons bottom center -->
-    <div class="previewer-actions-row">
-      <button id="download-final-btn" type="button" title="Download Final PDF">Download PDF</button>
-      <button type="button" onclick="processNew()" title="Process More PDFs">Process More</button>
-    </div>
-  </div>
-</div>
-<script>
-let pdfDocs = [];
-let currentDocIndex = 0;
-let currentPage = 1;
-let totalPages = 1;
-let pdfInstance = null;
-let pdfCanvas = null;
-let pdfCtx = null;
-let zoomLevel = 1.0;
-const MIN_ZOOM = 0.5;
-const MAX_ZOOM = 2.5;
-const ZOOM_STEP = 0.15;
-
-window.openPdfPreviewer = function(docs, index=0) {
-  pdfDocs = docs;
-  currentDocIndex = index;
-  document.getElementById("pdf-preview-modal-overlay").classList.add("active");
-  document.body.style.overflow = "hidden";
-  const selector = document.getElementById("doc-selector");
-  selector.innerHTML = "";
-  pdfDocs.forEach((doc, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = doc.name || `Document ${i+1}`;
-    selector.appendChild(opt);
-  });
-  selector.value = index;
-  const titleSpan = document.getElementById("previewer-title");
-  titleSpan.textContent = pdfDocs[index]?.name || "Preview";
-  titleSpan.title = pdfDocs[index]?.name || "Preview";
-  zoomLevel = 1.0;
-  updateZoomLabel();
-  loadDocument(currentDocIndex);
-  document.getElementById("download-final-btn").onclick = downloadFinalPdf;
-}
-
-window.closePdfPreview = function() {
-  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
-  document.body.style.overflow = "";
-  if (pdfCanvas) {
-    const ctx = pdfCanvas.getContext("2d");
-    ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
-  }
-  pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
-  pdfDocs = [];
-  pdfInstance = null;
-  currentDocIndex = 0;
-  currentPage = 1;
-  totalPages = 1;
-}
-
-window.processNew = function() {
-  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
-  document.body.style.overflow = "";
-  // You can add your own logic here to reset the form/tabs as in your app
-}
-
-window.switchDocument = function(index) {
-  currentDocIndex = parseInt(index);
-  const titleSpan = document.getElementById("previewer-title");
-  titleSpan.textContent = pdfDocs[currentDocIndex]?.name || "Preview";
-  titleSpan.title = pdfDocs[currentDocIndex]?.name || "Preview";
-  zoomLevel = 1.0;
-  updateZoomLabel();
-  loadDocument(currentDocIndex);
-}
-
-async function loadDocument(index) {
-  const url = pdfDocs[index].url;
-  const loadingTask = pdfjsLib.getDocument(url);
-  pdfInstance = await loadingTask.promise;
-  currentPage = 1;
-  totalPages = pdfInstance.numPages;
-  renderPage();
-  updateArrowStates();
-}
-
-async function renderPage() {
-  const page = await pdfInstance.getPage(currentPage);
-  const viewport = page.getViewport({ scale: 1.5 * zoomLevel });
-  pdfCanvas = document.getElementById("pdf-canvas");
-  pdfCanvas.height = viewport.height;
-  pdfCanvas.width = viewport.width;
-  pdfCtx = pdfCanvas.getContext("2d");
-  await page.render({ canvasContext: pdfCtx, viewport }).promise;
-  document.getElementById("page-info").textContent = `Page ${currentPage} / ${totalPages}`;
-  updateArrowStates();
-}
-
-window.nextPage = function() {
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage();
-  }
-}
-
-window.prevPage = function() {
-  if (currentPage > 1) {
-    currentPage--;
-    renderPage();
-  }
-}
-
-function updateArrowStates() {
-  document.getElementById("btn-prev").disabled = currentPage === 1;
-  document.getElementById("btn-next").disabled = currentPage === totalPages;
-}
-
-window.zoomIn = function() {
-  if (zoomLevel < MAX_ZOOM) {
-    zoomLevel = Math.min(MAX_ZOOM, zoomLevel + ZOOM_STEP);
-    updateZoomLabel();
-    renderPage();
-  }
-}
-
-window.zoomOut = function() {
-  if (zoomLevel > MIN_ZOOM) {
-    zoomLevel = Math.max(MIN_ZOOM, zoomLevel - ZOOM_STEP);
-    updateZoomLabel();
-    renderPage();
-  }
-}
-
-function updateZoomLabel() {
-  document.getElementById("zoom-label").textContent = Math.round(zoomLevel * 100) + "%";
-}
-
-async function downloadFinalPdf() {
-  const doc = pdfDocs[currentDocIndex];
-  if (!doc) return;
-  if (doc.formData) {
-    const btn = document.getElementById("download-final-btn");
-    btn.disabled = true;
-    btn.textContent = "Downloading...";
-    const API_BASE = "https://utmatic-backend.onrender.com";
-    try {
-      const res = await fetch(`${API_BASE}/process`, {
-        method: "POST",
-        body: doc.formData
+    window.openPdfPreviewer = function(docs, index=0) {
+      pdfDocs = docs;
+      currentDocIndex = index;
+      document.getElementById("pdf-preview-modal-overlay").classList.add("active");
+      document.body.style.overflow = "hidden";
+      // Populate selector and title
+      const selector = document.getElementById("doc-selector");
+      selector.innerHTML = "";
+      pdfDocs.forEach((doc, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = doc.name || `Document ${i+1}`;
+        selector.appendChild(opt);
       });
-      if (!res.ok) {
-        const errorText = await res.text();
-        alert("Download failed: " + errorText);
+      selector.value = index;
+      // Set title (no text wrapping)
+      const titleSpan = document.getElementById("previewer-title");
+      titleSpan.textContent = pdfDocs[index]?.name || "Preview";
+      titleSpan.title = pdfDocs[index]?.name || "Preview";
+      loadDocument(currentDocIndex);
+
+      // Setup download button
+      document.getElementById("download-final-btn").onclick = downloadFinalPdf;
+    }
+
+    window.closePdfPreview = function() {
+      document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+      document.body.style.overflow = "";
+      if (pdfCanvas) {
+        const ctx = pdfCanvas.getContext("2d");
+        ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+      }
+      // Cleanup object URLs
+      pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+      pdfDocs = [];
+      pdfInstance = null;
+      currentDocIndex = 0;
+      currentPage = 1;
+      totalPages = 1;
+
+      // Restore form UI with previous values
+      if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
+        document.getElementById("main-form-wrapper").style.display = "";
+        // Restore values
+        window.lastProcessedForms.forEach((tab, idx) => {
+          const tabId = `doc-${idx+1}`;
+          // If tab exists, update; otherwise, create
+          let content = document.getElementById(tabId);
+          if (!content) return;
+          let form = content.querySelector("form");
+          if (!form) return;
+          Object.entries(tab.values).forEach(([name, value]) => {
+            let el = form.elements[name];
+            if (!el) return;
+            if (el.type === "checkbox" || el.type === "radio") {
+              el.checked = value;
+            } else {
+              el.value = value;
+            }
+          });
+        });
+      }
+    }
+
+    window.processNew = function() {
+      document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+      document.body.style.overflow = "";
+      // Remove all tabs except the first, and clear all form inputs
+      window.lastProcessedForms = [];
+      tabContents.innerHTML = "";
+      tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
+      fileList.innerHTML = "";
+      docCount = 1;
+      createTab();
+      updateAddTabButton();
+      updateTabBarCount();
+      setActiveTab("doc-1");
+      document.getElementById("main-form-wrapper").style.display = "";
+    }
+
+    window.switchDocument = function(index) {
+      currentDocIndex = parseInt(index);
+      const titleSpan = document.getElementById("previewer-title");
+      titleSpan.textContent = pdfDocs[currentDocIndex]?.name || "Preview";
+      titleSpan.title = pdfDocs[currentDocIndex]?.name || "Preview";
+      loadDocument(currentDocIndex);
+    }
+
+    async function loadDocument(index) {
+      const url = pdfDocs[index].url;
+      const loadingTask = pdfjsLib.getDocument(url);
+      pdfInstance = await loadingTask.promise;
+      currentPage = 1;
+      totalPages = pdfInstance.numPages;
+      renderPage();
+    }
+
+    async function renderPage() {
+      const page = await pdfInstance.getPage(currentPage);
+      const viewport = page.getViewport({ scale: 1.5 });
+      pdfCanvas = document.getElementById("pdf-canvas");
+      pdfCanvas.height = viewport.height;
+      pdfCanvas.width = viewport.width;
+      pdfCtx = pdfCanvas.getContext("2d");
+      await page.render({ canvasContext: pdfCtx, viewport }).promise;
+      document.getElementById("page-info").textContent = `Page ${currentPage} / ${totalPages}`;
+    }
+
+    window.nextPage = function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage();
+      }
+    }
+
+    window.prevPage = function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+      }
+    }
+
+    // Download the FINAL processed PDF for the current document
+    async function downloadFinalPdf() {
+      const doc = pdfDocs[currentDocIndex];
+      if (!doc) return;
+      // Download the clean PDF from /process using the original formData
+      if (doc.formData) {
+        // Subtle feedback: disable button briefly
+        const btn = document.getElementById("download-final-btn");
+        btn.disabled = true;
+        btn.textContent = "Downloading...";
+        const API_BASE = "https://utmatic-backend.onrender.com";
+        try {
+          const res = await fetch(`${API_BASE}/process`, {
+            method: "POST",
+            body: doc.formData
+          });
+          if (!res.ok) {
+            const errorText = await res.text();
+            alert("Download failed: " + errorText);
+            btn.disabled = false;
+            btn.textContent = "Download PDF";
+            return;
+          }
+          const blob = await res.blob();
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          document.body.removeChild(a);
+        } catch (err) {
+          alert("Download failed: " + err);
+        }
         btn.disabled = false;
         btn.textContent = "Download PDF";
-        return;
+      } else {
+        // fallback: download the preview file
+        const a = document.createElement('a');
+        a.href = doc.url;
+        a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      document.body.removeChild(a);
-    } catch (err) {
-      alert("Download failed: " + err);
     }
-    btn.disabled = false;
-    btn.textContent = "Download PDF";
-  } else {
-    const a = document.createElement('a');
-    a.href = doc.url;
-    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-}
 </script>
 </body>
 </html>
