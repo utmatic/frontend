@@ -823,8 +823,6 @@
   border-radius: 16px;
   box-shadow: 0 2px 24px #dde6f6;
   margin: 0.1rem auto 0 auto;
-  max-width: 98vw;
-  max-height: 66vh;
   box-sizing: border-box;
   display: block;
   transition: box-shadow 0.19s;
@@ -1006,7 +1004,11 @@ window.addEventListener("load", () => {
           <path stroke-linecap="round" stroke-linejoin="round" d="M18 22l-8-8 8-8"/>
         </svg>
       </button>
-      <canvas id="pdf-canvas"></canvas>
+        
+        <div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
+          <canvas id="pdf-canvas"></canvas>
+        </div>
+        
       <button id="pdf-arrow-next" class="pdf-arrow-btn" onclick="nextPage()" title="Next Page">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 6l8 8-8 8"/>
