@@ -8,6 +8,61 @@
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <!-- PDF.js CSS (for built-in viewer toolbar, optional but recommended) -->
 <link href="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.css" rel="stylesheet"/>
+
+ <!-- Add your modal CSS here: -->
+  <style>
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      z-index: 200;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.38);
+      align-items: center;
+      justify-content: center;
+    }
+    .pdf-modal.open {
+      display: flex;
+    }
+    .pdf-modal-content {
+      position: relative;
+      background: #f7f9fc;
+      border-radius: 1.5em;
+      box-shadow: 0 6px 36px rgba(30,40,80,0.13);
+      padding: 2em 2em 1.7em 2em;
+      min-width: 70vw;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pdf-modal-close {
+      position: absolute;
+      top: 1.4em;
+      right: 1.2em;
+      z-index: 11;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      width: 2.3em;
+      height: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #405080;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.11s;
+    }
+    .pdf-modal-close:hover {
+      background: rgba(80,120,200,0.09);
+      color: #0d59c4;
+      transform: scale(1.09);
+    }
+    .size-6 {
+      width: 1.7em;
+      height: 1.7em;
+    }
+  </style>
+
 <style>
     :root {
       --primary: #2563eb;
@@ -990,12 +1045,33 @@ window.addEventListener("load", () => {
     </div>
     <!-- Page Counter -->
     <div id="pdf-preview-page-counter">Page 1 / 9</div>
-      <!-- Zoom Controls -->
-    <div id="pdf-zoom-controls" style="display: flex; justify-content: center; align-items: center; gap: 0.7em; margin-bottom: 1.05rem;">
-      <button type="button" id="zoom-out-btn" title="Zoom Out" style="font-size: 1.2em; padding: 0.3em 0.9em;">−</button>
+    <!-- Modern Floating Zoom Controls Overlay (with Heroicons) -->
+    <div id="pdf-zoom-controls" class="pdf-zoom-overlay">
+      <button id="zoom-out-btn" class="pdf-zoom-btn" title="Zoom Out" aria-label="Zoom Out">
+        <!-- Heroicon: Zoom Out -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM13.5 10.5h-6" />
+        </svg>
+      </button>
+      <button id="zoom-in-btn" class="pdf-zoom-btn" title="Zoom In" aria-label="Zoom In">
+        <!-- Heroicon: Zoom In -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+        </svg>
+      </button>
+      <button id="zoom-reset-btn" class="pdf-zoom-btn" title="Reset Zoom" aria-label="Reset Zoom">
+        <!-- Heroicon: Arrow Path (reset) -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0 1 13.3-5.3M19.5 12a7.5 7.5 0 0 1-13.3 5.3m0 0V15m0 2.3h2.25" />
+        </svg>
+      </button>
+      <button id="expand-btn" class="pdf-zoom-btn" title="Expand" aria-label="Expand">
+        <!-- Heroicon: Arrows Pointing Out (expand) -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9V3.75H9m6 0h5.25V9M21 15v5.25h-5.25M9 21H3.75V15" />
+        </svg>
+      </button>
       <span id="zoom-level-display" style="min-width: 3.4em; text-align: center;">100%</span>
-      <button type="button" id="zoom-in-btn" title="Zoom In" style="font-size: 1.2em; padding: 0.3em 0.9em;">+</button>
-      <button type="button" id="zoom-reset-btn" title="Reset Zoom" style="font-size: 0.95em; padding: 0.3em 0.9em;">Reset</button>
     </div>
     <!-- PDF Previewer Canvas w/ Arrow Buttons -->
     <div id="pdf-preview-inner-container" style="position:relative;">
@@ -2020,5 +2096,53 @@ async function downloadFinalPdf() {
   }
 }
 </script>
+
+<script>
+  // === PDF Fullscreen Modal Logic ===
+
+  // Get the buttons and modal
+  const expandBtn = document.getElementById('expand-btn');
+  const modal = document.getElementById('pdf-modal');
+  const collapseBtn = document.getElementById('collapse-btn');
+
+  // Open modal when expand button is clicked
+  if (expandBtn && modal) {
+    expandBtn.addEventListener('click', () => {
+      modal.classList.add('open');
+    });
+  }
+
+  // Close modal when collapse button is clicked
+  if (collapseBtn && modal) {
+    collapseBtn.addEventListener('click', () => {
+      modal.classList.remove('open');
+    });
+  }
+
+  // Optional: Escape key closes modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
+      modal.classList.remove('open');
+    }
+  });
+</script>
+
+<!-- PDF Fullscreen Modal Overlay -->
+<div id="pdf-modal" class="pdf-modal">
+  <div class="pdf-modal-content">
+    <!-- Collapse Button (Arrows Pointing In) -->
+    <button id="collapse-btn" class="pdf-modal-close" title="Exit Fullscreen" aria-label="Exit Fullscreen">
+      <!-- Heroicon: Arrows Pointing In -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15V21H3m6 0H3m12-6v6h6m-6 0h6M3.75 9V3.75H9m6 0h5.25V9" />
+      </svg>
+    </button>
+    <!-- Modal PDF Canvas Area -->
+    <div id="modal-pdf-container" style="overflow:auto; width:100%; height:75vh; display:flex;align-items:center;justify-content:center;">
+      <canvas id="modal-pdf-canvas"></canvas>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
