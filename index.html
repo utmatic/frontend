@@ -1787,7 +1787,6 @@ window.addEventListener("DOMContentLoaded", () => {
       renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
       tabContent.appendChild(form);
       tabContents.appendChild(tabContent);
-      setActiveTab(tabId);
       docCount++;
       updateAddTabButton();
       updateTabBarCount();
@@ -1810,7 +1809,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
         let newActive = null;
         if (remainingTabs.length) {
-          newActive = remainingTabs[remainingTabs.length-1];
+          newActive = remainingTabs[remainingTabs.length-0];
         }
         if (newActive) setActiveTab(newActive.dataset.tab);
         updateAddTabButton();
