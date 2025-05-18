@@ -1510,47 +1510,9 @@ window.addEventListener("DOMContentLoaded", () => {
       jobTypeField.appendChild(jobTypeSelect);
       form.appendChild(jobTypeField);
 
-      // --- Preset Controls for Target Formats ---
-      const presetControls = document.createElement("div");
-      presetControls.className = "preset-controls";
-      presetControls.style.marginBottom = "1rem";
-      presetControls.style.display = "flex";
-      presetControls.style.gap = "0.8em";
-      presetControls.style.alignItems = "center";
-      
-      presetControls.innerHTML = `
-        <select id="preset-select">
-          <option value="">Select Preset...</option>
-        </select>
-        <input type="text" id="preset-name" placeholder="Preset Name" style="width:160px;"/>
-        <button type="button" id="save-preset-btn">Save as Preset</button>
-        <button type="button" id="delete-preset-btn" style="background:#eee;color:#b91c1c;">Delete</button>
-      `;
-      
-      // Insert Preset UI above the targetBaseRowsWrapper
-      form.appendChild(presetControls);
-
       // --- Target Format & Base URL dynamic rows ---
       const targetBaseRowsWrapper = document.createElement("div");
       targetBaseRowsWrapper.className = "field-row-wrapper hidden";
-      // --- Preset Controls for Target Formats ---
-      const presetControls = document.createElement("div");
-      presetControls.className = "preset-controls";
-      presetControls.style.marginBottom = "1rem";
-      presetControls.style.display = "flex";
-      presetControls.style.gap = "0.8em";
-      presetControls.style.alignItems = "center";
-      
-      presetControls.innerHTML = `
-        <select id="preset-select">
-          <option value="">Select Preset...</option>
-        </select>
-        <input type="text" id="preset-name" placeholder="Preset Name" style="width:160px;"/>
-        <button type="button" id="save-preset-btn">Save as Preset</button>
-        <button type="button" id="delete-preset-btn" style="background:#eee;color:#b91c1c;">Delete</button>
-      `;
-      
-      form.appendChild(presetControls);
       form.appendChild(targetBaseRowsWrapper);
       const addNewRowBtn = document.createElement("button");
       addNewRowBtn.type = "button";
@@ -2210,100 +2172,6 @@ async function downloadFinalPdf() {
     document.body.removeChild(a);
   }
 }
-
- // ------ Preset Save/Recall Feature for Target Formats ------
-function getFormatPresets() {
-  return JSON.parse(localStorage.getItem('formatPresets') || '{}');
-}
-function saveFormatPresets(presets) {
-  localStorage.setItem('formatPresets', JSON.stringify(presets));
-}
-
-const presetSelect = document.getElementById('preset-select');
-const presetNameInput = document.getElementById('preset-name');
-const savePresetBtn = document.getElementById('save-preset-btn');
-const deletePresetBtn = document.getElementById('delete-preset-btn');
-
-let targetBaseRowsWrapper = null;
-
-function populatePresetDropdown() {
-  const presets = getFormatPresets();
-  presetSelect.innerHTML = '<option value="">Select Preset...</option>';
-  Object.keys(presets).forEach(name => {
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    presetSelect.appendChild(opt);
-  });
-}
-
-function getCurrentTargetFormats() {
-  if (!targetBaseRowsWrapper) return [];
-  return Array.from(targetBaseRowsWrapper.querySelectorAll('input[name="target_format"]'))
-    .map(input => input.value.trim()).filter(Boolean);
-}
-
-function setTargetFormats(formats) {
-  if (!targetBaseRowsWrapper) return;
-  targetBaseRowsWrapper.querySelectorAll('.field-row').forEach(row => row.remove());
-  formats.forEach(val => {
-    addTargetBaseRow(targetBaseRowsWrapper, document.getElementById('main-form'), val);
-  });
-  updateAddNewRowBtn();
-}
-
-savePresetBtn.addEventListener('click', function() {
-  const name = presetNameInput.value.trim();
-  const values = getCurrentTargetFormats();
-  if (!name) {
-    alert('Please enter a preset name.');
-    return;
-  }
-  if (values.length === 0) {
-    alert('Please enter at least one target format to save.');
-    return;
-  }
-  const presets = getFormatPresets();
-  presets[name] = values;
-  saveFormatPresets(presets);
-  populatePresetDropdown();
-  presetSelect.value = name;
-  alert('Preset saved!');
-});
-
-presetSelect.addEventListener('change', function() {
-  const presets = getFormatPresets();
-  const selected = presetSelect.value;
-  if (selected && presets[selected]) {
-    setTargetFormats(presets[selected]);
-    presetNameInput.value = selected;
-  }
-});
-
-deletePresetBtn.addEventListener('click', function() {
-  const name = presetSelect.value;
-  if (!name) {
-    alert('Please select a preset to delete.');
-    return;
-  }
-  const presets = getFormatPresets();
-  if (!presets[name]) return;
-  if (!confirm(`Delete preset "${name}"?`)) return;
-  delete presets[name];
-  saveFormatPresets(presets);
-  populatePresetDropdown();
-  presetSelect.value = "";
-  presetNameInput.value = "";
-  alert('Preset deleted.');
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(() => {
-    targetBaseRowsWrapper = document.querySelector('.field-row-wrapper');
-    populatePresetDropdown();
-  }, 0);
-});
- 
 </script>
 
 </body>
