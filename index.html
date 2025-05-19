@@ -1397,7 +1397,7 @@ window.addEventListener("DOMContentLoaded", () => {
       // MULTIPLE attribute here!
       const fileInput = document.createElement("input");
       fileInput.type = "file";
-      fileInput.accept = ".pdf,application/pdf";
+      fileInput.accept = ".pdf,.idml,application/pdf,application/octet-stream";
       fileInput.name = "file"; // FIXED: must match backend
       fileInput.id = "file";
       fileInput.required = true;
