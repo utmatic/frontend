@@ -19,10 +19,10 @@
   position: relative;
 }
 
-.input-icon-wrapper input {
+.input-icon-wrapper input[name="base_url"] {
   width: 100%;
   box-sizing: border-box;
-  /* NO padding-right here! */
+  padding-right: 0 !important; /* <--- THIS IS IMPORTANT */
 }
 
 .base-url-info-btn {
@@ -35,7 +35,8 @@
   align-items: center;
   height: 22px;
   width: 22px;
-  position: static; /* crucial! */
+  position: static !important; /* <--- THIS IS CRUCIAL */
+  right: auto !important;      /* <--- Remove any "right" positioning */
 }
 
 .base-url-info-btn .info-svg {
