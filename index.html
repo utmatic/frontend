@@ -1789,10 +1789,26 @@ infoBtn.addEventListener("click", function(e) {
   // Create overlay
   const overlay = document.createElement("div");
   overlay.className = "info-popup-overlay";
+  overlay.style.position = "fixed";
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.zIndex = 9999;
 
   // Create centered popup
   const infoPopup = document.createElement("div");
   infoPopup.className = "info-popup info-popup-centered";
+  infoPopup.style.backgroundColor = "#fff";
+  infoPopup.style.padding = "20px";
+  infoPopup.style.borderRadius = "8px";
+  infoPopup.style.maxWidth = "600px";
+  infoPopup.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.2)";
+  infoPopup.style.position = "relative";
 
   // Info popup HTML (set this first!)
   infoPopup.innerHTML = `
@@ -1812,12 +1828,20 @@ infoBtn.addEventListener("click", function(e) {
     </div>
   `;
 
-  // Create and add the close button
+  // Now add the close button at the top
   const closeBtn = document.createElement("button");
   closeBtn.className = "info-popup-close-btn";
   closeBtn.innerHTML = "&times;";
   closeBtn.title = "Close";
   closeBtn.setAttribute('aria-label', 'Close popup');
+  closeBtn.style.position = "absolute";
+  closeBtn.style.top = "10px";
+  closeBtn.style.right = "10px";
+  closeBtn.style.fontSize = "20px";
+  closeBtn.style.background = "none";
+  closeBtn.style.border = "none";
+  closeBtn.style.cursor = "pointer";
+
   closeBtn.addEventListener("click", function() {
     overlay.remove();
   });
@@ -1839,8 +1863,7 @@ infoBtn.addEventListener("click", function(e) {
     }
   });
 });
-
-
+     
       const filenameGroup = document.createElement("div");
       filenameGroup.className = "field-group";
       const filenameLabel = document.createElement("label");
