@@ -1457,6 +1457,7 @@ if (fileObj instanceof File) {
   const dt = new DataTransfer();
   dt.items.add(fileObj);
   fileInput.files = dt.files;
+  lastFileByTab[tabId] = fileObj; 
   fileNameSpan.textContent = fileObj.name;
   setTimeout(() => {
     const filenameInput = form.querySelector("input[name='filename']");
@@ -1536,6 +1537,7 @@ fileInput.addEventListener("change", function() {
       const dt = new DataTransfer();
       dt.items.add(prevFile);
       fileInput.files = dt.files;
+      lastFileByTab[tabId] = prevFile;
       fileNameSpan.textContent = prevFile.name;
       fileNameSpan.style.opacity = "1";
       const filenameInput = form.querySelector("input[name='filename']");
