@@ -11,6 +11,54 @@
 
  <!-- Add your modal CSS here: -->
   <style>
+
+  .utm-content-group .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .info-icon-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .info-icon-btn .info-svg {
+    width: 22px;
+    height: 22px;
+    color: #6d88f4;
+  }
+  
+  .input-icon-wrapper input {
+    width: 100%;
+    padding-right: 32px; /* space for icon */
+  }
+  
+  .info-popup {
+    position: absolute;
+    z-index: 10;
+    left: 100%;
+    top: 0;
+    margin-left: 12px;
+    padding: 0.85em 1.2em;
+    background: #fff;
+    color: #23272f;
+    border: 1.5px solid #eee;
+    border-radius: 7px;
+    box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+    font-size: 0.98em;
+    width: 270px;
+    transition: opacity 0.15s;
+  }
+
     /* Sleek scrollbar styling for PDF viewer */
     #pdf-preview-inner-container,
     #pdf-canvas,
@@ -1625,7 +1673,13 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       });
       form.appendChild(utmRow);
       const utmContentGroup = document.createElement("div");
-      utmContentGroup.className = "field-group";
+      utmContentGroup.className = "field-group utm-content-group"; // add extra class for styling
+      
+      // Create a wrapper for the input and icon
+      const utmContentWrapper = document.createElement("div");
+      utmContentWrapper.className = "input-icon-wrapper";
+      
+      // Input field
       const utmContentInput = document.createElement("input");
       utmContentInput.type = "text";
       utmContentInput.name = "utm_content";
@@ -1633,8 +1687,47 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       utmContentInput.readOnly = true;
       utmContentInput.style.backgroundColor = "#f9f9f9";
       utmContentInput.style.cursor = "not-allowed";
-      utmContentGroup.appendChild(utmContentInput);
+      
+      // SVG info icon as a button
+      const infoBtn = document.createElement("button");
+      infoBtn.type = "button";
+      infoBtn.className = "info-icon-btn";
+      infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+      
+      // Add input and icon to wrapper
+      utmContentWrapper.appendChild(utmContentInput);
+      utmContentWrapper.appendChild(infoBtn);
+      
+      // Add to group and form
+      utmContentGroup.appendChild(utmContentWrapper);
       form.appendChild(utmContentGroup);
+
+      // Info popup element
+      const infoPopup = document.createElement("div");
+      infoPopup.className = "info-popup";
+      infoPopup.textContent = "The UTM Content parameter is set automatically based on the context of your document or links. You cannot edit it manually.";
+      
+      // Initially popup is hidden
+      infoPopup.style.display = "none";
+      utmContentGroup.appendChild(infoPopup);
+      
+      // Show popup on click, hide on click outside
+      infoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        infoPopup.style.display = infoPopup.style.display === "block" ? "none" : "block";
+        // Position the popup
+        const rect = infoBtn.getBoundingClientRect();
+        infoPopup.style.left = rect.right + 8 + "px";
+        infoPopup.style.top = rect.top + window.scrollY + "px";
+      });
+      
+      // Hide popup when clicking outside
+      document.addEventListener("click", function(e) {
+        if (!utmContentGroup.contains(e.target)) {
+          infoPopup.style.display = "none";
+        }
+      });
+
       const filenameGroup = document.createElement("div");
       filenameGroup.className = "field-group";
       const filenameLabel = document.createElement("label");
