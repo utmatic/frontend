@@ -1333,52 +1333,49 @@ window.addEventListener("DOMContentLoaded", () => {
       return arr.join("|");
     }
 
-    function updateFileListStatus(tabId, name, saved, jobType) {
-      let item = fileList.querySelector(`[data-tab="${tabId}"]`);
-      if (!item) {
-        item = document.createElement("li");
-        item.dataset.tab = tabId;
-        fileList.appendChild(item);
-      }
-      let jobIcons = item.querySelector('.job-icons');
-      if (!jobIcons) {
-        jobIcons = document.createElement('span');
-        jobIcons.className = 'job-icons';
-        item.insertBefore(jobIcons, item.firstChild);
-      }
-      // Update job icons
-      jobIcons.innerHTML = "";
-      if (jobType === "utm_only") {
-        jobIcons.innerHTML = TAG_ICON;
-      } else if (jobType === "links_and_utm") {
-        jobIcons.innerHTML = LINK_ICON;
-      }
-      let existingCheck = item.querySelector(".checkmark");
-      if (existingCheck) existingCheck.remove();
-      let nameSpan = item.querySelector('.file-list-name');
-      if (!nameSpan) {
-        nameSpan = document.createElement('span');
-        nameSpan.className = 'file-list-name';
-        item.appendChild(nameSpan);
-      }
-      nameSpan.textContent = name || "Untitled Document";
-      // Make sure nameSpan is after jobIcons (for ellipsis to work)
-      if (nameSpan.previousSibling !== jobIcons) {
-        item.insertBefore(nameSpan, null);
-      }
-      if (saved) {
-        item.className = "saved";
-        const checkSvg = document.createElement('span');
-        checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-          <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-          <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-        </svg>`;
-        item.insertBefore(checkSvg, jobIcons.nextSibling);
-      } else {
-        item.className = "";
-      }
-      processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
-    }
+function updateFileListStatus(tabId, name, saved, jobType) {
+  let item = fileList.querySelector(`[data-tab="${tabId}"]`);
+  if (!item) {
+    item = document.createElement("li");
+    item.dataset.tab = tabId;
+    fileList.appendChild(item);
+  }
+
+  // --- FIX: Always fully reset the item to avoid 'drifting' rightward ---
+  item.innerHTML = "";
+
+  // Job icons
+  let jobIcons = document.createElement('span');
+  jobIcons.className = 'job-icons';
+  if (jobType === "utm_only") {
+    jobIcons.innerHTML = TAG_ICON;
+  } else if (jobType === "links_and_utm") {
+    jobIcons.innerHTML = LINK_ICON;
+  }
+  item.appendChild(jobIcons);
+
+  // Saved checkmark
+  if (saved) {
+    const checkSvg = document.createElement('span');
+    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>`;
+    item.appendChild(checkSvg);
+    item.className = "saved";
+  } else {
+    item.className = "";
+  }
+
+  // Filename (always at the end)
+  let nameSpan = document.createElement('span');
+  nameSpan.className = 'file-list-name';
+  nameSpan.textContent = name || "Untitled Document";
+  item.appendChild(nameSpan);
+
+  // Disable processBtn unless all docs are saved
+  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+}
 
     // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
     function renderFormFields(form, tabId, docName, fileObj) {
@@ -1698,12 +1695,10 @@ window.addEventListener("DOMContentLoaded", () => {
         return valid;
       }
       // Validate and update save button whenever form changes
-      form.addEventListener("input", function() {
-        checkDirtyAndUpdateSaveBtn();
-      });
-      form.addEventListener("change", function() {
-        checkDirtyAndUpdateSaveBtn();
-      });
+     form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+            el.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+          });
 
       // Save handler
       form.addEventListener("submit", function(e) {
