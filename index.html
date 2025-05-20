@@ -1864,7 +1864,23 @@ buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
       // Info popup element
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup";
-      infoPopup.textContent = "The UTM Content parameter is set automatically based on the hyperlinked text in your document. This helps identify part numbers or products in your analytics. For text links like CTAs, it defaults to the last part of the URL. It can’t be edited manually.";
+      infoPopup.textContent = `
+<b>Target Format</b><br>
+This defines the pattern of items you want to link in your document.  
+Use <b>N</b> for numbers, <b>L</b> for letters:
+<ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
+  <li><code>NNNLL</code> → <code>123AB</code></li>
+  <li><code>LLLNN</code> → <code>ABC12</code></li>
+</ul><br>
+
+<b>Base URL</b><br>
+The starting part of your link, like:<br>
+<code>https://example.com/landing-page</code><br><br>
+
+<b>Result</b><br>
+Each match is combined with the Base URL:<br>
+<code>https://example.com/landing-page123AB</code>
+  `;
       
       // Initially popup is hidden
       infoPopup.style.display = "none";
