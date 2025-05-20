@@ -1719,9 +1719,8 @@ if (wrapper.querySelectorAll(".field-row").length === 0) {
   infoPopup.className = "info-popup base-url-info-popup";
   infoPopup.style.display = "none";
   infoPopup.innerHTML = `
-<strong>Target Format & Base URL</strong><br><br>
-
 <b>Target Format</b><br>
+This defines the pattern of items you want to link in your document.  
 Use <b>N</b> for numbers, <b>L</b> for letters:
 <ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
   <li><code>NNNLL</code> → <code>123AB</code></li>
@@ -1729,11 +1728,11 @@ Use <b>N</b> for numbers, <b>L</b> for letters:
 </ul><br>
 
 <b>Base URL</b><br>
-The starting link, like:<br>
+The starting part of your link, like:<br>
 <code>https://example.com/landing-page</code><br><br>
 
 <b>Result</b><br>
-Your format is added to the end:<br>
+Each match is combined with the Base URL:<br>
 <code>https://example.com/landing-page123AB</code>
 
   `;
