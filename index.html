@@ -1525,68 +1525,73 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       addNewRowBtn.style.display = "block";
       targetBaseRowsWrapper.appendChild(addNewRowBtn);
       addTargetBaseRow(targetBaseRowsWrapper, form);
-      function addTargetBaseRow(wrapper, form) {
-        const fieldRow = document.createElement("div");
-        fieldRow.className = "field-row";
-        // Target Format
-        const tfGroup = document.createElement("div");
-        tfGroup.className = "field-group";
-        tfGroup.style.flex = "1";
-        tfGroup.style.minWidth = 0;
-        const tfInput = document.createElement("input");
-        tfInput.type = "text";
-        tfInput.name = "target_format";
-        tfInput.placeholder = "Target Format";
-        tfInput.required = true;
-        tfInput.style.width = "100%";
-        tfInput.style.boxSizing = "border-box";
-        tfGroup.appendChild(tfInput);
-        // Base URL
-        const buGroup = document.createElement("div");
-        buGroup.className = "field-group";
-        buGroup.style.flex = "1";
-        buGroup.style.minWidth = 0;
-        const buInput = document.createElement("input");
-        buInput.type = "text";
-        buInput.name = "base_url";
-        buInput.placeholder = "Base URL";
-        buInput.required = true;
-        buInput.setAttribute('list', 'base-url-datalist');
-        buInput.style.width = "100%";
-        buInput.style.boxSizing = "border-box";
-        buGroup.appendChild(buInput);
-        buInput.addEventListener('change', () => {
-          updateBaseUrlMemory(buInput.value.trim());
-        });
-        // Remove Button (except for first row)
-        const delCol = document.createElement("div");
-        delCol.className = "delete-col";
-        if (wrapper.querySelectorAll(".field-row").length > 0) {
-          const removeBtn = document.createElement("button");
-          removeBtn.type = "button";
-          removeBtn.textContent = "✕";
-          removeBtn.style.background = "none";
-          removeBtn.style.border = "none";
-          removeBtn.style.color = "#f43f5e";
-          removeBtn.style.fontSize = "1.25rem";
-          removeBtn.style.cursor = "pointer";
-          removeBtn.title = "Remove row";
-          removeBtn.addEventListener("click", function() {
-            fieldRow.remove();
-            updateAddNewRowBtn();
-            validateForm(form);
-          });
-          delCol.appendChild(removeBtn);
-        } else {
-          delCol.innerHTML = "&nbsp;";
-        }
-        fieldRow.appendChild(tfGroup);
-        fieldRow.appendChild(buGroup);
-        fieldRow.appendChild(delCol);
-        wrapper.appendChild(fieldRow);
-        updateAddNewRowBtn();
-        updateBaseUrlMemory("");
-      }
+     function addTargetBaseRow(wrapper, form) {
+       const fieldRow = document.createElement("div");
+       fieldRow.className = "field-row";
+       // Target Format
+       const tfGroup = document.createElement("div");
+       tfGroup.className = "field-group";
+       tfGroup.style.flex = "1";
+       tfGroup.style.minWidth = 0;
+       const tfInput = document.createElement("input");
+       tfInput.type = "text";
+       tfInput.name = "target_format";
+       tfInput.placeholder = "Target Format";
+       tfInput.required = true;
+       tfInput.style.width = "100%";
+       tfInput.style.boxSizing = "border-box";
+       tfGroup.appendChild(tfInput);
+       // Base URL
+       const buGroup = document.createElement("div");
+       buGroup.className = "field-group";
+       buGroup.style.flex = "1";
+       buGroup.style.minWidth = 0;
+       const buInput = document.createElement("input");
+       buInput.type = "text";
+       buInput.name = "base_url";
+       buInput.placeholder = "Base URL";
+       buInput.required = true;
+       buInput.setAttribute('list', 'base-url-datalist');
+       buInput.style.width = "100%";
+       buInput.style.boxSizing = "border-box";
+       buGroup.appendChild(buInput);
+       // Remove Button (except for first row)
+       const delCol = document.createElement("div");
+       delCol.className = "delete-col";
+       if (wrapper.querySelectorAll(".field-row").length > 0) {
+         const removeBtn = document.createElement("button");
+         removeBtn.type = "button";
+         removeBtn.textContent = "✕";
+         removeBtn.style.background = "none";
+         removeBtn.style.border = "none";
+         removeBtn.style.color = "#f43f5e";
+         removeBtn.style.fontSize = "1.25rem";
+         removeBtn.style.cursor = "pointer";
+         removeBtn.title = "Remove row";
+         removeBtn.addEventListener("click", function() {
+           fieldRow.remove();
+           updateAddNewRowBtn();
+           validateForm(form);
+           // --- ADD: Dirty check on row removal! ---
+           checkDirtyAndUpdateSaveBtn();
+         });
+         delCol.appendChild(removeBtn);
+       } else {
+         delCol.innerHTML = "&nbsp;";
+       }
+       fieldRow.appendChild(tfGroup);
+       fieldRow.appendChild(buGroup);
+       fieldRow.appendChild(delCol);
+       wrapper.appendChild(fieldRow);
+       updateAddNewRowBtn();
+       updateBaseUrlMemory("");
+     
+       // --- ADD: Attach dirty-check listeners to these new fields! ---
+       tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+       tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+       buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+       buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+     }
       function updateAddNewRowBtn() {
         const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
         addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
