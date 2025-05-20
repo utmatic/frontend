@@ -12,6 +12,12 @@
 <!-- Add your modal CSS here: -->
 <style>
 
+.base-url-group .info-icon-btn {
+  position: static;
+  margin-left: 0.4em;
+  /* other styles as above */
+}
+  
   .utm-content-group.input-icon-wrapper {
     position: relative;
     display: flex;
@@ -1627,7 +1633,7 @@ fileInput.addEventListener("change", function() {
       
         // Base URL WITH INFO ICON AND POPUP
         const buGroup = document.createElement("div");
-        buGroup.className = "field-group input-icon-wrapper";
+        buGroup.className = "field-group input-icon-wrapper base-url-group";
         buGroup.style.flex = "1";
         buGroup.style.minWidth = 0;
       
