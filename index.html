@@ -1776,7 +1776,7 @@ window.addEventListener("DOMContentLoaded", () => {
       tabBtn.appendChild(delBtn);
       tabBtn.addEventListener("click", function(e) {
         if (e.target.classList.contains("delete-tab")) return;
-        setActiveTab(tabId);
+        // setActiveTab(tabId); // disabled to preserve current tab
       });
       tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
       const tabContent = document.createElement("div");
@@ -1787,7 +1787,7 @@ window.addEventListener("DOMContentLoaded", () => {
       renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
       tabContent.appendChild(form);
       tabContents.appendChild(tabContent);
-      setActiveTab(tabId);
+      // setActiveTab(tabId); // disabled to preserve current tab
       docCount++;
       updateAddTabButton();
       updateTabBarCount();
