@@ -1420,117 +1420,136 @@ function updateFileListStatus(tabId, name, saved, jobType) {
   processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
-    // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
-    function renderFormFields(form, tabId, docName, fileObj) {
-      // PDF Upload
-      const pdfField = document.createElement("div");
-      pdfField.className = "field-group";
-      const pdfLabel = document.createElement("label");
-      pdfLabel.htmlFor = "file";
-      pdfLabel.textContent = "Upload PDF";
-      const fileInputWrapper = document.createElement("div");
-      fileInputWrapper.className = "custom-file-input-wrapper";
-      const fileInputLabel = document.createElement("label");
-      fileInputLabel.className = "custom-file-input-label";
-      fileInputLabel.textContent = "Choose File";
-      fileInputLabel.setAttribute("tabindex", "0");
-      // MULTIPLE attribute here!
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = ".pdf,application/pdf";
-      fileInput.name = "file"; // FIXED: must match backend
-      fileInput.id = "file";
-      fileInput.required = true;
-      fileInput.className = "custom-file-input";
-      fileInput.tabIndex = -1;
-      fileInput.multiple = true;
+// ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
+function renderFormFields(form, tabId, docName, fileObj) {
+  // PDF Upload
+  const pdfField = document.createElement("div");
+  pdfField.className = "field-group";
+  const pdfLabel = document.createElement("label");
+  pdfLabel.htmlFor = "file";
+  pdfLabel.textContent = "Upload PDF";
+  const fileInputWrapper = document.createElement("div");
+  fileInputWrapper.className = "custom-file-input-wrapper";
+  const fileInputLabel = document.createElement("label");
+  fileInputLabel.className = "custom-file-input-label";
+  fileInputLabel.textContent = "Choose File";
+  fileInputLabel.setAttribute("tabindex", "0");
+  // MULTIPLE attribute here!
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = ".pdf,application/pdf";
+  fileInput.name = "file"; // FIXED: must match backend
+  fileInput.id = "file";
+  fileInput.required = true;
+  fileInput.className = "custom-file-input";
+  fileInput.tabIndex = -1;
+  fileInput.multiple = true;
 
-      const fileNameSpan = document.createElement("span");
-      fileNameSpan.className = "custom-file-filename";
-      fileNameSpan.textContent = "No file chosen";
-      if (fileObj instanceof File) {
-        const dt = new DataTransfer();
-        dt.items.add(fileObj);
-        fileInput.files = dt.files;
-        fileNameSpan.textContent = fileObj.name;
-        setTimeout(() => {
-          const filenameInput = form.querySelector("input[name='filename']");
-          if (filenameInput) {
-            let base = fileObj.name.replace(/\.pdf$/i, "");
-            filenameInput.value = base;
-            const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-            if (tabLabel) tabLabel.textContent = base;
-            // Fix: update file list with correct job type (if select is present)
-            let jtSelect = form.querySelector('select[name="job_type"]');
-            let jt = jtSelect ? jtSelect.value : "";
-            updateFileListStatus(tabId, base, false, jt);
-          }
-        });
+  const fileNameSpan = document.createElement("span");
+  fileNameSpan.className = "custom-file-filename";
+  fileNameSpan.textContent = "No file chosen";
+
+  // --- PATCH: Track last selected file for dialog cancel ---
+  let lastFile = fileObj instanceof File ? fileObj : null;
+
+  if (fileObj instanceof File) {
+    const dt = new DataTransfer();
+    dt.items.add(fileObj);
+    fileInput.files = dt.files;
+    fileNameSpan.textContent = fileObj.name;
+    setTimeout(() => {
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) {
+        let base = fileObj.name.replace(/\.pdf$/i, "");
+        filenameInput.value = base;
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        if (tabLabel) tabLabel.textContent = base;
+        // Fix: update file list with correct job type (if select is present)
+        let jtSelect = form.querySelector('select[name="job_type"]');
+        let jt = jtSelect ? jtSelect.value : "";
+        updateFileListStatus(tabId, base, false, jt);
       }
+    });
+  }
 
-      fileInput.addEventListener("change", function() {
-        if (fileInput.files && fileInput.files.length > 0) {
-          // --- NEW: Track the currently selected tab ----
-          const activeTabBtn = tabBar.querySelector(".tab.active[data-tab]");
-          const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;  // <<<<
-      
-          // If user selects multiple files: fill current, add new tabs for others
-          const files = Array.from(fileInput.files);
-          if (files.length > 1) {
-            // Only fill this tab with the first, and create more for others
-            fileInput.files = (function() {
-              let dt = new DataTransfer();
-              dt.items.add(files[0]);
-              return dt.files;
-            })();
-            fileNameSpan.textContent = files[0].name;
-            const filenameInput = form.querySelector("input[name='filename']");
-            if (filenameInput) {
-              let base = files[0].name.replace(/\.pdf$/i, "");
-              filenameInput.value = base;
-              const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-              if (tabLabel) tabLabel.textContent = base;
-              let jtSelect = form.querySelector('select[name="job_type"]');
-              let jt = jtSelect ? jtSelect.value : "";
-              updateFileListStatus(tabId, base, false, jt);
-              // On file change, always clear last saved state (force Save to be enabled)
-              tabLastSavedState[tabId] = "";
-              form.querySelector('.save-btn').disabled = false;
-            }
-            // Now create tabs for each subsequent file, if space left
-            let slots = MAX_DOCS - getTabCount();
-            for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
-              createTab(files[i]);
-            }
-      // --- NEW: Restore previously selected tab ----
-      if (activeTabId) setActiveTab(activeTabId);  // <<<<
-    } else {
-            fileNameSpan.textContent = files[0].name;
-            const filenameInput = form.querySelector("input[name='filename']");
-            if (filenameInput) {
-              let base = files[0].name.replace(/\.pdf$/i, "");
-              filenameInput.value = base;
-              const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-              if (tabLabel) tabLabel.textContent = base;
-              let jtSelect = form.querySelector('select[name="job_type"]');
-              let jt = jtSelect ? jtSelect.value : "";
-              updateFileListStatus(tabId, base, false, jt);
-              // Always clear last saved state (force Save to be enabled)
-              tabLastSavedState[tabId] = "";
-              form.querySelector('.save-btn').disabled = false;
-            }
-          }
-        } else {
-          fileNameSpan.textContent = "No file chosen";
+  // Before dialog opens, save current value
+  fileInput.addEventListener('click', function() {
+    fileInput.dataset.prevValue = fileInput.value;
+  });
+
+  fileInput.addEventListener("change", function() {
+    if (fileInput.files && fileInput.files.length > 0) {
+      // --- NEW: Track the currently selected tab ----
+      const activeTabBtn = tabBar.querySelector(".tab.active[data-tab]");
+      const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;  // <<<<
+
+      // If user selects multiple files: fill current, add new tabs for others
+      const files = Array.from(fileInput.files);
+      if (files.length > 1) {
+        // Only fill this tab with the first, and create more for others
+        fileInput.files = (function() {
+          let dt = new DataTransfer();
+          dt.items.add(files[0]);
+          return dt.files;
+        })();
+        lastFile = files[0]; // PATCH: update lastFile
+        fileNameSpan.textContent = files[0].name;
+        fileNameSpan.style.opacity = "1";
+        const filenameInput = form.querySelector("input[name='filename']");
+        if (filenameInput) {
+          let base = files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          let jtSelect = form.querySelector('select[name="job_type"]');
+          let jt = jtSelect ? jtSelect.value : "";
+          updateFileListStatus(tabId, base, false, jt);
+          // On file change, always clear last saved state (force Save to be enabled)
+          tabLastSavedState[tabId] = "";
+          form.querySelector('.save-btn').disabled = false;
         }
-      });
+        // Now create tabs for each subsequent file, if space left
+        let slots = MAX_DOCS - getTabCount();
+        for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+          createTab(files[i]);
+        }
+      } else {
+        // PATCH: single file
+        lastFile = fileInput.files[0];
+        fileNameSpan.textContent = lastFile.name;
+        fileNameSpan.style.opacity = "1";
+        const filenameInput = form.querySelector("input[name='filename']");
+        if (filenameInput) {
+          let base = lastFile.name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          let jtSelect = form.querySelector('select[name="job_type"]');
+          let jt = jtSelect ? jtSelect.value : "";
+          updateFileListStatus(tabId, base, false, jt);
+          // On file change, always clear last saved state (force Save to be enabled)
+          tabLastSavedState[tabId] = "";
+          form.querySelector('.save-btn').disabled = false;
+        }
+      }
+    } else {
+      // PATCH: User cancelled dialog, show lastFile if present
+      if (lastFile) {
+        fileNameSpan.textContent = lastFile.name + " (still selected)";
+        fileNameSpan.style.opacity = "0.6";
+      } else {
+        fileNameSpan.textContent = "No file chosen";
+        fileNameSpan.style.opacity = "1";
+      }
+    }
+  });
 
-      fileInputLabel.appendChild(fileInput);
-      fileInputWrapper.appendChild(fileInputLabel);
-      fileInputWrapper.appendChild(fileNameSpan);
-      pdfField.appendChild(pdfLabel);
-      pdfField.appendChild(fileInputWrapper);
-      form.appendChild(pdfField);
+  fileInputLabel.appendChild(fileInput);
+  fileInputWrapper.appendChild(fileInputLabel);
+  fileInputWrapper.appendChild(fileNameSpan);
+  pdfField.appendChild(pdfLabel);
+  pdfField.appendChild(fileInputWrapper);
+  form.appendChild(pdfField);
 
       // --- Job Type ---
       const jobTypeField = document.createElement("div");
