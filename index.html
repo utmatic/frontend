@@ -1623,7 +1623,7 @@ fileInput.addEventListener("change", function() {
        tfInput.style.width = "100%";
        tfInput.style.boxSizing = "border-box";
        tfGroup.appendChild(tfInput);
-       // Base URL
+
       // Base URL WITH INFO ICON AND POPUP
       const buGroup = document.createElement("div");
       buGroup.className = "field-group input-icon-wrapper";
@@ -1676,7 +1676,7 @@ fileInput.addEventListener("change", function() {
       // Show/hide info icon based on job type
       const jobTypeInput = form.querySelector('select[name="job_type"]');
       function updateInfoIconVisibility() {
-        if (jobTypeInput && jobTypeInput.value === "Add Links and UTM") {
+        if (jobTypeInput && jobTypeInput.value === "links_and_utm") {
           infoBtn.style.display = "flex";
         } else {
           infoBtn.style.display = "none";
@@ -1691,39 +1691,7 @@ fileInput.addEventListener("change", function() {
       infoBtn.addEventListener('mouseleave', () => { infoPopup.style.display = 'none'; });
       infoBtn.addEventListener('focus', () => { infoPopup.style.display = 'block'; });
       infoBtn.addEventListener('blur', () => { infoPopup.style.display = 'none'; });
-      
-      // --- Info icon and popup ---
-      const infoBtn = document.createElement("button");
-      infoBtn.type = "button";
-      infoBtn.className = "info-icon-btn base-url-info-btn";
-      infoBtn.tabIndex = 0;
-      infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
-      infoBtn.style.display = "none"; // will show only for Add Links and UTM
-      
-      infoBtn.innerHTML = `
-        <svg class="info-svg" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="11" stroke="#6d88f4" stroke-width="2"/>
-          <path d="M12 8v2m0 2v4" stroke="#6d88f4" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="12" cy="6" r="1" fill="#6d88f4"/>
-        </svg>
-      `;
-      
-      const infoPopup = document.createElement("div");
-      infoPopup.className = "info-popup base-url-info-popup";
-      infoPopup.style.display = "none";
-      infoPopup.innerHTML = `
-        <strong>How to use Target Formats with Base URL:</strong><br><br>
-        Enter your <b>Base URL</b> (e.g., <code>https://example.com/landing-page</code>) in this field.<br><br>
-        In <b>Target Formats</b>, enter one or more suffixes (one per row), such as:<br>
-        <code>?utm_source=google</code><br>
-        <code>?utm_source=facebook</code><br><br>
-        Each target format will be paired with your Base URL to generate a complete link.<br><br>
-        <b>Example:</b><br>
-        <code>https://example.com/landing-page?utm_source=google</code>
-      `;
-      
-      buGroup.appendChild(infoBtn);
-      buGroup.appendChild(infoPopup);
+
        // Remove Button (except for first row)
        const delCol = document.createElement("div");
        delCol.className = "delete-col";
