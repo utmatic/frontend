@@ -1864,7 +1864,7 @@ buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
       // Info popup element
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup";
-      infoPopup.textContent = `
+      infoPopup.innerHTML = `
 <b>Target Format</b><br>
 This defines the pattern of items you want to link in your document.  
 Use <b>N</b> for numbers, <b>L</b> for letters:
