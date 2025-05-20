@@ -65,7 +65,7 @@
   border-radius: 7px;
   box-shadow: 0 2px 16px rgba(30,40,80,0.14);
   font-size: 0.98em;
-  width: 270px;
+  width: 370px;
   z-index: 10;
   display: none;
   transition: opacity 0.15s;
@@ -119,7 +119,7 @@
     border-radius: 7px;
     box-shadow: 0 2px 16px rgba(30,40,80,0.14);
     font-size: 0.98em;
-    width: 270px;
+    width: 370px;
     transition: opacity 0.15s;
   }
 
@@ -1865,21 +1865,17 @@ buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup";
       infoPopup.innerHTML = `
-<b>Target Format</b><br>
-This defines the pattern of items you want to link in your document.  
-Use <b>N</b> for numbers, <b>L</b> for letters:
-<ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
-  <li><code>NNNLL</code> → <code>123AB</code></li>
-  <li><code>LLLNN</code> → <code>ABC12</code></li>
-</ul><br>
+  <strong>Why UTM Content is Set Automatically</strong><br><br>
+  To ensure clear attribution, the <b>utm_content</b> parameter is automatically set based on the hyperlink text.<br><br>
 
-<b>Base URL</b><br>
-The starting part of your link, like:<br>
-<code>https://example.com/landing-page</code><br><br>
+  This gives you visibility into exactly which product or item was clicked — especially helpful when linking part numbers or SKUs throughout a document.<br><br>
 
-<b>Result</b><br>
-Each match is combined with the Base URL:<br>
-<code>https://example.com/landing-page123AB</code>
+  When linking items like <code>5610-2164</code>, the UTM Content will be set to <code>5610-2164</code> — no extra input needed.<br><br>
+
+  For CTAs or other links using general phrases like <code>Learn More</code>, the tool will instead use the <b>last part of the URL</b> (the slug).<br><br>
+
+  <strong>Example:</strong><br>
+  If the link is labeled <code>Learn More</code> and points to <code>https://example.com/product-line/x500</code>, the UTM Content will be set to <code>x500</code>.
   `;
       
       // Initially popup is hidden
