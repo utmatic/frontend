@@ -1154,6 +1154,7 @@ select {
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script>
+const lastFileByTab = {}; // <--- PUT THIS HERE!
 window.addEventListener("load", () => {
   if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
@@ -1419,8 +1420,6 @@ function updateFileListStatus(tabId, name, saved, jobType) {
   // Disable processBtn unless all docs are saved
   processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
-
-const lastFileByTab = {};
 
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
 function renderFormFields(form, tabId, docName, fileObj) {
