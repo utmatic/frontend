@@ -1682,6 +1682,16 @@ function updateFileListStatus(tabId, name, saved, jobType) {
         let current = formToHash(form);
         let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
         saveBtn.disabled = !formIsValid(form) || !dirty;
+      
+        // Update file list status to reflect dirty/saved state
+        const filenameInput = form.querySelector("input[name='filename']");
+        const jobTypeSelect = form.querySelector("select[name='job_type']");
+        updateFileListStatus(
+          tabId,
+          filenameInput ? filenameInput.value : "",
+          !dirty, // true if saved, false if dirty
+          jobTypeSelect ? jobTypeSelect.value : ""
+        );
       }
       function formIsValid(form) {
         let valid = true;
