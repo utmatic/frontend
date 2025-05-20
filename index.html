@@ -1719,13 +1719,24 @@ if (wrapper.querySelectorAll(".field-row").length === 0) {
   infoPopup.className = "info-popup base-url-info-popup";
   infoPopup.style.display = "none";
   infoPopup.innerHTML = `
+<strong>How to use Target Format and Base URL</strong><br><br>
+
 <b>Target Format</b><br>
-This defines the pattern of items you want to link in your document.  
-Use <b>N</b> for numbers, <b>L</b> for letters:
+This defines what you want to link in your document. There are two ways to use it:<br>
 <ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
-  <li><code>NNNLL</code> → <code>123AB</code></li>
-  <li><code>LLLNN</code> → <code>ABC12</code></li>
-</ul><br>
+  <li>
+    <b>Pattern matching</b>: Use <b>N</b> for numbers, <b>L</b> for letters.<br>
+    Examples:<br>
+    <code>NNNLL</code> → <code>123AB</code><br>
+    <code>LLLNN</code> → <code>ABC12</code>
+  </li>
+  <li>
+    <b>Exact match</b>: To link every occurrence of a specific phrase or string, enter it in single quotes.<br>
+    Example:<br>
+    <code>'Product A'</code> will find and link every instance of <b>Product A</b> in your document.<br>
+    The text inside the quotes will also be used for the <code>utm_content</code> parameter.
+  </li>
+</ul>
 
 <b>Base URL</b><br>
 The starting part of your link, like:<br>
@@ -1733,8 +1744,9 @@ The starting part of your link, like:<br>
 
 <b>Result</b><br>
 Each match is combined with the Base URL:<br>
-<code>https://example.com/landing-page123AB</code>
-
+<code>https://example.com/landing-page123AB</code><br>
+or for an exact match:<br>
+<code>https://example.com/landing-pageProduct%20A</code>
   `;
 
   delCol.appendChild(infoBtn);
