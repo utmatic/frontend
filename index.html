@@ -12,6 +12,63 @@
  <!-- Add your modal CSS here: -->
   <style>
 
+.info-popup {
+  position: absolute;
+  z-index: 10;
+  left: 100%;
+  top: 0;
+  margin-left: 12px;
+  padding: 1.1em 1.3em 1em 1.3em;
+  background: #fff;
+  color: #23272f;
+  border: 1.5px solid #dde6f6;
+  border-radius: 9px;
+  box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+  font-size: 1.03em;
+  width: 340px;
+  max-width: 95vw;
+  transition: opacity 0.13s;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+.info-popup .popup-title {
+  font-size: 1.13em;
+  font-weight: bold;
+  margin-bottom: 0.7em;
+  color: #4662d7;
+  letter-spacing: 0.01em;
+}
+.info-popup .popup-section {
+  margin-bottom: 1em;
+}
+.info-popup .popup-example {
+  display: block;
+  color: #374151;
+  margin-top: 0.4em;
+  margin-bottom: 0.1em;
+  background: #f5f7fa;
+  border-left: 3px solid #6d88f4;
+  padding: 0.3em 0.7em;
+  border-radius: 5px;
+  font-size: 0.97em;
+}
+.info-popup .popup-highlight {
+  color: #1e40af;
+  background: #e8eefe;
+  padding: 0.05em 0.22em;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.info-popup .popup-summary {
+  margin-top: 1.1em;
+  color: #1a1a1a;
+  background: #f7faff;
+  padding: 0.7em 0.8em;
+  border-radius: 6px;
+  font-size: 0.99em;
+  border-left: 3px solid #22c55e;
+}
+
   .utm-content-group .input-icon-wrapper {
     position: relative;
     display: flex;
@@ -1705,8 +1762,22 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       // Info popup element
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup";
-      infoPopup.textContent = "The UTM Content parameter is set automatically based on the context of your document or links. You cannot edit it manually.";
-      
+      infoPopup.innerHTML = `
+      <div class="popup-title">How UTM Content Is Set</div>
+      <div class="popup-section">
+        <b>• For normal jobs:</b><br>
+        The UTM Content parameter is set automatically to match the exact text that is hyperlinked in your document.<br>
+        <span class="popup-example"><b>Example:</b> If the link says <span class="popup-highlight">"Red Shoes"</span>, the UTM Content will be <span class="popup-highlight">Red Shoes</span>.</span>
+      </div>
+      <div class="popup-section">
+        <b>• For Add UTM Only jobs:</b><br>
+        If UTM tracking is added to a link that is a string of words (like a CTA), the Content parameter will use the <b>last part of the destination URL</b>.<br>
+        <span class="popup-example"><b>Example:</b> If the link goes to <span class="popup-highlight">store.com/products/shoes</span>, the UTM Content will be <span class="popup-highlight">shoes</span>.</span>
+      </div>
+      <div class="popup-summary">
+        <b>Why?</b> This helps you see exactly which product, CTA, or keyword users clicked, so your analytics and attribution are more precise and actionable.
+      </div>
+    `;
       // Initially popup is hidden
       infoPopup.style.display = "none";
       utmContentGroup.appendChild(infoPopup);
