@@ -1,52 +1,2356 @@
-// --- Place this code where you create the infoBtn and handle its click ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Utmatic Modular</title>
+<!-- Work Sans Google Fonts import -->
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- PDF.js CSS (for built-in viewer toolbar, optional but recommended) -->
+<link href="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.css" rel="stylesheet"/>
 
-infoBtn.addEventListener("click", function(e) {
-  e.stopPropagation();
+ <!-- Add your modal CSS here: -->
+  <style>
 
-  // If a popup already exists, remove it
-  const existing = document.querySelector('.info-popup-overlay');
-  if (existing) existing.remove();
+.info-popup {
+  position: absolute;
+  z-index: 10;
+  left: 100%;
+  top: 0;
+  margin-left: 12px;
+  padding: 1.1em 1.3em 1em 1.3em;
+  background: #fff;
+  color: #23272f;
+  border: 1.5px solid #dde6f6;
+  border-radius: 9px;
+  box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+  font-size: 1.03em;
+  width: 340px;
+  max-width: 95vw;
+  transition: opacity 0.13s;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+.info-popup .popup-title {
+  font-size: 1.13em;
+  font-weight: bold;
+  margin-bottom: 0.7em;
+  color: #4662d7;
+  letter-spacing: 0.01em;
+}
+.info-popup .popup-section {
+  margin-bottom: 1em;
+}
+.info-popup .popup-example {
+  display: block;
+  color: #374151;
+  margin-top: 0.4em;
+  margin-bottom: 0.1em;
+  background: #f5f7fa;
+  border-left: 3px solid #6d88f4;
+  padding: 0.3em 0.7em;
+  border-radius: 5px;
+  font-size: 0.97em;
+}
+.info-popup .popup-highlight {
+  color: #1e40af;
+  background: #e8eefe;
+  padding: 0.05em 0.22em;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.info-popup .popup-summary {
+  margin-top: 1.1em;
+  color: #1a1a1a;
+  background: #f7faff;
+  padding: 0.7em 0.8em;
+  border-radius: 6px;
+  font-size: 0.99em;
+  border-left: 3px solid #22c55e;
+}
 
-  // Create overlay
-  const overlay = document.createElement("div");
-  overlay.className = "info-popup-overlay";
+  .utm-content-group .input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .info-icon-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .info-icon-btn .info-svg {
+    width: 22px;
+    height: 22px;
+    color: #6d88f4;
+  }
+  
+  .input-icon-wrapper input {
+    width: 100%;
+    padding-right: 32px; /* space for icon */
+  }
+  
+  .info-popup {
+    position: absolute;
+    z-index: 10;
+    left: 100%;
+    top: 0;
+    margin-left: 12px;
+    padding: 0.85em 1.2em;
+    background: #fff;
+    color: #23272f;
+    border: 1.5px solid #eee;
+    border-radius: 7px;
+    box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+    font-size: 0.98em;
+    width: 270px;
+    transition: opacity 0.15s;
+  }
 
-  // Create the popup
-  const infoPopup = document.createElement("div");
-  infoPopup.className = "info-popup info-popup-centered";
+    /* Sleek scrollbar styling for PDF viewer */
+    #pdf-preview-inner-container,
+    #pdf-canvas,
+    #modal-pdf-container {
+      scrollbar-width: thin;
+      scrollbar-color: #d0d4de #f5f7fa;
+    }
+    
+    /* For Webkit browsers (Chrome, Edge, Safari) */
+    #pdf-preview-inner-container::-webkit-scrollbar,
+    #pdf-canvas::-webkit-scrollbar,
+    #modal-pdf-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+      background: #f5f7fa;
+      border-radius: 8px;
+    }
+    
+    #pdf-preview-inner-container::-webkit-scrollbar-thumb,
+    #pdf-canvas::-webkit-scrollbar-thumb,
+    #modal-pdf-container::-webkit-scrollbar-thumb {
+      background: #d0d4de;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    #pdf-canvas,
+    #pdf-container,
+    #pdf-preview-inner-container {
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
+      caret-color: transparent;
+    }
 
-  // Add close button
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "info-popup-close-btn";
-  closeBtn.innerHTML = "&times;";
-  closeBtn.title = "Close";
-  closeBtn.addEventListener("click", function() {
-    overlay.remove();
-  });
+    #pdf-preview-inner-container::-webkit-scrollbar-thumb:hover,
+    #pdf-canvas::-webkit-scrollbar-thumb:hover,
+    #modal-pdf-container::-webkit-scrollbar-thumb:hover {
+      background: #b3b7c6;
+    }
 
-  // Popup content
-  infoPopup.innerHTML = `
-    <div class="popup-title">How UTM Content Is Set</div>
-    <div class="popup-section">
-      <b>• For normal jobs:</b><br>
-      The UTM Content parameter is set automatically to match the exact text that is hyperlinked in your document.<br>
-      <span class="popup-example"><b>Example:</b> If the link says <span class="popup-highlight">"Red Shoes"</span>, the UTM Content will be <span class="popup-highlight">Red Shoes</span>.</span>
-    </div>
-    <div class="popup-section">
-      <b>• For Add UTM Only jobs:</b><br>
-      If UTM tracking is added to a link that is a string of words (like a CTA), the Content parameter will use the <b>last part of the destination URL</b>.<br>
-      <span class="popup-example"><b>Example:</b> If the link goes to <span class="popup-highlight">store.com/products/shoes</span>, the UTM Content will be <span class="popup-highlight">shoes</span>.</span>
-    </div>
-    <div class="popup-summary">
-      <b>Why?</b> This helps you see exactly which product, CTA, or keyword users clicked, so your analytics and attribution are more precise and actionable.
-    </div>
-  `;
-  infoPopup.appendChild(closeBtn);
-  overlay.appendChild(infoPopup);
-  document.body.appendChild(overlay);
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      z-index: 200;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.38);
+      align-items: center;
+      justify-content: center;
+    }
+    .pdf-modal.open {
+      display: flex;
+    }
+    .pdf-modal-content {
+      position: relative;
+      background: #f7f9fc;
+      border-radius: 1.5em;
+      box-shadow: 0 6px 36px rgba(30,40,80,0.13);
+      padding: 2em 2em 1.7em 2em;
+      min-width: 70vw;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pdf-modal-close {
+      position: absolute;
+      top: 1.4em;
+      right: 1.2em;
+      z-index: 11;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      width: 2.3em;
+      height: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #405080;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.11s;
+    }
+    .pdf-modal-close:hover {
+      background: rgba(80,120,200,0.09);
+      color: #0d59c4;
+      transform: scale(1.09);
+    }
+    .size-6 {
+      width: 1.7em;
+      height: 1.7em;
+    }
+  </style>
 
-  // Allow closing by clicking overlay background
-  overlay.addEventListener("click", function(e) {
-    if (e.target === overlay) overlay.remove();
-  });
+<style>
+    :root {
+      --primary: #6d88f4;
+      --primary-dark: #1e40af;
+      --success: #22c55e;
+      --gray-bg: #fff;
+      --gray-100: #f5f7fa;
+      --gray-200: #e5e7eb;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --danger: #f43f5e;
+      --radius: 12px;
+      --transition: 0.18s cubic-bezier(.4,0,.2,1);
+      --input-bg: #fff;
+      --input-border: #cbd5e1;
+      --input-focus: #6d88f4;
+      --input-shadow: 0 0 0 2px rgba(37,99,235,.08);
+      --label: #334155;
+      --placeholder: #94a3b8;
+      --col1: #6d88f4;
+      --col2: #1e40af;
+      --col3: #22c55e;
+      --spinner-overlay-bg: rgba(20,24,32,0.92);
+
+      --previewer-bg: #f8faff;
+      --previewer-border: #dde6f6;
+      --previewer-accent: #6d88f4;
+
+      --loader-bg: rgba(255,255,255,0.96);  /* almost opaque white */
+      --spinner-border: #6d88f4;  /* blue spinner */
+      --spinner-transparent: transparent;
+    }
+    html, body {
+      height: 100%;
+      background: var(--gray-bg);
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      color: #23272f;
+      min-height: 100vh;
+      letter-spacing: 0.01em;
+      font-size: 16px;
+      background: var(--gray-bg);
+    }
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3.6rem 1rem 2.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--gray-bg);
+    }
+    .main-group {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .header-container {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 2.2rem;
+      padding-left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .logo {
+      height: 42px;
+      width: auto;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .header-text {
+      width: 100%;
+      margin-left: 0;
+      text-align: left;
+      margin-top: 0;
+    }
+    .header-container p {
+      color: var(--gray-400);
+      font-size: 1.1rem;
+      margin: 1.4rem 0 0 0;
+      letter-spacing: 0.01em;
+      font-weight: 500;
+      text-align: left;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      align-items: flex-start;
+      width: 100%;
+      gap: 2.5rem;
+    }
+    .form-container {
+      background: #fff;
+      padding: 2.6rem 2rem 2rem 2rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 650px;
+      min-width: 370px;
+      min-height: 610px;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .file-list {
+      background: #fff;
+      padding: 1.3rem 1.2rem 1.5rem 1.2rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .file-list strong {
+      font-size: 1.1rem;
+      color: var(--label);
+      margin-bottom: 0.4rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .file-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0;
+    }
+    .file-list li {
+      margin-bottom: 0.5rem;
+      color: var(--gray-400);
+      font-size: 1.01rem;
+      background: var(--gray-100);
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      position: relative;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      /* Disable text wrapping for file names in File List */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-list li .file-list-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .file-list li .job-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.18em;
+      margin-right: 0.2em;
+    }
+    .file-list li .checkmark {
+      width: 24px;
+      height: 24px;
+      margin-right: 0.5em;
+      margin-left: -0.2em;
+      display: inline-block;
+      vertical-align: middle;
+      pointer-events: none;
+    }
+    .file-list li.saved .checkmark {
+      display: inline-block;
+    }
+    .file-list li:not(.saved) .checkmark {
+      display: none;
+    }
+    .file-list li.saved {
+      color: #1a1a1a;
+      background: var(--gray-bg);
+      font-weight: 600;
+    }
+    /* Animated checkmark styles */
+    .checkmark__circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      stroke: green;
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .checkmark {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-block;
+      stroke-width: 2;
+      stroke: green;
+      stroke-miterlimit: 10;
+      box-shadow: none;
+      animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+      background: transparent;
+      margin: 0 0.15em 0 0;
+      vertical-align: middle;
+    }
+    .checkmark__check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+    @keyframes stroke {
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes scale {
+      0%, 100% {
+        transform: none;
+      }
+      50% {
+        transform: scale3d(1.1, 1.1, 1);
+      }
+    }
+    @keyframes fill {
+      100% {
+        box-shadow: inset 0px 0px 0px 30px #fff;
+      }
+    }
+    .tab-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      background: none;
+      padding: 0;
+      min-height: 36px;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .tab {
+      background: transparent;
+      color: #23272f;
+      border: none;
+      border-radius: 7px 7px 0 0;
+      padding: 0.2em 1.1em;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 0;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+      min-width: 80px;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      height: 36px;
+      z-index: 1;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .tab.active {
+      background: #fff;
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      font-weight: 600;
+      z-index: 2;
+    }
+    .tab .tab-label {
+      flex: 1 1 auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .tab .delete-tab {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 1.15em;
+      margin-left: 7px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      opacity: 0.7;
+      position: relative;
+    }
+    .tab .delete-tab:hover {
+      background: var(--danger);
+      color: #fff;
+      opacity: 1;
+    }
+    .tab .delete-tab[disabled] {
+      display: none;
+    }
+    #add-tab.tab {
+      background: #1a1a1a !important;
+      color: #fff !important;
+      min-width: 36px !important;
+      max-width: 36px !important;
+      width: 36px !important;
+      height: 36px !important;
+      padding: 0 !important;
+      font-size: 1.5rem !important;
+      font-weight: 900 !important;
+      border-radius: 7px 7px 0 0 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.3rem;
+      box-shadow: none;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, opacity 0.18s;
+      z-index: 10;
+      flex: 0 0 36px;
+      order: -1;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    #add-tab:disabled {
+      background: var(--gray-300) !important;
+      color: #fff !important;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    .field-row-wrapper {
+      width: 100%;
+      margin-top: 0.2em;
+      position: relative;
+      padding-top: 0;
+    }
+    .add-new-row-btn {
+      color: var(--primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 0.98rem;
+      font-weight: 500;
+      padding: 0;
+      text-align: left;
+      transition: color var(--transition);
+      display: block;
+      margin-bottom: 0.18em;
+      margin-left: 0;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .add-new-row-btn:disabled {
+      color: var(--gray-300);
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      .tab-bar {
+        gap: 0.1rem;
+      }
+      .tab {
+        min-width: 60px;
+        font-size: 0.92rem;
+        padding: 0.15em 0.7em;
+        height: 30px;
+      }
+      #add-tab.tab {
+        min-width: 30px !important;
+        max-width: 30px !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1.12rem !important;
+      }
+      .field-row-wrapper {
+        padding-top: 0;
+      }
+      .add-new-row-btn {
+        font-size: 0.96rem;
+        margin-bottom: 0.13em;
+      }
+      .header-container {
+        max-width: 100%;
+      }
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .field-group {
+      margin-bottom: 1.13rem;
+      width: 100%;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .field-group label {
+      display: block;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 0.28rem;
+      font-size: 1.01rem;
+      letter-spacing: 0.01em;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      margin-bottom: 1.2rem;
+      width: 100%;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .field-row .field-group {
+      margin-bottom: 0 !important;
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .field-row .field-group input {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .field-row .delete-col {
+      width: 2.3em;
+      min-width: 2.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .utm-label {
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 0.3rem;
+      display: block;
+      font-size: 1.01rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.12rem;
+      font-size: 1rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .form-actions {
+      margin-top: 1rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+.save-btn,
+.process-btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  font-size: 1.09rem;
+  padding: 0.68rem 1rem;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.19s, color 0.19s, opacity 0.19s, box-shadow 0.19s;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  box-shadow: none;
+  letter-spacing: 0.01em;
+  font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+  background: #6d88f4; /* Default for .save-btn, overridden below for .process-btn */
+  color: #fff;
+}
+
+.save-btn {
+  background: #6d88f4;
+}
+
+.process-btn {
+  background: #22c55e;
+}
+
+.save-btn::after,
+.process-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 7px;
+}
+
+.save-btn:hover:enabled::after,
+.process-btn:hover:enabled::after {
+  opacity: 1;
+}
+
+.save-btn:disabled,
+.process-btn:disabled {
+  background: var(--gray-200) !important;
+  color: #818a97 !important;
+  cursor: not-allowed;
+  opacity: 0.75;
+  box-shadow: none;
+}
+
+button:hover { cursor: pointer; }
+.hidden { display: none !important; }
+
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 0.62rem 0.68rem;
+  font-size: 1.03rem;
+  border: 1.5px solid var(--input-border);
+  border-radius: 7px;
+  background: var(--input-bg);
+  color: #23272f;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  box-sizing: border-box;
+  font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--input-focus);
+      box-shadow: var(--input-shadow);
+      background: #f8fafc;
+    }
+    input[readonly] {
+      background: #f4f4f4;
+      color: #a3a3a3;
+      cursor: not-allowed;
+    }
+    input::placeholder {
+      color: var(--placeholder);
+      opacity: 1;
+      font-size: 0.99em;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+    }
+    .custom-file-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+    }
+    .custom-file-input-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.62rem 1.2rem 0.62rem 1.2rem;
+      background: #1a1a1a;
+      color: #fff !important;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 1.04rem;
+      box-shadow: none;
+      border: none;
+      transition: background 0.15s;
+      outline: none;
+      margin-right: 1rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      position: relative;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .custom-file-input-label:hover, .custom-file-input-label:focus {
+      background: #333;
+      color: #fff !important;
+      cursor: pointer;
+    }
+    .custom-file-input-label:active {
+      color: #fff !important;
+    }
+    .custom-file-input {
+      opacity: 0;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 2;
+      font-size: 18px;
+    }
+    .custom-file-filename {
+      color: var(--label);
+      font-size: 1.01rem;
+      font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+      display: inline-block;
+      vertical-align: middle;
+    }
+/* --- PDF PREVIEWER MODERN MODAL --- */
+#pdf-preview-modal-overlay {
+  position: fixed;
+  z-index: 100001;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30,32,48,0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+  overflow-y: auto;
+  backdrop-filter: blur(1.5px);
+  animation: fadeInBg 0.27s;
+}
+@keyframes fadeInBg {
+  from { background: rgba(30,32,48,0);}
+  to   { background: rgba(30,32,48,0.65);}
+}
+#pdf-preview-modal-overlay.active {
+  display: flex;
+}
+#pdf-preview-container {
+  position: relative;
+  background: var(--previewer-bg);
+  border: 2.5px solid var(--previewer-border);
+  box-shadow: 0 10px 56px 0 rgba(37,99,235,.16), 0 4px 24px 0 rgba(80,80,80,0.13);
+  border-radius: 28px;
+  padding: 2.7rem 3.2rem 2.4rem 3.2rem;
+  width: 99vw;
+  max-width: 1060px;
+  max-height: 98vh;
+  margin: 1.5vh auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: visible;
+  z-index: 100002;
+  box-sizing: border-box;
+  transition: box-shadow 0.26s, border 0.2s;
+  animation: popIn 0.33s cubic-bezier(.39,.58,.57,1.53);
+}
+@keyframes popIn {
+  0% { transform: scale(0.98) translateY(24px); opacity: 0;}
+  100% { transform: scale(1) translateY(0); opacity: 1;}
+}
+#pdf-previewer-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.91);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px #b6c5f444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.88;
+  transition: background 0.17s, opacity 0.18s, box-shadow 0.17s;
+  z-index: 100010;
+}
+#pdf-previewer-close:hover {
+  background: #f3f4f6;
+  opacity: 1;
+  box-shadow: 0 4px 22px #b6c5f45c;
+}
+#pdf-previewer-close svg {
+  width: 20px; height: 20px;
+  stroke: #1a1a1a;
+  stroke-width: 2.3;
+}
+#pdf-previewer-docswitch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.36rem;
+  font-weight: 700;
+  font-size: 1.68rem;
+  color: #1a1a1a;
+  letter-spacing: 0.01em;
+  margin: 0 auto 0.48rem auto;
+  user-select: text;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.14s;
+}
+#pdf-previewer-docswitch:hover {
+  color: var(--previewer-accent);
+}
+#pdf-previewer-docswitch svg.caret {
+  width: 1.32em;
+  height: 1.32em;
+  margin-left: 0.13em;
+  stroke: #1a1a1a;
+  transition: stroke 0.18s, transform 0.19s;
+}
+#pdf-previewer-docswitch.open svg.caret {
+  transform: rotate(-180deg);
+  stroke: var(--previewer-accent);
+}
+#pdf-previewer-doclist {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  background: #fff;
+  border: 1.6px solid var(--previewer-border);
+  border-radius: 9px;
+  box-shadow: 0 6px 24px #b6c5f43f;
+  z-index: 10005;
+  padding: 0.23rem 0.1rem;
+}
+#pdf-previewer-docswitch.open #pdf-previewer-doclist {
+  display: block;
+}
+#pdf-previewer-doclist div {
+  padding: 0.72rem 1.3rem 0.66rem 1.3rem;
+  cursor: pointer;
+  font-size: 1.06rem;
+  color: #23272f;
+  border-radius: 7px;
+  white-space: nowrap;
+  transition: background 0.13s, color 0.13s;
+}
+#pdf-previewer-doclist div:hover {
+  background: #e8eefe;
+  color: var(--previewer-accent);
+}
+#pdf-preview-page-counter {
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  color: #334155;
+  font-size: 1.15rem;
+  margin: 0 0 1.18rem 0;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+.pdf-arrow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(244,245,250,0.93);
+  border-radius: 50%;
+  border: none;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 14px #b6c5f43d;
+  opacity: 0.93;
+  cursor: pointer;
+  z-index: 9999;
+  transition: background 0.15s, box-shadow 0.14s;
+}
+.pdf-arrow-btn svg {
+  width: 26px; height: 26px;
+  stroke: #1a1a1a;
+  stroke-width: 2.3;
+}
+.pdf-arrow-btn:hover {
+  background: #e8eefe;
+  box-shadow: 0 4px 22px #b6c5f45c;
+}
+#pdf-arrow-prev {
+  left: -64px;
+}
+#pdf-arrow-next {
+  right: -64px;
+}
+@media (max-width: 1200px) {
+  #pdf-arrow-prev { left: -34px;}
+  #pdf-arrow-next { right: -34px;}
+}
+@media (max-width: 900px) {
+  #pdf-preview-container {
+    padding: 1.12rem 0.3rem 1.3rem 0.3rem;
+    max-width: 99vw;
+    min-width: 0;
+  }
+  #pdf-previewer-docswitch {
+    font-size: 1.09rem;
+  }
+  #pdf-arrow-prev, #pdf-arrow-next {
+    left: -6px;
+    right: -6px;
+    width: 38px; height: 38px;
+  }
+  .pdf-arrow-btn svg { width: 18px; height: 18px;}
+}
+@media (max-width: 600px) {
+  #pdf-preview-container {
+    padding: 0.4rem 0.1rem 0.55rem 0.1rem;
+  }
+  #pdf-arrow-prev, #pdf-arrow-next {
+    left: -2px;
+    right: -2px;
+    width: 32px; height: 32px;
+  }
+}
+#pdf-preview-inner-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  margin-left: 36px;
+  margin-right: 36px;
+}
+#pdf-canvas {
+  border: 1.6px solid #ced5e6;
+  background: #fff;
+  border-radius: 0px;
+  box-shadow: none;
+  margin: 0.1rem auto 0 auto;
+  box-sizing: border-box;
+  display: block;
+  transition: box-shadow 0.19s;
+}
+#pdf-previewer-actions-bar {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1.15rem;
+  margin-top: 2.4rem;
+  margin-bottom: 0.1rem;
+}
+#pdf-previewer-startnew {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: var(--previewer-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.19em 0.4em;
+  border-radius: 8px;
+  transition: background 0.13s, color 0.13s;
+  outline: none;
+  box-shadow: none;
+}
+#pdf-previewer-startnew:hover {
+  background: #e8eefe;
+  color: #1a1a1a;
+}
+#pdf-previewer-startnew svg {
+  width: 1.25em; height: 1.25em;
+  stroke: var(--previewer-accent);
+}
+#download-final-btn {
+  background: #6d88f4;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 1.11rem;
+  padding: 0.61rem 2.1rem;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  margin: 0 1px;
+  outline: none;
+  box-shadow: 0 1.5px 12px 0 rgba(37,99,235,.09);
+  white-space: nowrap;
+  cursor: pointer;
+  letter-spacing: 0.005em;
+  position: relative;
+  overflow: hidden;
+}
+
+#download-final-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 9px;
+}
+
+#download-final-btn:hover:enabled::after {
+  opacity: 1;
+}
+    
+    /* Loader/Spinner Overlay Style */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--loader-bg);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      backdrop-filter: blur(2px);
+    }
+    #loader.active {
+      display: flex;
+    }
+    #loader .spinner {
+      width: 56px;
+      height: 56px;
+      border: 5px solid var(--spinner-border);
+      border-top-color: var(--spinner-transparent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1.3rem;
+      box-shadow: 0 3px 18px 0 rgba(37,99,235,.06);
+    }
+    #loader .loader-text {
+      color: #244;
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.03em;
+      text-align: center;
+      text-shadow: 0 2px 18px #fff7;
+    }
+    #loader .loader-subtext {
+      color: #4b5563;
+      font-size: 1.06rem;
+      font-weight: 400;
+      margin-top: 0.2rem;
+      text-align: center;
+      max-width: 370px;
+      line-height: 1.4;
+      text-shadow: 0 2px 18px #fff7;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+ /* --- Add the new zoom controls CSS right here: --- */
+#pdf-zoom-controls {
+  display: flex;
+  gap: 0.35em;
+  margin-bottom: 1.2rem;
+  align-items: center;
+  justify-content: center;   /* <-- Center horizontally */
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto 1.2rem auto; /* <-- Center the block itself */
+}
+.zoom-btn {
+  background: none;
+  border: none;
+  color: #1a1a1a;
+  padding: 0.29em 0.29em;
+  border-radius: 6px;
+  transition: background 0.17s, color 0.19s, transform 0.16s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6em;
+  outline: none;
+}
+.zoom-btn:hover, .zoom-btn:focus {
+  background: #ededed;
+  color: #6d88f4;
+  transform: scale(1.10);
+}
+.zoom-btn svg {
+  display: block;
+  stroke: currentColor;
+  pointer-events: none;
+}
+/* --- End of new CSS --- */
+ 
+</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script>
+window.addEventListener("load", () => {
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+  }
 });
+</script>
+
+<div class="page-wrapper" id="main-form-wrapper">
+  <div class="main-group">
+    <div class="header-container">
+      <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+      <div class="header-text">
+        <p>Equip your documents with tracking links — <em>instantly.</em></p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="form-container">
+        <div class="tab-bar" id="tab-bar">
+          <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
+        </div>
+        <div id="tab-contents"></div>
+      </div>
+      <div class="file-list">
+        <strong>File List</strong>
+        <ul id="file-list"></ul>
+        <button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
+      </div>
+    </div>
+  </div>
+</div>
+<datalist id="base-url-datalist"></datalist>
+
+<!-- PDF Previewer Modal Overlay (MODERN) -->
+<div id="pdf-preview-modal-overlay">
+  <div id="pdf-preview-container">
+    <!-- Close Button (X) -->
+    <button id="pdf-previewer-close" onclick="closePdfPreview()" title="Close Previewer">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6"/>
+      </svg>
+    </button>
+    <!-- Document Name/Selector -->
+    <div id="pdf-previewer-docswitch">
+      <span id="previewer-title">Agreement.pdf</span>
+      <svg class="caret" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 10l8 8 8-8"/>
+      </svg>
+      <!-- Dropdown for doc selection -->
+      <div id="pdf-previewer-doclist"></div>
+    </div>
+    <!-- Page Counter -->
+    <div id="pdf-preview-page-counter">Page 1 / 9</div>
+<!-- PDF Zoom Controls (left aligned, simple) -->
+<div id="pdf-zoom-controls">
+  <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out">
+    <!-- Heroicon: Minus -->
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="28" height="28">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"/>
+    </svg>
+  </button>
+  <button id="zoom-in-btn" class="zoom-btn" title="Zoom In" aria-label="Zoom In">
+    <!-- Heroicon: Plus -->
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="28" height="28">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/>
+    </svg>
+  </button>
+</div>
+    <!-- PDF Previewer Canvas w/ Arrow Buttons -->
+    <div id="pdf-preview-inner-container" style="position:relative;">
+      <button id="pdf-arrow-prev" class="pdf-arrow-btn" onclick="prevPage()" title="Previous Page">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 22l-8-8 8-8"/>
+        </svg>
+      </button>
+        
+        <div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
+          <canvas id="pdf-canvas"></canvas>
+        </div>
+        
+      <button id="pdf-arrow-next" class="pdf-arrow-btn" onclick="nextPage()" title="Next Page">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6l8 8-8 8"/>
+        </svg>
+      </button>
+    </div>
+    <!-- Actions Bar at Bottom -->
+    <div id="pdf-previewer-actions-bar">
+      <button id="pdf-previewer-startnew" title="Start New">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0
+              3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181
+              3.182m0-4.991v4.99"/>
+        </svg>
+        Start new
+      </button>
+      <button id="download-final-btn" class="primary" title="Download Final PDF">Download</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Loader/Spinner Overlay -->
+<div id="loader">
+  <div class="spinner"></div>
+  <div class="loader-text">Processing...</div>
+  <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
+</div>
+
+<script>
+  // Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
+  window.pdfjsViewer =
+    window.pdfjsViewer ||
+    window.pdfjsDistWebPdf_viewer ||
+    window['pdfjs-dist/web/pdf_viewer'] ||
+    undefined;
+</script>
+<script>
+    // SVG ICONS
+    const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>`;
+     const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
+ 
+    let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
+    function updateBaseUrlMemory(newUrl) {
+      if (newUrl && !baseUrlMemory.includes(newUrl)) {
+        baseUrlMemory.push(newUrl);
+        if (baseUrlMemory.length > 15) baseUrlMemory.shift();
+        localStorage.setItem('baseUrlMemory', JSON.stringify(baseUrlMemory));
+      }
+      let dl = document.getElementById('base-url-datalist');
+      if (!dl) {
+        dl = document.createElement('datalist');
+        dl.id = 'base-url-datalist';
+        document.body.appendChild(dl);
+      }
+      dl.innerHTML = baseUrlMemory.map(url => `<option value="${url}">`).join('');
+    }
+    updateBaseUrlMemory("");
+    let docCount = 1;
+    const MAX_DOCS = 5;
+    const MAX_TARGET_ROWS = 5;
+    const tabBar = document.getElementById("tab-bar");
+    const tabContents = document.getElementById("tab-contents");
+    const fileList = document.getElementById("file-list");
+    const processBtn = document.getElementById("process-btn");
+
+    // Track per-tab last saved state for Save/Dirty logic
+    let tabLastSavedState = {};
+
+    // PDF Previewer Zoom Button Listeners
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("zoom-in-btn").addEventListener("click", () => {
+    if (pdfZoomLevel < pdfZoomMax) {
+      pdfZoomLevel = Math.min(pdfZoomLevel + pdfZoomStep, pdfZoomMax);
+      renderPage();
+    }
+  });
+  document.getElementById("zoom-out-btn").addEventListener("click", () => {
+    if (pdfZoomLevel > pdfZoomMin) {
+      pdfZoomLevel = Math.max(pdfZoomLevel - pdfZoomStep, pdfZoomMin);
+      renderPage();
+    }
+  });
+  // No need to call updateZoomDisplay() anymore
+});
+
+    function showSpinner() { 
+      document.getElementById('loader').classList.add('active');
+    }
+    function hideSpinner() { 
+      document.getElementById('loader').classList.remove('active');
+    }
+    function getTabCount() { return tabBar.querySelectorAll(".tab[data-tab]").length; }
+    function updateDeleteTabButtons() {
+      const tabs = tabBar.querySelectorAll(".tab[data-tab]");
+      const count = tabs.length;
+      tabs.forEach(tab => {
+        const delBtn = tab.querySelector(".delete-tab");
+        if (delBtn) {
+          delBtn.disabled = (count === 1);
+          if (count === 1) {
+            delBtn.setAttribute("disabled", "true");
+            delBtn.style.opacity = "0.3";
+            delBtn.style.cursor = "not-allowed";
+          } else {
+            delBtn.removeAttribute("disabled");
+            delBtn.style.opacity = "";
+            delBtn.style.cursor = "";
+          }
+        }
+      });
+    }
+    function updateAddTabButton() {
+      const addTabBtn = document.getElementById("add-tab");
+      const numDocs = getTabCount();
+      addTabBtn.disabled = numDocs >= MAX_DOCS;
+      addTabBtn.style.opacity = numDocs >= MAX_DOCS ? "0.5" : "1";
+      addTabBtn.style.cursor = numDocs >= MAX_DOCS ? "not-allowed" : "pointer";
+    }
+    function updateTabBarCount() {
+      const numTabs = getTabCount();
+      tabBar.setAttribute('data-tabs', numTabs);
+      updateDeleteTabButtons();
+    }
+    function setActiveTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll(".tab-bar .tab").forEach(t => t.classList.remove("active"));
+      document.querySelector(`.tab-content#${tabId}`)?.classList.add("active");
+      document.querySelector(`.tab-bar .tab[data-tab="${tabId}"]`)?.classList.add("active");
+    }
+
+    function formToHash(form) {
+      // Collect all input, select, and textarea values (ignoring hidden/disabled)
+      let data = [];
+      form.querySelectorAll('input, select, textarea').forEach(input => {
+        if (input.type === "file") {
+          data.push(input.name + "=" + (input.files[0]?.name || ""));
+        } else if (!input.closest('.hidden') && !input.disabled) {
+          // For checkboxes and radios, use checked state; else use value
+          if (input.type === "checkbox" || input.type === "radio") {
+            data.push(input.name + "=" + input.checked);
+          } else {
+            data.push(input.name + "=" + input.value);
+          }
+        }
+      });
+      return data.join("&");
+    }
+
+function updateFileListStatus(tabId, name, saved, jobType) {
+  let item = fileList.querySelector(`[data-tab="${tabId}"]`);
+  if (!item) {
+    item = document.createElement("li");
+    item.dataset.tab = tabId;
+    fileList.appendChild(item);
+  }
+
+  // --- FIX: Always fully reset the item to avoid 'drifting' rightward ---
+  item.innerHTML = "";
+
+  // Job icons
+  let jobIcons = document.createElement('span');
+  jobIcons.className = 'job-icons';
+  if (jobType === "utm_only") {
+    jobIcons.innerHTML = TAG_ICON;
+  } else if (jobType === "links_and_utm") {
+    jobIcons.innerHTML = LINK_ICON;
+  }
+  item.appendChild(jobIcons);
+
+  // Saved checkmark
+  if (saved) {
+    const checkSvg = document.createElement('span');
+    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>`;
+    item.appendChild(checkSvg);
+    item.className = "saved";
+  } else {
+    item.className = "";
+  }
+
+  // Filename (always at the end)
+  let nameSpan = document.createElement('span');
+  nameSpan.className = 'file-list-name';
+  nameSpan.textContent = name || "Untitled Document";
+  item.appendChild(nameSpan);
+
+  // Disable processBtn unless all docs are saved
+  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+}
+
+    // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
+    function renderFormFields(form, tabId, docName, fileObj) {
+      // PDF Upload
+      const pdfField = document.createElement("div");
+      pdfField.className = "field-group";
+      const pdfLabel = document.createElement("label");
+      pdfLabel.htmlFor = "file";
+      pdfLabel.textContent = "Upload PDF";
+      const fileInputWrapper = document.createElement("div");
+      fileInputWrapper.className = "custom-file-input-wrapper";
+      const fileInputLabel = document.createElement("label");
+      fileInputLabel.className = "custom-file-input-label";
+      fileInputLabel.textContent = "Choose File";
+      fileInputLabel.setAttribute("tabindex", "0");
+      // MULTIPLE attribute here!
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = ".pdf,application/pdf";
+      fileInput.name = "file"; // FIXED: must match backend
+      fileInput.id = "file";
+      fileInput.required = true;
+      fileInput.className = "custom-file-input";
+      fileInput.tabIndex = -1;
+      fileInput.multiple = true;
+
+      const fileNameSpan = document.createElement("span");
+      fileNameSpan.className = "custom-file-filename";
+      fileNameSpan.textContent = "No file chosen";
+      if (fileObj instanceof File) {
+        const dt = new DataTransfer();
+        dt.items.add(fileObj);
+        fileInput.files = dt.files;
+        fileNameSpan.textContent = fileObj.name;
+        setTimeout(() => {
+          const filenameInput = form.querySelector("input[name='filename']");
+          if (filenameInput) {
+            let base = fileObj.name.replace(/\.pdf$/i, "");
+            filenameInput.value = base;
+            const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+            if (tabLabel) tabLabel.textContent = base;
+            // Fix: update file list with correct job type (if select is present)
+            let jtSelect = form.querySelector('select[name="job_type"]');
+            let jt = jtSelect ? jtSelect.value : "";
+            updateFileListStatus(tabId, base, false, jt);
+          }
+        });
+      }
+
+      fileInput.addEventListener("change", function() {
+        if (fileInput.files && fileInput.files.length > 0) {
+          // --- NEW: Track the currently selected tab ----
+          const activeTabBtn = tabBar.querySelector(".tab.active[data-tab]");
+          const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;  // <<<<
+      
+          // If user selects multiple files: fill current, add new tabs for others
+          const files = Array.from(fileInput.files);
+          if (files.length > 1) {
+            // Only fill this tab with the first, and create more for others
+            fileInput.files = (function() {
+              let dt = new DataTransfer();
+              dt.items.add(files[0]);
+              return dt.files;
+            })();
+            fileNameSpan.textContent = files[0].name;
+            const filenameInput = form.querySelector("input[name='filename']");
+            if (filenameInput) {
+              let base = files[0].name.replace(/\.pdf$/i, "");
+              filenameInput.value = base;
+              const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+              if (tabLabel) tabLabel.textContent = base;
+              let jtSelect = form.querySelector('select[name="job_type"]');
+              let jt = jtSelect ? jtSelect.value : "";
+              updateFileListStatus(tabId, base, false, jt);
+              // On file change, always clear last saved state (force Save to be enabled)
+              tabLastSavedState[tabId] = "";
+              form.querySelector('.save-btn').disabled = false;
+            }
+            // Now create tabs for each subsequent file, if space left
+            let slots = MAX_DOCS - getTabCount();
+            for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+              createTab(files[i]);
+            }
+      // --- NEW: Restore previously selected tab ----
+      if (activeTabId) setActiveTab(activeTabId);  // <<<<
+    } else {
+            fileNameSpan.textContent = files[0].name;
+            const filenameInput = form.querySelector("input[name='filename']");
+            if (filenameInput) {
+              let base = files[0].name.replace(/\.pdf$/i, "");
+              filenameInput.value = base;
+              const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+              if (tabLabel) tabLabel.textContent = base;
+              let jtSelect = form.querySelector('select[name="job_type"]');
+              let jt = jtSelect ? jtSelect.value : "";
+              updateFileListStatus(tabId, base, false, jt);
+              // Always clear last saved state (force Save to be enabled)
+              tabLastSavedState[tabId] = "";
+              form.querySelector('.save-btn').disabled = false;
+            }
+          }
+        } else {
+          fileNameSpan.textContent = "No file chosen";
+        }
+      });
+
+      fileInputLabel.appendChild(fileInput);
+      fileInputWrapper.appendChild(fileInputLabel);
+      fileInputWrapper.appendChild(fileNameSpan);
+      pdfField.appendChild(pdfLabel);
+      pdfField.appendChild(fileInputWrapper);
+      form.appendChild(pdfField);
+
+      // --- Job Type ---
+      const jobTypeField = document.createElement("div");
+      jobTypeField.className = "field-group";
+      const jobTypeLabel = document.createElement("label");
+      jobTypeLabel.htmlFor = "job_type";
+      jobTypeLabel.textContent = "Job Type";
+      const jobTypeSelect = document.createElement("select");
+      jobTypeSelect.name = "job_type";
+      jobTypeSelect.id = "job_type";
+      jobTypeSelect.required = true;
+      [
+        { value: "", label: "Select one", icon: "" },
+        { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
+        { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
+      ].forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.textContent = opt.label;
+        jobTypeSelect.appendChild(option);
+      });
+      jobTypeField.appendChild(jobTypeLabel);
+      jobTypeField.appendChild(jobTypeSelect);
+      form.appendChild(jobTypeField);
+
+      // --- Target Format & Base URL dynamic rows ---
+      const targetBaseRowsWrapper = document.createElement("div");
+      targetBaseRowsWrapper.className = "field-row-wrapper hidden";
+      form.appendChild(targetBaseRowsWrapper);
+      const addNewRowBtn = document.createElement("button");
+      addNewRowBtn.type = "button";
+      addNewRowBtn.className = "add-new-row-btn";
+      addNewRowBtn.textContent = "+ Add new";
+      addNewRowBtn.style.marginLeft = "0";
+      addNewRowBtn.style.marginBottom = "0.18em";
+      addNewRowBtn.style.marginTop = "0";
+      addNewRowBtn.style.display = "block";
+      targetBaseRowsWrapper.appendChild(addNewRowBtn);
+      addTargetBaseRow(targetBaseRowsWrapper, form);
+     function addTargetBaseRow(wrapper, form) {
+       const fieldRow = document.createElement("div");
+       fieldRow.className = "field-row";
+       // Target Format
+       const tfGroup = document.createElement("div");
+       tfGroup.className = "field-group";
+       tfGroup.style.flex = "1";
+       tfGroup.style.minWidth = 0;
+       const tfInput = document.createElement("input");
+       tfInput.type = "text";
+       tfInput.name = "target_format";
+       tfInput.placeholder = "Target Format";
+       tfInput.required = true;
+       tfInput.style.width = "100%";
+       tfInput.style.boxSizing = "border-box";
+       tfGroup.appendChild(tfInput);
+       // Base URL
+       const buGroup = document.createElement("div");
+       buGroup.className = "field-group";
+       buGroup.style.flex = "1";
+       buGroup.style.minWidth = 0;
+       const buInput = document.createElement("input");
+       buInput.type = "text";
+       buInput.name = "base_url";
+       buInput.placeholder = "Base URL";
+       buInput.required = true;
+       buInput.setAttribute('list', 'base-url-datalist');
+       buInput.style.width = "100%";
+       buInput.style.boxSizing = "border-box";
+       buGroup.appendChild(buInput);
+       // Remove Button (except for first row)
+       const delCol = document.createElement("div");
+       delCol.className = "delete-col";
+       if (wrapper.querySelectorAll(".field-row").length > 0) {
+         const removeBtn = document.createElement("button");
+         removeBtn.type = "button";
+         removeBtn.textContent = "✕";
+         removeBtn.style.background = "none";
+         removeBtn.style.border = "none";
+         removeBtn.style.color = "#f43f5e";
+         removeBtn.style.fontSize = "1.25rem";
+         removeBtn.style.cursor = "pointer";
+         removeBtn.title = "Remove row";
+         removeBtn.addEventListener("click", function() {
+           fieldRow.remove();
+           updateAddNewRowBtn();
+           validateForm(form);
+           // --- ADD: Dirty check on row removal! ---
+           checkDirtyAndUpdateSaveBtn();
+         });
+         delCol.appendChild(removeBtn);
+       } else {
+         delCol.innerHTML = "&nbsp;";
+       }
+       fieldRow.appendChild(tfGroup);
+       fieldRow.appendChild(buGroup);
+       fieldRow.appendChild(delCol);
+       wrapper.appendChild(fieldRow);
+       updateAddNewRowBtn();
+       updateBaseUrlMemory("");
+     
+       // --- ADD: Attach dirty-check listeners to these new fields! ---
+       tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+       tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+       buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+       buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+     }
+      function updateAddNewRowBtn() {
+        const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
+        addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
+      }
+      addNewRowBtn.addEventListener("click", function() {
+        addTargetBaseRow(targetBaseRowsWrapper, form);
+        updateAddNewRowBtn();
+      });
+
+      // --- UTM Parameters group ---
+      const utmLabel = document.createElement("span");
+      utmLabel.className = "utm-label";
+      utmLabel.textContent = "UTM Parameters";
+      form.appendChild(utmLabel);
+      const utmRow = document.createElement("div");
+      utmRow.className = "utm-row";
+      [
+        { id: "source", placeholder: "Source", required: true },
+        { id: "medium", placeholder: "Medium", required: true },
+        { id: "campaign", placeholder: "Campaign", required: true }
+      ].forEach(field => {
+        const group = document.createElement("div");
+        group.className = "field-group";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = field.id;
+        input.placeholder = field.placeholder;
+        input.required = true;
+        group.appendChild(input);
+        utmRow.appendChild(group);
+      });
+      form.appendChild(utmRow);
+      const utmContentGroup = document.createElement("div");
+      utmContentGroup.className = "field-group utm-content-group"; // add extra class for styling
+      
+      // Create a wrapper for the input and icon
+      const utmContentWrapper = document.createElement("div");
+      utmContentWrapper.className = "input-icon-wrapper";
+      
+      // Input field
+      const utmContentInput = document.createElement("input");
+      utmContentInput.type = "text";
+      utmContentInput.name = "utm_content";
+      utmContentInput.placeholder = "Content (automatic)";
+      utmContentInput.readOnly = true;
+      utmContentInput.style.backgroundColor = "#f9f9f9";
+      utmContentInput.style.cursor = "not-allowed";
+      
+      // SVG info icon as a button
+      const infoBtn = document.createElement("button");
+      infoBtn.type = "button";
+      infoBtn.className = "info-icon-btn";
+      infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+      
+      // Add input and icon to wrapper
+      utmContentWrapper.appendChild(utmContentInput);
+      utmContentWrapper.appendChild(infoBtn);
+      
+      // Add to group and form
+      utmContentGroup.appendChild(utmContentWrapper);
+      form.appendChild(utmContentGroup);
+
+      // Info popup element
+      const infoPopup = document.createElement("div");
+      infoPopup.className = "info-popup";
+      infoPopup.innerHTML = `
+      <div class="popup-title">How UTM Content Is Set</div>
+      <div class="popup-section">
+        <b>• For normal jobs:</b><br>
+        The UTM Content parameter is set automatically to match the exact text that is hyperlinked in your document.<br>
+        <span class="popup-example"><b>Example:</b> If the link says <span class="popup-highlight">"Red Shoes"</span>, the UTM Content will be <span class="popup-highlight">Red Shoes</span>.</span>
+      </div>
+      <div class="popup-section">
+        <b>• For Add UTM Only jobs:</b><br>
+        If UTM tracking is added to a link that is a string of words (like a CTA), the Content parameter will use the <b>last part of the destination URL</b>.<br>
+        <span class="popup-example"><b>Example:</b> If the link goes to <span class="popup-highlight">store.com/products/shoes</span>, the UTM Content will be <span class="popup-highlight">shoes</span>.</span>
+      </div>
+      <div class="popup-summary">
+        <b>Why?</b> This helps you see exactly which product, CTA, or keyword users clicked, so your analytics and attribution are more precise and actionable.
+      </div>
+    `;
+      // Initially popup is hidden
+      infoPopup.style.display = "none";
+      utmContentGroup.appendChild(infoPopup);
+      
+      // Show popup on click, hide on click outside
+      infoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        infoPopup.style.display = infoPopup.style.display === "block" ? "none" : "block";
+        // Position the popup
+        const rect = infoBtn.getBoundingClientRect();
+        infoPopup.style.left = rect.right + 8 + "px";
+        infoPopup.style.top = rect.top + window.scrollY + "px";
+      });
+      
+      // Hide popup when clicking outside
+      document.addEventListener("click", function(e) {
+        if (!utmContentGroup.contains(e.target)) {
+          infoPopup.style.display = "none";
+        }
+      });
+
+      const filenameGroup = document.createElement("div");
+      filenameGroup.className = "field-group";
+      const filenameLabel = document.createElement("label");
+      filenameLabel.htmlFor = "filename";
+      filenameLabel.textContent = "Document Name";
+      const filenameInput = document.createElement("input");
+      filenameInput.type = "text";
+      filenameInput.name = "filename";
+      filenameInput.id = "filename";
+      filenameInput.placeholder = "MyFileName";
+      filenameInput.required = true;
+      filenameInput.value = docName || '';
+      filenameGroup.appendChild(filenameLabel);
+      filenameGroup.appendChild(filenameInput);
+      form.appendChild(filenameGroup);
+      const underlineWrapper = document.createElement("div");
+      underlineWrapper.className = "checkbox-wrapper hidden";
+      underlineWrapper.style.marginBottom = "0.75rem";
+      underlineWrapper.style.marginTop = "-0.5rem";
+      const underlineInput = document.createElement("input");
+      underlineInput.type = "checkbox";
+      underlineInput.name = "underline";
+      underlineInput.id = "underline";
+      const underlineLabel = document.createElement("label");
+      underlineLabel.htmlFor = "underline";
+      underlineLabel.textContent = "Add underline to links?";
+      underlineWrapper.appendChild(underlineInput);
+      underlineWrapper.appendChild(underlineLabel);
+      form.appendChild(underlineWrapper);
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "form-actions";
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "submit";
+      saveBtn.textContent = "Save";
+      saveBtn.className = "save-btn";
+      saveBtn.disabled = true;
+      actionsDiv.appendChild(saveBtn);
+      form.appendChild(actionsDiv);
+
+      // --- Save/Dirty logic ---
+      // Track last saved hash for this tab
+      tabLastSavedState[tabId] = "";
+
+      function checkDirtyAndUpdateSaveBtn() {
+        let current = formToHash(form);
+        let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+        saveBtn.disabled = !formIsValid(form) || !dirty;
+      
+        // Update file list status to reflect dirty/saved state
+        const filenameInput = form.querySelector("input[name='filename']");
+        const jobTypeSelect = form.querySelector("select[name='job_type']");
+        updateFileListStatus(
+          tabId,
+          filenameInput ? filenameInput.value : "",
+          !dirty, // true if saved, false if dirty
+          jobTypeSelect ? jobTypeSelect.value : ""
+        );
+      }
+      function formIsValid(form) {
+        let valid = true;
+        form.querySelectorAll("input, select").forEach(input => {
+          if (
+            !input.closest(".hidden") &&
+            input.required &&
+            ((input.type === "file" && input.files.length === 0) ||
+             (input.type !== "file" && !input.value.trim()))
+          ) {
+            valid = false;
+          }
+        });
+        return valid;
+      }
+      // Validate and update save button whenever form changes
+     form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+            el.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+          });
+
+      // Save handler
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const filenameInput = form.querySelector("input[name='filename']");
+        const name = filenameInput?.value || docName;
+        const jt = jobTypeSelect.value;
+        updateFileListStatus(tabId, name, true, jt);
+        // Save hash
+        tabLastSavedState[tabId] = formToHash(form);
+        saveBtn.disabled = true;
+        saveBtn.dataset.justSaved = "1";
+        setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
+      });
+
+      // Job type select: update file list with correct icon
+      jobTypeSelect.addEventListener("change", function() {
+        const show = jobTypeSelect.value === "links_and_utm";
+        targetBaseRowsWrapper.classList.toggle("hidden", !show);
+        underlineWrapper.classList.toggle("hidden", !show);
+        targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+          input.required = show;
+        });
+        underlineInput.required = false;
+        // Update icon in file list
+        const filenameInput = form.querySelector("input[name='filename']");
+        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+        checkDirtyAndUpdateSaveBtn();
+      });
+
+      // When filename is changed, update tab label and file list (don't mark as saved)
+      filenameInput.addEventListener("input", () => {
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
+        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+        checkDirtyAndUpdateSaveBtn();
+      });
+
+      // File input change: update filename and clear saved state
+      fileInput.addEventListener("change", function() {
+        if (fileInput.files && fileInput.files.length > 0) {
+          let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          updateFileListStatus(tabId, base, false, jobTypeSelect.value);
+          tabLastSavedState[tabId] = "";
+          saveBtn.disabled = false;
+        }
+      });
+
+      // Initial file list status update
+      updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+
+      // Validate at startup
+      checkDirtyAndUpdateSaveBtn();
+    }
+
+    function createTab(fileObj) {
+      const tabId = `doc-${docCount}`;
+      const tabBtn = document.createElement("button");
+      tabBtn.className = "tab";
+      tabBtn.setAttribute("type", "button");
+      tabBtn.setAttribute("title", `Switch to ${tabId}`);
+      tabBtn.dataset.tab = tabId;
+      const tabLabel = document.createElement("span");
+      tabLabel.className = "tab-label";
+      tabLabel.textContent = `Document ${docCount}`;
+      tabBtn.appendChild(tabLabel);
+      const delBtn = document.createElement("button");
+      delBtn.setAttribute("type", "button");
+      delBtn.className = "delete-tab";
+      delBtn.setAttribute("title", "Delete tab");
+      delBtn.dataset.tab = tabId;
+      delBtn.innerHTML = "&times;";
+      tabBtn.appendChild(delBtn);
+      tabBtn.addEventListener("click", function(e) {
+        if (e.target.classList.contains("delete-tab")) return;
+        setActiveTab(tabId);
+      });
+      tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
+      const tabContent = document.createElement("div");
+      tabContent.className = "tab-content";
+      tabContent.id = tabId;
+      const form = document.createElement("form");
+      form.setAttribute("autocomplete", "off");
+      renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
+      tabContent.appendChild(form);
+      tabContents.appendChild(tabContent);
+      setActiveTab(tabId);
+      docCount++;
+      updateAddTabButton();
+      updateTabBarCount();
+      updateDeleteTabButtons();
+    }
+    // Initial tab
+    createTab();
+
+    // Tab deletion logic
+    document.addEventListener("click", function (e) {
+      if (e.target.classList && e.target.classList.contains("delete-tab")) {
+        if (e.target.hasAttribute('disabled')) return;
+        const tabId = e.target.dataset.tab;
+        const tab = document.querySelector(`[data-tab="${tabId}"]`);
+        const content = document.getElementById(tabId);
+        const fileItem = document.querySelector(`.file-list [data-tab="${tabId}"]`);
+        if (tab) tab.remove();
+        if (content) content.remove();
+        if (fileItem) fileItem.remove();
+        const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+        let newActive = null;
+        if (remainingTabs.length) {
+          newActive = remainingTabs[remainingTabs.length-1];
+        }
+        if (newActive) setActiveTab(newActive.dataset.tab);
+        updateAddTabButton();
+        updateTabBarCount();
+        updateDeleteTabButtons();
+      }
+    });
+    updateTabBarCount();
+
+    // Multi-document processing and preview
+    let lastProcessedForms = [];
+    processBtn.addEventListener("click", async function() {
+      if (processBtn.disabled) return;
+      showSpinner();
+
+      // Collect all saved docs
+      const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+      const tabData = [];
+      for (const tab of docTabs) {
+        const tabId = tab.dataset.tab;
+        const tabContent = document.getElementById(tabId);
+        if (!tabContent) continue;
+        const form = tabContent.querySelector("form");
+        if (!form) continue;
+        // Only include if in file list as "saved"
+        if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
+        tabData.push({ form, tabId });
+      }
+      if (!tabData.length) {
+        hideSpinner();
+        return;
+      }
+
+      // Save forms for "Return to Form" functionality
+      lastProcessedForms = tabData.map(({form, tabId}) => {
+        // Save the form's HTML and its values for each element
+        let values = {};
+        Array.from(form.elements).forEach(el => {
+          if (el.name) {
+            if (el.type === "file") {
+              // Skip actual files; can't serialize
+            } else if (el.type === "checkbox" || el.type === "radio") {
+              values[el.name] = el.checked;
+            } else {
+              values[el.name] = el.value;
+            }
+          }
+        });
+        return {
+          tabId,
+          values
+        };
+      });
+
+      // Prepare all preview requests
+      const previewDocsToShow = [];
+      let encounteredError = null;
+      const API_BASE = "https://utmatic-backend.onrender.com";
+      for (let i = 0; i < tabData.length; ++i) {
+        const { form, tabId } = tabData[i];
+        const formData = new FormData(form);
+        // Fix: ensure correct boolean value for "underline"
+        if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
+        try {
+          const res = await fetch(`${API_BASE}/preview`, {
+            method: "POST",
+            body: formData
+          });
+          if (!res.ok) {
+            const errorText = await res.text();
+            encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
+            break;
+          }
+          const blob = await res.blob();
+          const name = formData.get("filename") || `Document ${i+1}`;
+          // To allow download, create an object URL
+          const url = URL.createObjectURL(blob);
+          previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
+        } catch (err) {
+          encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
+          break;
+        }
+      }
+
+      hideSpinner();
+
+      if (encounteredError) {
+        alert(encounteredError);
+        // Clean up object URLs in case of partial success
+        previewDocsToShow.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+        return;
+      }
+
+      // Launch previewer modal (modal overlay)
+      openPdfPreviewer(previewDocsToShow, 0);
+    });
+
+    // Add tab button now just creates a blank tab:
+    document.getElementById("add-tab").addEventListener("click", function(e) {
+      if (getTabCount() < MAX_DOCS) {
+        createTab();
+      }
+      updateAddTabButton();
+      updateTabBarCount();
+    });
+
+// PDF Previewer logic (MODERN, MODAL)
+let pdfDocs = [];
+let currentDocIndex = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pdfInstance = null;
+let pdfCanvas = null;
+let pdfCtx = null;
+
+// --- PDF Previewer Zoom Variables ---
+let pdfZoomLevel = 1.0; // 1.0 = 100%
+const pdfZoomMin = 0.5; // 50%
+const pdfZoomMax = 3.0; // 300%
+const pdfZoomStep = 0.1; // 10% step
+
+// Utility: Get doc name safely
+function getDocName(idx) {
+  return pdfDocs[idx]?.name || `Document ${idx+1}`;
+}
+
+window.openPdfPreviewer = function(docs, index=0) {
+  pdfDocs = docs;
+  currentDocIndex = index;
+  document.getElementById("pdf-preview-modal-overlay").classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  // Populate Document Switcher (Title + Dropdown)
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docList = document.getElementById("pdf-previewer-doclist");
+  // Set title (first child should be a span for the doc name)
+  let docNameSpan = docSwitch.querySelector("span");
+  if (!docNameSpan) {
+    docNameSpan = document.createElement("span");
+    docSwitch.prepend(docNameSpan);
+  }
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+
+  // Populate doc list dropdown
+  docList.innerHTML = "";
+  pdfDocs.forEach((doc, i) => {
+    const div = document.createElement("div");
+    div.textContent = getDocName(i);
+    div.className = (i === currentDocIndex) ? "active" : "";
+    div.onclick = function(e) {
+      e.stopPropagation();
+      currentDocIndex = i;
+      docNameSpan.textContent = getDocName(i);
+      docSwitch.title = getDocName(i);
+      docSwitch.classList.remove("open");
+      docList.style.display = "none";
+      loadDocument(currentDocIndex);
+    };
+    docList.appendChild(div);
+  });
+
+  // Enable clicking to open/close doc dropdown
+  docSwitch.onclick = function(e) {
+    // Only toggle if click is not on the caret or doclist
+    if (
+      e.target === docSwitch ||
+      e.target === docNameSpan ||
+      e.target.classList.contains("caret")
+    ) {
+      docSwitch.classList.toggle("open");
+      docList.style.display = docSwitch.classList.contains("open") ? "block" : "none";
+    }
+  };
+
+  // Hide the dropdown if clicking outside
+  document.addEventListener(
+    "click",
+    function outsideClick(e) {
+      if (!docSwitch.contains(e.target)) {
+        docSwitch.classList.remove("open");
+        docList.style.display = "none";
+      }
+    },
+    { capture: true, once: true }
+  );
+
+  // Set up close button
+  const closeBtn = document.getElementById("pdf-previewer-close");
+  if (closeBtn) {
+    closeBtn.onclick = window.closePdfPreview;
+  }
+
+  // Setup download button
+  const downloadBtn = document.getElementById("download-final-btn");
+  if (downloadBtn) {
+    downloadBtn.onclick = downloadFinalPdf;
+  }
+
+  // Set up page navigation
+  const prevBtn = document.getElementById("pdf-arrow-prev");
+  const nextBtn = document.getElementById("pdf-arrow-next");
+  if (prevBtn) prevBtn.onclick = window.prevPage;
+  if (nextBtn) nextBtn.onclick = window.nextPage;
+
+  // Set up start new doc button
+  const startNewBtn = document.getElementById("pdf-previewer-startnew");
+  if (startNewBtn) startNewBtn.onclick = window.processNew;
+
+  // Update page counter (initially)
+  document.getElementById("pdf-preview-page-counter").textContent = "";
+
+  // Load the current document
+  loadDocument(currentDocIndex);
+};
+
+window.closePdfPreview = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  if (pdfCanvas) {
+    const ctx = pdfCanvas.getContext("2d");
+    ctx && ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+  }
+  // Cleanup object URLs
+  pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+  pdfDocs = [];
+  pdfInstance = null;
+  currentDocIndex = 0;
+  currentPage = 1;
+  totalPages = 1;
+
+  // Restore form UI with previous values
+  if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
+    document.getElementById("main-form-wrapper").style.display = "";
+    // Restore values
+    window.lastProcessedForms.forEach((tab, idx) => {
+      const tabId = `doc-${idx+1}`;
+      // If tab exists, update; otherwise, create
+      let content = document.getElementById(tabId);
+      if (!content) return;
+      let form = content.querySelector("form");
+      if (!form) return;
+      Object.entries(tab.values).forEach(([name, value]) => {
+        let el = form.elements[name];
+        if (!el) return;
+        if (el.type === "checkbox" || el.type === "radio") {
+          el.checked = value;
+        } else {
+          el.value = value;
+        }
+      });
+    });
+  }
+};
+
+window.processNew = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  // Remove all tabs except the first, and clear all form inputs
+  window.lastProcessedForms = [];
+  tabContents.innerHTML = "";
+  tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
+  fileList.innerHTML = "";
+  docCount = 1;
+  createTab();
+  updateAddTabButton();
+  updateTabBarCount();
+  setActiveTab("doc-1");
+  document.getElementById("main-form-wrapper").style.display = "";
+};
+
+window.switchDocument = function(index) {
+  currentDocIndex = parseInt(index);
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docNameSpan = docSwitch.querySelector("span");
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+  loadDocument(currentDocIndex);
+};
+
+async function loadDocument(index) {
+  const url = pdfDocs[index].url;
+  const loadingTask = pdfjsLib.getDocument(url);
+  pdfInstance = await loadingTask.promise;
+  currentPage = 1;
+  totalPages = pdfInstance.numPages;
+  renderPage();
+}
+
+async function renderPage() {
+console.log("Zoom level:", pdfZoomLevel);
+  const page = await pdfInstance.getPage(currentPage);
+  const viewport = page.getViewport({ scale: pdfZoomLevel });
+  pdfCanvas = document.getElementById("pdf-canvas");
+  pdfCanvas.height = viewport.height;
+  pdfCanvas.width = viewport.width;
+  pdfCtx = pdfCanvas.getContext("2d");
+  await page.render({ canvasContext: pdfCtx, viewport }).promise;
+  document.getElementById("pdf-preview-page-counter").textContent = `Page ${currentPage} / ${totalPages}`;
+}
+
+window.nextPage = function() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage();
+  }
+};
+
+window.prevPage = function() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage();
+  }
+};
+
+// Download the FINAL processed PDF for the current document
+async function downloadFinalPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  // Download the clean PDF from /process using the original formData
+  if (doc.formData) {
+    // Subtle feedback: disable button briefly
+    const btn = document.getElementById("download-final-btn");
+    btn.disabled = true;
+    btn.textContent = "Downloading...";
+    const API_BASE = "https://utmatic-backend.onrender.com";
+    try {
+      const res = await fetch(`${API_BASE}/process`, {
+        method: "POST",
+        body: doc.formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert("Download failed: " + errorText);
+        btn.disabled = false;
+        btn.textContent = "Download PDF";
+        return;
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Download failed: " + err);
+    }
+    btn.disabled = false;
+    btn.textContent = "Download PDF";
+  } else {
+    // fallback: download the preview file
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+</script>
+
+</body>
+</html>
