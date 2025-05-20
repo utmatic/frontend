@@ -20,6 +20,8 @@
   
   .info-icon-btn {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     right: 8px;
     background: none;
     border: none;
@@ -1641,6 +1643,7 @@ fileInput.addEventListener("change", function() {
       buGroup.appendChild(buInput);
       
       // --- Info icon and popup ---
+      if (wrapper.querySelectorAll(".field-row").length === 0) {
       const infoBtn = document.createElement("button");
       infoBtn.type = "button";
       infoBtn.className = "info-icon-btn base-url-info-btn";
@@ -1664,7 +1667,8 @@ fileInput.addEventListener("change", function() {
         <code>https://example.com/landing-page?utm_source=google</code>
       `;
       
-      buGroup.appendChild(infoBtn);
+            buGroup.appendChild(infoBtn);
+    }
       buGroup.appendChild(infoPopup);
       
       // Show/hide info icon based on job type
