@@ -1430,6 +1430,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
       fileInput.addEventListener("change", function() {
         if (fileInput.files && fileInput.files.length > 0) {
+          // --- NEW: Track the currently selected tab ----
+          const activeTabBtn = tabBar.querySelector(".tab.active[data-tab]");
+          const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;  // <<<<
+      
           // If user selects multiple files: fill current, add new tabs for others
           const files = Array.from(fileInput.files);
           if (files.length > 1) {
@@ -1458,7 +1462,9 @@ window.addEventListener("DOMContentLoaded", () => {
             for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
               createTab(files[i]);
             }
-          } else {
+      // --- NEW: Restore previously selected tab ----
+      if (activeTabId) setActiveTab(activeTabId);  // <<<<
+    } else {
             fileNameSpan.textContent = files[0].name;
             const filenameInput = form.querySelector("input[name='filename']");
             if (filenameInput) {
