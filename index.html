@@ -1812,7 +1812,7 @@ infoBtn.addEventListener("click", function(e) {
     </div>
   `;
 
-  // Now add the close button at the top
+  // Create and add the close button
   const closeBtn = document.createElement("button");
   closeBtn.className = "info-popup-close-btn";
   closeBtn.innerHTML = "&times;";
@@ -1823,7 +1823,6 @@ infoBtn.addEventListener("click", function(e) {
   });
 
   infoPopup.prepend(closeBtn);
-
   overlay.appendChild(infoPopup);
   document.body.appendChild(overlay);
 
@@ -1840,6 +1839,7 @@ infoBtn.addEventListener("click", function(e) {
     }
   });
 });
+
 
       const filenameGroup = document.createElement("div");
       filenameGroup.className = "field-group";
