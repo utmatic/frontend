@@ -1719,32 +1719,23 @@ if (wrapper.querySelectorAll(".field-row").length === 0) {
   infoPopup.className = "info-popup base-url-info-popup";
   infoPopup.style.display = "none";
   infoPopup.innerHTML = `
-<strong>How to use Target Format and Base URL</strong><br><br>
-<strong>Target Format & Base URL Guide</strong><br><br>
+<strong>Target Format & Base URL</strong><br><br>
 
 <b>Target Format</b><br>
-Define the pattern you want to append. Use:
-<ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
-  <li><b>N</b> for a number</li>
-  <li><b>L</b> for a letter</li>
-</ul>
-Examples:
+Use <b>N</b> for numbers, <b>L</b> for letters:
 <ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
   <li><code>NNNLL</code> → <code>123AB</code></li>
   <li><code>LLLNN</code> → <code>ABC12</code></li>
 </ul><br>
 
 <b>Base URL</b><br>
-Enter the main part of your link, such as:  
+The starting link, like:<br>
 <code>https://example.com/landing-page</code><br><br>
 
-<b>How it works</b><br>
-Each Target Format will be appended to your Base URL to create full links.<br><br>
+<b>Result</b><br>
+Your format is added to the end:<br>
+<code>https://example.com/landing-page123AB</code>
 
-<b>Example</b><br>
-Base URL: <code>https://example.com/landing-page</code><br>
-Format: <code>NNNLL</code><br>
-Generated link: <code>https://example.com/landing-page123AB</code>
   `;
 
   delCol.appendChild(infoBtn);
