@@ -12,10 +12,71 @@
 <!-- Add your modal CSS here: -->
 <style>
 
-.base-url-group .info-icon-btn {
-  position: static;
-  margin-left: 0.4em;
-  /* other styles as above */
+/* Wrapper for input and icon */
+.input-icon-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Base URL info icon button (outside input, right-aligned, vertically centered) */
+.base-url-info-btn {
+  background: none;
+  border: none;
+  padding: 0 0.25em;
+  margin-left: 0.45em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 22px;
+  width: 22px;
+  /* No absolute/relative positioning! */
+  box-sizing: content-box; /* ensures size is not affected by border/padding */
+  outline: none; /* remove focus ring, optional */
+}
+
+.base-url-info-btn:focus {
+  outline: 2px solid #6d88f4; /* accessible focus ring */
+}
+
+/* The info icon SVG */
+.base-url-info-btn .info-svg {
+  width: 22px;
+  height: 22px;
+  color: #6d88f4;
+  display: block;
+  pointer-events: none; /* allows button to be clickable through SVG */
+}
+
+/* The input itself (no extra right padding needed!) */
+.input-icon-wrapper input[name="base_url"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Optional: Make sure popup is positioned nicely */
+.base-url-info-popup {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 12px;
+  padding: 0.85em 1.2em;
+  background: #fff;
+  color: #23272f;
+  border: 1.5px solid #eee;
+  border-radius: 7px;
+  box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+  font-size: 0.98em;
+  width: 270px;
+  z-index: 10;
+  display: none;
+  transition: opacity 0.15s;
+}
+
+/* Show popup on hover/focus */
+.base-url-info-btn:hover + .base-url-info-popup,
+.base-url-info-btn:focus + .base-url-info-popup {
+  display: block;
 }
   
   .utm-content-group.input-icon-wrapper {
