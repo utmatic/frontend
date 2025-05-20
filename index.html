@@ -1860,7 +1860,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
           if (tabLabel) tabLabel.textContent = base;
           updateFileListStatus(tabId, base, false, jobTypeSelect.value);
           tabLastSavedState[tabId] = "";
-          saveBtn.disabled = false;
+          checkDirtyAndUpdateSaveBtn();
         }
       });
 
