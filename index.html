@@ -1420,6 +1420,8 @@ function updateFileListStatus(tabId, name, saved, jobType) {
   processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
+const lastFileByTab = {};
+
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
 function renderFormFields(form, tabId, docName, fileObj) {
   // PDF Upload
@@ -1481,7 +1483,10 @@ function renderFormFields(form, tabId, docName, fileObj) {
     if (fileInput.files && fileInput.files.length > 0) {
       // --- NEW: Track the currently selected tab ----
       const activeTabBtn = tabBar.querySelector(".tab.active[data-tab]");
-      const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;  // <<<<
+      const activeTabId = activeTabBtn ? activeTabBtn.dataset.tab : null;
+
+      // Track the selected file for this tab
+      lastFileByTab[tabId] = fileInput.files[0];
 
       // If user selects multiple files: fill current, add new tabs for others
       const files = Array.from(fileInput.files);
@@ -1492,7 +1497,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
           dt.items.add(files[0]);
           return dt.files;
         })();
-        lastFile = files[0]; // PATCH: update lastFile
         fileNameSpan.textContent = files[0].name;
         fileNameSpan.style.opacity = "1";
         const filenameInput = form.querySelector("input[name='filename']");
@@ -1504,10 +1508,34 @@ function renderFormFields(form, tabId, docName, fileObj) {
           let jtSelect = form.querySelector('select[name="job_type"]');
           let jt = jtSelect ? jtSelect.value : "";
           updateFileListStatus(tabId, base, false, jt);
-          // On file change, always clear last saved state (force Save to be enabled)
           tabLastSavedState[tabId] = "";
           checkDirtyAndUpdateSaveBtn();
         }
+        // Now create tabs for each subsequent file, if space left
+        let slots = MAX_DOCS - getTabCount();
+        for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+          createTab(files[i]);
+        }
+      } else {
+        // PATCH: single file
+        fileNameSpan.textContent = fileInput.files[0].name;
+        fileNameSpan.style.opacity = "1";
+        const filenameInput = form.querySelector("input[name='filename']");
+        if (filenameInput) {
+          let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          let jtSelect = form.querySelector('select[name="job_type"]');
+          let jt = jtSelect ? jtSelect.value : "";
+          updateFileListStatus(tabId, base, false, jt);
+          tabLastSavedState[tabId] = "";
+          checkDirtyAndUpdateSaveBtn();
+        }
+      }
+    }
+    // If user cancels out of dialog (fileInput.files.length === 0), do nothing!
+  });
         // Now create tabs for each subsequent file, if space left
         let slots = MAX_DOCS - getTabCount();
         for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
@@ -1782,7 +1810,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
       function checkDirtyAndUpdateSaveBtn() {
         let current = formToHash(form);
         let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
-        saveBtn.disabled = !formIsValid(form) || !dirty;
+        saveBtn.disabled = !formIsValid(form, tabId) || !dirty;
       
         // Update file list status to reflect dirty/saved state
         const filenameInput = form.querySelector("input[name='filename']");
@@ -1794,20 +1822,23 @@ function renderFormFields(form, tabId, docName, fileObj) {
           jobTypeSelect ? jobTypeSelect.value : ""
         );
       }
-      function formIsValid(form) {
-        let valid = true;
-        form.querySelectorAll("input, select").forEach(input => {
-          if (
-            !input.closest(".hidden") &&
-            input.required &&
-            ((input.type === "file" && input.files.length === 0) ||
-             (input.type !== "file" && !input.value.trim()))
-          ) {
-            valid = false;
-          }
-        });
-        return valid;
-      }
+        function formIsValid(form, tabId) {
+          let valid = true;
+          form.querySelectorAll("input, select").forEach(input => {
+            if (
+              !input.closest(".hidden") &&
+              input.required &&
+              (
+                (input.type === "file" && !(input.files.length > 0 || lastFileByTab[tabId]))
+                ||
+                (input.type !== "file" && !input.value.trim())
+              )
+            ) {
+              valid = false;
+            }
+          });
+          return valid;
+        }
       // Validate and update save button whenever form changes
      form.querySelectorAll('input, select, textarea').forEach(el => {
             el.addEventListener('input', checkDirtyAndUpdateSaveBtn);
