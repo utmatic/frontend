@@ -1720,20 +1720,31 @@ if (wrapper.querySelectorAll(".field-row").length === 0) {
   infoPopup.style.display = "none";
   infoPopup.innerHTML = `
 <strong>How to use Target Format and Base URL</strong><br><br>
-<b>Base URL:</b><br>
-Enter the starting part of your link (e.g., <code>https://example.com/landing-page</code>).<br><br>
+<strong>Target Format & Base URL Guide</strong><br><br>
 
-<b>Target Format:</b><br>
-Specify the pattern for the target code or suffix you want to add to the base URL. Use <b>N</b> for each digit (number), and <b>L</b> for each letter.<br>
-For example:
+<b>Target Format</b><br>
+Define the pattern you want to append. Use:
 <ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
-  <li><code>NNNLL</code> → 3 numbers followed by 2 letters (e.g., <code>123AB</code>)</li>
-  <li><code>LLLNN</code> → 3 letters followed by 2 numbers (e.g., <code>ABC12</code>)</li>
+  <li><b>N</b> for a number</li>
+  <li><b>L</b> for a letter</li>
 </ul>
-Each Target Format you enter will be combined with your Base URL to generate a complete link.<br><br>
-<b>Example:</b><br>
-If your Base URL is <code>https://example.com/landing-page</code> and your Target Format is <code>NNNLL</code>, one generated link will be:<br>
-<code>https://example.com/landing-page123AB</code>
+Examples:
+<ul style="margin: 0.5em 0 0.5em 1.2em; padding: 0;">
+  <li><code>NNNLL</code> → <code>123AB</code></li>
+  <li><code>LLLNN</code> → <code>ABC12</code></li>
+</ul><br>
+
+<b>Base URL</b><br>
+Enter the main part of your link, such as:  
+<code>https://example.com/landing-page</code><br><br>
+
+<b>How it works</b><br>
+Each Target Format will be appended to your Base URL to create full links.<br><br>
+
+<b>Example</b><br>
+Base URL: <code>https://example.com/landing-page</code><br>
+Format: <code>NNNLL</code><br>
+Generated link: <code>https://example.com/landing-page123AB</code>
   `;
 
   delCol.appendChild(infoBtn);
