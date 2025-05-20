@@ -1705,7 +1705,7 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       // Info popup element
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup";
-      infoPopup.textContent = "The UTM Content parameter is set automatically based on the context of your document or links. You cannot edit it manually.";
+      infoPopup.textContent = "The UTM Content parameter is set automatically based on the hyperlinked text in your document. This helps identify part numbers or products in your analytics. For text links like CTAs, it defaults to the last part of the URL. It can’t be edited manually.";
       
       // Initially popup is hidden
       infoPopup.style.display = "none";
