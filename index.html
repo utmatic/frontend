@@ -1851,7 +1851,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
         checkDirtyAndUpdateSaveBtn();
       });
 
-      // File input change: update filename and clear saved state
+      // File input change: update filename and clear saved state ONLY if a new file is selected
       fileInput.addEventListener("change", function() {
         if (fileInput.files && fileInput.files.length > 0) {
           let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
@@ -1862,6 +1862,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
           tabLastSavedState[tabId] = "";
           checkDirtyAndUpdateSaveBtn();
         }
+        // If no file was selected (user cancelled), do nothing: don't update filename, don't clear saved state, don't run dirty check.
       });
 
       // Initial file list status update
