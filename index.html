@@ -1669,121 +1669,122 @@ fileInput.addEventListener("change", function() {
         const fieldRow = document.createElement("div");
         fieldRow.className = "field-row";
       
-        // Target Format
-        const tfGroup = document.createElement("div");
-        tfGroup.className = "field-group";
-        tfGroup.style.flex = "1";
-        tfGroup.style.minWidth = 0;
-        const tfInput = document.createElement("input");
-        tfInput.type = "text";
-        tfInput.name = "target_format";
-        tfInput.placeholder = "Target Format";
-        tfInput.required = true;
-        tfInput.style.width = "100%";
-        tfInput.style.boxSizing = "border-box";
-        tfGroup.appendChild(tfInput);
-      
-        // Base URL WITH INFO ICON AND POPUP
-        const buGroup = document.createElement("div");
-        buGroup.className = "field-group input-icon-wrapper base-url-group";
-        buGroup.style.flex = "1";
-        buGroup.style.minWidth = 0;
-      
-        const buInput = document.createElement("input");
-        buInput.type = "text";
-        buInput.name = "base_url";
-        buInput.placeholder = "Base URL";
-        buInput.required = true;
-        buInput.setAttribute('list', 'base-url-datalist');
-        buInput.style.width = "100%";
-        buInput.style.boxSizing = "border-box";
-        buGroup.appendChild(buInput);
-      
-        // --- Only add info icon and popup for the very first row ---
-        if (wrapper.querySelectorAll(".field-row").length === 0) {
-          const infoBtn = document.createElement("button");
-          infoBtn.type = "button";
-          infoBtn.className = "info-icon-btn base-url-info-btn";
-          infoBtn.tabIndex = 0;
-          infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
-          infoBtn.style.display = "none"; // will show only for Add Links and UTM
-      
-          infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
-      
-          const infoPopup = document.createElement("div");
-          infoPopup.className = "info-popup base-url-info-popup";
-          infoPopup.style.display = "none";
-          infoPopup.innerHTML = `
-            <strong>How to use Target Formats with Base URL:</strong><br><br>
-            Enter your <b>Base URL</b> (e.g., <code>https://example.com/landing-page</code>) in this field.<br><br>
-            In <b>Target Formats</b>, enter one or more suffixes (one per row), such as:<br>
-            <code>?utm_source=google</code><br>
-            <code>?utm_source=facebook</code><br><br>
-            Each target format will be paired with your Base URL to generate a complete link.<br><br>
-            <b>Example:</b><br>
-            <code>https://example.com/landing-page?utm_source=google</code>
-          `;
-      
-          buGroup.appendChild(infoBtn);
-          buGroup.appendChild(infoPopup);
-      
-          // Show/hide info icon based on job type
-          const jobTypeInput = form.querySelector('select[name="job_type"]');
-          function updateInfoIconVisibility() {
-            if (jobTypeInput && jobTypeInput.value === "links_and_utm") {
-              infoBtn.style.display = "flex";
-            } else {
-              infoBtn.style.display = "none";
-              infoPopup.style.display = "none";
-            }
-          }
-          if (jobTypeInput) {
-            jobTypeInput.addEventListener('change', updateInfoIconVisibility);
-            updateInfoIconVisibility();
-          }
-          infoBtn.addEventListener('mouseenter', () => { infoPopup.style.display = 'block'; });
-          infoBtn.addEventListener('mouseleave', () => { infoPopup.style.display = 'none'; });
-          infoBtn.addEventListener('focus', () => { infoPopup.style.display = 'block'; });
-          infoBtn.addEventListener('blur', () => { infoPopup.style.display = 'none'; });
-        }
-      
-        // Remove Button (except for first row)
-        const delCol = document.createElement("div");
-        delCol.className = "delete-col";
-        if (wrapper.querySelectorAll(".field-row").length > 0) {
-          const removeBtn = document.createElement("button");
-          removeBtn.type = "button";
-          removeBtn.textContent = "✕";
-          removeBtn.style.background = "none";
-          removeBtn.style.border = "none";
-          removeBtn.style.color = "#f43f5e";
-          removeBtn.style.fontSize = "1.25rem";
-          removeBtn.style.cursor = "pointer";
-          removeBtn.title = "Remove row";
-          removeBtn.addEventListener("click", function() {
-            fieldRow.remove();
-            updateAddNewRowBtn();
-            validateForm(form);
-            // --- ADD: Dirty check on row removal! ---
-            checkDirtyAndUpdateSaveBtn();
-          });
-          delCol.appendChild(removeBtn);
-        } else {
-          delCol.innerHTML = "&nbsp;";
-        }
-      
-        fieldRow.appendChild(tfGroup);
-        fieldRow.appendChild(buGroup);
-        fieldRow.appendChild(delCol);
-        wrapper.appendChild(fieldRow);
-        updateAddNewRowBtn();
-        updateBaseUrlMemory("");
-      
-        // --- ADD: Attach dirty-check listeners to these new fields! ---
-        tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
-        tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
-        buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
-        buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+// Target Format
+const tfGroup = document.createElement("div");
+tfGroup.className = "field-group";
+tfGroup.style.flex = "1";
+tfGroup.style.minWidth = 0;
+
+const tfInput = document.createElement("input");
+tfInput.type = "text";
+tfInput.name = "target_format";
+tfInput.placeholder = "Target Format";
+tfInput.required = true;
+tfInput.style.width = "100%";
+tfInput.style.boxSizing = "border-box";
+tfGroup.appendChild(tfInput);
+
+// Base URL
+const buGroup = document.createElement("div");
+buGroup.className = "field-group base-url-group";
+buGroup.style.flex = "1";
+buGroup.style.minWidth = 0;
+
+const buInput = document.createElement("input");
+buInput.type = "text";
+buInput.name = "base_url";
+buInput.placeholder = "Base URL";
+buInput.required = true;
+buInput.setAttribute('list', 'base-url-datalist');
+buInput.style.width = "100%";
+buInput.style.boxSizing = "border-box";
+buGroup.appendChild(buInput);
+
+// Actions column: info icon for first row, delete for other rows
+const delCol = document.createElement("div");
+delCol.className = "delete-col";
+
+if (wrapper.querySelectorAll(".field-row").length === 0) {
+  // FIRST row: Info icon and popup
+  const infoBtn = document.createElement("button");
+  infoBtn.type = "button";
+  infoBtn.className = "info-icon-btn base-url-info-btn";
+  infoBtn.tabIndex = 0;
+  infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
+  infoBtn.style.display = "none"; // will show only for Add Links and UTM
+
+  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+
+  const infoPopup = document.createElement("div");
+  infoPopup.className = "info-popup base-url-info-popup";
+  infoPopup.style.display = "none";
+  infoPopup.innerHTML = `
+    <strong>How to use Target Formats with Base URL:</strong><br><br>
+    Enter your <b>Base URL</b> (e.g., <code>https://example.com/landing-page</code>) in this field.<br><br>
+    In <b>Target Formats</b>, enter one or more suffixes (one per row), such as:<br>
+    <code>?utm_source=google</code><br>
+    <code>?utm_source=facebook</code><br><br>
+    Each target format will be paired with your Base URL to generate a complete link.<br><br>
+    <b>Example:</b><br>
+    <code>https://example.com/landing-page?utm_source=google</code>
+  `;
+
+  delCol.appendChild(infoBtn);
+  delCol.appendChild(infoPopup);
+
+  // Show/hide info icon based on job type
+  const jobTypeInput = form.querySelector('select[name="job_type"]');
+  function updateInfoIconVisibility() {
+    if (jobTypeInput && jobTypeInput.value === "links_and_utm") {
+      infoBtn.style.display = "flex";
+    } else {
+      infoBtn.style.display = "none";
+      infoPopup.style.display = "none";
+    }
+  }
+  if (jobTypeInput) {
+    jobTypeInput.addEventListener('change', updateInfoIconVisibility);
+    updateInfoIconVisibility();
+  }
+  infoBtn.addEventListener('mouseenter', () => { infoPopup.style.display = 'block'; });
+  infoBtn.addEventListener('mouseleave', () => { infoPopup.style.display = 'none'; });
+  infoBtn.addEventListener('focus', () => { infoPopup.style.display = 'block'; });
+  infoBtn.addEventListener('blur', () => { infoPopup.style.display = 'none'; });
+
+} else {
+  // Other rows: Delete button
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.textContent = "✕";
+  removeBtn.className = "remove-btn";
+  removeBtn.style.background = "none";
+  removeBtn.style.border = "none";
+  removeBtn.style.color = "#f43f5e";
+  removeBtn.style.fontSize = "1.25rem";
+  removeBtn.style.cursor = "pointer";
+  removeBtn.title = "Remove row";
+  removeBtn.addEventListener("click", function() {
+    fieldRow.remove();
+    updateAddNewRowBtn();
+    validateForm(form);
+    checkDirtyAndUpdateSaveBtn();
+  });
+  delCol.appendChild(removeBtn);
+}
+
+// Add the groups to the row and wrapper
+fieldRow.appendChild(tfGroup);
+fieldRow.appendChild(buGroup);
+fieldRow.appendChild(delCol);
+wrapper.appendChild(fieldRow);
+updateAddNewRowBtn();
+updateBaseUrlMemory("");
+
+// Attach dirty-check listeners to these new fields
+tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
       }
       function updateAddNewRowBtn() {
         const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
