@@ -1506,7 +1506,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
           updateFileListStatus(tabId, base, false, jt);
           // On file change, always clear last saved state (force Save to be enabled)
           tabLastSavedState[tabId] = "";
-          form.querySelector('.save-btn').disabled = false;
+          checkDirtyAndUpdateSaveBtn();
         }
         // Now create tabs for each subsequent file, if space left
         let slots = MAX_DOCS - getTabCount();
@@ -1529,7 +1529,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
           updateFileListStatus(tabId, base, false, jt);
           // On file change, always clear last saved state (force Save to be enabled)
           tabLastSavedState[tabId] = "";
-          form.querySelector('.save-btn').disabled = false;
+          checkDirtyAndUpdateSaveBtn();
         }
       }
     } else {
