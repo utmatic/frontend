@@ -1477,23 +1477,23 @@ if (fileObj instanceof File) {
 fileInput.addEventListener('click', function() {
   fileInput.dataset.prevValue = fileInput.value;
   fileInput.dataset.lastName = fileNameSpan.textContent;
-  // Save the last file object for this tab, if any
+  // REMOVE fileInput._lastFileObj -- it's not needed!
 });
 
 fileInput.addEventListener("change", function() {
-  if (fileInput.files && fileInput.files.length > 0) {
-    // Track the selected file for this tab
-    lastFileByTab[tabId] = fileInput.files[0];
+  const files = Array.from(fileInput.files);
 
-    // If user selects multiple files: fill current, add new tabs for others
-    const files = Array.from(fileInput.files);
+  if (files.length > 0) {
+    // Always track the first file for this tab!
+    lastFileByTab[tabId] = files[0];
+
     if (files.length > 1) {
-      // Only fill this tab with the first, and create more for others
-      fileInput.files = (function() {
-        let dt = new DataTransfer();
-        dt.items.add(files[0]);
-        return dt.files;
-      })();
+      // Only fill this tab with the first file, create more tabs for others
+      const dt = new DataTransfer();
+      dt.items.add(files[0]);
+      fileInput.files = dt.files;
+
+      // ... update UI for files[0] ...
       fileNameSpan.textContent = files[0].name;
       fileNameSpan.style.opacity = "1";
       const filenameInput = form.querySelector("input[name='filename']");
@@ -1508,18 +1508,17 @@ fileInput.addEventListener("change", function() {
         tabLastSavedState[tabId] = "";
         checkDirtyAndUpdateSaveBtn();
       }
-      // Now create tabs for each subsequent file, if space left
       let slots = MAX_DOCS - getTabCount();
       for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
         createTab(files[i]);
       }
     } else {
-      // PATCH: single file
-      fileNameSpan.textContent = fileInput.files[0].name;
+      // Single file: use files[0]
+      fileNameSpan.textContent = files[0].name;
       fileNameSpan.style.opacity = "1";
       const filenameInput = form.querySelector("input[name='filename']");
       if (filenameInput) {
-        let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+        let base = files[0].name.replace(/\.pdf$/i, "");
         filenameInput.value = base;
         const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
         if (tabLabel) tabLabel.textContent = base;
@@ -1530,38 +1529,35 @@ fileInput.addEventListener("change", function() {
         checkDirtyAndUpdateSaveBtn();
       }
     }
-    // If user cancels out of dialog (fileInput.files.length === 0), do nothing!
   } else {
-  // User canceled the dialog: restore previous file for this tab (if any)
-  const prevFile = lastFileByTab[tabId];
-  if (prevFile instanceof File) {
-    const dt = new DataTransfer();
-    dt.items.add(prevFile);
-    fileInput.files = dt.files;
-    fileNameSpan.textContent = prevFile.name;
-    fileNameSpan.style.opacity = "1";
-    const filenameInput = form.querySelector("input[name='filename']");
-    if (filenameInput) {
-      let base = prevFile.name.replace(/\.pdf$/i, "");
-      filenameInput.value = base;
+    // User canceled dialog: restore previous file for this tab (if any)
+    const prevFile = lastFileByTab[tabId];
+    if (prevFile instanceof File) {
+      const dt = new DataTransfer();
+      dt.items.add(prevFile);
+      fileInput.files = dt.files;
+      fileNameSpan.textContent = prevFile.name;
+      fileNameSpan.style.opacity = "1";
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) {
+        let base = prevFile.name.replace(/\.pdf$/i, "");
+        filenameInput.value = base;
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        if (tabLabel) tabLabel.textContent = base;
+        let jtSelect = form.querySelector('select[name="job_type"]');
+        let jt = jtSelect ? jtSelect.value : "";
+        updateFileListStatus(tabId, base, false, jt);
+      }
+    } else {
+      fileNameSpan.textContent = "No file chosen";
+      fileNameSpan.style.opacity = "0.6";
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) filenameInput.value = "";
       const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-      if (tabLabel) tabLabel.textContent = base;
-      let jtSelect = form.querySelector('select[name="job_type"]');
-      let jt = jtSelect ? jtSelect.value : "";
-      updateFileListStatus(tabId, base, false, jt);
-      // Don't update tabLastSavedState or dirty check here since no change
+      if (tabLabel) tabLabel.textContent = "";
+      updateFileListStatus(tabId, "", false, "");
     }
-  } else {
-    // No file was previously selected, clear UI
-    fileNameSpan.textContent = "No file chosen";
-    fileNameSpan.style.opacity = "0.6";
-    const filenameInput = form.querySelector("input[name='filename']");
-    if (filenameInput) filenameInput.value = "";
-    const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-    if (tabLabel) tabLabel.textContent = "";
-    updateFileListStatus(tabId, "", false, "");
   }
-}
 });
 
   fileInputLabel.appendChild(fileInput);
