@@ -1313,24 +1313,22 @@ window.addEventListener("DOMContentLoaded", () => {
       document.querySelector(`.tab-bar .tab[data-tab="${tabId}"]`)?.classList.add("active");
     }
 
-    // Helper to build a unique hash of form data (for Save/Dirty logic)
     function formToHash(form) {
-      // Custom serialization: input type, name, value, checked, selectedIndex, file name if any
-      let arr = [];
-      Array.from(form.elements).forEach(el => {
-        if (el.name && !el.disabled && !el.closest('.hidden')) {
-          if (el.type === "file") {
-            arr.push(el.name + ":" + (el.files[0]?.name || ""));
-          } else if (el.type === "checkbox" || el.type === "radio") {
-            arr.push(el.name + ":" + (el.checked ? "1" : "0"));
-          } else if (el.tagName === "SELECT") {
-            arr.push(el.name + ":" + el.selectedIndex);
+      // Collect all input, select, and textarea values (ignoring hidden/disabled)
+      let data = [];
+      form.querySelectorAll('input, select, textarea').forEach(input => {
+        if (input.type === "file") {
+          data.push(input.name + "=" + (input.files[0]?.name || ""));
+        } else if (!input.closest('.hidden') && !input.disabled) {
+          // For checkboxes and radios, use checked state; else use value
+          if (input.type === "checkbox" || input.type === "radio") {
+            data.push(input.name + "=" + input.checked);
           } else {
-            arr.push(el.name + ":" + el.value);
+            data.push(input.name + "=" + input.value);
           }
         }
       });
-      return arr.join("|");
+      return data.join("&");
     }
 
 function updateFileListStatus(tabId, name, saved, jobType) {
