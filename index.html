@@ -12,25 +12,48 @@
  <!-- Add your modal CSS here: -->
   <style>
 
-.info-popup {
-  position: absolute;
-  z-index: 10;
-  left: 100%;
-  top: 0;
-  margin-left: 12px;
-  padding: 1.1em 1.3em 1em 1.3em;
+.info-popup-overlay {
+  position: fixed;
+  z-index: 10000;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 41, 59, 0.36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-popup-centered {
   background: #fff;
   color: #23272f;
   border: 1.5px solid #dde6f6;
-  border-radius: 9px;
-  box-shadow: 0 2px 16px rgba(30,40,80,0.14);
+  border-radius: 10px;
+  box-shadow: 0 4px 32px rgba(30,40,80,0.16);
   font-size: 1.03em;
-  width: 340px;
-  max-width: 95vw;
-  transition: opacity 0.13s;
+  width: 96vw;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.5em 1.5em 1.2em 1.5em;
+  position: relative;
   line-height: 1.6;
-  letter-spacing: 0.01em;
 }
+
+.info-popup-close-btn {
+  position: absolute;
+  top: 12px; right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.7em;
+  color: #888;
+  cursor: pointer;
+  z-index: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.info-popup-close-btn:hover {
+  color: #F43F5E;
+}
+
 .info-popup .popup-title {
   font-size: 1.13em;
   font-weight: bold;
@@ -1759,45 +1782,58 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       utmContentGroup.appendChild(utmContentWrapper);
       form.appendChild(utmContentGroup);
 
-      // Info popup element
-      const infoPopup = document.createElement("div");
-      infoPopup.className = "info-popup";
-      infoPopup.innerHTML = `
-      <div class="popup-title">How UTM Content Is Set</div>
-      <div class="popup-section">
-        <b>• For normal jobs:</b><br>
-        The UTM Content parameter is set automatically to match the exact text that is hyperlinked in your document.<br>
-        <span class="popup-example"><b>Example:</b> If the link says <span class="popup-highlight">"Red Shoes"</span>, the UTM Content will be <span class="popup-highlight">Red Shoes</span>.</span>
-      </div>
-      <div class="popup-section">
-        <b>• For Add UTM Only jobs:</b><br>
-        If UTM tracking is added to a link that is a string of words (like a CTA), the Content parameter will use the <b>last part of the destination URL</b>.<br>
-        <span class="popup-example"><b>Example:</b> If the link goes to <span class="popup-highlight">store.com/products/shoes</span>, the UTM Content will be <span class="popup-highlight">shoes</span>.</span>
-      </div>
-      <div class="popup-summary">
-        <b>Why?</b> This helps you see exactly which product, CTA, or keyword users clicked, so your analytics and attribution are more precise and actionable.
-      </div>
-    `;
-      // Initially popup is hidden
-      infoPopup.style.display = "none";
-      utmContentGroup.appendChild(infoPopup);
-      
-      // Show popup on click, hide on click outside
-      infoBtn.addEventListener("click", function(e) {
-        e.stopPropagation();
-        infoPopup.style.display = infoPopup.style.display === "block" ? "none" : "block";
-        // Position the popup
-        const rect = infoBtn.getBoundingClientRect();
-        infoPopup.style.left = rect.right + 8 + "px";
-        infoPopup.style.top = rect.top + window.scrollY + "px";
-      });
-      
-      // Hide popup when clicking outside
-      document.addEventListener("click", function(e) {
-        if (!utmContentGroup.contains(e.target)) {
-          infoPopup.style.display = "none";
-        }
-      });
+// --- Place this code where you create the infoBtn and handle its click ---
+
+infoBtn.addEventListener("click", function(e) {
+  e.stopPropagation();
+
+  // If a popup already exists, remove it
+  const existing = document.querySelector('.info-popup-overlay');
+  if (existing) existing.remove();
+
+  // Create overlay
+  const overlay = document.createElement("div");
+  overlay.className = "info-popup-overlay";
+
+  // Create the popup
+  const infoPopup = document.createElement("div");
+  infoPopup.className = "info-popup info-popup-centered";
+
+  // Add close button
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "info-popup-close-btn";
+  closeBtn.innerHTML = "&times;";
+  closeBtn.title = "Close";
+  closeBtn.addEventListener("click", function() {
+    overlay.remove();
+  });
+
+  // Popup content
+  infoPopup.innerHTML = `
+    <div class="popup-title">How UTM Content Is Set</div>
+    <div class="popup-section">
+      <b>• For normal jobs:</b><br>
+      The UTM Content parameter is set automatically to match the exact text that is hyperlinked in your document.<br>
+      <span class="popup-example"><b>Example:</b> If the link says <span class="popup-highlight">"Red Shoes"</span>, the UTM Content will be <span class="popup-highlight">Red Shoes</span>.</span>
+    </div>
+    <div class="popup-section">
+      <b>• For Add UTM Only jobs:</b><br>
+      If UTM tracking is added to a link that is a string of words (like a CTA), the Content parameter will use the <b>last part of the destination URL</b>.<br>
+      <span class="popup-example"><b>Example:</b> If the link goes to <span class="popup-highlight">store.com/products/shoes</span>, the UTM Content will be <span class="popup-highlight">shoes</span>.</span>
+    </div>
+    <div class="popup-summary">
+      <b>Why?</b> This helps you see exactly which product, CTA, or keyword users clicked, so your analytics and attribution are more precise and actionable.
+    </div>
+  `;
+  infoPopup.appendChild(closeBtn);
+  overlay.appendChild(infoPopup);
+  document.body.appendChild(overlay);
+
+  // Allow closing by clicking overlay background
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) overlay.remove();
+  });
+});
 
       const filenameGroup = document.createElement("div");
       filenameGroup.className = "field-group";
