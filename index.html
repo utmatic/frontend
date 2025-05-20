@@ -1177,14 +1177,7 @@ window.addEventListener("load", () => {
           <path stroke-linecap="round" stroke-linejoin="round" d="M18 22l-8-8 8-8"/>
         </svg>
       </button>
-
-    <div id="idml-preview-message" style="display:none; text-align:center; margin:2em 0;">
-      <p>
-        <strong>Preview for IDML files is not supported.</strong><br>
-        Please download and open this file in Adobe InDesign.
-      </p>
-    </div>
-     
+        
         <div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
           <canvas id="pdf-canvas"></canvas>
         </div>
@@ -1404,7 +1397,7 @@ window.addEventListener("DOMContentLoaded", () => {
       // MULTIPLE attribute here!
       const fileInput = document.createElement("input");
       fileInput.type = "file";
-      fileInput.accept = ".pdf,.idml,application/pdf,application/octet-stream";
+      fileInput.accept = ".pdf,application/pdf";
       fileInput.name = "file"; // FIXED: must match backend
       fileInput.id = "file";
       fileInput.required = true;
@@ -1423,7 +1416,7 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           const filenameInput = form.querySelector("input[name='filename']");
           if (filenameInput) {
-            let base = fileObj.name.replace(/\.(pdf|idml)$/i, "");
+            let base = fileObj.name.replace(/\.pdf$/i, "");
             filenameInput.value = base;
             const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
             if (tabLabel) tabLabel.textContent = base;
@@ -1449,7 +1442,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fileNameSpan.textContent = files[0].name;
             const filenameInput = form.querySelector("input[name='filename']");
             if (filenameInput) {
-              let base = files[0].name.replace(/\.(pdf|idml)$/i, "");
+              let base = files[0].name.replace(/\.pdf$/i, "");
               filenameInput.value = base;
               const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
               if (tabLabel) tabLabel.textContent = base;
@@ -1469,7 +1462,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fileNameSpan.textContent = files[0].name;
             const filenameInput = form.querySelector("input[name='filename']");
             if (filenameInput) {
-              let base = files[0].name.replace(/\.(pdf|idml)$/i, "");
+              let base = files[0].name.replace(/\.pdf$/i, "");
               filenameInput.value = base;
               const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
               if (tabLabel) tabLabel.textContent = base;
@@ -2095,32 +2088,11 @@ window.switchDocument = function(index) {
   const docNameSpan = docSwitch.querySelector("span");
   docNameSpan.textContent = getDocName(currentDocIndex);
   docSwitch.title = getDocName(currentDocIndex);
-
-  // --- START: Only show preview for PDFs ---
-  const ext = getDocName(currentDocIndex).split('.').pop().toLowerCase();
-  if (ext === "pdf") {
-    document.getElementById("pdf-preview-inner-container").style.display = "";
-    document.getElementById("idml-preview-message").style.display = "none";
-    loadDocument(currentDocIndex);
-  } else if (ext === "idml") {
-    document.getElementById("pdf-preview-inner-container").style.display = "none";
-    document.getElementById("idml-preview-message").style.display = "";
-    // Optionally clear any previous PDF canvas here
-  } else {
-    // Hide both for unknown file types
-    document.getElementById("pdf-preview-inner-container").style.display = "none";
-    document.getElementById("idml-preview-message").style.display = "";
-  }
+  loadDocument(currentDocIndex);
 };
 
 async function loadDocument(index) {
   const url = pdfDocs[index].url;
-  const docName = getDocName(index);
-  const ext = docName.split('.').pop().toLowerCase();
-
-  // Only try to load if PDF!
-  if (ext !== "pdf") return;
-
   const loadingTask = pdfjsLib.getDocument(url);
   pdfInstance = await loadingTask.promise;
   currentPage = 1;
@@ -2177,21 +2149,10 @@ async function downloadFinalPdf() {
         btn.textContent = "Download PDF";
         return;
       }
-      const contentDisposition = res.headers.get('Content-Disposition');
-      let filename = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf'; // default
-      if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
-        filename = contentDisposition.split('filename=')[1].replace(/["']/g, '').trim();
-      } else if (doc.name) {
-        // Try to infer file extension from doc.name
-        const extMatch = doc.name.match(/\.(pdf|idml)$/i);
-        if (extMatch) {
-          filename = doc.name.replace(/[^\w.-]+/g, '_');
-        }
-      }
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = filename;
+      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
       document.body.appendChild(a);
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
@@ -2200,20 +2161,12 @@ async function downloadFinalPdf() {
       alert("Download failed: " + err);
     }
     btn.disabled = false;
-    btn.textContent = "Download";
+    btn.textContent = "Download PDF";
   } else {
     // fallback: download the preview file
     const a = document.createElement('a');
     a.href = doc.url;
-       let fallbackName = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document');
-    // Use same extension as original file if possible
-    const extMatch = doc.name?.match(/\.(pdf|idml)$/i);
-    if (extMatch) {
-      fallbackName = fallbackName.replace(/\.(pdf|idml)$/i, '') + '_preview.' + extMatch[1].toLowerCase();
-    } else {
-      fallbackName += '_preview.pdf';
-    }
-    a.download = fallbackName;
+    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
