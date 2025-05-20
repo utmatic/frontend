@@ -1483,15 +1483,16 @@ fileInput.addEventListener('click', function() {
 
 fileInput.addEventListener("change", function() {
   const files = Array.from(fileInput.files);
+
   if (files.length > 0) {
-    // Always use the FIRST file for this tab!
+    // Always use files[0] for this tab!
     lastFileByTab[tabId] = files[0];
 
     if (files.length > 1) {
       // Only fill this tab with the first file
       const dt = new DataTransfer();
       dt.items.add(files[0]);
-      fileInput.files = dt.files;
+      fileInput.files = dt.files; // Now fileInput.files[0] is files[0], but we still use files[0] everywhere
 
       fileNameSpan.textContent = files[0].name;
       fileNameSpan.style.opacity = "1";
@@ -1530,7 +1531,7 @@ fileInput.addEventListener("change", function() {
       }
     }
   } else {
-    // Handle cancel: restore previous file if needed (as in previous answers)
+    // Handle cancel: restore previous file if needed
     const prevFile = fileInput._lastFileObj;
     if (prevFile instanceof File) {
       const dt = new DataTransfer();
@@ -1549,7 +1550,6 @@ fileInput.addEventListener("change", function() {
         updateFileListStatus(tabId, base, false, jt);
       }
     } else {
-      // No file was previously selected, clear UI
       fileNameSpan.textContent = "No file chosen";
       fileNameSpan.style.opacity = "0.6";
       const filenameInput = form.querySelector("input[name='filename']");
