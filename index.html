@@ -1533,14 +1533,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
         }
       }
     } else {
-      // PATCH: User cancelled dialog, show lastFile if present
-      if (lastFile) {
-        fileNameSpan.textContent = lastFile.name + " (still selected)";
-        fileNameSpan.style.opacity = "0.6";
-      } else {
-        fileNameSpan.textContent = "No file chosen";
-        fileNameSpan.style.opacity = "1";
-      }
     }
   });
 
