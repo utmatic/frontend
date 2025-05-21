@@ -107,6 +107,7 @@
   }
   
   .info-popup {
+    display: none;
     position: absolute;
     z-index: 10;
     left: 100%;
@@ -1728,7 +1729,6 @@ if (wrapper.querySelectorAll(".field-row").length === 0) {
 
   const infoPopup = document.createElement("div");
   infoPopup.className = "info-popup base-url-info-popup";
-  infoPopup.style.display = "none";
   infoPopup.innerHTML = `
 <b>Target Format</b><br>
 This defines the pattern of items you want to link in your document.  
