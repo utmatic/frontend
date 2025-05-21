@@ -1871,9 +1871,6 @@ infoPopup.innerHTML = `
   If the link is labeled <code>Learn More</code> and points to <code>https://example.com/product-line/x500</code>, the UTM Content will be set to <code>x500</code>.
 `;
 
-// Hide popup by default (CSS should handle this, but for safety)
-infoPopup.style.display = "none";
-
 // Add input and icon to wrapper, THEN popup
 utmContentWrapper.appendChild(utmContentInput);
 utmContentWrapper.appendChild(infoBtn);      // <--- BUTTON
