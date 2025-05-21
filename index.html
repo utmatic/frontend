@@ -1859,11 +1859,7 @@ infoBtn.type = "button";
 infoBtn.className = "info-icon-btn";
 infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
 
-// Add input and icon to wrapper
-utmContentWrapper.appendChild(utmContentInput);
-utmContentWrapper.appendChild(infoBtn);
-
-// Info popup element (append immediately after button)
+// Info popup element (create BEFORE appending)
 const infoPopup = document.createElement("div");
 infoPopup.className = "info-popup";
 infoPopup.innerHTML = `
@@ -1879,8 +1875,10 @@ infoPopup.innerHTML = `
 // Hide popup by default (CSS should handle this, but for safety)
 infoPopup.style.display = "none";
 
-// Append popup immediately after the button
-utmContentWrapper.appendChild(infoPopup);
+// Add input and icon to wrapper, THEN popup
+utmContentWrapper.appendChild(utmContentInput);
+utmContentWrapper.appendChild(infoBtn);      // <--- BUTTON
+utmContentWrapper.appendChild(infoPopup);    // <--- POPUP (immediate sibling)
 
 // Add to group and form as before
 utmContentGroup.appendChild(utmContentWrapper);
