@@ -183,7 +183,7 @@
       if(group.mode === "odd") modeStr = " (odd only)";
       if (group.pages.length === 1) {
         label = `Page ${group.pages[0]}${modeStr}`;
-      } else if (isContiguous && isFullRangeOddOrEven(group.pages, group.mode)) {
+      } else if (isContiguous || isFullRangeOddOrEven(group.pages, group.mode)) {
         label = `Pages ${first}-${last}${modeStr}`;
       } else {
         // show as comma-separated
@@ -257,14 +257,15 @@
       lastDragName = "";
     };
   }
-  mappingModal.addEventListener('mousedown', function(e) {
-    if (e.target === mappingModal) {
-      mappingModal.classList.remove('show');
-      clearPendingRectVisual();
-      lastDragRect = null;
-      lastDragName = "";
-    }
-  });
+  // Remove click-outside-to-close behavior!
+  // mappingModal.addEventListener('mousedown', function(e) {
+  //   if (e.target === mappingModal) {
+  //     mappingModal.classList.remove('show');
+  //     clearPendingRectVisual();
+  //     lastDragRect = null;
+  //     lastDragName = "";
+  //   }
+  // });
 
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
