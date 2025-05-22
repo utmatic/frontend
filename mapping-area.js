@@ -12,7 +12,7 @@
   let startX, startY, endX, endY;
   let mappingRectangles = [];
   let lastDragRect = null; // {x0, y0, x1, y1, page, name}
-  let lastDragName = "";   // Last typed name for the mapping area
+  let lastDragName = "";
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
   let prevPageBtn = document.getElementById('prev-page-btn');
@@ -59,13 +59,10 @@
     let minX = Math.min(x0, x1), minY = Math.min(y0, y1);
     let w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
 
-    // Use PDF units directly as canvas is scaled to PDF units
     let left = minX;
     let top = minY;
     let width = w;
     let height = h;
-
-    // Make rectangle overlay
     let div = document.createElement('div');
     div.className = 'mapping-pending-rect';
     div.style.left = `${left}px`;
@@ -78,27 +75,38 @@
     let labelDiv = document.createElement('div');
     labelDiv.className = 'mapping-pending-rect-label';
     labelDiv.style.left = `${left}px`;
-    labelDiv.style.top = `${Math.max(0, top - 32)}px`;
+    labelDiv.style.top = `${Math.max(0, top - 29)}px`;
 
     let nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.placeholder = "Mapping name (optional)";
     nameInput.value = lastDragName || "";
     nameInput.autocomplete = "off";
-    nameInput.addEventListener('input', function(e) {
+    nameInput.addEventListener('input', function() {
       lastDragName = nameInput.value;
     });
-    labelDiv.appendChild(nameInput);
 
+    labelDiv.appendChild(nameInput);
     pdfMappingContainer.appendChild(labelDiv);
     nameInput.focus();
+
+    // If click outside before apply, clear
+    setTimeout(() => {
+      function outsideListener(e) {
+        if (!labelDiv.contains(e.target) && !div.contains(e.target)) {
+          lastDragRect = null;
+          lastDragName = "";
+          clearPendingRectVisual();
+          document.removeEventListener('mousedown', outsideListener, true);
+        }
+      }
+      document.addEventListener('mousedown', outsideListener, true);
+    }, 0);
   }
 
   function renderAppliedRects() {
-    // Remove old
     let oldRects = pdfMappingContainer.querySelectorAll('.mapping-applied-rect');
     oldRects.forEach(r => r.remove());
-    // For current page, add each applied rect
     mappingRectangles.forEach(rect => {
       if (rect.page !== mappingCurrentPage - 1) return;
       let minX = Math.min(rect.x0, rect.x1), minY = Math.min(rect.y0, rect.y1);
@@ -144,8 +152,10 @@
 
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
-    if (!mappingRectangles.length) return;
-
+    if (!mappingRectangles.length) {
+      saveMappingsBtn.style.display = "none";
+      return;
+    }
     // Group mappings by area + mode + name
     let grouped = [];
     mappingRectangles.forEach(rect => {
@@ -164,11 +174,8 @@
         });
       }
     });
-
     grouped.forEach(group => {
       group.pages.sort((a, b) => a - b);
-
-      // Collapse into a single range (if possible)
       let first = group.pages[0], last = group.pages[group.pages.length - 1];
       let isContiguous = true;
       for (let i = 1; i < group.pages.length; i++) {
@@ -177,21 +184,22 @@
           break;
         }
       }
-      let label = "";
       let modeStr = "";
       if(group.mode === "even") modeStr = " (even only)";
       if(group.mode === "odd") modeStr = " (odd only)";
+      let rangeStr = "";
       if (group.pages.length === 1) {
-        label = `Page ${group.pages[0]}${modeStr}`;
+        rangeStr = `Page ${group.pages[0]}${modeStr}`;
       } else if (isContiguous || isFullRangeOddOrEven(group.pages, group.mode)) {
-        label = `Pages ${first}-${last}${modeStr}`;
+        rangeStr = `Pages ${first}-${last}${modeStr}`;
       } else {
-        // show as comma-separated
-        label = `Pages ${group.pages.join(", ")}${modeStr}`;
+        rangeStr = `Pages ${group.pages.join(", ")}${modeStr}`;
       }
-      if(group.name) {
-        label += ': <span class="mapping-name">' + escapeHTML(group.name) + '</span>';
-      }
+      // Compose mapping label: range, then mapping name bold if present
+      let labelMain = `<span class="mapping-label-main">${rangeStr}</span>`;
+      let label = group.name
+        ? `${labelMain}: <span class="mapping-name">${escapeHTML(group.name)}</span>`
+        : labelMain;
       const li = document.createElement('li');
       li.innerHTML = label;
       const removeBtn = document.createElement('button');
@@ -210,6 +218,21 @@
       li.appendChild(removeBtn);
       mappingsListEl.appendChild(li);
     });
+    // Show Save Mappings button and move below mapping list
+    saveMappingsBtn.style.display = "block";
+    setTimeout(() => {
+      let listBottom = mappingsListEl.getBoundingClientRect().bottom;
+      let parentRect = mappingsListEl.parentNode.getBoundingClientRect();
+      saveMappingsBtn.style.marginTop = "18px";
+      if (listBottom && parentRect) {
+        let idealTop = listBottom - parentRect.top + 18;
+        saveMappingsBtn.style.position = "absolute";
+        saveMappingsBtn.style.top = `${idealTop}px`;
+      } else {
+        saveMappingsBtn.style.position = "relative";
+        saveMappingsBtn.style.top = "";
+      }
+    }, 5);
   }
 
   function escapeHTML(str) {
@@ -257,15 +280,6 @@
       lastDragName = "";
     };
   }
-  // Remove click-outside-to-close behavior!
-  // mappingModal.addEventListener('mousedown', function(e) {
-  //   if (e.target === mappingModal) {
-  //     mappingModal.classList.remove('show');
-  //     clearPendingRectVisual();
-  //     lastDragRect = null;
-  //     lastDragName = "";
-  //   }
-  // });
 
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
@@ -304,6 +318,13 @@
           pageIndices.push(i);
         }
       }
+      // Don't add if no pages selected
+      if (pageIndices.length === 0) {
+        lastDragRect = null;
+        lastDragName = "";
+        clearPendingRectVisual();
+        return;
+      }
       pageIndices.forEach(pageIdx => {
         mappingRectangles.push({
           page: pageIdx,
@@ -332,6 +353,7 @@
     };
   }
   // Canvas drawing
+  let dragMinDistance = 4; // px
   if (pdfMappingCanvas) {
     pdfMappingCanvas.onmousedown = (e) => {
       if (!pdfDoc) return;
@@ -363,6 +385,14 @@
       if (!isDrawing || !pdfDoc) return;
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
+      const minDist = dragMinDistance;
+      if (Math.abs(endX - startX) < minDist || Math.abs(endY - startY) < minDist) {
+        // Not enough drag, don't create mapping area
+        lastDragRect = null;
+        lastDragName = "";
+        clearPendingRectVisual();
+        return;
+      }
       pdfDoc.getPage(mappingCurrentPage).then(page => {
         let viewport = page.getViewport({ scale: 1.0 });
         let scale = Math.min(
@@ -382,6 +412,9 @@
       if (isDrawing) {
         isDrawing = false;
         mappingRectangleDiv.style.display = 'none';
+        lastDragRect = null;
+        lastDragName = "";
+        clearPendingRectVisual();
       }
     };
   }
