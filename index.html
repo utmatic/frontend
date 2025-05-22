@@ -109,10 +109,11 @@
           <button id="next-page-btn" class="nav-btn" title="Next page" aria-label="Next page" disabled>&rarr;</button>
         </div>
         <div id="pdf-mapping-container">
-          <canvas height="1550" id="mapping-pdf-canvas" width="1230"></canvas>
+          <canvas height="1333" id="mapping-pdf-canvas" width="1000"></canvas>
           <div id="mapping-rectangle"></div>
+          <!-- Pending rectangles will be added dynamically here -->
         </div>
-        <div class="mapping-actions">
+        <div class="mapping-actions-row">
           <label>
             Page Range: 
             <input id="mapping-start-page" min="1" type="number" value="1"/>
@@ -122,7 +123,7 @@
           <label>
             <input type="checkbox" id="mapping-alternate-pages" class="alt-checkbox"> Alternate pages only
           </label>
-          <button id="apply-area-btn">Apply Area to Range</button>
+          <button id="apply-area-btn" class="primary">Apply Area to Range</button>
         </div>
       </div>
       <div class="right-pane">
