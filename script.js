@@ -337,7 +337,18 @@ fileInput.addEventListener("change", function() {
       jobTypeSelect.name = "job_type";
       jobTypeSelect.id = "job_type";
       jobTypeSelect.required = true;
-      [
+      
+  const mappingBtn = document.createElement("button");
+  mappingBtn.id = "open-mapping-modal-btn";
+  mappingBtn.type = "button";
+  mappingBtn.textContent = "Open Mapping Area Tool";
+  mappingBtn.style.cssText = "padding: 0.5rem 1rem; background: #1a1a1a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; margin-top: 0.6rem;";
+  form.appendChild(mappingBtn);
+
+  jobTypeSelect.addEventListener("change", () => {
+    mappingBtn.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-block" : "none";
+  });
+[
         { value: "", label: "Select one", icon: "" },
         { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
         { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
