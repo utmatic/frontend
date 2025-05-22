@@ -348,12 +348,21 @@ fileInput.addEventListener("change", function() {
     const mappingModal = document.getElementById('mapping-modal');
     if (mappingModal) {
       mappingModal.classList.add('show');
-      // Optionally, call renderPage() if needed when opening
-      // if (typeof renderPage === 'function') renderPage();
+  
+      // Sync main file input with mapping modal's input
+      const mainFileInput = document.getElementById('file'); // main form's PDF input
+      const mappingFileInput = document.getElementById('mapping-file-input'); // mapping modal's PDF input
+      if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
+        const dt = new DataTransfer();
+        dt.items.add(mainFileInput.files[0]);
+        mappingFileInput.files = dt.files;
+        // Trigger PDF load logic in mapping-area.js
+        mappingFileInput.dispatchEvent(new Event('change'));
+      }
     }
   };
   form.appendChild(mappingBtn);
-
+  
   jobTypeSelect.addEventListener("change", () => {
     mappingBtn.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-block" : "none";
   });
