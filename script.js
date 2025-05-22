@@ -346,58 +346,79 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeLabel);
   jobTypeField.appendChild(jobTypeSelect);
 
-  // --- Mapping Tool as Text+SVG ---
-  const mappingToolWrapper = document.createElement("div");
-  mappingToolWrapper.style.display = "flex";
-  mappingToolWrapper.style.alignItems = "center";
-  mappingToolWrapper.style.minWidth = "fit-content";
-  mappingToolWrapper.style.gap = "0.4em";
+// --- Mapping Tool as Text+SVG ---
+const mappingToolWrapper = document.createElement("div");
+mappingToolWrapper.className = "mapping-tool-row";
+mappingToolWrapper.style.display = "flex";
+mappingToolWrapper.style.alignItems = "center";
+mappingToolWrapper.style.maxWidth = "320px";
+mappingToolWrapper.style.marginLeft = "0";
+mappingToolWrapper.style.paddingLeft = "0";
+mappingToolWrapper.style.marginTop = "0.08em";
 
-  const mappingToolLink = document.createElement("span");
-  mappingToolLink.id = "open-mapping-modal-link";
-  mappingToolLink.style.display = "none";
-  mappingToolLink.style.fontWeight = "600";
-  mappingToolLink.style.color = "#888";
-  mappingToolLink.style.cursor = "not-allowed";
-  mappingToolLink.style.opacity = "0.6";
-  mappingToolLink.style.userSelect = "none";
-  mappingToolLink.style.gap = "0.3em";
-  mappingToolLink.style.fontSize = "1.03rem";
-  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+const mappingToolLink = document.createElement("span");
+mappingToolLink.id = "open-mapping-modal-link";
+mappingToolLink.style.display = "none";
+mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
 
-  mappingToolLink.addEventListener("click", function () {
-    if (mappingToolLink.classList.contains("active")) {
-      const mappingModal = document.getElementById('mapping-modal');
-      if (mappingModal) {
-        mappingModal.classList.add('show');
-        // Sync main file input with mapping modal's input
-        const mainFileInput = document.getElementById('file');
-        const mappingFileInput = document.getElementById('mapping-file-input');
-        if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
-          const dt = new DataTransfer();
-          dt.items.add(mainFileInput.files[0]);
-          mappingFileInput.files = dt.files;
-          mappingFileInput.dispatchEvent(new Event('change'));
-        }
+mappingToolLink.className = ""; // initial class, toggled later
+
+mappingToolWrapper.appendChild(mappingToolLink);
+// Insert mappingToolWrapper in the DOM where you want (e.g., after Base URL field)
+
+const jobTypeSelect = document.getElementById('job_type');
+const fileInput = document.getElementById('file');
+
+function updateMappingToolVisibility() {
+  if (jobTypeSelect.value === 'links_and_utm') {
+    mappingToolWrapper.style.display = 'flex';
+    document.querySelector('.job-type-group').style.maxWidth = '320px';
+  } else {
+    mappingToolWrapper.style.display = 'none';
+    document.querySelector('.job-type-group').style.maxWidth = '';
+  }
+}
+
+// Show/hide the mapping tool link based on job type
+jobTypeSelect.addEventListener("change", () => {
+  mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
+  updateMappingToolVisibility();
+  updateMappingToolLinkState();
+});
+if (fileInput) fileInput.addEventListener("change", updateMappingToolLinkState);
+
+function updateMappingToolLinkState() {
+  // Only active if jobType is "links_and_utm" and a file is uploaded
+  const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
+  mappingToolLink.classList.toggle("active", enabled);
+  mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
+  mappingToolLink.style.opacity = enabled ? "1" : "0.6";
+  mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
+  mappingToolLink.style.userSelect = enabled ? "auto" : "none";
+}
+
+// Set up click
+mappingToolLink.addEventListener("click", function () {
+  if (mappingToolLink.classList.contains("active")) {
+    const mappingModal = document.getElementById('mapping-modal');
+    if (mappingModal) {
+      mappingModal.classList.add('show');
+      // Sync main file input with mapping modal's input
+      const mainFileInput = fileInput;
+      const mappingFileInput = document.getElementById('mapping-file-input');
+      if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
+        const dt = new DataTransfer();
+        dt.items.add(mainFileInput.files[0]);
+        mappingFileInput.files = dt.files;
+        mappingFileInput.dispatchEvent(new Event('change'));
       }
     }
-  });
-
-  function updateMappingToolLinkState() {
-    // Only active if jobType is "links_and_utm" and a file is uploaded
-    const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
-    mappingToolLink.classList.toggle("active", enabled);
-    mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
-    mappingToolLink.style.opacity = enabled ? "1" : "0.6";
-    mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
-    mappingToolLink.style.userSelect = enabled ? "auto" : "none";
   }
+});
 
-  // Show/hide the mapping tool link based on job type
-  jobTypeSelect.addEventListener("change", () => {
-    mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
-    updateMappingToolLinkState();
-  });
+// Initial state
+updateMappingToolVisibility();
+updateMappingToolLinkState();
 
   // Also re-check when file is selected
   fileInput.addEventListener("change", updateMappingToolLinkState);
