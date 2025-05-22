@@ -4,15 +4,10 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Utmatic SmartLink Injector</title>
-<!-- Favicon -->
 <link href="https://images.squarespace-cdn.com/content/v1/680bb671dac3025d584cb957/635bc57a-38c1-43a1-8442-0c28b347d03d/favicon.ico?format=100w" rel="icon" type="image/x-icon"/>
-<!-- Work Sans Google Fonts import -->
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<!-- PDF.js CSS (for built-in viewer toolbar, optional but recommended) -->
 <link href="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.css" rel="stylesheet"/>
-<!-- Mapping Area Stylesheet-->
 <link href="mapping-modal.css" rel="stylesheet"/>
-<!-- Main Styles -->
 <link href="styles.css" rel="stylesheet"/>
 </head>
 <body>
@@ -40,28 +35,21 @@
   </div>
 </div>
 <datalist id="base-url-datalist"></datalist>
-
-<!-- PDF Previewer Modal Overlay (MODERN) -->
 <div id="pdf-preview-modal-overlay">
   <div id="pdf-preview-container">
-    <!-- Close Button (X) -->
     <button id="pdf-previewer-close" onclick="closePdfPreview()" title="Close Previewer">
       <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 6l12 12M6 18L18 6" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     </button>
-    <!-- Document Name/Selector -->
     <div id="pdf-previewer-docswitch">
       <span id="previewer-title">Agreement.pdf</span>
       <svg class="caret" fill="none" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 10l8 8 8-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
       </svg>
-      <!-- Dropdown for doc selection -->
       <div id="pdf-previewer-doclist"></div>
     </div>
-    <!-- Page Counter -->
     <div id="pdf-preview-page-counter">Page 1 / 9</div>
-    <!-- PDF Zoom Controls (left aligned, simple) -->
     <div id="pdf-zoom-controls">
       <button aria-label="Zoom Out" class="zoom-btn" id="zoom-out-btn" title="Zoom Out">
         <svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +62,6 @@
         </svg>
       </button>
     </div>
-    <!-- PDF Previewer Canvas w/ Arrow Buttons -->
     <div id="pdf-preview-inner-container" style="position:relative;">
       <button class="pdf-arrow-btn" id="pdf-arrow-prev" onclick="prevPage()" title="Previous Page">
         <svg fill="none" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
@@ -90,7 +77,6 @@
         </svg>
       </button>
     </div>
-    <!-- Actions Bar at Bottom -->
     <div id="pdf-previewer-actions-bar">
       <button id="pdf-previewer-startnew" title="Start New">
         <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -104,15 +90,11 @@
     </div>
   </div>
 </div>
-
-<!-- Loader/Spinner Overlay -->
 <div id="loader">
   <div class="spinner"></div>
   <div class="loader-text">Processing...</div>
   <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
 </div>
-
-<!-- Modal for Mapping Area -->
 <div class="modal" id="mapping-modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -125,7 +107,7 @@
       <button id="next-page-btn" class="nav-btn" title="Next page" aria-label="Next page" disabled>&rarr;</button>
     </div>
     <div id="pdf-mapping-container">
-      <canvas height="800" id="mapping-pdf-canvas" width="650"></canvas>
+      <canvas height="1375" id="mapping-pdf-canvas" width="1125"></canvas>
       <div id="mapping-rectangle"></div>
     </div>
     <div style="margin: 1em 0;">
@@ -140,8 +122,6 @@
       <label>
         X: <input id="mapping-x" style="width:60px;" type="number"/>
         Y: <input id="mapping-y" style="width:60px;" type="number"/>
-        Width: <input id="mapping-w" style="width:60px;" type="number"/>
-        Height: <input id="mapping-h" style="width:60px;" type="number"/>
       </label>
       <button id="apply-area-btn">Apply Area to Range</button>
     </div>
@@ -152,7 +132,6 @@
     <button id="save-mappings-btn" class="primary">Save Mappings</button>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script>
   if (window.pdfjsLib) {
