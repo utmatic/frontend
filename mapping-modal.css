@@ -17,7 +17,7 @@
   margin: 3vh auto;
   padding: 0;
   border-radius: 16px;
-  width: 1160px;
+  width: 1120px;
   max-width: 97vw;
   box-shadow: 0 8px 32px 0 rgba(0,0,0,0.22);
   position: relative;
@@ -60,7 +60,7 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 24px;
-  padding: 26px 26px 22px 26px;
+  padding: 26px 22px 22px 22px;
 }
 #mapping-modal .left-pane {
   flex: 1 1 68%;
@@ -69,21 +69,24 @@
   align-items: center;
 }
 #mapping-modal .right-pane {
-  flex: 0 0 325px;
-  min-width: 270px;
-  max-width: 400px;
+  flex: 0 0 320px;
+  min-width: 240px;
+  max-width: 350px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 8px;
+  padding-left: 0;
   background: #fff;
-  border-radius: 7px;
-  border: 1px solid #ececec;
-  box-shadow: 0 3px 10px rgba(30,40,60,0.045);
-  height: 95%;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  /* align to top of canvas */
+  margin-top: 0;
 }
 #mapping-modal .right-pane h3 {
-  margin: 12px 0 10px 3px;
+  margin: 0 0 10px 3px;
+  font-size: 1.09em;
+  font-weight: 700;
 }
 #mapping-modal .pdf-controls {
   display: flex;
@@ -124,7 +127,7 @@
   box-shadow: 0 2px 8px rgba(30,40,60,0.07);
   width: 650px;
   height: 867px;
-  margin: 0 auto 18px auto;
+  margin: 0 auto 0 auto;
   position: relative;
   overflow: hidden;
 }
@@ -185,30 +188,49 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   justify-content: flex-start;
   margin-bottom: 0;
-  margin-top: 2px;
+  margin-top: 18px;
+  padding-left: 5px;
 }
 #mapping-modal .mapping-actions-row label,
 #mapping-modal .mapping-actions-row input[type="number"],
 #mapping-modal .mapping-actions-row .alt-checkbox {
-  font-size: 1.04em;
+  font-size: 1.03em;
 }
 #mapping-modal .mapping-actions-row input[type="number"] {
   width: 46px;
   padding: 4px 6px;
   border: 1px solid #c4c4c4;
-  border-radius: 4px;
+  border-radius: 3px;
   margin-left: 4px;
   margin-right: 2px;
+  background: #fff;
+  font-size: 0.98em;
 }
-#mapping-modal .mapping-actions-row .alt-checkbox {
-  margin-left: 6px;
-  margin-right: 4px;
+#mapping-modal .mapping-actions-row .mapping-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+  margin-right: 16px;
 }
-#mapping-modal .mapping-actions-row .primary {
+#mapping-modal .mapping-actions-row .mapping-radio-group label {
+  margin-right: 9px;
+  margin-bottom: 0;
+  font-size: 1em;
+  font-weight: 400;
+  color: #353535;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+#mapping-modal .mapping-actions-row button.primary {
   margin-left: 12px;
+  min-width: 115px;
+  font-size: 1.04em;
+  padding: 8px 17px;
 }
 #mapping-modal button,
 #mapping-modal input[type="number"] {
@@ -248,14 +270,15 @@
   max-height: 600px;
   overflow-y: auto;
   background: #fff;
-  border-radius: 4px;
-  border: 1px solid #ececec;
-  padding: 7px 7px;
-  margin: 0.5em 0 1em 0;
+  border-radius: 0;
+  border: none;
+  padding: 4px 2px 4px 4px;
+  margin: 0.2em 0 1em 0;
   font-size: 1em;
   list-style: none;
   width: 100%;
-  min-height: 180px;
+  min-height: 120px;
+  box-shadow: none;
 }
 #mappings-list li {
   display: flex;
@@ -264,9 +287,13 @@
   margin-bottom: 5px;
   padding: 3px 0;
   font-size: 1em;
+  background: #fff;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 #mappings-list .mapping-name {
-  font-weight: 600;
+  font-weight: 700;
   margin-left: 7px;
 }
 #mappings-list button {
@@ -276,6 +303,12 @@
   border: none;
   font-size: 1.1em;
   cursor: pointer;
+  padding: 0 5px;
+}
+#save-mappings-btn {
+  margin-top: 10px;
+  min-width: 130px;
+  font-size: 1.05em;
 }
 @media (max-width: 1300px) {
   #mapping-modal .modal-content {
