@@ -15,16 +15,40 @@
   let mappingRectangles = [];
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
-  let prevPageBtn = document.getElementById('prev-page-btn'); // NOTE: ID updated to match HTML
-  let nextPageBtn = document.getElementById('next-page-btn'); // NOTE: ID updated to match HTML
+  let prevPageBtn = document.getElementById('prev-page-btn');
+  let nextPageBtn = document.getElementById('next-page-btn');
   let saveMappingsBtn = document.getElementById('save-mappings-btn');
   let clearMappingsBtn = document.getElementById('clear-mappings-btn');
   let mappingFilenameSpan = document.getElementById('mapping-filename');
+
+  // Page range and area input elements
+  let mappingStartPageInput = document.getElementById('mapping-start-page');
+  let mappingEndPageInput = document.getElementById('mapping-end-page');
+  let mappingXInput = document.getElementById('mapping-x');
+  let mappingYInput = document.getElementById('mapping-y');
+  let mappingWInput = document.getElementById('mapping-w');
+  let mappingHInput = document.getElementById('mapping-h');
+  let applyAreaBtn = document.getElementById('apply-area-btn');
+  let pageInfo = document.getElementById('page-info');
 
   // The main file input, used for both main form and mapping modal
   let mainFileInput = document.getElementById('file');
 
   // --- Utility ---
+  function updatePageInfo() {
+    if (pageInfo) pageInfo.textContent = `Page ${mappingCurrentPage} of ${mappingTotalPages}`;
+    if (prevPageBtn) prevPageBtn.disabled = (mappingCurrentPage <= 1);
+    if (nextPageBtn) nextPageBtn.disabled = (mappingCurrentPage >= mappingTotalPages);
+    if (mappingStartPageInput) {
+      mappingStartPageInput.max = mappingTotalPages;
+      mappingStartPageInput.value = mappingCurrentPage;
+    }
+    if (mappingEndPageInput) {
+      mappingEndPageInput.max = mappingTotalPages;
+      mappingEndPageInput.value = mappingCurrentPage;
+    }
+  }
+
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     mappingRectangles.forEach((rect, idx) => {
@@ -74,6 +98,7 @@
         });
       });
     });
+    updatePageInfo();
   }
 
   // --- Modal Open/Close Handlers ---
@@ -85,7 +110,6 @@
         const file = mainFileInput.files[0];
         if (file && file.type === "application/pdf") {
           mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
-          // Always reload the PDF for mapping (optional: only reload if file changed)
           const arrayBuffer = await file.arrayBuffer();
           const loadingTask = window.pdfjsLib.getDocument(arrayBuffer);
           pdfDoc = await loadingTask.promise;
@@ -102,6 +126,7 @@
         mappingFilenameSpan.textContent = "";
         pdfDoc = null;
       }
+      updatePageInfo();
     };
   }
   if (closeMappingModalBtn) {
@@ -125,6 +150,38 @@
         mappingCurrentPage++;
         renderPage();
       }
+    };
+  }
+
+  // --- Apply Area to Range ---
+  if (applyAreaBtn) {
+    applyAreaBtn.onclick = () => {
+      if (!pdfDoc) return;
+      // Get page range
+      let startPage = parseInt(mappingStartPageInput.value, 10) || mappingCurrentPage;
+      let endPage = parseInt(mappingEndPageInput.value, 10) || mappingCurrentPage;
+      if (startPage < 1) startPage = 1;
+      if (endPage > mappingTotalPages) endPage = mappingTotalPages;
+      if (endPage < startPage) [startPage, endPage] = [endPage, startPage];
+
+      // Get area
+      let x = parseFloat(mappingXInput.value) || 0;
+      let y = parseFloat(mappingYInput.value) || 0;
+      let w = parseFloat(mappingWInput.value) || 0;
+      let h = parseFloat(mappingHInput.value) || 0;
+      let x0 = x;
+      let y0 = y;
+      let x1 = x + w;
+      let y1 = y + h;
+
+      for (let pageIdx = startPage - 1; pageIdx <= endPage - 1; pageIdx++) {
+        mappingRectangles.push({
+          page: pageIdx,
+          x0, y0, x1, y1
+        });
+      }
+      renderMappingsList();
+      renderPage();
     };
   }
 
@@ -185,7 +242,6 @@
       if (!isDrawing || !pdfDoc) return;
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
-      // Store rectangle in PDF coordinates
       pdfDoc.getPage(mappingCurrentPage).then(page => {
         let viewport = page.getViewport({ scale: 1.0 });
         let scale = Math.min(
