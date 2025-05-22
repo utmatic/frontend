@@ -9,6 +9,7 @@
   let mappingCurrentPage = 1;
   let mappingTotalPages = 1;
   let isDrawing = false;
+  let didDrag = false;
   let startX, startY, endX, endY;
   let mappingRectangles = [];
   let lastDragRect = null; // {x0, y0, x1, y1, page, name}
@@ -37,11 +38,13 @@
     if (nextPageBtn) nextPageBtn.disabled = (mappingCurrentPage >= mappingTotalPages);
     if (mappingStartPageInput) {
       mappingStartPageInput.max = mappingTotalPages;
-      mappingStartPageInput.value = mappingCurrentPage;
+      if (!document.activeElement || document.activeElement !== mappingStartPageInput)
+        mappingStartPageInput.value = mappingCurrentPage;
     }
     if (mappingEndPageInput) {
       mappingEndPageInput.max = mappingTotalPages;
-      mappingEndPageInput.value = mappingCurrentPage;
+      if (!document.activeElement || document.activeElement !== mappingEndPageInput)
+        mappingEndPageInput.value = mappingCurrentPage;
     }
   }
 
@@ -101,6 +104,15 @@
         }
       }
       document.addEventListener('mousedown', outsideListener, true);
+      // If the user clicks inside the PDF container, but NOT on the pending rect or label, also clear
+      pdfMappingContainer.addEventListener('mousedown', function(e) {
+        if (!labelDiv.contains(e.target) && !div.contains(e.target)) {
+          lastDragRect = null;
+          lastDragName = "";
+          clearPendingRectVisual();
+          document.removeEventListener('mousedown', outsideListener, true);
+        }
+      }, { once: true });
     }, 0);
   }
 
@@ -358,6 +370,7 @@
     pdfMappingCanvas.onmousedown = (e) => {
       if (!pdfDoc) return;
       isDrawing = true;
+      didDrag = false;
       const rect = pdfMappingCanvas.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
@@ -372,6 +385,9 @@
       const rect = pdfMappingCanvas.getBoundingClientRect();
       endX = e.clientX - rect.left;
       endY = e.clientY - rect.top;
+      if (Math.abs(endX - startX) > dragMinDistance || Math.abs(endY - startY) > dragMinDistance) {
+        didDrag = true;
+      }
       const left = Math.min(startX, endX);
       const top = Math.min(startY, endY);
       const width = Math.abs(endX - startX);
@@ -385,9 +401,8 @@
       if (!isDrawing || !pdfDoc) return;
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
-      const minDist = dragMinDistance;
-      if (Math.abs(endX - startX) < minDist || Math.abs(endY - startY) < minDist) {
-        // Not enough drag, don't create mapping area
+      // Only create the mapping area if there was an actual drag
+      if (!didDrag) {
         lastDragRect = null;
         lastDragName = "";
         clearPendingRectVisual();
@@ -404,7 +419,7 @@
         const x1 = Math.max(startX, endX) / scale;
         const y1 = Math.max(startY, endY) / scale;
         lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
-        lastDragName = "";
+        // Don't clear lastDragName here!
         showPendingRectVisual();
       });
     };
@@ -429,4 +444,12 @@
       clearPendingRectVisual();
     };
   }
+
+  // Keep pending mapping area even if page range inputs are edited
+  mappingStartPageInput.addEventListener('input', () => {
+    showPendingRectVisual();
+  });
+  mappingEndPageInput.addEventListener('input', () => {
+    showPendingRectVisual();
+  });
 })();
