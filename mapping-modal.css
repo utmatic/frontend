@@ -17,7 +17,7 @@
   margin: 3vh auto;
   padding: 0;
   border-radius: 15px;
-  width: 960px;
+  width: 1160px;
   max-width: 96vw;
   box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
   position: relative;
@@ -61,6 +61,33 @@
   align-items: flex-start;
   gap: 18px;
   padding: 19px 17px 12px 17px;
+}
+/* New: details/instructions left */
+#mapping-modal .details-pane {
+  flex: 0 0 220px;
+  min-width: 180px;
+  max-width: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 7px;
+  margin-top: 0;
+  color: #2a353f;
+  font-size: 0.97em;
+}
+#mapping-modal .details-pane h3 {
+  font-size: 1.01em;
+  font-weight: 700;
+  margin: 1em 0 0.6em 0;
+  text-align: right;
+}
+#mapping-modal .details-pane ul {
+  padding-left: 18px;
+  margin: 0.3em 0 0 0;
+  font-size: 0.97em;
+}
+#mapping-modal .details-pane li {
+  margin-bottom: 0.35em;
 }
 #mapping-modal .left-pane {
   flex: 1 1 62%;
@@ -124,7 +151,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.06);
   width: 470px;
-  height: 728px;
+  height: 628px;
   margin: 0 auto 0 auto;
   position: relative;
   overflow: hidden;
