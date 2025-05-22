@@ -296,10 +296,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
         updateFileListStatus(tabId, "", false, "");
       }
     }
-    // Enable/disable mapping tool text-link based on file upload
-    if (mappingToolLink) {
-      updateMappingToolLinkState();
-    }
   });
 
   fileInputLabel.appendChild(fileInput);
@@ -319,7 +315,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
 
   // Job Type Field (same width as Target Format)
   const jobTypeField = document.createElement("div");
-  jobTypeField.className = "field-group";
+  jobTypeField.className = "field-group job-type-group";
   jobTypeField.style.flex = "1";
   jobTypeField.style.minWidth = 0;
   const jobTypeLabel = document.createElement("label");
@@ -327,7 +323,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeLabel.textContent = "Job Type";
   const jobTypeSelect = document.createElement("select");
   jobTypeSelect.name = "job_type";
-  jobTypeSelect.id = "job_type";
   jobTypeSelect.required = true;
   jobTypeSelect.style.width = "100%";
   jobTypeSelect.style.boxSizing = "border-box";
@@ -346,83 +341,22 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeLabel);
   jobTypeField.appendChild(jobTypeSelect);
 
-// --- Mapping Tool as Text+SVG ---
-const mappingToolWrapper = document.createElement("div");
-mappingToolWrapper.className = "mapping-tool-row";
-mappingToolWrapper.style.display = "flex";
-mappingToolWrapper.style.alignItems = "center";
-mappingToolWrapper.style.maxWidth = "320px";
-mappingToolWrapper.style.marginLeft = "0";
-mappingToolWrapper.style.paddingLeft = "0";
-mappingToolWrapper.style.marginTop = "0.08em";
+  // --- Mapping Tool as Text+SVG ---
+  const mappingToolWrapper = document.createElement("div");
+  mappingToolWrapper.className = "mapping-tool-row";
+  mappingToolWrapper.style.display = "flex";
+  mappingToolWrapper.style.alignItems = "center";
+  mappingToolWrapper.style.maxWidth = "320px";
+  mappingToolWrapper.style.marginLeft = "0";
+  mappingToolWrapper.style.paddingLeft = "0";
+  mappingToolWrapper.style.marginTop = "0.08em";
 
-const mappingToolLink = document.createElement("span");
-mappingToolLink.id = "open-mapping-modal-link";
-mappingToolLink.style.display = "none";
-mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+  const mappingToolLink = document.createElement("span");
+  mappingToolLink.id = "open-mapping-modal-link";
+  mappingToolLink.style.display = "none";
+  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
 
-mappingToolLink.className = ""; // initial class, toggled later
-
-mappingToolWrapper.appendChild(mappingToolLink);
-// Insert mappingToolWrapper in the DOM where you want (e.g., after Base URL field)
-
-const jobTypeSelect = document.getElementById('job_type');
-const fileInput = document.getElementById('file');
-
-function updateMappingToolVisibility() {
-  if (jobTypeSelect.value === 'links_and_utm') {
-    mappingToolWrapper.style.display = 'flex';
-    document.querySelector('.job-type-group').style.maxWidth = '320px';
-  } else {
-    mappingToolWrapper.style.display = 'none';
-    document.querySelector('.job-type-group').style.maxWidth = '';
-  }
-}
-
-// Show/hide the mapping tool link based on job type
-jobTypeSelect.addEventListener("change", () => {
-  mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
-  updateMappingToolVisibility();
-  updateMappingToolLinkState();
-});
-if (fileInput) fileInput.addEventListener("change", updateMappingToolLinkState);
-
-function updateMappingToolLinkState() {
-  // Only active if jobType is "links_and_utm" and a file is uploaded
-  const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
-  mappingToolLink.classList.toggle("active", enabled);
-  mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
-  mappingToolLink.style.opacity = enabled ? "1" : "0.6";
-  mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
-  mappingToolLink.style.userSelect = enabled ? "auto" : "none";
-}
-
-// Set up click
-mappingToolLink.addEventListener("click", function () {
-  if (mappingToolLink.classList.contains("active")) {
-    const mappingModal = document.getElementById('mapping-modal');
-    if (mappingModal) {
-      mappingModal.classList.add('show');
-      // Sync main file input with mapping modal's input
-      const mainFileInput = fileInput;
-      const mappingFileInput = document.getElementById('mapping-file-input');
-      if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
-        const dt = new DataTransfer();
-        dt.items.add(mainFileInput.files[0]);
-        mappingFileInput.files = dt.files;
-        mappingFileInput.dispatchEvent(new Event('change'));
-      }
-    }
-  }
-});
-
-// Initial state
-updateMappingToolVisibility();
-updateMappingToolLinkState();
-
-  // Also re-check when file is selected
-  fileInput.addEventListener("change", updateMappingToolLinkState);
-
+  mappingToolLink.className = ""; // initial class, toggled later
   mappingToolWrapper.appendChild(mappingToolLink);
 
   // Add both fields to the row
@@ -431,73 +365,102 @@ updateMappingToolLinkState();
 
   form.appendChild(jobTypeRow);
 
-      // --- Target Format & Base URL dynamic rows ---
-      const targetBaseRowsWrapper = document.createElement("div");
-      targetBaseRowsWrapper.className = "field-row-wrapper hidden";
-      form.appendChild(targetBaseRowsWrapper);
-      const addNewRowBtn = document.createElement("button");
-      addNewRowBtn.type = "button";
-      addNewRowBtn.className = "add-new-row-btn";
-      addNewRowBtn.textContent = "+ Add new";
-      addNewRowBtn.style.marginLeft = "0";
-      addNewRowBtn.style.marginBottom = "0.18em";
-      addNewRowBtn.style.marginTop = "0";
-      addNewRowBtn.style.display = "block";
-      targetBaseRowsWrapper.appendChild(addNewRowBtn);
-      addTargetBaseRow(targetBaseRowsWrapper, form);
-      function addTargetBaseRow(wrapper, form) {
-        const fieldRow = document.createElement("div");
-        fieldRow.className = "field-row";
-      
-// Target Format
-const tfGroup = document.createElement("div");
-tfGroup.className = "field-group";
-tfGroup.style.flex = "1";
-tfGroup.style.minWidth = 0;
+  // --- Mapping tool logic (scoped to this form/tab only) ---
+  function updateMappingToolLinkState() {
+    // Only active if jobType is "links_and_utm" and a file is uploaded
+    const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
+    mappingToolLink.classList.toggle("active", enabled);
+    mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
+    mappingToolLink.style.opacity = enabled ? "1" : "0.6";
+    mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
+    mappingToolLink.style.userSelect = enabled ? "auto" : "none";
+    mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
+  }
+  jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
+  fileInput.addEventListener("change", updateMappingToolLinkState);
+  updateMappingToolLinkState();
 
-const tfInput = document.createElement("input");
-tfInput.type = "text";
-tfInput.name = "target_format";
-tfInput.placeholder = "Target Format";
-tfInput.required = true;
-tfInput.style.width = "100%";
-tfInput.style.boxSizing = "border-box";
-tfGroup.appendChild(tfInput);
+  mappingToolLink.addEventListener("click", function () {
+    if (mappingToolLink.classList.contains("active")) {
+      const mappingModal = document.getElementById('mapping-modal');
+      if (mappingModal) {
+        mappingModal.classList.add('show');
+        const mainFileInput = fileInput;
+        const mappingFileInput = document.getElementById('mapping-file-input');
+        if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
+          const dt = new DataTransfer();
+          dt.items.add(mainFileInput.files[0]);
+          mappingFileInput.files = dt.files;
+          mappingFileInput.dispatchEvent(new Event('change'));
+        }
+      }
+    }
+  });
 
-// Base URL
-const buGroup = document.createElement("div");
-buGroup.className = "field-group base-url-group";
-buGroup.style.flex = "1";
-buGroup.style.minWidth = 0;
+  // --- Target Format & Base URL dynamic rows ---
+  const targetBaseRowsWrapper = document.createElement("div");
+  targetBaseRowsWrapper.className = "field-row-wrapper hidden";
+  form.appendChild(targetBaseRowsWrapper);
+  const addNewRowBtn = document.createElement("button");
+  addNewRowBtn.type = "button";
+  addNewRowBtn.className = "add-new-row-btn";
+  addNewRowBtn.textContent = "+ Add new";
+  addNewRowBtn.style.marginLeft = "0";
+  addNewRowBtn.style.marginBottom = "0.18em";
+  addNewRowBtn.style.marginTop = "0";
+  addNewRowBtn.style.display = "block";
+  targetBaseRowsWrapper.appendChild(addNewRowBtn);
+  addTargetBaseRow(targetBaseRowsWrapper, form);
+  function addTargetBaseRow(wrapper, form) {
+    const fieldRow = document.createElement("div");
+    fieldRow.className = "field-row";
 
-const buInput = document.createElement("input");
-buInput.type = "text";
-buInput.name = "base_url";
-buInput.placeholder = "Base URL";
-buInput.required = true;
-buInput.setAttribute('list', 'base-url-datalist');
-buInput.style.width = "100%";
-buInput.style.boxSizing = "border-box";
-buGroup.appendChild(buInput);
+    // Target Format
+    const tfGroup = document.createElement("div");
+    tfGroup.className = "field-group";
+    tfGroup.style.flex = "1";
+    tfGroup.style.minWidth = 0;
+    const tfInput = document.createElement("input");
+    tfInput.type = "text";
+    tfInput.name = "target_format";
+    tfInput.placeholder = "Target Format";
+    tfInput.required = true;
+    tfInput.style.width = "100%";
+    tfInput.style.boxSizing = "border-box";
+    tfGroup.appendChild(tfInput);
 
-// Actions column: info icon for first row, delete for other rows
-const delCol = document.createElement("div");
-delCol.className = "delete-col";
+    // Base URL
+    const buGroup = document.createElement("div");
+    buGroup.className = "field-group base-url-group";
+    buGroup.style.flex = "1";
+    buGroup.style.minWidth = 0;
+    const buInput = document.createElement("input");
+    buInput.type = "text";
+    buInput.name = "base_url";
+    buInput.placeholder = "Base URL";
+    buInput.required = true;
+    buInput.setAttribute('list', 'base-url-datalist');
+    buInput.style.width = "100%";
+    buInput.style.boxSizing = "border-box";
+    buGroup.appendChild(buInput);
 
-if (wrapper.querySelectorAll(".field-row").length === 0) {
-  // FIRST row: Info icon and popup
-  const infoBtn = document.createElement("button");
-  infoBtn.type = "button";
-  infoBtn.className = "info-icon-btn base-url-info-btn";
-  infoBtn.tabIndex = 0;
-  infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
-  infoBtn.style.display = "none"; // will show only for Add Links and UTM
+    // Actions column: info icon for first row, delete for other rows
+    const delCol = document.createElement("div");
+    delCol.className = "delete-col";
+    if (wrapper.querySelectorAll(".field-row").length === 0) {
+      // FIRST row: Info icon and popup
+      const infoBtn = document.createElement("button");
+      infoBtn.type = "button";
+      infoBtn.className = "info-icon-btn base-url-info-btn";
+      infoBtn.tabIndex = 0;
+      infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
+      infoBtn.style.display = "none"; // will show only for Add Links and UTM
 
-  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+      infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
 
-  const infoPopup = document.createElement("div");
-  infoPopup.className = "info-popup base-url-info-popup";
-  infoPopup.innerHTML = `
+      const infoPopup = document.createElement("div");
+      infoPopup.className = "info-popup base-url-info-popup";
+      infoPopup.innerHTML = `
 <b>Target Format</b><br>
 This defines the pattern of items you want to link in your document.  
 Use <b>N</b> for numbers, <b>L</b> for letters:
@@ -505,447 +468,411 @@ Use <b>N</b> for numbers, <b>L</b> for letters:
   <li><code>NNNLL</code> → <code>123AB</code></li>
   <li><code>LLLNN</code> → <code>ABC12</code></li>
 </ul><br>
-
 <b>Base URL</b><br>
 The starting part of your link, like:<br>
 <code>https://example.com/landing-page</code><br><br>
-
 <b>Result</b><br>
 Each match is combined with the Base URL:<br>
 <code>https://example.com/landing-page123AB</code>
-  `;
+      `;
+      delCol.appendChild(infoBtn);
+      delCol.appendChild(infoPopup);
 
-  delCol.appendChild(infoBtn);
-  delCol.appendChild(infoPopup);
+      // Show/hide info icon based on job type
+      function updateInfoIconVisibility() {
+        if (jobTypeSelect && jobTypeSelect.value === "links_and_utm") {
+          infoBtn.style.display = "flex";
+        } else {
+          infoBtn.style.display = "none";
+        }
+      }
+      jobTypeSelect.addEventListener('change', updateInfoIconVisibility);
+      updateInfoIconVisibility();
+      infoBtn.addEventListener('mouseenter', () => { infoPopup.style.display = 'block'; });
+      infoBtn.addEventListener('mouseleave', () => { infoPopup.style.display = 'none'; });
+      infoBtn.addEventListener('focus', () => { infoPopup.style.display = 'block'; });
+      infoBtn.addEventListener('blur', () => { infoPopup.style.display = 'none'; });
 
-  // Show/hide info icon based on job type
-  const jobTypeInput = form.querySelector('select[name="job_type"]');
-  function updateInfoIconVisibility() {
-    if (jobTypeInput && jobTypeInput.value === "links_and_utm") {
-      infoBtn.style.display = "flex";
     } else {
-      infoBtn.style.display = "none";
+      // Other rows: Delete button
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "✕";
+      removeBtn.className = "remove-btn";
+      removeBtn.style.background = "none";
+      removeBtn.style.border = "none";
+      removeBtn.style.color = "#f43f5e";
+      removeBtn.style.fontSize = "1.25rem";
+      removeBtn.style.cursor = "pointer";
+      removeBtn.title = "Remove row";
+      removeBtn.addEventListener("click", function() {
+        fieldRow.remove();
+        updateAddNewRowBtn();
+        validateForm(form);
+        checkDirtyAndUpdateSaveBtn();
+      });
+      delCol.appendChild(removeBtn);
     }
-  }
-  if (jobTypeInput) {
-    jobTypeInput.addEventListener('change', updateInfoIconVisibility);
-    updateInfoIconVisibility();
-  }
-  infoBtn.addEventListener('mouseenter', () => { infoPopup.style.display = 'block'; });
-  infoBtn.addEventListener('mouseleave', () => { infoPopup.style.display = 'none'; });
-  infoBtn.addEventListener('focus', () => { infoPopup.style.display = 'block'; });
-  infoBtn.addEventListener('blur', () => { infoPopup.style.display = 'none'; });
 
-} else {
-  // Other rows: Delete button
-  const removeBtn = document.createElement("button");
-  removeBtn.type = "button";
-  removeBtn.textContent = "✕";
-  removeBtn.className = "remove-btn";
-  removeBtn.style.background = "none";
-  removeBtn.style.border = "none";
-  removeBtn.style.color = "#f43f5e";
-  removeBtn.style.fontSize = "1.25rem";
-  removeBtn.style.cursor = "pointer";
-  removeBtn.title = "Remove row";
-  removeBtn.addEventListener("click", function() {
-    fieldRow.remove();
+    // Add the groups to the row and wrapper
+    fieldRow.appendChild(tfGroup);
+    fieldRow.appendChild(buGroup);
+    fieldRow.appendChild(delCol);
+    wrapper.appendChild(fieldRow);
     updateAddNewRowBtn();
-    validateForm(form);
+    updateBaseUrlMemory("");
+
+    // Attach dirty-check listeners to these new fields
+    tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+    tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+    buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+    buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+  }
+  function updateAddNewRowBtn() {
+    const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
+    addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
+  }
+  addNewRowBtn.addEventListener("click", function() {
+    addTargetBaseRow(targetBaseRowsWrapper, form);
+    updateAddNewRowBtn();
+  });
+
+  // --- UTM Parameters group ---
+  const utmLabel = document.createElement("span");
+  utmLabel.className = "utm-label";
+  utmLabel.textContent = "UTM Parameters";
+  form.appendChild(utmLabel);
+  const utmRow = document.createElement("div");
+  utmRow.className = "utm-row";
+  [
+    { id: "source", placeholder: "Source", required: true },
+    { id: "medium", placeholder: "Medium", required: true },
+    { id: "campaign", placeholder: "Campaign", required: true }
+  ].forEach(field => {
+    const group = document.createElement("div");
+    group.className = "field-group";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = field.id;
+    input.placeholder = field.placeholder;
+    input.required = true;
+    group.appendChild(input);
+    utmRow.appendChild(group);
+  });
+  form.appendChild(utmRow);
+
+  const utmContentGroup = document.createElement("div");
+  utmContentGroup.className = "field-group utm-content-group";
+  const utmContentWrapper = document.createElement("div");
+  utmContentWrapper.className = "input-icon-wrapper";
+  const utmContentInput = document.createElement("input");
+  utmContentInput.type = "text";
+  utmContentInput.name = "utm_content";
+  utmContentInput.placeholder = "Content (automatic)";
+  utmContentInput.readOnly = true;
+  utmContentInput.style.backgroundColor = "#f9f9f9";
+  utmContentInput.style.cursor = "not-allowed";
+  utmContentWrapper.appendChild(utmContentInput);
+
+  // SVG info icon as a button
+  const infoBtn = document.createElement("button");
+  infoBtn.type = "button";
+  infoBtn.className = "info-icon-btn";
+  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+  const infoPopup = document.createElement("div");
+  infoPopup.className = "info-popup";
+  infoPopup.innerHTML = `
+    <strong>Why UTM Content Is Set Automatically</strong><br><br>
+    The <b>utm_content</b> value is auto-filled to help you see which item was clicked in your analytics.<br><br>
+    - If the link text is a product or part number like <code>5610-2164</code>, that’s what will be used.<br>
+    - If the link text is a general phrase like <code>Learn More</code>, the tool uses the last part of the URL instead.<br><br>
+    <strong>Example:</strong><br>
+    A link labeled <code>Learn More</code> that points to <code>https://example.com/product-line/x500</code> will use <code>x500</code> as the UTM Content.
+  `;
+  utmContentWrapper.appendChild(infoBtn);
+  utmContentWrapper.appendChild(infoPopup);
+  utmContentGroup.appendChild(utmContentWrapper);
+  form.appendChild(utmContentGroup);
+
+  const filenameGroup = document.createElement("div");
+  filenameGroup.className = "field-group";
+  const filenameLabel = document.createElement("label");
+  filenameLabel.htmlFor = "filename";
+  filenameLabel.textContent = "Document Name";
+  const filenameInput = document.createElement("input");
+  filenameInput.type = "text";
+  filenameInput.name = "filename";
+  filenameInput.id = "filename";
+  filenameInput.placeholder = "MyFileName";
+  filenameInput.required = true;
+  filenameInput.value = docName || '';
+  filenameGroup.appendChild(filenameLabel);
+  filenameGroup.appendChild(filenameInput);
+  form.appendChild(filenameGroup);
+
+  const underlineWrapper = document.createElement("div");
+  underlineWrapper.className = "checkbox-wrapper hidden";
+  underlineWrapper.style.marginBottom = "0.75rem";
+  underlineWrapper.style.marginTop = "-0.5rem";
+  const underlineInput = document.createElement("input");
+  underlineInput.type = "checkbox";
+  underlineInput.name = "underline";
+  underlineInput.id = "underline";
+  const underlineLabel = document.createElement("label");
+  underlineLabel.htmlFor = "underline";
+  underlineLabel.textContent = "Add underline to links?";
+  underlineWrapper.appendChild(underlineInput);
+  underlineWrapper.appendChild(underlineLabel);
+  form.appendChild(underlineWrapper);
+
+  const actionsDiv = document.createElement("div");
+  actionsDiv.className = "form-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.textContent = "Save";
+  saveBtn.className = "save-btn";
+  saveBtn.disabled = true;
+  actionsDiv.appendChild(saveBtn);
+  form.appendChild(actionsDiv);
+
+  // --- Save/Dirty logic ---
+  tabLastSavedState[tabId] = "";
+
+  function checkDirtyAndUpdateSaveBtn() {
+    let current = formToHash(form);
+    let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+    saveBtn.disabled = !formIsValid(form, tabId) || !dirty;
+    const filenameInput = form.querySelector("input[name='filename']");
+    const jobTypeSelect = form.querySelector("select[name='job_type']");
+    updateFileListStatus(
+      tabId,
+      filenameInput ? filenameInput.value : "",
+      !dirty, // true if saved, false if dirty
+      jobTypeSelect ? jobTypeSelect.value : ""
+    );
+  }
+  function formIsValid(form, tabId) {
+    let valid = true;
+    form.querySelectorAll("input, select").forEach(input => {
+      if (
+        !input.closest(".hidden") &&
+        input.required &&
+        (
+          (input.type === "file" && !(input.files.length > 0 || lastFileByTab[tabId]))
+          ||
+          (input.type !== "file" && !input.value.trim())
+        )
+      ) {
+        valid = false;
+      }
+    });
+    return valid;
+  }
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', checkDirtyAndUpdateSaveBtn);
+    el.addEventListener('change', checkDirtyAndUpdateSaveBtn);
+  });
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const filenameInput = form.querySelector("input[name='filename']");
+    const name = filenameInput?.value || docName;
+    const jt = jobTypeSelect.value;
+    updateFileListStatus(tabId, name, true, jt);
+    tabLastSavedState[tabId] = formToHash(form);
+    saveBtn.disabled = true;
+    saveBtn.dataset.justSaved = "1";
+    setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
+  });
+
+  jobTypeSelect.addEventListener("change", function() {
+    const show = jobTypeSelect.value === "links_and_utm";
+    targetBaseRowsWrapper.classList.toggle("hidden", !show);
+    underlineWrapper.classList.toggle("hidden", !show);
+    targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+      input.required = show;
+    });
+    underlineInput.required = false;
+    const filenameInput = form.querySelector("input[name='filename']");
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
     checkDirtyAndUpdateSaveBtn();
   });
-  delCol.appendChild(removeBtn);
-}
 
-// Add the groups to the row and wrapper
-fieldRow.appendChild(tfGroup);
-fieldRow.appendChild(buGroup);
-fieldRow.appendChild(delCol);
-wrapper.appendChild(fieldRow);
-updateAddNewRowBtn();
-updateBaseUrlMemory("");
+  filenameInput.addEventListener("input", () => {
+    const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+    tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+    checkDirtyAndUpdateSaveBtn();
+  });
 
-// Attach dirty-check listeners to these new fields
-tfInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
-tfInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
-buInput.addEventListener('input', checkDirtyAndUpdateSaveBtn);
-buInput.addEventListener('change', checkDirtyAndUpdateSaveBtn);
-      }
-      function updateAddNewRowBtn() {
-        const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
-        addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
-      }
-      addNewRowBtn.addEventListener("click", function() {
-        addTargetBaseRow(targetBaseRowsWrapper, form);
-        updateAddNewRowBtn();
-      });
-
-      // --- UTM Parameters group ---
-      const utmLabel = document.createElement("span");
-      utmLabel.className = "utm-label";
-      utmLabel.textContent = "UTM Parameters";
-      form.appendChild(utmLabel);
-      const utmRow = document.createElement("div");
-      utmRow.className = "utm-row";
-      [
-        { id: "source", placeholder: "Source", required: true },
-        { id: "medium", placeholder: "Medium", required: true },
-        { id: "campaign", placeholder: "Campaign", required: true }
-      ].forEach(field => {
-        const group = document.createElement("div");
-        group.className = "field-group";
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = field.id;
-        input.placeholder = field.placeholder;
-        input.required = true;
-        group.appendChild(input);
-        utmRow.appendChild(group);
-      });
-      form.appendChild(utmRow);
-      const utmContentGroup = document.createElement("div");
-      utmContentGroup.className = "field-group utm-content-group"; // add extra class for styling
-      
-      // Create a wrapper for the input and icon
-      const utmContentWrapper = document.createElement("div");
-      utmContentWrapper.className = "input-icon-wrapper";
-      
-      // Input field
-      const utmContentInput = document.createElement("input");
-      utmContentInput.type = "text";
-      utmContentInput.name = "utm_content";
-      utmContentInput.placeholder = "Content (automatic)";
-      utmContentInput.readOnly = true;
-      utmContentInput.style.backgroundColor = "#f9f9f9";
-      utmContentInput.style.cursor = "not-allowed";
-   form.appendChild(utmContentGroup);
-
-// SVG info icon as a button
-const infoBtn = document.createElement("button");
-infoBtn.type = "button";
-infoBtn.className = "info-icon-btn";
-infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
-
-// Info popup element (create BEFORE appending)
-const infoPopup = document.createElement("div");
-infoPopup.className = "info-popup";
-infoPopup.innerHTML = `
-  <strong>Why UTM Content Is Set Automatically</strong><br><br>
-  The <b>utm_content</b> value is auto-filled to help you see which item was clicked in your analytics.<br><br>
-  - If the link text is a product or part number like <code>5610-2164</code>, that’s what will be used.<br>
-  - If the link text is a general phrase like <code>Learn More</code>, the tool uses the last part of the URL instead.<br><br>
-  <strong>Example:</strong><br>
-  A link labeled <code>Learn More</code> that points to <code>https://example.com/product-line/x500</code> will use <code>x500</code> as the UTM Content.
-`;
-
-// Add input and icon to wrapper, THEN popup
-utmContentWrapper.appendChild(utmContentInput);
-utmContentWrapper.appendChild(infoBtn);      // <--- BUTTON
-utmContentWrapper.appendChild(infoPopup);    // <--- POPUP (immediate sibling)
-
-// Add to group and form as before
-utmContentGroup.appendChild(utmContentWrapper);
-form.appendChild(utmContentGroup);
-
-      const filenameGroup = document.createElement("div");
-      filenameGroup.className = "field-group";
-      const filenameLabel = document.createElement("label");
-      filenameLabel.htmlFor = "filename";
-      filenameLabel.textContent = "Document Name";
-      const filenameInput = document.createElement("input");
-      filenameInput.type = "text";
-      filenameInput.name = "filename";
-      filenameInput.id = "filename";
-      filenameInput.placeholder = "MyFileName";
-      filenameInput.required = true;
-      filenameInput.value = docName || '';
-      filenameGroup.appendChild(filenameLabel);
-      filenameGroup.appendChild(filenameInput);
-      form.appendChild(filenameGroup);
-      const underlineWrapper = document.createElement("div");
-      underlineWrapper.className = "checkbox-wrapper hidden";
-      underlineWrapper.style.marginBottom = "0.75rem";
-      underlineWrapper.style.marginTop = "-0.5rem";
-      const underlineInput = document.createElement("input");
-      underlineInput.type = "checkbox";
-      underlineInput.name = "underline";
-      underlineInput.id = "underline";
-      const underlineLabel = document.createElement("label");
-      underlineLabel.htmlFor = "underline";
-      underlineLabel.textContent = "Add underline to links?";
-      underlineWrapper.appendChild(underlineInput);
-      underlineWrapper.appendChild(underlineLabel);
-      form.appendChild(underlineWrapper);
-      const actionsDiv = document.createElement("div");
-      actionsDiv.className = "form-actions";
-      const saveBtn = document.createElement("button");
-      saveBtn.type = "submit";
-      saveBtn.textContent = "Save";
-      saveBtn.className = "save-btn";
-      saveBtn.disabled = true;
-      actionsDiv.appendChild(saveBtn);
-      form.appendChild(actionsDiv);
-
-      // --- Save/Dirty logic ---
-      // Track last saved hash for this tab
+  fileInput.addEventListener("change", function() {
+    if (fileInput.files && fileInput.files.length > 0) {
+      let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+      filenameInput.value = base;
+      const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+      if (tabLabel) tabLabel.textContent = base;
+      updateFileListStatus(tabId, base, false, jobTypeSelect.value);
       tabLastSavedState[tabId] = "";
-
-      function checkDirtyAndUpdateSaveBtn() {
-        let current = formToHash(form);
-        let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
-        saveBtn.disabled = !formIsValid(form, tabId) || !dirty;
-      
-        // Update file list status to reflect dirty/saved state
-        const filenameInput = form.querySelector("input[name='filename']");
-        const jobTypeSelect = form.querySelector("select[name='job_type']");
-        updateFileListStatus(
-          tabId,
-          filenameInput ? filenameInput.value : "",
-          !dirty, // true if saved, false if dirty
-          jobTypeSelect ? jobTypeSelect.value : ""
-        );
-      }
-        function formIsValid(form, tabId) {
-          let valid = true;
-          form.querySelectorAll("input, select").forEach(input => {
-            if (
-              !input.closest(".hidden") &&
-              input.required &&
-              (
-                (input.type === "file" && !(input.files.length > 0 || lastFileByTab[tabId]))
-                ||
-                (input.type !== "file" && !input.value.trim())
-              )
-            ) {
-              valid = false;
-            }
-          });
-          return valid;
-        }
-      // Validate and update save button whenever form changes
-     form.querySelectorAll('input, select, textarea').forEach(el => {
-            el.addEventListener('input', checkDirtyAndUpdateSaveBtn);
-            el.addEventListener('change', checkDirtyAndUpdateSaveBtn);
-          });
-
-      // Save handler
-      form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const filenameInput = form.querySelector("input[name='filename']");
-        const name = filenameInput?.value || docName;
-        const jt = jobTypeSelect.value;
-        updateFileListStatus(tabId, name, true, jt);
-        // Save hash
-        tabLastSavedState[tabId] = formToHash(form);
-        saveBtn.disabled = true;
-        saveBtn.dataset.justSaved = "1";
-        setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
-      });
-
-      // Job type select: update file list with correct icon
-      jobTypeSelect.addEventListener("change", function() {
-        const show = jobTypeSelect.value === "links_and_utm";
-        targetBaseRowsWrapper.classList.toggle("hidden", !show);
-        underlineWrapper.classList.toggle("hidden", !show);
-        targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
-          input.required = show;
-        });
-        underlineInput.required = false;
-        // Update icon in file list
-        const filenameInput = form.querySelector("input[name='filename']");
-        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-        checkDirtyAndUpdateSaveBtn();
-      });
-
-      // When filename is changed, update tab label and file list (don't mark as saved)
-      filenameInput.addEventListener("input", () => {
-        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-        tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
-        updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-        checkDirtyAndUpdateSaveBtn();
-      });
-
-      // File input change: update filename and clear saved state ONLY if a new file is selected
-      fileInput.addEventListener("change", function() {
-        if (fileInput.files && fileInput.files.length > 0) {
-          let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
-          filenameInput.value = base;
-          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-          if (tabLabel) tabLabel.textContent = base;
-          updateFileListStatus(tabId, base, false, jobTypeSelect.value);
-          tabLastSavedState[tabId] = "";
-          checkDirtyAndUpdateSaveBtn();
-        }
-        // If no file was selected (user cancelled), do nothing: don't update filename, don't clear saved state, don't run dirty check.
-      });
-
-      // Initial file list status update
-      updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-
-      // Validate at startup
       checkDirtyAndUpdateSaveBtn();
     }
+  });
 
-    function createTab(fileObj) {
-      const tabId = `doc-${docCount}`;
-      const tabBtn = document.createElement("button");
-      tabBtn.className = "tab";
-      tabBtn.setAttribute("type", "button");
-      tabBtn.setAttribute("title", `Switch to ${tabId}`);
-      tabBtn.dataset.tab = tabId;
-      const tabLabel = document.createElement("span");
-      tabLabel.className = "tab-label";
-      tabLabel.textContent = `Document ${docCount}`;
-      tabBtn.appendChild(tabLabel);
-      const delBtn = document.createElement("button");
-      delBtn.setAttribute("type", "button");
-      delBtn.className = "delete-tab";
-      delBtn.setAttribute("title", "Delete tab");
-      delBtn.dataset.tab = tabId;
-      delBtn.innerHTML = "&times;";
-      tabBtn.appendChild(delBtn);
-      tabBtn.addEventListener("click", function(e) {
-        if (e.target.classList.contains("delete-tab")) return;
-        setActiveTab(tabId);
-      });
-      tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
-      const tabContent = document.createElement("div");
-      tabContent.className = "tab-content";
-      tabContent.id = tabId;
-      const form = document.createElement("form");
-      form.setAttribute("autocomplete", "off");
-      renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
-      tabContent.appendChild(form);
-      tabContents.appendChild(tabContent);
-      setActiveTab(tabId);
-      docCount++;
-      updateAddTabButton();
-      updateTabBarCount();
-      updateDeleteTabButtons();
+  updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+  checkDirtyAndUpdateSaveBtn();
+}
+
+function createTab(fileObj) {
+  const tabId = `doc-${docCount}`;
+  const tabBtn = document.createElement("button");
+  tabBtn.className = "tab";
+  tabBtn.setAttribute("type", "button");
+  tabBtn.setAttribute("title", `Switch to ${tabId}`);
+  tabBtn.dataset.tab = tabId;
+  const tabLabel = document.createElement("span");
+  tabLabel.className = "tab-label";
+  tabLabel.textContent = `Document ${docCount}`;
+  tabBtn.appendChild(tabLabel);
+  const delBtn = document.createElement("button");
+  delBtn.setAttribute("type", "button");
+  delBtn.className = "delete-tab";
+  delBtn.setAttribute("title", "Delete tab");
+  delBtn.dataset.tab = tabId;
+  delBtn.innerHTML = "&times;";
+  tabBtn.appendChild(delBtn);
+  tabBtn.addEventListener("click", function(e) {
+    if (e.target.classList.contains("delete-tab")) return;
+    setActiveTab(tabId);
+  });
+  tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
+  const tabContent = document.createElement("div");
+  tabContent.className = "tab-content";
+  tabContent.id = tabId;
+  const form = document.createElement("form");
+  form.setAttribute("autocomplete", "off");
+  renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
+  tabContent.appendChild(form);
+  tabContents.appendChild(tabContent);
+  setActiveTab(tabId);
+  docCount++;
+  updateAddTabButton();
+  updateTabBarCount();
+  updateDeleteTabButtons();
+}
+// Initial tab
+createTab();
+
+// Tab deletion logic
+document.addEventListener("click", function (e) {
+  if (e.target.classList && e.target.classList.contains("delete-tab")) {
+    if (e.target.hasAttribute('disabled')) return;
+    const tabId = e.target.dataset.tab;
+    const tab = document.querySelector(`[data-tab="${tabId}"]`);
+    const content = document.getElementById(tabId);
+    const fileItem = document.querySelector(`.file-list [data-tab="${tabId}"]`);
+    if (tab) tab.remove();
+    if (content) content.remove();
+    if (fileItem) fileItem.remove();
+    const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+    let newActive = null;
+    if (remainingTabs.length) {
+      newActive = remainingTabs[remainingTabs.length-1];
     }
-    // Initial tab
-    createTab();
-
-    // Tab deletion logic
-    document.addEventListener("click", function (e) {
-      if (e.target.classList && e.target.classList.contains("delete-tab")) {
-        if (e.target.hasAttribute('disabled')) return;
-        const tabId = e.target.dataset.tab;
-        const tab = document.querySelector(`[data-tab="${tabId}"]`);
-        const content = document.getElementById(tabId);
-        const fileItem = document.querySelector(`.file-list [data-tab="${tabId}"]`);
-        if (tab) tab.remove();
-        if (content) content.remove();
-        if (fileItem) fileItem.remove();
-        const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
-        let newActive = null;
-        if (remainingTabs.length) {
-          newActive = remainingTabs[remainingTabs.length-1];
-        }
-        if (newActive) setActiveTab(newActive.dataset.tab);
-        updateAddTabButton();
-        updateTabBarCount();
-        updateDeleteTabButtons();
-      }
-    });
+    if (newActive) setActiveTab(newActive.dataset.tab);
+    updateAddTabButton();
     updateTabBarCount();
+    updateDeleteTabButtons();
+  }
+});
+updateTabBarCount();
 
-    // Multi-document processing and preview
-    let lastProcessedForms = [];
-    processBtn.addEventListener("click", async function() {
-      if (processBtn.disabled) return;
-      showSpinner();
+// Multi-document processing and preview
+let lastProcessedForms = [];
+processBtn.addEventListener("click", async function() {
+  if (processBtn.disabled) return;
+  showSpinner();
 
-      // Collect all saved docs
-      const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
-      const tabData = [];
-      for (const tab of docTabs) {
-        const tabId = tab.dataset.tab;
-        const tabContent = document.getElementById(tabId);
-        if (!tabContent) continue;
-        const form = tabContent.querySelector("form");
-        if (!form) continue;
-        // Only include if in file list as "saved"
-        if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
-        tabData.push({ form, tabId });
-      }
-      if (!tabData.length) {
-        hideSpinner();
-        return;
-      }
+  // Collect all saved docs
+  const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+  const tabData = [];
+  for (const tab of docTabs) {
+    const tabId = tab.dataset.tab;
+    const tabContent = document.getElementById(tabId);
+    if (!tabContent) continue;
+    const form = tabContent.querySelector("form");
+    if (!form) continue;
+    if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
+    tabData.push({ form, tabId });
+  }
+  if (!tabData.length) {
+    hideSpinner();
+    return;
+  }
 
-      // Save forms for "Return to Form" functionality
-      lastProcessedForms = tabData.map(({form, tabId}) => {
-        // Save the form's HTML and its values for each element
-        let values = {};
-        Array.from(form.elements).forEach(el => {
-          if (el.name) {
-            if (el.type === "file") {
-              // Skip actual files; can't serialize
-            } else if (el.type === "checkbox" || el.type === "radio") {
-              values[el.name] = el.checked;
-            } else {
-              values[el.name] = el.value;
-            }
-          }
-        });
-        return {
-          tabId,
-          values
-        };
-      });
-
-      // Prepare all preview requests
-      const previewDocsToShow = [];
-      let encounteredError = null;
-      const API_BASE = "https://utmatic-backend.onrender.com";
-      for (let i = 0; i < tabData.length; ++i) {
-        const { form, tabId } = tabData[i];
-        const formData = new FormData(form);
-        // Fix: ensure correct boolean value for "underline"
-        if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
-        try {
-          const res = await fetch(`${API_BASE}/preview`, {
-            method: "POST",
-            body: formData
-          });
-          if (!res.ok) {
-            const errorText = await res.text();
-            encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
-            break;
-          }
-          const blob = await res.blob();
-          const name = formData.get("filename") || `Document ${i+1}`;
-          // To allow download, create an object URL
-          const url = URL.createObjectURL(blob);
-          previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
-        } catch (err) {
-          encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
-          break;
+  lastProcessedForms = tabData.map(({form, tabId}) => {
+    let values = {};
+    Array.from(form.elements).forEach(el => {
+      if (el.name) {
+        if (el.type === "file") {
+        } else if (el.type === "checkbox" || el.type === "radio") {
+          values[el.name] = el.checked;
+        } else {
+          values[el.name] = el.value;
         }
       }
-
-      hideSpinner();
-
-      if (encounteredError) {
-        alert(encounteredError);
-        // Clean up object URLs in case of partial success
-        previewDocsToShow.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
-        return;
-      }
-
-      // Launch previewer modal (modal overlay)
-      openPdfPreviewer(previewDocsToShow, 0);
     });
+    return {
+      tabId,
+      values
+    };
+  });
 
-    // Add tab button now just creates a blank tab:
-    document.getElementById("add-tab").addEventListener("click", function(e) {
-      if (getTabCount() < MAX_DOCS) {
-        createTab();
+  // Prepare all preview requests
+  const previewDocsToShow = [];
+  let encounteredError = null;
+  const API_BASE = "https://utmatic-backend.onrender.com";
+  for (let i = 0; i < tabData.length; ++i) {
+    const { form, tabId } = tabData[i];
+    const formData = new FormData(form);
+    if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
+    try {
+      const res = await fetch(`${API_BASE}/preview`, {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
+        break;
       }
-      updateAddTabButton();
-      updateTabBarCount();
-    });
+      const blob = await res.blob();
+      const name = formData.get("filename") || `Document ${i+1}`;
+      const url = URL.createObjectURL(blob);
+      previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
+    } catch (err) {
+      encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
+      break;
+    }
+  }
+
+  hideSpinner();
+
+  if (encounteredError) {
+    alert(encounteredError);
+    previewDocsToShow.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+    return;
+  }
+
+  openPdfPreviewer(previewDocsToShow, 0);
+});
+
+// Add tab button now just creates a blank tab:
+document.getElementById("add-tab").addEventListener("click", function(e) {
+  if (getTabCount() < MAX_DOCS) {
+    createTab();
+  }
+  updateAddTabButton();
+  updateTabBarCount();
+});
 
 // PDF Previewer logic (MODERN, MODAL)
 let pdfDocs = [];
@@ -962,7 +889,6 @@ const pdfZoomMin = 0.5; // 50%
 const pdfZoomMax = 3.0; // 300%
 const pdfZoomStep = 0.1; // 10% step
 
-// Utility: Get doc name safely
 function getDocName(idx) {
   return pdfDocs[idx]?.name || `Document ${idx+1}`;
 }
@@ -973,10 +899,8 @@ window.openPdfPreviewer = function(docs, index=0) {
   document.getElementById("pdf-preview-modal-overlay").classList.add("active");
   document.body.style.overflow = "hidden";
 
-  // Populate Document Switcher (Title + Dropdown)
   const docSwitch = document.getElementById("pdf-previewer-docswitch");
   const docList = document.getElementById("pdf-previewer-doclist");
-  // Set title (first child should be a span for the doc name)
   let docNameSpan = docSwitch.querySelector("span");
   if (!docNameSpan) {
     docNameSpan = document.createElement("span");
@@ -985,7 +909,6 @@ window.openPdfPreviewer = function(docs, index=0) {
   docNameSpan.textContent = getDocName(currentDocIndex);
   docSwitch.title = getDocName(currentDocIndex);
 
-  // Populate doc list dropdown
   docList.innerHTML = "";
   pdfDocs.forEach((doc, i) => {
     const div = document.createElement("div");
@@ -1003,9 +926,7 @@ window.openPdfPreviewer = function(docs, index=0) {
     docList.appendChild(div);
   });
 
-  // Enable clicking to open/close doc dropdown
   docSwitch.onclick = function(e) {
-    // Only toggle if click is not on the caret or doclist
     if (
       e.target === docSwitch ||
       e.target === docNameSpan ||
@@ -1016,7 +937,6 @@ window.openPdfPreviewer = function(docs, index=0) {
     }
   };
 
-  // Hide the dropdown if clicking outside
   document.addEventListener(
     "click",
     function outsideClick(e) {
@@ -1028,32 +948,25 @@ window.openPdfPreviewer = function(docs, index=0) {
     { capture: true, once: true }
   );
 
-  // Set up close button
   const closeBtn = document.getElementById("pdf-previewer-close");
   if (closeBtn) {
     closeBtn.onclick = window.closePdfPreview;
   }
 
-  // Setup download button
   const downloadBtn = document.getElementById("download-final-btn");
   if (downloadBtn) {
     downloadBtn.onclick = downloadFinalPdf;
   }
 
-  // Set up page navigation
   const prevBtn = document.getElementById("pdf-arrow-prev");
   const nextBtn = document.getElementById("pdf-arrow-next");
   if (prevBtn) prevBtn.onclick = window.prevPage;
   if (nextBtn) nextBtn.onclick = window.nextPage;
 
-  // Set up start new doc button
   const startNewBtn = document.getElementById("pdf-previewer-startnew");
   if (startNewBtn) startNewBtn.onclick = window.processNew;
 
-  // Update page counter (initially)
   document.getElementById("pdf-preview-page-counter").textContent = "";
-
-  // Load the current document
   loadDocument(currentDocIndex);
 };
 
@@ -1064,7 +977,6 @@ window.closePdfPreview = function() {
     const ctx = pdfCanvas.getContext("2d");
     ctx && ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
   }
-  // Cleanup object URLs
   pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
   pdfDocs = [];
   pdfInstance = null;
@@ -1072,13 +984,10 @@ window.closePdfPreview = function() {
   currentPage = 1;
   totalPages = 1;
 
-  // Restore form UI with previous values
   if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
     document.getElementById("main-form-wrapper").style.display = "";
-    // Restore values
     window.lastProcessedForms.forEach((tab, idx) => {
       const tabId = `doc-${idx+1}`;
-      // If tab exists, update; otherwise, create
       let content = document.getElementById(tabId);
       if (!content) return;
       let form = content.querySelector("form");
@@ -1099,7 +1008,6 @@ window.closePdfPreview = function() {
 window.processNew = function() {
   document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
   document.body.style.overflow = "";
-  // Remove all tabs except the first, and clear all form inputs
   window.lastProcessedForms = [];
   tabContents.innerHTML = "";
   tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
@@ -1131,7 +1039,6 @@ async function loadDocument(index) {
 }
 
 async function renderPage() {
-console.log("Zoom level:", pdfZoomLevel);
   const page = await pdfInstance.getPage(currentPage);
   const viewport = page.getViewport({ scale: pdfZoomLevel });
   pdfCanvas = document.getElementById("pdf-canvas");
@@ -1156,13 +1063,10 @@ window.prevPage = function() {
   }
 };
 
-// Download the FINAL processed PDF for the current document
 async function downloadFinalPdf() {
   const doc = pdfDocs[currentDocIndex];
   if (!doc) return;
-  // Download the clean PDF from /process using the original formData
   if (doc.formData) {
-    // Subtle feedback: disable button briefly
     const btn = document.getElementById("download-final-btn");
     btn.disabled = true;
     btn.textContent = "Downloading...";
@@ -1193,7 +1097,6 @@ async function downloadFinalPdf() {
     btn.disabled = false;
     btn.textContent = "Download PDF";
   } else {
-    // fallback: download the preview file
     const a = document.createElement('a');
     a.href = doc.url;
     a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
@@ -1203,7 +1106,6 @@ async function downloadFinalPdf() {
   }
 }
 
-
 const observer = new MutationObserver(() => {
   document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(el => {
     el.style.caretColor = '#23272f';
@@ -1211,16 +1113,9 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
+// Remove all duplicate global jobTypeSelect logic!
+// No global jobTypeSelect variable. All 'jobTypeSelect' are now scoped to their form.
 
+// (If you have other global .job-type-group or .mapping-tool-row logic, refactor to use only within renderFormFields or per-tab.)
 
-document.addEventListener("DOMContentLoaded", () => {
-  const jobTypeSelects = document.querySelectorAll('select[name="job_type"]');
-  jobTypeSelects.forEach(select => {
-    select.addEventListener("change", () => {
-      const mappingWrapper = document.getElementById("mapping-toggle-wrapper");
-      if (mappingWrapper) {
-        mappingWrapper.style.display = select.value === "links_and_utm" ? "block" : "none";
-      }
-    });
-  });
-});
+// Remove the old global DOMContentLoaded jobTypeSelects logic (was for mapping-toggle-wrapper, now obsolete)
