@@ -316,7 +316,7 @@ fileInput.addEventListener("change", function() {
   fileInputWrapper.appendChild(fileNameSpan);
   pdfField.appendChild(pdfLabel);
   pdfField.appendChild(fileInputWrapper);
-  
+
   // ---- INSERT BUTTON FOR MAPPING AREA ----
   const mappingAreaBtn = document.createElement("button");
   mappingAreaBtn.id = "set-mapping-area-btn";
@@ -324,43 +324,54 @@ fileInput.addEventListener("change", function() {
   mappingAreaBtn.type = "button";
   mappingAreaBtn.textContent = "Set Custom Mapping Area";
   pdfField.appendChild(mappingAreaBtn);
-  
+
   form.appendChild(pdfField);
 
-      // --- Job Type ---
-      const jobTypeField = document.createElement("div");
-      jobTypeField.className = "field-group";
-      const jobTypeLabel = document.createElement("label");
-      jobTypeLabel.htmlFor = "job_type";
-      jobTypeLabel.textContent = "Job Type";
-      const jobTypeSelect = document.createElement("select");
-      jobTypeSelect.name = "job_type";
-      jobTypeSelect.id = "job_type";
-      jobTypeSelect.required = true;
-      
+  // --- Job Type ---
+  const jobTypeField = document.createElement("div");
+  jobTypeField.className = "field-group";
+  const jobTypeLabel = document.createElement("label");
+  jobTypeLabel.htmlFor = "job_type";
+  jobTypeLabel.textContent = "Job Type";
+  const jobTypeSelect = document.createElement("select");
+  jobTypeSelect.name = "job_type";
+  jobTypeSelect.id = "job_type";
+  jobTypeSelect.required = true;
+
   const mappingBtn = document.createElement("button");
   mappingBtn.id = "open-mapping-modal-btn";
   mappingBtn.type = "button";
   mappingBtn.textContent = "Open Mapping Area Tool";
   mappingBtn.style.cssText = "padding: 0.5rem 1rem; background: #1a1a1a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; margin-top: 0.6rem;";
+  // Attach handler to open the modal
+  mappingBtn.onclick = function() {
+    const mappingModal = document.getElementById('mapping-modal');
+    if (mappingModal) {
+      mappingModal.classList.add('show');
+      // Optionally, call renderPage() if needed when opening
+      // if (typeof renderPage === 'function') renderPage();
+    }
+  };
   form.appendChild(mappingBtn);
 
   jobTypeSelect.addEventListener("change", () => {
     mappingBtn.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-block" : "none";
   });
-[
-        { value: "", label: "Select one", icon: "" },
-        { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
-        { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
-      ].forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt.value;
-        option.textContent = opt.label;
-        jobTypeSelect.appendChild(option);
-      });
-      jobTypeField.appendChild(jobTypeLabel);
-      jobTypeField.appendChild(jobTypeSelect);
-      form.appendChild(jobTypeField);
+
+  [
+    { value: "", label: "Select one", icon: "" },
+    { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
+    { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
+  ].forEach(opt => {
+    const option = document.createElement("option");
+    option.value = opt.value;
+    option.textContent = opt.label;
+    jobTypeSelect.appendChild(option);
+  });
+
+  jobTypeField.appendChild(jobTypeLabel);
+  jobTypeField.appendChild(jobTypeSelect);
+  form.appendChild(jobTypeField);
 
       // --- Target Format & Base URL dynamic rows ---
       const targetBaseRowsWrapper = document.createElement("div");
