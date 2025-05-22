@@ -1327,6 +1327,46 @@ window.addEventListener("load", () => {
 <div class="loader-text">Processing...</div>
 <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
 </div>
+
+<!-- Modal for Mapping Area -->
+<div id="mapping-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-modal" id="close-mapping-modal">&times;</span>
+    <h2>Set Mapping Area</h2>
+    <div>
+      <button id="prev-page-btn">Prev</button>
+      <span id="page-info"></span>
+      <button id="next-page-btn">Next</button>
+    </div>
+    <div id="pdf-mapping-container" style="position:relative; border:1px solid #bbb; width:600px; height:800px; margin:1em 0;">
+      <canvas id="mapping-pdf-canvas" width="600" height="800"></canvas>
+      <div id="mapping-rectangle" style="border:2px dashed #3b82f6; position:absolute; display:none; background:rgba(59,130,246,0.12);"></div>
+    </div>
+    <div>
+      <label>
+        Page Range: 
+        <input type="number" id="mapping-start-page" min="1" value="1" style="width:60px;"/>
+        -
+        <input type="number" id="mapping-end-page" min="1" value="1" style="width:60px;"/>
+      </label>
+    </div>
+    <div>
+      <label>
+        X: <input type="number" id="mapping-x" style="width:60px;"/>
+        Y: <input type="number" id="mapping-y" style="width:60px;"/>
+        Width: <input type="number" id="mapping-w" style="width:60px;"/>
+        Height: <input type="number" id="mapping-h" style="width:60px;"/>
+      </label>
+      <button id="apply-area-btn">Apply Area to Range</button>
+    </div>
+    <div>
+      <h3>Current Mappings</h3>
+      <ul id="mappings-list"></ul>
+    </div>
+    <button id="save-mappings-btn">Save Mappings</button>
+  </div>
+</div>
+
 <script>
   // Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
   window.pdfjsViewer =
@@ -1637,6 +1677,15 @@ fileInput.addEventListener("change", function() {
   fileInputWrapper.appendChild(fileNameSpan);
   pdfField.appendChild(pdfLabel);
   pdfField.appendChild(fileInputWrapper);
+  
+  // ---- INSERT BUTTON FOR MAPPING AREA ----
+  const mappingAreaBtn = document.createElement("button");
+  mappingAreaBtn.id = "set-mapping-area-btn";
+  mappingAreaBtn.style.display = "none";
+  mappingAreaBtn.type = "button";
+  mappingAreaBtn.textContent = "Set Custom Mapping Area";
+  pdfField.appendChild(mappingAreaBtn);
+  
   form.appendChild(pdfField);
 
       // --- Job Type ---
@@ -2442,5 +2491,9 @@ const observer = new MutationObserver(() => {
   });
 });
 observer.observe(document.body, { childList: true, subtree: true });
-</script></body>
+</script>
+
+<script src="https://unpkg.com/pdfjs-dist@4.2.67/build/pdf.min.js"></script>
+<script src="mapping-area.js"></script>
+</body>
 </html>
