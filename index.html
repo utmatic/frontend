@@ -111,18 +111,19 @@
         <div id="pdf-mapping-container">
           <canvas height="1333" id="mapping-pdf-canvas" width="1000"></canvas>
           <div id="mapping-rectangle"></div>
-          <!-- Pending rectangles will be added dynamically here -->
         </div>
         <div class="mapping-actions-row">
           <label>
-            Page Range: 
+            Page Range:
             <input id="mapping-start-page" min="1" type="number" value="1"/>
             -
             <input id="mapping-end-page" min="1" type="number" value="1"/>
           </label>
-          <label>
-            <input type="checkbox" id="mapping-alternate-pages" class="alt-checkbox"> Alternate pages only
-          </label>
+          <div class="mapping-radio-group">
+            <label><input type="radio" name="mapping-page-mode" id="mapping-all" value="all" checked> All</label>
+            <label><input type="radio" name="mapping-page-mode" id="mapping-even" value="even"> Even only</label>
+            <label><input type="radio" name="mapping-page-mode" id="mapping-odd" value="odd"> Odd only</label>
+          </div>
           <button id="apply-area-btn" class="primary">Apply Area to Range</button>
         </div>
       </div>
