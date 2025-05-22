@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -13,143 +12,147 @@
 <link href="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.css" rel="stylesheet"/>
 <!-- Mapping Area Stylesheet-->
 <link href="mapping-modal.css" rel="stylesheet"/>
-<!-- Add your modal CSS here: -->
-<link href="styles.css" rel="stylesheet"/></head>
+<!-- Main Styles -->
+<link href="styles.css" rel="stylesheet"/>
+</head>
 <body>
 <div class="page-wrapper" id="main-form-wrapper">
-<div class="main-group">
-<div class="header-container">
-<img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
-<div class="header-text">
-<p>Equip your documents with tracking links — <em>instantly.</em></p>
-</div>
-</div>
-<div class="container">
-<div class="form-container">
-<div class="tab-bar" id="tab-bar">
-<button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
-</div>
-<div id="tab-contents"></div>
-</div>
-<div class="file-list">
-<strong>File List</strong>
-<ul id="file-list"></ul>
-<button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
-</div>
-</div>
-</div>
+  <div class="main-group">
+    <div class="header-container">
+      <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+      <div class="header-text">
+        <p>Equip your documents with tracking links — <em>instantly.</em></p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="form-container">
+        <div class="tab-bar" id="tab-bar">
+          <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
+        </div>
+        <div id="tab-contents"></div>
+      </div>
+      <div class="file-list">
+        <strong>File List</strong>
+        <ul id="file-list"></ul>
+        <button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
+      </div>
+    </div>
+  </div>
 </div>
 <datalist id="base-url-datalist"></datalist>
+
 <!-- PDF Previewer Modal Overlay (MODERN) -->
 <div id="pdf-preview-modal-overlay">
-<div id="pdf-preview-container">
-<!-- Close Button (X) -->
-<button id="pdf-previewer-close" onclick="closePdfPreview()" title="Close Previewer">
-<svg fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M6 6l12 12M6 18L18 6" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</button>
-<!-- Document Name/Selector -->
-<div id="pdf-previewer-docswitch">
-<span id="previewer-title">Agreement.pdf</span>
-<svg class="caret" fill="none" viewbox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-<path d="M6 10l8 8 8-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
-</svg>
-<!-- Dropdown for doc selection -->
-<div id="pdf-previewer-doclist"></div>
-</div>
-<!-- Page Counter -->
-<div id="pdf-preview-page-counter">Page 1 / 9</div>
-<!-- PDF Zoom Controls (left aligned, simple) -->
-<div id="pdf-zoom-controls">
-<button aria-label="Zoom Out" class="zoom-btn" id="zoom-out-btn" title="Zoom Out">
-<!-- Heroicon: Minus -->
-<svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
-<path d="M18 12H6" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</button>
-<button aria-label="Zoom In" class="zoom-btn" id="zoom-in-btn" title="Zoom In">
-<!-- Heroicon: Plus -->
-<svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</button>
-</div>
-<!-- PDF Previewer Canvas w/ Arrow Buttons -->
-<div id="pdf-preview-inner-container" style="position:relative;">
-<button class="pdf-arrow-btn" id="pdf-arrow-prev" onclick="prevPage()" title="Previous Page">
-<svg fill="none" viewbox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-<path d="M18 22l-8-8 8-8" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</button>
-<div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
-<canvas id="pdf-canvas"></canvas>
-</div>
-<button class="pdf-arrow-btn" id="pdf-arrow-next" onclick="nextPage()" title="Next Page">
-<svg fill="none" viewbox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 6l8 8-8 8" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
-</button>
-</div>
-<!-- Actions Bar at Bottom -->
-<div id="pdf-previewer-actions-bar">
-<button id="pdf-previewer-startnew" title="Start New">
-<svg fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0
+  <div id="pdf-preview-container">
+    <!-- Close Button (X) -->
+    <button id="pdf-previewer-close" onclick="closePdfPreview()" title="Close Previewer">
+      <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 6l12 12M6 18L18 6" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <!-- Document Name/Selector -->
+    <div id="pdf-previewer-docswitch">
+      <span id="previewer-title">Agreement.pdf</span>
+      <svg class="caret" fill="none" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 10l8 8 8-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+      </svg>
+      <!-- Dropdown for doc selection -->
+      <div id="pdf-previewer-doclist"></div>
+    </div>
+    <!-- Page Counter -->
+    <div id="pdf-preview-page-counter">Page 1 / 9</div>
+    <!-- PDF Zoom Controls (left aligned, simple) -->
+    <div id="pdf-zoom-controls">
+      <button aria-label="Zoom Out" class="zoom-btn" id="zoom-out-btn" title="Zoom Out">
+        <svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 12H6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button aria-label="Zoom In" class="zoom-btn" id="zoom-in-btn" title="Zoom In">
+        <svg fill="none" height="28" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 6v12m6-6H6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+    <!-- PDF Previewer Canvas w/ Arrow Buttons -->
+    <div id="pdf-preview-inner-container" style="position:relative;">
+      <button class="pdf-arrow-btn" id="pdf-arrow-prev" onclick="prevPage()" title="Previous Page">
+        <svg fill="none" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 22l-8-8 8-8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
+        <canvas id="pdf-canvas"></canvas>
+      </div>
+      <button class="pdf-arrow-btn" id="pdf-arrow-next" onclick="nextPage()" title="Next Page">
+        <svg fill="none" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 6l8 8-8 8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+    <!-- Actions Bar at Bottom -->
+    <div id="pdf-previewer-actions-bar">
+      <button id="pdf-previewer-startnew" title="Start New">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0
               3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181
               3.182m0-4.991v4.99" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
+        </svg>
         Start new
       </button>
-<button class="primary" id="download-final-btn" title="Download Final PDF">Download</button>
+      <button class="primary" id="download-final-btn" title="Download Final PDF">Download</button>
+    </div>
+  </div>
 </div>
-</div>
-</div>
+
 <!-- Loader/Spinner Overlay -->
 <div id="loader">
-<div class="spinner"></div>
-<div class="loader-text">Processing...</div>
-<div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
+  <div class="spinner"></div>
+  <div class="loader-text">Processing...</div>
+  <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
 </div>
+
 <!-- Modal for Mapping Area -->
 <div class="modal" id="mapping-modal">
-<div class="modal-content">
-<span class="close-modal" id="close-mapping-modal">×</span>
-<h2>Set Mapping Area</h2>
-<span id="mapping-filename"></span>
-<div>
-<button id="prev-page-btn">Prev</button>
-<span id="page-info"></span>
-<button id="next-page-btn">Next</button>
-</div>
-<div id="pdf-mapping-container" style="position:relative; border:1px solid #bbb; width:600px; height:800px; margin:1em 0;">
-<canvas height="800" id="mapping-pdf-canvas" width="600"></canvas>
-<div id="mapping-rectangle" style="border:2px dashed #3b82f6; position:absolute; display:none; background:rgba(59,130,246,0.12);"></div>
-</div>
-<div>
-<label>
+  <div class="modal-content">
+    <div class="modal-header">
+      <span id="mapping-filename" class="modal-title"></span>
+      <button class="close-modal" id="close-mapping-modal" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdf-controls">
+      <button id="prev-page-btn" class="nav-btn" title="Previous page" aria-label="Previous page" disabled>&larr;</button>
+      <span id="page-info">Page 1 of 1</span>
+      <button id="next-page-btn" class="nav-btn" title="Next page" aria-label="Next page" disabled>&rarr;</button>
+    </div>
+    <div id="pdf-mapping-container">
+      <canvas height="800" id="mapping-pdf-canvas" width="650"></canvas>
+      <div id="mapping-rectangle"></div>
+    </div>
+    <div style="margin: 1em 0;">
+      <label>
         Page Range: 
         <input id="mapping-start-page" min="1" style="width:60px;" type="number" value="1"/>
         -
         <input id="mapping-end-page" min="1" style="width:60px;" type="number" value="1"/>
-</label>
-</div>
-<div>
-<label>
+      </label>
+    </div>
+    <div style="margin-bottom: 1em;">
+      <label>
         X: <input id="mapping-x" style="width:60px;" type="number"/>
         Y: <input id="mapping-y" style="width:60px;" type="number"/>
         Width: <input id="mapping-w" style="width:60px;" type="number"/>
         Height: <input id="mapping-h" style="width:60px;" type="number"/>
-</label>
-<button id="apply-area-btn">Apply Area to Range</button>
+      </label>
+      <button id="apply-area-btn">Apply Area to Range</button>
+    </div>
+    <div>
+      <h3>Current Mappings</h3>
+      <ul id="mappings-list"></ul>
+    </div>
+    <button id="save-mappings-btn" class="primary">Save Mappings</button>
+  </div>
 </div>
-<div>
-<h3>Current Mappings</h3>
-<ul id="mappings-list"></ul>
-</div>
-<button id="save-mappings-btn">Save Mappings</button>
-</div>
-</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script>
   if (window.pdfjsLib) {
@@ -157,5 +160,6 @@
   }
 </script>
 <script src="script.js"></script>
-<script src="mapping-area.js"></script></body>
+<script src="mapping-area.js"></script>
+</body>
 </html>
