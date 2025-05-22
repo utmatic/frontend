@@ -15,12 +15,14 @@
   let mappingRectangles = [];
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
-  let prevPageBtn = document.getElementById('mapping-prev-page-btn');
-  let nextPageBtn = document.getElementById('mapping-next-page-btn');
+  let prevPageBtn = document.getElementById('prev-page-btn'); // NOTE: ID updated to match HTML
+  let nextPageBtn = document.getElementById('next-page-btn'); // NOTE: ID updated to match HTML
   let saveMappingsBtn = document.getElementById('save-mappings-btn');
   let clearMappingsBtn = document.getElementById('clear-mappings-btn');
-  let mappingFileInput = document.getElementById('mapping-file-input');
   let mappingFilenameSpan = document.getElementById('mapping-filename');
+
+  // The main file input, used for both main form and mapping modal
+  let mainFileInput = document.getElementById('file');
 
   // --- Utility ---
   function renderMappingsList() {
@@ -74,11 +76,32 @@
     });
   }
 
-  // --- Button Actions ---
+  // --- Modal Open/Close Handlers ---
   if (openMappingModalBtn) {
-    openMappingModalBtn.onclick = () => {
+    openMappingModalBtn.onclick = async () => {
       mappingModal.classList.add('show');
-      if (pdfDoc) renderPage();
+      // When opening, load the PDF from the main file input if it's present
+      if (mainFileInput && mainFileInput.files.length > 0) {
+        const file = mainFileInput.files[0];
+        if (file && file.type === "application/pdf") {
+          mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
+          // Always reload the PDF for mapping (optional: only reload if file changed)
+          const arrayBuffer = await file.arrayBuffer();
+          const loadingTask = window.pdfjsLib.getDocument(arrayBuffer);
+          pdfDoc = await loadingTask.promise;
+          mappingCurrentPage = 1;
+          mappingTotalPages = pdfDoc.numPages;
+          renderPage();
+          mappingRectangles.length = 0;
+          renderMappingsList();
+        } else {
+          mappingFilenameSpan.textContent = "";
+          pdfDoc = null;
+        }
+      } else {
+        mappingFilenameSpan.textContent = "";
+        pdfDoc = null;
+      }
     };
   }
   if (closeMappingModalBtn) {
@@ -87,6 +110,7 @@
     };
   }
 
+  // --- Page Navigation ---
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
       if (mappingCurrentPage > 1) {
@@ -103,6 +127,8 @@
       }
     };
   }
+
+  // --- Clear/Save ---
   if (clearMappingsBtn) {
     clearMappingsBtn.onclick = () => {
       mappingRectangles.length = 0;
@@ -126,24 +152,11 @@
       // Or: emit event / send to backend as needed
     };
   }
-  if (mappingFileInput) {
-    mappingFileInput.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
-      const loadingTask = window.pdfjsLib.getDocument(await file.arrayBuffer());
-      pdfDoc = await loadingTask.promise;
-      mappingCurrentPage = 1;
-      mappingTotalPages = pdfDoc.numPages;
-      renderPage();
-      mappingRectangles.length = 0;
-      renderMappingsList();
-    };
-  }
 
   // --- Canvas Drawing ---
   if (pdfMappingCanvas) {
     pdfMappingCanvas.onmousedown = (e) => {
+      if (!pdfDoc) return;
       isDrawing = true;
       const rect = pdfMappingCanvas.getBoundingClientRect();
       startX = e.clientX - rect.left;
@@ -169,7 +182,7 @@
       mappingRectangleDiv.style.height = height + 'px';
     };
     pdfMappingCanvas.onmouseup = (e) => {
-      if (!isDrawing) return;
+      if (!isDrawing || !pdfDoc) return;
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
       // Store rectangle in PDF coordinates
@@ -179,10 +192,11 @@
           pdfMappingCanvas.width / viewport.width,
           pdfMappingCanvas.height / viewport.height
         );
-        let x0 = Math.min(startX, endX) / scale;
-        let y0 = Math.min(startY, endY) / scale;
-        let x1 = Math.max(startX, endX) / scale;
-        let y1 = Math.max(startY, endY) / scale;
+        // Convert canvas coordinates back to PDF coordinates
+        const x0 = Math.min(startX, endX) / scale;
+        const y0 = Math.min(startY, endY) / scale;
+        const x1 = Math.max(startX, endX) / scale;
+        const y1 = Math.max(startY, endY) / scale;
         mappingRectangles.push({
           page: mappingCurrentPage - 1,
           x0, y0, x1, y1
@@ -191,22 +205,22 @@
         renderPage();
       });
     };
+    pdfMappingCanvas.onmouseleave = () => {
+      if (isDrawing) {
+        isDrawing = false;
+        mappingRectangleDiv.style.display = 'none';
+      }
+    };
   }
 
-  // --- On Modal Open, Reset State ---
-  if (mappingModal) {
-    mappingModal.addEventListener('show', () => {
-      mappingCurrentPage = 1;
-      renderPage();
-    });
+  // --- Optionally, reset mapping when main file input changes ---
+  if (mainFileInput) {
+    mainFileInput.onchange = () => {
+      pdfDoc = null;
+      mappingRectangles.length = 0;
+      if (mappingFilenameSpan) mappingFilenameSpan.textContent = "";
+      renderMappingsList();
+    };
   }
 
-  // --- Expose function to get mapping rectangles for backend submission ---
-  window.getMappingAreasForSubmission = function() {
-    // Returns array of { page, x0, y0, x1, y1 }
-    return mappingRectangles.slice();
-  };
-
-  // Optionally, call window.getMappingAreasForSubmission() before submitting your PDF to backend
-  // and include JSON.stringify([...]) as the value for the "mapping_areas" field.
 })();
