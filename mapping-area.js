@@ -11,7 +11,8 @@
   let isDrawing = false;
   let startX, startY, endX, endY;
   let mappingRectangles = [];
-  let lastDragRect = null; // {x0, y0, x1, y1, page}
+  let lastDragRect = null; // {x0, y0, x1, y1, page, name}
+  let lastDragName = "";   // Last typed name for the mapping area
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
   let prevPageBtn = document.getElementById('prev-page-btn');
@@ -50,6 +51,7 @@
     let label = pdfMappingContainer.querySelector('.mapping-pending-rect-label');
     if (label) label.remove();
   }
+
   function showPendingRectVisual() {
     clearPendingRectVisual();
     if (!lastDragRect || lastDragRect.page !== mappingCurrentPage) return;
@@ -72,13 +74,24 @@
     div.style.height = `${height}px`;
     pdfMappingContainer.appendChild(div);
 
-    // Label
-    let label = document.createElement('div');
-    label.className = 'mapping-pending-rect-label';
-    label.textContent = 'Not Applied';
-    label.style.left = `${left}px`;
-    label.style.top = `${Math.max(0, top - 26)}px`;
-    pdfMappingContainer.appendChild(label);
+    // Label with name input
+    let labelDiv = document.createElement('div');
+    labelDiv.className = 'mapping-pending-rect-label';
+    labelDiv.style.left = `${left}px`;
+    labelDiv.style.top = `${Math.max(0, top - 32)}px`;
+
+    let nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = "Mapping name (optional)";
+    nameInput.value = lastDragName || "";
+    nameInput.autocomplete = "off";
+    nameInput.addEventListener('input', function(e) {
+      lastDragName = nameInput.value;
+    });
+    labelDiv.appendChild(nameInput);
+
+    pdfMappingContainer.appendChild(labelDiv);
+    nameInput.focus();
   }
 
   function renderAppliedRects() {
@@ -112,7 +125,6 @@
       let viewport = page.getViewport({ scale: 1.0 });
       pdfMappingCanvas.width = viewport.width;
       pdfMappingCanvas.height = viewport.height;
-
       page.render({ canvasContext: mappingCtx, viewport: viewport }).promise.then(() => {
         renderAppliedRects();
         showPendingRectVisual();
@@ -121,14 +133,25 @@
     updatePageInfo();
   }
 
+  function isFullRangeOddOrEven(rangeArr, mode) {
+    if (!rangeArr.length || (mode !== 'even' && mode !== 'odd')) return false;
+    let parity = mode === 'even' ? 0 : 1;
+    for (let p of rangeArr) {
+      if (p % 2 !== parity) return false;
+    }
+    return true;
+  }
+
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     if (!mappingRectangles.length) return;
-    // Group mappings by area + mode
+
+    // Group mappings by area + mode + name
     let grouped = [];
     mappingRectangles.forEach(rect => {
       let group = grouped.find(g =>
-        g.x0 === rect.x0 && g.y0 === rect.y0 && g.x1 === rect.x1 && g.y1 === rect.y1 && g.mode === rect.mode
+        g.x0 === rect.x0 && g.y0 === rect.y0 && g.x1 === rect.x1 && g.y1 === rect.y1 &&
+        g.mode === rect.mode && (g.name || "") === (rect.name || "")
       );
       if (group) {
         group.pages.push(rect.page + 1);
@@ -136,49 +159,64 @@
         grouped.push({
           x0: rect.x0, y0: rect.y0, x1: rect.x1, y1: rect.y1,
           mode: rect.mode,
+          name: rect.name || "",
           pages: [rect.page + 1]
         });
       }
     });
+
     grouped.forEach(group => {
       group.pages.sort((a, b) => a - b);
-      let ranges = [];
-      let rangeStart = group.pages[0];
-      let rangeEnd = group.pages[0];
+
+      // Collapse into a single range (if possible)
+      let first = group.pages[0], last = group.pages[group.pages.length - 1];
+      let isContiguous = true;
       for (let i = 1; i < group.pages.length; i++) {
-        if (group.pages[i] === rangeEnd + 1) {
-          rangeEnd = group.pages[i];
-        } else {
-          ranges.push([rangeStart, rangeEnd]);
-          rangeStart = group.pages[i];
-          rangeEnd = group.pages[i];
+        if (group.pages[i] !== group.pages[i-1] + 1) {
+          isContiguous = false;
+          break;
         }
       }
-      ranges.push([rangeStart, rangeEnd]);
-      ranges.forEach(r => {
-        const li = document.createElement('li');
-        const coordString = `(${Math.round(group.x0)}, ${Math.round(group.y0)}, w=${Math.round(group.x1-group.x0)}, h=${Math.round(group.y1-group.y0)})`;
-        let modeStr = "";
-        if(group.mode === "even") modeStr = " (Even only)";
-        if(group.mode === "odd") modeStr = " (Odd only)";
-        li.textContent = r[0] === r[1]
-          ? `Page ${r[0]}${modeStr}: ${coordString}`
-          : `Pages ${r[0]}-${r[1]}${modeStr}: ${coordString}`;
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '×';
-        removeBtn.onclick = () => {
-          mappingRectangles = mappingRectangles.filter(rect =>
-            !(
-              rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 && rect.mode === group.mode &&
-              rect.page + 1 >= r[0] && rect.page + 1 <= r[1]
-            )
-          );
-          renderMappingsList();
-          renderPage();
-        };
-        li.appendChild(removeBtn);
-        mappingsListEl.appendChild(li);
-      });
+      let label = "";
+      let modeStr = "";
+      if(group.mode === "even") modeStr = " (even only)";
+      if(group.mode === "odd") modeStr = " (odd only)";
+      if (group.pages.length === 1) {
+        label = `Page ${group.pages[0]}${modeStr}`;
+      } else if (isContiguous && isFullRangeOddOrEven(group.pages, group.mode)) {
+        label = `Pages ${first}-${last}${modeStr}`;
+      } else {
+        // show as comma-separated
+        label = `Pages ${group.pages.join(", ")}${modeStr}`;
+      }
+      if(group.name) {
+        label += ': <span class="mapping-name">' + escapeHTML(group.name) + '</span>';
+      }
+      const li = document.createElement('li');
+      li.innerHTML = label;
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = '×';
+      removeBtn.onclick = () => {
+        mappingRectangles = mappingRectangles.filter(rect =>
+          !(
+            rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 &&
+            rect.mode === group.mode && (rect.name || "") === (group.name || "") &&
+            group.pages.includes(rect.page + 1)
+          )
+        );
+        renderMappingsList();
+        renderPage();
+      };
+      li.appendChild(removeBtn);
+      mappingsListEl.appendChild(li);
+    });
+  }
+
+  function escapeHTML(str) {
+    return (str || "").replace(/[&<>"']/g, function(m) {
+      return ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m];
     });
   }
 
@@ -198,6 +236,7 @@
           mappingRectangles.length = 0;
           renderMappingsList();
           lastDragRect = null;
+          lastDragName = "";
           clearPendingRectVisual();
         } else {
           mappingFilenameSpan.textContent = "";
@@ -215,6 +254,7 @@
       mappingModal.classList.remove('show');
       clearPendingRectVisual();
       lastDragRect = null;
+      lastDragName = "";
     };
   }
   mappingModal.addEventListener('mousedown', function(e) {
@@ -222,6 +262,7 @@
       mappingModal.classList.remove('show');
       clearPendingRectVisual();
       lastDragRect = null;
+      lastDragName = "";
     }
   });
 
@@ -250,12 +291,14 @@
       if (endPage > mappingTotalPages) endPage = mappingTotalPages;
       if (endPage < startPage) [startPage, endPage] = [endPage, startPage];
       let x0 = lastDragRect.x0, y0 = lastDragRect.y0, x1 = lastDragRect.x1, y1 = lastDragRect.y1;
+      let name = lastDragName || "";
+      let mode = mappingPageMode;
       let pageIndices = [];
       for (let i = startPage - 1; i <= endPage - 1; i++) {
         if (
-          mappingPageMode === "all" ||
-          (mappingPageMode === "even" && ((i + 1) % 2 === 0)) ||
-          (mappingPageMode === "odd" && ((i + 1) % 2 === 1))
+          mode === "all" ||
+          (mode === "even" && ((i + 1) % 2 === 0)) ||
+          (mode === "odd" && ((i + 1) % 2 === 1))
         ) {
           pageIndices.push(i);
         }
@@ -264,12 +307,14 @@
         mappingRectangles.push({
           page: pageIdx,
           x0, y0, x1, y1,
-          mode: mappingPageMode
+          mode: mode,
+          name: name
         });
       });
       renderMappingsList();
       renderPage();
       lastDragRect = null;
+      lastDragName = "";
       clearPendingRectVisual();
     };
   }
@@ -328,6 +373,7 @@
         const x1 = Math.max(startX, endX) / scale;
         const y1 = Math.max(startY, endY) / scale;
         lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
+        lastDragName = "";
         showPendingRectVisual();
       });
     };
@@ -345,6 +391,7 @@
       if (mappingFilenameSpan) mappingFilenameSpan.textContent = "";
       renderMappingsList();
       lastDragRect = null;
+      lastDragName = "";
       clearPendingRectVisual();
     };
   }
