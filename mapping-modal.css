@@ -16,11 +16,11 @@
 
 #mapping-modal .modal-content {
   background: #fff;
-  margin: 3vh auto;
+  margin: 4vh auto;
   border-radius: 14px;
-  width: 1120px;
-  max-width: 97vw;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.17);
+  width: 1100px;
+  max-width: 98vw;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.14);
   position: relative;
   overflow: visible;
   display: flex;
@@ -32,29 +32,29 @@
   align-items: center;
   justify-content: center;
   background: #f5f7fa;
-  padding: 0 24px;
+  padding: 0 20px;
   border-bottom: 1px solid #ececec;
   border-radius: 14px 14px 0 0;
-  min-height: 40px;
-  height: 52px;
+  min-height: 36px;
+  height: 46px;
   position: relative;
 }
+
 #mapping-modal .modal-title,
 #mapping-filename {
   font-size: 1.13em;
   font-weight: 700;
   color: #1d283a;
-  text-transform: none;
   text-align: center;
-  flex: 0 1 auto;
   margin: 0 auto;
+  flex: 0 1 auto;
 }
 #mapping-modal .close-modal {
   position: absolute;
-  right: 27px;
+  right: 22px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1.75em;
+  font-size: 1.5em;
   color: #b0b0b0;
   cursor: pointer;
   background: none;
@@ -70,17 +70,15 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 0;
   padding: 0;
-  min-height: 660px;
-  height: 660px;
+  min-height: 560px;
 }
 
 #mapping-modal .details-pane {
-  flex: 0 0 240px;
-  max-width: 240px;
-  min-width: 200px;
-  padding: 28px 18px 15px 28px;
+  flex: 0 0 235px;
+  max-width: 235px;
+  min-width: 175px;
+  padding: 26px 12px 24px 28px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -88,8 +86,8 @@
   border-right: 1px solid #f1f2f5;
 }
 #mapping-modal .details-pane h3 {
-  margin: 0 0 17px 0;
-  font-size: 1.09em;
+  margin: 0 0 13px 0;
+  font-size: 1.08em;
   font-weight: 700;
   width: 100%;
   text-align: left;
@@ -97,54 +95,55 @@
   letter-spacing: -0.5px;
 }
 #mapping-modal .details-pane ul {
-  padding-left: 19px;
-  margin: 0 0 0 0;
+  padding-left: 18px;
+  margin: 0;
   font-size: 1.01em;
   color: #27343f;
 }
 #mapping-modal .details-pane li {
-  margin-bottom: 0.53em;
+  margin-bottom: 0.5em;
   line-height: 1.6;
 }
 #mapping-modal .details-pane .tip {
   margin-top: 13px;
-  font-size: 0.97em;
+  font-size: 0.96em;
   color: #6b7280;
 }
 
 #mapping-modal .left-pane {
-  flex: 1 1 400px;
+  flex: 1 1 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 28px 0 0 0;
-  min-width: 410px;
-  max-width: 480px;
+  padding: 26px 0 26px 0;
+  min-width: 360px;
+  max-width: 460px;
   height: 100%;
+  box-sizing: border-box;
 }
 
 #mapping-modal .right-pane {
-  flex: 0 0 240px;
-  min-width: 200px;
-  max-width: 240px;
+  flex: 0 0 235px;
+  min-width: 175px;
+  max-width: 235px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 28px 18px 15px 18px;
+  padding: 26px 12px 24px 20px;
   background: #fff;
   border-left: 1px solid #f1f2f5;
   height: 100%;
 }
 #mapping-modal .right-pane h3 {
-  margin: 0 0 13px 0;
-  font-size: 1.09em;
+  margin: 0 0 12px 0;
+  font-size: 1.08em;
   font-weight: 700;
 }
 #mapping-modal .pdf-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0 14px 0;
+  margin: 0 0 13px 0;
   gap: 8px;
 }
 #mapping-modal .nav-btn {
@@ -174,9 +173,9 @@
   border: 1px solid #dde1e9;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.06);
-  width: 350px;
-  height: 468px;
-  margin: 0 0 0 0;
+  width: 340px;
+  height: 458px;
+  margin: 0 auto 0 auto;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -184,8 +183,8 @@
   align-items: center;
 }
 #mapping-pdf-canvas {
-  width: 350px;
-  height: 468px;
+  width: 340px;
+  height: 458px;
   border-radius: 5px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.05);
   background: #fff;
@@ -203,7 +202,7 @@
   position: absolute;
   top: -26px;
   left: 0;
-  font-size: 0.96em;
+  font-size: 0.95em;
   z-index: 5;
   pointer-events: auto;
   display: flex;
@@ -211,7 +210,7 @@
   gap: 6px;
 }
 .mapping-pending-rect-label input[type="text"] {
-  width: 125px;
+  width: 120px;
   padding: 2px 6px;
   font-size: 0.99em;
   border: 1px solid #e5a43b;
@@ -232,7 +231,7 @@
   pointer-events: none;
 }
 #mapping-modal .mapping-actions-row {
-  width: 350px;
+  width: 340px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -245,7 +244,7 @@
 #mapping-modal .mapping-actions-row label,
 #mapping-modal .mapping-actions-row input[type="number"],
 #mapping-modal .mapping-actions-row .alt-checkbox {
-  font-size: 0.98em;
+  font-size: 0.97em;
 }
 #mapping-modal .mapping-actions-row input[type="number"] {
   width: 36px;
@@ -267,7 +266,7 @@
 #mapping-modal .mapping-actions-row .mapping-radio-group label {
   margin-right: 6px;
   margin-bottom: 0;
-  font-size: 0.98em;
+  font-size: 0.97em;
   font-weight: 400;
   color: #353535;
   display: flex;
@@ -276,7 +275,7 @@
 }
 #mapping-modal .mapping-actions-row button.primary {
   margin-left: 7px;
-  min-width: 80px;
+  min-width: 74px;
   font-size: 0.97em;
   padding: 7px 13px;
 }
