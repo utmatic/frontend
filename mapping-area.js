@@ -104,7 +104,6 @@
         }
       }
       document.addEventListener('mousedown', outsideListener, true);
-      // If the user clicks inside the PDF container, but NOT on the pending rect or label, also clear
       pdfMappingContainer.addEventListener('mousedown', function(e) {
         if (!labelDiv.contains(e.target) && !div.contains(e.target)) {
           lastDragRect = null;
@@ -419,7 +418,6 @@
         const x1 = Math.max(startX, endX) / scale;
         const y1 = Math.max(startY, endY) / scale;
         lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
-        // Don't clear lastDragName here!
         showPendingRectVisual();
       });
     };
@@ -444,7 +442,6 @@
       clearPendingRectVisual();
     };
   }
-
   // Keep pending mapping area even if page range inputs are edited
   mappingStartPageInput.addEventListener('input', () => {
     showPendingRectVisual();
