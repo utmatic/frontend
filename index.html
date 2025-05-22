@@ -109,12 +109,12 @@
           <button id="next-page-btn" class="nav-btn" title="Next page" aria-label="Next page" disabled>&rarr;</button>
         </div>
         <div id="pdf-mapping-container">
-          <canvas height="867" id="mapping-pdf-canvas" width="650"></canvas>
+          <canvas height="628" id="mapping-pdf-canvas" width="470"></canvas>
           <div id="mapping-rectangle"></div>
           <!-- Pending rectangle label (with name input) added dynamically -->
         </div>
         <div class="mapping-actions-row">
-          <label style="display:flex;align-items:center;gap:4px;">
+          <label style="display:flex;align-items:center;gap:3px;">
             Page Range:
             <input id="mapping-start-page" min="1" type="number" value="1"/>
             -
@@ -131,7 +131,7 @@
       <div class="right-pane">
         <h3>Current Mappings</h3>
         <ul id="mappings-list"></ul>
-        <button id="save-mappings-btn" class="primary">Save Mappings</button>
+        <button id="save-mappings-btn" class="primary" style="display:none;">Save</button>
       </div>
     </div>
   </div>
