@@ -1,4 +1,3 @@
-/* Modal background and centering */
 #mapping-modal {
   display: none;
   position: fixed;
@@ -13,21 +12,17 @@
 #mapping-modal.show {
   display: block;
 }
-
-/* Modal content panel */
 #mapping-modal .modal-content {
   background: #fff;
   margin: 4vh auto;
   padding: 0;
   border-radius: 14px;
-  width: 1100px; /* WIDER for more comfortable layout */
+  width: 1375px; /* 25% wider than 1100px */
   max-width: 98vw;
   box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
   position: relative;
   overflow: visible;
 }
-
-/* Modal header */
 #mapping-modal .modal-header {
   display: flex;
   justify-content: space-between;
@@ -37,13 +32,11 @@
   border-bottom: 1px solid #ececec;
   border-radius: 14px 14px 0 0;
 }
-
 #mapping-modal .modal-title, #mapping-filename {
   font-size: 1.16em;
   font-weight: 600;
   color: #1d283a;
 }
-
 #mapping-modal .close-modal {
   position: static;
   font-size: 1.7em;
@@ -59,8 +52,6 @@
 #mapping-modal .close-modal:hover {
   color: #888;
 }
-
-/* PDF controls/navigation */
 #mapping-modal .pdf-controls {
   display: flex;
   align-items: center;
@@ -68,7 +59,6 @@
   margin: 16px 0 4px 0;
   gap: 12px;
 }
-
 #mapping-modal .nav-btn {
   background: #e0e7ef;
   border: none;
@@ -84,13 +74,11 @@
   background: #f3f4f6;
   cursor: not-allowed;
 }
-
 #mapping-modal #page-info {
   font-size: 1.04em;
   color: #23272f;
   font-weight: 500;
 }
-
 /* PDF canvas container */
 #pdf-mapping-container {
   display: flex;
@@ -100,22 +88,20 @@
   border: 1px solid #dde1e9;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.07);
-  width: 900px;    /* WIDER for more comfortable layout */
-  height: 1100px;  /* Make taller as well */
+  width: 1125px;    /* 25% wider than 900px */
+  height: 1375px;   /* keep proportional */
   margin: 0 auto 16px auto;
   position: relative;
   overflow: hidden;
 }
-
 #mapping-pdf-canvas {
-  width: 900px;
-  height: 1100px;
+  width: 1125px;
+  height: 1375px;
   border-radius: 5px;
   box-shadow: 0 2px 8px rgba(30,40,60,0.08);
   background: #fff;
   display: block;
 }
-
 /* Rectangle overlay for mapping */
 #mapping-rectangle {
   border: 2px dashed #3b82f6;
@@ -125,7 +111,6 @@
   pointer-events: none;
   z-index: 2;
 }
-
 /* Mappings list styling */
 #mappings-list {
   max-height: 120px;
@@ -135,17 +120,29 @@
   padding: 6px 12px;
   margin: 0.5em 0 1em 0;
   font-size: 0.97em;
+  list-style: none;
 }
 #mappings-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 3px;
+  padding: 2px 0;
 }
-
+#mappings-list button {
+  margin-left: 10px;
+  color: #dc2626;
+  background: none;
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+}
+/* Controls and buttons */
 #mapping-modal button,
 #mapping-modal input[type="number"] {
   margin: 0 3px 5px 0;
   font-size: 1em;
 }
-
 #mapping-modal button {
   padding: 6px 13px;
   border-radius: 5px;
@@ -170,19 +167,12 @@
 #mapping-modal button#save-mappings-btn:hover {
   background: #1d4ed8;
 }
-
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1450px) {
   #mapping-modal .modal-content {
     width: 98vw;
-    min-width: 0;
-    padding: 0;
   }
-  #pdf-mapping-container {
-    width: 95vw;
-    height: 60vw;
-    max-height: 85vh;
-  }
+  #pdf-mapping-container,
   #mapping-pdf-canvas {
     width: 95vw;
     height: 60vw;
