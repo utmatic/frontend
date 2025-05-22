@@ -1130,3 +1130,17 @@ const observer = new MutationObserver(() => {
   });
 });
 observer.observe(document.body, { childList: true, subtree: true });
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const jobTypeSelects = document.querySelectorAll('select[name="job_type"]');
+  jobTypeSelects.forEach(select => {
+    select.addEventListener("change", () => {
+      const mappingWrapper = document.getElementById("mapping-toggle-wrapper");
+      if (mappingWrapper) {
+        mappingWrapper.style.display = select.value === "links_and_utm" ? "block" : "none";
+      }
+    });
+  });
+});
