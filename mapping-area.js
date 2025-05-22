@@ -1,230 +1,212 @@
-// mapping-area.js
+(function() {
+  // === Mapping Area Modal Logic (IIFE Scope) ===
 
-let pdfDoc = null;
-let currentPage = 1;
-let totalPages = 1;
-let pdfUrl = null;
-let scale = 1.0;
+  // --- Configurable Variables ---
+  let mappingModal = document.getElementById('mapping-modal');
+  let openMappingModalBtn = document.getElementById('open-mapping-modal-btn');
+  let closeMappingModalBtn = document.getElementById('close-mapping-modal-btn');
+  let pdfMappingCanvas = document.getElementById('mapping-pdf-canvas');
+  let mappingCtx = pdfMappingCanvas.getContext('2d');
+  let pdfDoc = null;
+  let mappingCurrentPage = 1;
+  let mappingTotalPages = 1;
+  let isDrawing = false;
+  let startX, startY, endX, endY;
+  let mappingRectangles = [];
+  let mappingRectangleDiv = document.getElementById('mapping-rectangle');
+  let mappingsListEl = document.getElementById('mappings-list');
+  let prevPageBtn = document.getElementById('mapping-prev-page-btn');
+  let nextPageBtn = document.getElementById('mapping-next-page-btn');
+  let saveMappingsBtn = document.getElementById('save-mappings-btn');
+  let clearMappingsBtn = document.getElementById('clear-mappings-btn');
+  let mappingFileInput = document.getElementById('mapping-file-input');
+  let mappingFilenameSpan = document.getElementById('mapping-filename');
 
-let mappings = []; // {startPage, endPage, x, y, w, h}
-
-// Elements
-const jobTypeSelect = document.getElementById('job-type');
-const setMappingAreaBtn = document.getElementById('set-mapping-area-btn');
-const pdfUpload = document.getElementById('pdf-upload');
-const modal = document.getElementById('mapping-modal');
-const closeModal = document.getElementById('close-mapping-modal');
-const prevPageBtn = document.getElementById('prev-page-btn');
-const nextPageBtn = document.getElementById('next-page-btn');
-const pageInfo = document.getElementById('page-info');
-const pdfContainer = document.getElementById('pdf-mapping-container');
-const canvas = document.getElementById('mapping-pdf-canvas');
-const ctx = canvas.getContext('2d');
-const rectDiv = document.getElementById('mapping-rectangle');
-const startPageInput = document.getElementById('mapping-start-page');
-const endPageInput = document.getElementById('mapping-end-page');
-const xInput = document.getElementById('mapping-x');
-const yInput = document.getElementById('mapping-y');
-const wInput = document.getElementById('mapping-w');
-const hInput = document.getElementById('mapping-h');
-const applyAreaBtn = document.getElementById('apply-area-btn');
-const mappingsList = document.getElementById('mappings-list');
-const saveMappingsBtn = document.getElementById('save-mappings-btn');
-
-// Show/hide set mapping btn
-jobTypeSelect.addEventListener('change', () => {
-  if (jobTypeSelect.value === 'add-links-utm' && pdfUpload.files.length > 0) {
-    setMappingAreaBtn.style.display = '';
-  } else {
-    setMappingAreaBtn.style.display = 'none';
+  // --- Utility ---
+  function renderMappingsList() {
+    mappingsListEl.innerHTML = '';
+    mappingRectangles.forEach((rect, idx) => {
+      const li = document.createElement('li');
+      li.textContent = `Page ${rect.page + 1}: (${rect.x0.toFixed(1)}, ${rect.y0.toFixed(1)}) → (${rect.x1.toFixed(1)}, ${rect.y1.toFixed(1)})`;
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = '×';
+      removeBtn.onclick = () => {
+        mappingRectangles.splice(idx, 1);
+        renderMappingsList();
+        renderPage();
+      };
+      li.appendChild(removeBtn);
+      mappingsListEl.appendChild(li);
+    });
   }
-});
 
-// Show/hide set mapping btn on file upload
-pdfUpload.addEventListener('change', () => {
-  if (jobTypeSelect.value === 'add-links-utm' && pdfUpload.files.length > 0) {
-    setMappingAreaBtn.style.display = '';
-  } else {
-    setMappingAreaBtn.style.display = 'none';
+  function renderPage() {
+    if (!pdfDoc) return;
+    pdfDoc.getPage(mappingCurrentPage).then(page => {
+      let viewport = page.getViewport({ scale: 1.0 });
+      let scale = Math.min(
+        pdfMappingCanvas.width / viewport.width,
+        pdfMappingCanvas.height / viewport.height
+      );
+      viewport = page.getViewport({ scale });
+      pdfMappingCanvas.width = viewport.width;
+      pdfMappingCanvas.height = viewport.height;
+
+      // Clear and render
+      page.render({ canvasContext: mappingCtx, viewport: viewport }).promise.then(() => {
+        // Draw rectangles for this page
+        mappingRectangles.forEach(rect => {
+          if (rect.page === mappingCurrentPage - 1) {
+            mappingCtx.save();
+            mappingCtx.strokeStyle = '#3b82f6';
+            mappingCtx.lineWidth = 2;
+            mappingCtx.setLineDash([6, 4]);
+            mappingCtx.strokeRect(
+              rect.x0 * scale,
+              rect.y0 * scale,
+              (rect.x1 - rect.x0) * scale,
+              (rect.y1 - rect.y0) * scale
+            );
+            mappingCtx.restore();
+          }
+        });
+      });
+    });
   }
-});
 
-// Open mapping modal
-setMappingAreaBtn.addEventListener('click', () => {
-  if (!pdfUpload.files.length) return;
-  mappings = [];
-  openMappingModal();
-});
-
-function openMappingModal() {
-  modal.style.display = 'block';
-  // Load PDF
-  const file = pdfUpload.files[0];
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    loadPdf(e.target.result);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-closeModal.onclick = () => {
-  closeMappingModal();
-};
-
-function closeMappingModal() {
-  modal.style.display = 'none';
-}
-
-// PDF.js setup
-async function loadPdf(arrayBuffer) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.2.67/build/pdf.worker.min.js';
-  pdfDoc = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-  totalPages = pdfDoc.numPages;
-  currentPage = 1;
-
-  startPageInput.max = totalPages;
-  endPageInput.max = totalPages;
-  endPageInput.value = currentPage;
-  startPageInput.value = currentPage;
-
-  renderPage(currentPage);
-  updatePageInfo();
-  listMappings();
-}
-
-// Page navigation
-prevPageBtn.onclick = () => {
-  if (currentPage > 1) {
-    currentPage--;
-    renderPage(currentPage);
-    updatePageInfo();
-  }
-};
-nextPageBtn.onclick = () => {
-  if (currentPage < totalPages) {
-    currentPage++;
-    renderPage(currentPage);
-    updatePageInfo();
-  }
-};
-function updatePageInfo() {
-  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-  startPageInput.value = currentPage;
-  endPageInput.value = currentPage;
-}
-
-// Render page
-async function renderPage(pageNum) {
-  const page = await pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({scale: 1.0});
-  scale = Math.min(canvas.width / viewport.width, canvas.height / viewport.height);
-  const scaledViewport = page.getViewport({scale});
-
-  canvas.width = scaledViewport.width;
-  canvas.height = scaledViewport.height;
-
-  await page.render({canvasContext: ctx, viewport: scaledViewport}).promise;
-}
-
-// Rectangle drawing logic
-let isDrawing = false, startX, startY;
-
-pdfContainer.onmousedown = function(e) {
-  // Only start drawing if within canvas bounds
-  const rect = canvas.getBoundingClientRect();
-  if (e.target !== canvas) return;
-  isDrawing = true;
-  startX = e.offsetX;
-  startY = e.offsetY;
-  rectDiv.style.left = startX + 'px';
-  rectDiv.style.top = startY + 'px';
-  rectDiv.style.width = '0px';
-  rectDiv.style.height = '0px';
-  rectDiv.style.display = 'block';
-};
-pdfContainer.onmousemove = function(e) {
-  if (!isDrawing) return;
-  const currX = e.offsetX, currY = e.offsetY;
-  const width = Math.abs(currX - startX);
-  const height = Math.abs(currY - startY);
-  rectDiv.style.left = Math.min(currX, startX) + 'px';
-  rectDiv.style.top = Math.min(currY, startY) + 'px';
-  rectDiv.style.width = width + 'px';
-  rectDiv.style.height = height + 'px';
-};
-pdfContainer.onmouseup = function(e) {
-  if (!isDrawing) return;
-  isDrawing = false;
-  // Set input values based on drawn rectangle
-  const rect = rectDiv.getBoundingClientRect();
-  const containerRect = canvas.getBoundingClientRect();
-  const x = parseInt(rectDiv.style.left);
-  const y = parseInt(rectDiv.style.top);
-  const w = parseInt(rectDiv.style.width);
-  const h = parseInt(rectDiv.style.height);
-  xInput.value = Math.round(x);
-  yInput.value = Math.round(y);
-  wInput.value = Math.round(w);
-  hInput.value = Math.round(h);
-  rectDiv.style.display = 'block';
-};
-
-// Apply area to page range
-applyAreaBtn.onclick = () => {
-  const start = parseInt(startPageInput.value);
-  const end = parseInt(endPageInput.value);
-  const x = parseInt(xInput.value);
-  const y = parseInt(yInput.value);
-  const w = parseInt(wInput.value);
-  const h = parseInt(hInput.value);
-  if (w <= 0 || h <= 0 || isNaN(start) || isNaN(end)) return;
-  mappings.push({
-    startPage: Math.min(start, end),
-    endPage: Math.max(start, end),
-    x, y, w, h
-  });
-  listMappings();
-  // Clear rectangle
-  rectDiv.style.display = 'none';
-};
-
-function listMappings() {
-  mappingsList.innerHTML = '';
-  mappings.forEach((m, i) => {
-    const li = document.createElement('li');
-    li.textContent = `Pages ${m.startPage}-${m.endPage}: x=${m.x}, y=${m.y}, w=${m.w}, h=${m.h}`;
-    const delBtn = document.createElement('button');
-    delBtn.textContent = 'Remove';
-    delBtn.onclick = () => {
-      mappings.splice(i, 1);
-      listMappings();
+  // --- Button Actions ---
+  if (openMappingModalBtn) {
+    openMappingModalBtn.onclick = () => {
+      mappingModal.classList.add('show');
+      if (pdfDoc) renderPage();
     };
-    li.appendChild(delBtn);
-    mappingsList.appendChild(li);
-  });
-}
+  }
+  if (closeMappingModalBtn) {
+    closeMappingModalBtn.onclick = () => {
+      mappingModal.classList.remove('show');
+    };
+  }
 
-// Rectangle manual input
-[xInput, yInput, wInput, hInput].forEach(inp => {
-  inp.addEventListener('input', () => {
-    rectDiv.style.left = xInput.value + 'px';
-    rectDiv.style.top = yInput.value + 'px';
-    rectDiv.style.width = wInput.value + 'px';
-    rectDiv.style.height = hInput.value + 'px';
-    rectDiv.style.display = 'block';
-  });
-});
+  if (prevPageBtn) {
+    prevPageBtn.onclick = () => {
+      if (mappingCurrentPage > 1) {
+        mappingCurrentPage--;
+        renderPage();
+      }
+    };
+  }
+  if (nextPageBtn) {
+    nextPageBtn.onclick = () => {
+      if (mappingCurrentPage < mappingTotalPages) {
+        mappingCurrentPage++;
+        renderPage();
+      }
+    };
+  }
+  if (clearMappingsBtn) {
+    clearMappingsBtn.onclick = () => {
+      mappingRectangles.length = 0;
+      renderMappingsList();
+      renderPage();
+    };
+  }
+  if (saveMappingsBtn) {
+    saveMappingsBtn.onclick = () => {
+      // Save as JSON for backend
+      const mappingData = JSON.stringify(mappingRectangles);
+      // For demo: download as file
+      const blob = new Blob([mappingData], { type: "application/json" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (mappingFilenameSpan.textContent || "mapping-areas") + '.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      document.body.removeChild(a);
+      // Or: emit event / send to backend as needed
+    };
+  }
+  if (mappingFileInput) {
+    mappingFileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
+      const loadingTask = window.pdfjsLib.getDocument(await file.arrayBuffer());
+      pdfDoc = await loadingTask.promise;
+      mappingCurrentPage = 1;
+      mappingTotalPages = pdfDoc.numPages;
+      renderPage();
+      mappingRectangles.length = 0;
+      renderMappingsList();
+    };
+  }
 
-// Save mappings and close modal
-saveMappingsBtn.onclick = () => {
-  // Here, send mappings to your backend or save for next process step.
-  // For prototype, we just close the modal.
-  closeMappingModal();
-  alert('Mappings saved:\n' + JSON.stringify(mappings, null, 2));
-};
+  // --- Canvas Drawing ---
+  if (pdfMappingCanvas) {
+    pdfMappingCanvas.onmousedown = (e) => {
+      isDrawing = true;
+      const rect = pdfMappingCanvas.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      mappingRectangleDiv.style.display = 'block';
+      mappingRectangleDiv.style.left = startX + 'px';
+      mappingRectangleDiv.style.top = startY + 'px';
+      mappingRectangleDiv.style.width = '0px';
+      mappingRectangleDiv.style.height = '0px';
+    };
+    pdfMappingCanvas.onmousemove = (e) => {
+      if (!isDrawing) return;
+      const rect = pdfMappingCanvas.getBoundingClientRect();
+      endX = e.clientX - rect.left;
+      endY = e.clientY - rect.top;
+      const left = Math.min(startX, endX);
+      const top = Math.min(startY, endY);
+      const width = Math.abs(endX - startX);
+      const height = Math.abs(endY - startY);
+      mappingRectangleDiv.style.left = left + 'px';
+      mappingRectangleDiv.style.top = top + 'px';
+      mappingRectangleDiv.style.width = width + 'px';
+      mappingRectangleDiv.style.height = height + 'px';
+    };
+    pdfMappingCanvas.onmouseup = (e) => {
+      if (!isDrawing) return;
+      isDrawing = false;
+      mappingRectangleDiv.style.display = 'none';
+      // Store rectangle in PDF coordinates
+      pdfDoc.getPage(mappingCurrentPage).then(page => {
+        let viewport = page.getViewport({ scale: 1.0 });
+        let scale = Math.min(
+          pdfMappingCanvas.width / viewport.width,
+          pdfMappingCanvas.height / viewport.height
+        );
+        let x0 = Math.min(startX, endX) / scale;
+        let y0 = Math.min(startY, endY) / scale;
+        let x1 = Math.max(startX, endX) / scale;
+        let y1 = Math.max(startY, endY) / scale;
+        mappingRectangles.push({
+          page: mappingCurrentPage - 1,
+          x0, y0, x1, y1
+        });
+        renderMappingsList();
+        renderPage();
+      });
+    };
+  }
 
-// Optional: Hide rectangle on modal close
-closeModal.onclick = () => {
-  rectDiv.style.display = 'none';
-  closeMappingModal();
-};
+  // --- On Modal Open, Reset State ---
+  if (mappingModal) {
+    mappingModal.addEventListener('show', () => {
+      mappingCurrentPage = 1;
+      renderPage();
+    });
+  }
+
+  // --- Expose function to get mapping rectangles for backend submission ---
+  window.getMappingAreasForSubmission = function() {
+    // Returns array of { page, x0, y0, x1, y1 }
+    return mappingRectangles.slice();
+  };
+
+  // Optionally, call window.getMappingAreasForSubmission() before submitting your PDF to backend
+  // and include JSON.stringify([...]) as the value for the "mapping_areas" field.
+})();
