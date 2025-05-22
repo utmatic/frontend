@@ -1,6 +1,7 @@
 (function() {
   let mappingModal = document.getElementById('mapping-modal');
   let openMappingModalBtn = document.getElementById('open-mapping-modal-btn');
+  let openMappingModalLink = document.getElementById('open-mapping-modal-link');
   let closeMappingModalBtn = document.getElementById('close-mapping-modal');
   let pdfMappingCanvas = document.getElementById('mapping-pdf-canvas');
   let mappingCtx = pdfMappingCanvas.getContext('2d');
@@ -220,35 +221,40 @@
     });
   }
 
-  if (openMappingModalBtn) {
-    openMappingModalBtn.onclick = async () => {
-      mappingModal.classList.add('show');
-      if (mainFileInput && mainFileInput.files.length > 0) {
-        const file = mainFileInput.files[0];
-        if (file && file.type === "application/pdf") {
-          mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
-          const arrayBuffer = await file.arrayBuffer();
-          const loadingTask = window.pdfjsLib.getDocument(arrayBuffer);
-          pdfDoc = await loadingTask.promise;
-          mappingCurrentPage = 1;
-          mappingTotalPages = pdfDoc.numPages;
-          renderPage();
-          mappingRectangles.length = 0;
-          renderMappingsList();
-          lastDragRect = null;
-          lastDragName = "";
-          clearPendingRectVisual();
+  // PATCH: Allow both the old button and the new mapping tool link to open the modal and load the PDF
+  [openMappingModalBtn, openMappingModalLink].forEach(el => {
+    if (el) {
+      el.onclick = async (e) => {
+        if (e) e.preventDefault && e.preventDefault();
+        mappingModal.classList.add('show');
+        if (mainFileInput && mainFileInput.files.length > 0) {
+          const file = mainFileInput.files[0];
+          if (file && file.type === "application/pdf") {
+            mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
+            const arrayBuffer = await file.arrayBuffer();
+            const loadingTask = window.pdfjsLib.getDocument(arrayBuffer);
+            pdfDoc = await loadingTask.promise;
+            mappingCurrentPage = 1;
+            mappingTotalPages = pdfDoc.numPages;
+            renderPage();
+            mappingRectangles.length = 0;
+            renderMappingsList();
+            lastDragRect = null;
+            lastDragName = "";
+            clearPendingRectVisual();
+          } else {
+            mappingFilenameSpan.textContent = "";
+            pdfDoc = null;
+          }
         } else {
           mappingFilenameSpan.textContent = "";
           pdfDoc = null;
         }
-      } else {
-        mappingFilenameSpan.textContent = "";
-        pdfDoc = null;
-      }
-      updatePageInfo();
-    };
-  }
+        updatePageInfo();
+      };
+    }
+  });
+
   if (closeMappingModalBtn) {
     closeMappingModalBtn.onclick = () => {
       mappingModal.classList.remove('show');
