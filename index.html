@@ -102,19 +102,6 @@
       <button class="close-modal" id="close-mapping-modal" aria-label="Close">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="details-pane">
-        <h3>How to Map Document Areas</h3>
-        <ul>
-          <li>Click and <strong>drag</strong> to draw a rectangle over the PDF area you want to map.</li>
-          <li>You may enter a name for the mapping area in the field above the selection (optional).</li>
-          <li>Set the page range and choose whether it applies to all, even, or odd pages.</li>
-          <li>Click <strong>Apply</strong> to add the mapping area to your list.</li>
-          <li>To remove a mapping, click the <strong>&times;</strong> next to it in the list.</li>
-        </ul>
-        <div class="tip">
-          <b>Tip:</b> You can adjust the range and options before applying.
-        </div>
-      </div>
       <div class="left-pane">
         <div class="pdf-controls">
           <button id="prev-page-btn" class="nav-btn" title="Previous page" aria-label="Previous page" disabled>&larr;</button>
@@ -122,11 +109,12 @@
           <button id="next-page-btn" class="nav-btn" title="Next page" aria-label="Next page" disabled>&rarr;</button>
         </div>
         <div id="pdf-mapping-container">
-          <canvas height="468" id="mapping-pdf-canvas" width="350"></canvas>
+          <canvas height="867" id="mapping-pdf-canvas" width="650"></canvas>
           <div id="mapping-rectangle"></div>
+          <!-- Pending rectangle label (with name input) added dynamically -->
         </div>
         <div class="mapping-actions-row">
-          <label style="display:flex;align-items:center;gap:3px;">
+          <label style="display:flex;align-items:center;gap:4px;">
             Page Range:
             <input id="mapping-start-page" min="1" type="number" value="1"/>
             -
@@ -143,7 +131,7 @@
       <div class="right-pane">
         <h3>Current Mappings</h3>
         <ul id="mappings-list"></ul>
-        <button id="save-mappings-btn" class="primary" style="display:none;">Save</button>
+        <button id="save-mappings-btn" class="primary">Save Mappings</button>
       </div>
     </div>
   </div>
