@@ -266,11 +266,11 @@
           pdfDoc = await loadingTask.promise;
           mappingCurrentPage = 1;
           mappingTotalPages = pdfDoc.numPages;
-          renderPage();
           mappingRectangles.length = 0;
-          renderMappingsList();
           lastDragRect = null;
           lastDragName = "";
+          renderPage();
+          renderMappingsList();
           clearPendingRectVisual();
         } else {
           mappingFilenameSpan.textContent = "";
@@ -329,7 +329,6 @@
           pageIndices.push(i);
         }
       }
-      // Don't add if no pages selected
       if (pageIndices.length === 0) {
         lastDragRect = null;
         lastDragName = "";
@@ -344,10 +343,10 @@
           name: name
         });
       });
-      renderMappingsList();
-      renderPage();
       lastDragRect = null;
       lastDragName = "";
+      renderMappingsList();
+      renderPage();
       clearPendingRectVisual();
     };
   }
@@ -400,7 +399,6 @@
       if (!isDrawing || !pdfDoc) return;
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
-      // Only create the mapping area if there was an actual drag
       if (!didDrag) {
         lastDragRect = null;
         lastDragName = "";
@@ -442,7 +440,6 @@
       clearPendingRectVisual();
     };
   }
-  // Keep pending mapping area even if page range inputs are edited
   mappingStartPageInput.addEventListener('input', () => {
     showPendingRectVisual();
   });
