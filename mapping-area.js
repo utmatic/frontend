@@ -4,12 +4,14 @@
   let closeMappingModalBtn = document.getElementById('close-mapping-modal');
   let pdfMappingCanvas = document.getElementById('mapping-pdf-canvas');
   let mappingCtx = pdfMappingCanvas.getContext('2d');
+  let pdfMappingContainer = document.getElementById('pdf-mapping-container');
   let pdfDoc = null;
   let mappingCurrentPage = 1;
   let mappingTotalPages = 1;
   let isDrawing = false;
   let startX, startY, endX, endY;
   let mappingRectangles = [];
+  let lastDragRect = null; // {x0, y0, x1, y1, page}
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
   let prevPageBtn = document.getElementById('prev-page-btn');
@@ -22,8 +24,6 @@
   let pageInfo = document.getElementById('page-info');
   let altPagesCheckbox = document.getElementById('mapping-alternate-pages');
   let mainFileInput = document.getElementById('file');
-  let lastDragRect = null;
-  let lastDragPage = null;
 
   function updatePageInfo() {
     if (pageInfo) pageInfo.textContent = `Page ${mappingCurrentPage} of ${mappingTotalPages}`;
@@ -39,6 +39,70 @@
     }
   }
 
+  function clearPendingRectVisual() {
+    let pending = pdfMappingContainer.querySelector('.mapping-pending-rect');
+    if (pending) pending.remove();
+    let label = pdfMappingContainer.querySelector('.mapping-pending-rect-label');
+    if (label) label.remove();
+  }
+  function showPendingRectVisual() {
+    clearPendingRectVisual();
+    if (!lastDragRect || lastDragRect.page !== mappingCurrentPage) return;
+    let { x0, y0, x1, y1 } = lastDragRect;
+    let minX = Math.min(x0, x1), minY = Math.min(y0, y1);
+    let w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+
+    let scaleX = pdfMappingCanvas.width / pdfMappingCanvas.offsetWidth;
+    let scaleY = pdfMappingCanvas.height / pdfMappingCanvas.offsetHeight;
+    // Actually, easier: use canvas size (PDF units -> px)
+    let cRect = pdfMappingCanvas.getBoundingClientRect();
+    let scale = Math.min(pdfMappingCanvas.width / cRect.width, pdfMappingCanvas.height / cRect.height);
+    let left = minX * scale, top = minY * scale, width = w * scale, height = h * scale;
+
+    // Make rectangle overlay
+    let div = document.createElement('div');
+    div.className = 'mapping-pending-rect';
+    div.style.left = `${left}px`;
+    div.style.top = `${top}px`;
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
+    pdfMappingContainer.appendChild(div);
+
+    // Label
+    let label = document.createElement('div');
+    label.className = 'mapping-pending-rect-label';
+    label.textContent = 'Not Applied';
+    label.style.left = `${left}px`;
+    label.style.top = `${Math.max(0, top - 26)}px`;
+    pdfMappingContainer.appendChild(label);
+  }
+
+  function renderAppliedRects() {
+    // Remove old
+    let oldRects = pdfMappingContainer.querySelectorAll('.mapping-applied-rect');
+    oldRects.forEach(r => r.remove());
+    // For current page, add each applied rect
+    mappingRectangles.forEach(rect => {
+      if (rect.page !== mappingCurrentPage - 1) return;
+      let minX = Math.min(rect.x0, rect.x1), minY = Math.min(rect.y0, rect.y1);
+      let w = Math.abs(rect.x1 - rect.x0), h = Math.abs(rect.y1 - rect.y0);
+
+      let scaleX = pdfMappingCanvas.width / pdfMappingCanvas.offsetWidth;
+      let scaleY = pdfMappingCanvas.height / pdfMappingCanvas.offsetHeight;
+      let cRect = pdfMappingCanvas.getBoundingClientRect();
+      let scale = Math.min(pdfMappingCanvas.width / cRect.width, pdfMappingCanvas.height / cRect.height);
+      let left = minX * scale, top = minY * scale, width = w * scale, height = h * scale;
+
+      let div = document.createElement('div');
+      div.className = 'mapping-applied-rect';
+      div.style.left = `${left}px`;
+      div.style.top = `${top}px`;
+      div.style.width = `${width}px`;
+      div.style.height = `${height}px`;
+      pdfMappingContainer.appendChild(div);
+    });
+  }
+
   function renderPage() {
     if (!pdfDoc) return;
     pdfDoc.getPage(mappingCurrentPage).then(page => {
@@ -52,21 +116,8 @@
       pdfMappingCanvas.height = viewport.height;
 
       page.render({ canvasContext: mappingCtx, viewport: viewport }).promise.then(() => {
-        mappingRectangles.forEach(rect => {
-          if (rect.page === mappingCurrentPage - 1) {
-            mappingCtx.save();
-            mappingCtx.strokeStyle = '#3b82f6';
-            mappingCtx.lineWidth = 2;
-            mappingCtx.setLineDash([6, 4]);
-            mappingCtx.strokeRect(
-              rect.x0 * scale,
-              rect.y0 * scale,
-              (rect.x1 - rect.x0) * scale,
-              (rect.y1 - rect.y0) * scale
-            );
-            mappingCtx.restore();
-          }
-        });
+        renderAppliedRects();
+        showPendingRectVisual();
       });
     });
     updatePageInfo();
@@ -75,7 +126,6 @@
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     if (!mappingRectangles.length) return;
-
     // Group mappings by area
     let grouped = [];
     mappingRectangles.forEach(rect => {
@@ -144,6 +194,8 @@
           renderPage();
           mappingRectangles.length = 0;
           renderMappingsList();
+          lastDragRect = null;
+          clearPendingRectVisual();
         } else {
           mappingFilenameSpan.textContent = "";
           pdfDoc = null;
@@ -158,11 +210,16 @@
   if (closeMappingModalBtn) {
     closeMappingModalBtn.onclick = () => {
       mappingModal.classList.remove('show');
+      clearPendingRectVisual();
+      lastDragRect = null;
     };
   }
-  // Support closing modal on background click
   mappingModal.addEventListener('mousedown', function(e) {
-    if (e.target === mappingModal) mappingModal.classList.remove('show');
+    if (e.target === mappingModal) {
+      mappingModal.classList.remove('show');
+      clearPendingRectVisual();
+      lastDragRect = null;
+    }
   });
 
   if (prevPageBtn) {
@@ -191,7 +248,6 @@
       if (endPage < startPage) [startPage, endPage] = [endPage, startPage];
 
       let x0 = lastDragRect.x0, y0 = lastDragRect.y0, x1 = lastDragRect.x1, y1 = lastDragRect.y1;
-
       let useAlt = altPagesCheckbox && altPagesCheckbox.checked;
       let pageIndices = [];
       for (let i = startPage - 1; i <= endPage - 1; i++) {
@@ -199,7 +255,6 @@
           pageIndices.push(i);
         }
       }
-
       pageIndices.forEach(pageIdx => {
         mappingRectangles.push({
           page: pageIdx,
@@ -208,6 +263,8 @@
       });
       renderMappingsList();
       renderPage();
+      lastDragRect = null;
+      clearPendingRectVisual();
     };
   }
   if (saveMappingsBtn) {
@@ -264,8 +321,8 @@
         const y0 = Math.min(startY, endY) / scale;
         const x1 = Math.max(startX, endX) / scale;
         const y1 = Math.max(startY, endY) / scale;
-        lastDragRect = { x0, y0, x1, y1 };
-        lastDragPage = mappingCurrentPage;
+        lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
+        showPendingRectVisual();
       });
     };
     pdfMappingCanvas.onmouseleave = () => {
@@ -281,6 +338,8 @@
       mappingRectangles.length = 0;
       if (mappingFilenameSpan) mappingFilenameSpan.textContent = "";
       renderMappingsList();
+      lastDragRect = null;
+      clearPendingRectVisual();
     };
   }
 })();
