@@ -1,7 +1,7 @@
 (function() {
   let mappingModal = document.getElementById('mapping-modal');
   let openMappingModalBtn = document.getElementById('open-mapping-modal-btn');
-  let closeMappingModalBtn = document.getElementById('close-mapping-modal-btn');
+  let closeMappingModalBtn = document.getElementById('close-mapping-modal');
   let pdfMappingCanvas = document.getElementById('mapping-pdf-canvas');
   let mappingCtx = pdfMappingCanvas.getContext('2d');
   let pdfDoc = null;
@@ -18,12 +18,12 @@
   let mappingFilenameSpan = document.getElementById('mapping-filename');
   let mappingStartPageInput = document.getElementById('mapping-start-page');
   let mappingEndPageInput = document.getElementById('mapping-end-page');
-  let mappingXInput = document.getElementById('mapping-x');
-  let mappingYInput = document.getElementById('mapping-y');
   let applyAreaBtn = document.getElementById('apply-area-btn');
   let pageInfo = document.getElementById('page-info');
+  let altPagesCheckbox = document.getElementById('mapping-alternate-pages');
   let mainFileInput = document.getElementById('file');
   let lastDragRect = null;
+  let lastDragPage = null;
 
   function updatePageInfo() {
     if (pageInfo) pageInfo.textContent = `Page ${mappingCurrentPage} of ${mappingTotalPages}`;
@@ -109,7 +109,7 @@
       ranges.push([rangeStart, rangeEnd]);
       ranges.forEach(r => {
         const li = document.createElement('li');
-        const coordString = `(${Math.round(group.x0)}, ${Math.round(group.y0)})`;
+        const coordString = `(${Math.round(group.x0)}, ${Math.round(group.y0)}, w=${Math.round(group.x1-group.x0)}, h=${Math.round(group.y1-group.y0)})`;
         li.textContent = r[0] === r[1]
           ? `Page ${r[0]}: ${coordString}`
           : `Pages ${r[0]}-${r[1]}: ${coordString}`;
@@ -160,6 +160,11 @@
       mappingModal.classList.remove('show');
     };
   }
+  // Support closing modal on background click
+  mappingModal.addEventListener('mousedown', function(e) {
+    if (e.target === mappingModal) mappingModal.classList.remove('show');
+  });
+
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
       if (mappingCurrentPage > 1) {
@@ -178,28 +183,29 @@
   }
   if (applyAreaBtn) {
     applyAreaBtn.onclick = () => {
-      if (!pdfDoc) return;
+      if (!pdfDoc || !lastDragRect) return;
       let startPage = parseInt(mappingStartPageInput.value, 10) || mappingCurrentPage;
       let endPage = parseInt(mappingEndPageInput.value, 10) || mappingCurrentPage;
       if (startPage < 1) startPage = 1;
       if (endPage > mappingTotalPages) endPage = mappingTotalPages;
       if (endPage < startPage) [startPage, endPage] = [endPage, startPage];
 
-      let x0, y0, x1, y1;
-      if (lastDragRect) {
-        ({ x0, y0, x1, y1 } = lastDragRect);
-      } else {
-        x0 = parseFloat(mappingXInput.value) || 0;
-        y0 = parseFloat(mappingYInput.value) || 0;
-        x1 = x0 + 1;
-        y1 = y0 + 1;
+      let x0 = lastDragRect.x0, y0 = lastDragRect.y0, x1 = lastDragRect.x1, y1 = lastDragRect.y1;
+
+      let useAlt = altPagesCheckbox && altPagesCheckbox.checked;
+      let pageIndices = [];
+      for (let i = startPage - 1; i <= endPage - 1; i++) {
+        if (!useAlt || ((i - (startPage - 1)) % 2 === 0)) {
+          pageIndices.push(i);
+        }
       }
-      for (let pageIdx = startPage - 1; pageIdx <= endPage - 1; pageIdx++) {
+
+      pageIndices.forEach(pageIdx => {
         mappingRectangles.push({
           page: pageIdx,
           x0, y0, x1, y1
         });
-      }
+      });
       renderMappingsList();
       renderPage();
     };
@@ -207,9 +213,8 @@
   if (saveMappingsBtn) {
     saveMappingsBtn.onclick = () => {
       const mappingData = JSON.stringify(mappingRectangles);
-      const blob = new Blob([mappingData], { type: "application/json" });
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
+      a.href = URL.createObjectURL(new Blob([mappingData], { type: "application/json" }));
       a.download = (mappingFilenameSpan.textContent || "mapping-areas") + '.json';
       document.body.appendChild(a);
       a.click();
@@ -260,8 +265,7 @@
         const x1 = Math.max(startX, endX) / scale;
         const y1 = Math.max(startY, endY) / scale;
         lastDragRect = { x0, y0, x1, y1 };
-        if (mappingXInput) mappingXInput.value = Math.round(x0);
-        if (mappingYInput) mappingYInput.value = Math.round(y0);
+        lastDragPage = mappingCurrentPage;
       });
     };
     pdfMappingCanvas.onmouseleave = () => {
