@@ -229,21 +229,10 @@
       li.appendChild(removeBtn);
       mappingsListEl.appendChild(li);
     });
-    // Show Save Mappings button and move below mapping list
     saveMappingsBtn.style.display = "block";
-    setTimeout(() => {
-      let listBottom = mappingsListEl.getBoundingClientRect().bottom;
-      let parentRect = mappingsListEl.parentNode.getBoundingClientRect();
-      saveMappingsBtn.style.marginTop = "18px";
-      if (listBottom && parentRect) {
-        let idealTop = listBottom - parentRect.top + 18;
-        saveMappingsBtn.style.position = "absolute";
-        saveMappingsBtn.style.top = `${idealTop}px`;
-      } else {
-        saveMappingsBtn.style.position = "relative";
-        saveMappingsBtn.style.top = "";
-      }
-    }, 5);
+    saveMappingsBtn.style.position = "relative";
+    saveMappingsBtn.style.top = "";
+    saveMappingsBtn.style.marginTop = "18px";
   }
 
   function escapeHTML(str) {
@@ -440,10 +429,6 @@
       clearPendingRectVisual();
     };
   }
-  mappingStartPageInput.addEventListener('input', () => {
-    showPendingRectVisual();
-  });
-  mappingEndPageInput.addEventListener('input', () => {
-    showPendingRectVisual();
-  });
+  // Remove listeners that clear pending on page range input (fixes your issue)
+  // Pending area is only cleared by clicking outside as requested
 })();
