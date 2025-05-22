@@ -22,8 +22,13 @@
   let mappingEndPageInput = document.getElementById('mapping-end-page');
   let applyAreaBtn = document.getElementById('apply-area-btn');
   let pageInfo = document.getElementById('page-info');
-  let altPagesCheckbox = document.getElementById('mapping-alternate-pages');
   let mainFileInput = document.getElementById('file');
+
+  // Radio group for even/odd/all
+  let mappingPageMode = "all";
+  document.getElementById("mapping-all").onchange = function() { if(this.checked) mappingPageMode = "all"; }
+  document.getElementById("mapping-even").onchange = function() { if(this.checked) mappingPageMode = "even"; }
+  document.getElementById("mapping-odd").onchange = function() { if(this.checked) mappingPageMode = "odd"; }
 
   function updatePageInfo() {
     if (pageInfo) pageInfo.textContent = `Page ${mappingCurrentPage} of ${mappingTotalPages}`;
@@ -52,12 +57,11 @@
     let minX = Math.min(x0, x1), minY = Math.min(y0, y1);
     let w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
 
-    let scaleX = pdfMappingCanvas.width / pdfMappingCanvas.offsetWidth;
-    let scaleY = pdfMappingCanvas.height / pdfMappingCanvas.offsetHeight;
-    // Actually, easier: use canvas size (PDF units -> px)
-    let cRect = pdfMappingCanvas.getBoundingClientRect();
-    let scale = Math.min(pdfMappingCanvas.width / cRect.width, pdfMappingCanvas.height / cRect.height);
-    let left = minX * scale, top = minY * scale, width = w * scale, height = h * scale;
+    // Use PDF units directly as canvas is scaled to PDF units
+    let left = minX;
+    let top = minY;
+    let width = w;
+    let height = h;
 
     // Make rectangle overlay
     let div = document.createElement('div');
@@ -87,11 +91,10 @@
       let minX = Math.min(rect.x0, rect.x1), minY = Math.min(rect.y0, rect.y1);
       let w = Math.abs(rect.x1 - rect.x0), h = Math.abs(rect.y1 - rect.y0);
 
-      let scaleX = pdfMappingCanvas.width / pdfMappingCanvas.offsetWidth;
-      let scaleY = pdfMappingCanvas.height / pdfMappingCanvas.offsetHeight;
-      let cRect = pdfMappingCanvas.getBoundingClientRect();
-      let scale = Math.min(pdfMappingCanvas.width / cRect.width, pdfMappingCanvas.height / cRect.height);
-      let left = minX * scale, top = minY * scale, width = w * scale, height = h * scale;
+      let left = minX;
+      let top = minY;
+      let width = w;
+      let height = h;
 
       let div = document.createElement('div');
       div.className = 'mapping-applied-rect';
@@ -107,11 +110,6 @@
     if (!pdfDoc) return;
     pdfDoc.getPage(mappingCurrentPage).then(page => {
       let viewport = page.getViewport({ scale: 1.0 });
-      let scale = Math.min(
-        pdfMappingCanvas.width / viewport.width,
-        pdfMappingCanvas.height / viewport.height
-      );
-      viewport = page.getViewport({ scale });
       pdfMappingCanvas.width = viewport.width;
       pdfMappingCanvas.height = viewport.height;
 
@@ -126,22 +124,22 @@
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     if (!mappingRectangles.length) return;
-    // Group mappings by area
+    // Group mappings by area + mode
     let grouped = [];
     mappingRectangles.forEach(rect => {
       let group = grouped.find(g =>
-        g.x0 === rect.x0 && g.y0 === rect.y0 && g.x1 === rect.x1 && g.y1 === rect.y1
+        g.x0 === rect.x0 && g.y0 === rect.y0 && g.x1 === rect.x1 && g.y1 === rect.y1 && g.mode === rect.mode
       );
       if (group) {
         group.pages.push(rect.page + 1);
       } else {
         grouped.push({
           x0: rect.x0, y0: rect.y0, x1: rect.x1, y1: rect.y1,
+          mode: rect.mode,
           pages: [rect.page + 1]
         });
       }
     });
-    // For each group, display as page range(s)
     grouped.forEach(group => {
       group.pages.sort((a, b) => a - b);
       let ranges = [];
@@ -160,15 +158,20 @@
       ranges.forEach(r => {
         const li = document.createElement('li');
         const coordString = `(${Math.round(group.x0)}, ${Math.round(group.y0)}, w=${Math.round(group.x1-group.x0)}, h=${Math.round(group.y1-group.y0)})`;
+        let modeStr = "";
+        if(group.mode === "even") modeStr = " (Even only)";
+        if(group.mode === "odd") modeStr = " (Odd only)";
         li.textContent = r[0] === r[1]
-          ? `Page ${r[0]}: ${coordString}`
-          : `Pages ${r[0]}-${r[1]}: ${coordString}`;
+          ? `Page ${r[0]}${modeStr}: ${coordString}`
+          : `Pages ${r[0]}-${r[1]}${modeStr}: ${coordString}`;
         const removeBtn = document.createElement('button');
         removeBtn.textContent = '×';
         removeBtn.onclick = () => {
           mappingRectangles = mappingRectangles.filter(rect =>
-            !(rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 &&
-              rect.page + 1 >= r[0] && rect.page + 1 <= r[1])
+            !(
+              rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 && rect.mode === group.mode &&
+              rect.page + 1 >= r[0] && rect.page + 1 <= r[1]
+            )
           );
           renderMappingsList();
           renderPage();
@@ -246,19 +249,22 @@
       if (startPage < 1) startPage = 1;
       if (endPage > mappingTotalPages) endPage = mappingTotalPages;
       if (endPage < startPage) [startPage, endPage] = [endPage, startPage];
-
       let x0 = lastDragRect.x0, y0 = lastDragRect.y0, x1 = lastDragRect.x1, y1 = lastDragRect.y1;
-      let useAlt = altPagesCheckbox && altPagesCheckbox.checked;
       let pageIndices = [];
       for (let i = startPage - 1; i <= endPage - 1; i++) {
-        if (!useAlt || ((i - (startPage - 1)) % 2 === 0)) {
+        if (
+          mappingPageMode === "all" ||
+          (mappingPageMode === "even" && ((i + 1) % 2 === 0)) ||
+          (mappingPageMode === "odd" && ((i + 1) % 2 === 1))
+        ) {
           pageIndices.push(i);
         }
       }
       pageIndices.forEach(pageIdx => {
         mappingRectangles.push({
           page: pageIdx,
-          x0, y0, x1, y1
+          x0, y0, x1, y1,
+          mode: mappingPageMode
         });
       });
       renderMappingsList();
