@@ -526,7 +526,7 @@ Each match is combined with the Base URL:<br>
   const infoBtn = document.createElement("button");
   infoBtn.type = "button";
   infoBtn.className = "info-icon-btn";
-  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
+  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
   const infoPopup = document.createElement("div");
   infoPopup.className = "info-popup";
   infoPopup.innerHTML = `
