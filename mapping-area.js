@@ -12,8 +12,8 @@
   let isDrawing = false;
   let startX, startY, endX, endY;
   let mappingRectangles = [];
-  let lastDragRect = null; // {x0, y0, x1, y1, page, name}
-  let lastDragName = "";   // Last typed name for the mapping area
+  let lastDragRect = null;
+  let lastDragName = "";
   let mappingRectangleDiv = document.getElementById('mapping-rectangle');
   let mappingsListEl = document.getElementById('mappings-list');
   let prevPageBtn = document.getElementById('prev-page-btn');
@@ -31,6 +31,36 @@
   document.getElementById("mapping-all").onchange = function() { if(this.checked) mappingPageMode = "all"; }
   document.getElementById("mapping-even").onchange = function() { if(this.checked) mappingPageMode = "even"; }
   document.getElementById("mapping-odd").onchange = function() { if(this.checked) mappingPageMode = "odd"; }
+
+  // --- LocalStorage helpers ---
+  const MAPPINGS_STORAGE_KEY = "pdf_mapping_rectangles";
+  function saveMappingsToStorage() {
+    try {
+      localStorage.setItem(MAPPINGS_STORAGE_KEY, JSON.stringify(mappingRectangles));
+    } catch (e) { }
+  }
+  function loadMappingsFromStorage() {
+    try {
+      const val = localStorage.getItem(MAPPINGS_STORAGE_KEY);
+      if (val) {
+        const arr = JSON.parse(val);
+        if (Array.isArray(arr)) {
+          mappingRectangles.length = 0;
+          arr.forEach(x => mappingRectangles.push(x));
+        }
+      }
+    } catch (e) { }
+  }
+  function clearMappingsFromStorage() {
+    try {
+      localStorage.removeItem(MAPPINGS_STORAGE_KEY);
+    } catch (e) { }
+  }
+  function updateMappingsAndRender() {
+    saveMappingsToStorage();
+    renderMappingsList();
+    renderPage();
+  }
 
   function updatePageInfo() {
     if (pageInfo) pageInfo.textContent = `Page ${mappingCurrentPage} of ${mappingTotalPages}`;
@@ -60,13 +90,11 @@
     let minX = Math.min(x0, x1), minY = Math.min(y0, y1);
     let w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
 
-    // Use PDF units directly as canvas is scaled to PDF units
     let left = minX;
     let top = minY;
     let width = w;
     let height = h;
 
-    // Make rectangle overlay
     let div = document.createElement('div');
     div.className = 'mapping-pending-rect';
     div.style.left = `${left}px`;
@@ -75,7 +103,6 @@
     div.style.height = `${height}px`;
     pdfMappingContainer.appendChild(div);
 
-    // Label with name input
     let labelDiv = document.createElement('div');
     labelDiv.className = 'mapping-pending-rect-label';
     labelDiv.style.left = `${left}px`;
@@ -96,10 +123,8 @@
   }
 
   function renderAppliedRects() {
-    // Remove old
     let oldRects = pdfMappingContainer.querySelectorAll('.mapping-applied-rect');
     oldRects.forEach(r => r.remove());
-    // For current page, add each applied rect
     mappingRectangles.forEach(rect => {
       if (rect.page !== mappingCurrentPage - 1) return;
       let minX = Math.min(rect.x0, rect.x1), minY = Math.min(rect.y0, rect.y1);
@@ -149,6 +174,17 @@
     return "All pages";
   }
 
+  function removeMappingRect(group) {
+    mappingRectangles = mappingRectangles.filter(rect =>
+      !(
+        rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 &&
+        rect.mode === group.mode && (rect.name || "") === (group.name || "") &&
+        group.pages.includes(rect.page + 1)
+      )
+    );
+    updateMappingsAndRender();
+  }
+
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     if (!mappingRectangles.length) {
@@ -159,7 +195,6 @@
     saveMappingsBtn.disabled = false;
     saveMappingsBtn.classList.remove('disabled');
 
-    // Group mappings by area + mode + name
     let grouped = [];
     mappingRectangles.forEach(rect => {
       let group = grouped.find(g =>
@@ -181,7 +216,6 @@
     grouped.forEach(group => {
       group.pages.sort((a, b) => a - b);
 
-      // Collapse into a single range (if possible)
       let first = group.pages[0], last = group.pages[group.pages.length - 1];
       let isContiguous = true;
       for (let i = 1; i < group.pages.length; i++) {
@@ -202,13 +236,11 @@
       let contentDiv = document.createElement('span');
       contentDiv.className = 'mapping-entry-content';
 
-      // Add page label
       let pageSpan = document.createElement('span');
       pageSpan.className = 'mapping-page-label';
       pageSpan.textContent = pageLabel;
       contentDiv.appendChild(pageSpan);
 
-      // Add colon and name only if name present
       if (group.name) {
         let colonSpan = document.createElement('span');
         colonSpan.textContent = ':';
@@ -221,7 +253,6 @@
         contentDiv.appendChild(nameSpan);
       }
 
-      // Always add mode, tight to previous if no name
       let modeSpan = document.createElement('span');
       modeSpan.className = 'mapping-mode';
       modeSpan.textContent = `(${getModeLabel(group.mode)})`;
@@ -232,17 +263,7 @@
 
       const removeBtn = document.createElement('button');
       removeBtn.textContent = '×';
-      removeBtn.onclick = () => {
-        mappingRectangles = mappingRectangles.filter(rect =>
-          !(
-            rect.x0 === group.x0 && rect.y0 === group.y0 && rect.x1 === group.x1 && rect.y1 === group.y1 &&
-            rect.mode === group.mode && (rect.name || "") === (group.name || "") &&
-            group.pages.includes(rect.page + 1)
-          )
-        );
-        renderMappingsList();
-        renderPage();
-      };
+      removeBtn.onclick = () => removeMappingRect(group);
       li.appendChild(removeBtn);
       mappingsListEl.appendChild(li);
     });
@@ -256,7 +277,6 @@
     });
   }
 
-  // PATCH: Allow both the old button and the new mapping tool link to open the modal and load the PDF
   [openMappingModalBtn, openMappingModalLink].forEach(el => {
     if (el) {
       el.onclick = async (e) => {
@@ -272,7 +292,7 @@
             mappingCurrentPage = 1;
             mappingTotalPages = pdfDoc.numPages;
             renderPage();
-            mappingRectangles.length = 0;
+            loadMappingsFromStorage();
             renderMappingsList();
             lastDragRect = null;
             lastDragName = "";
@@ -344,21 +364,20 @@
           name: name
         });
       });
-      renderMappingsList();
-      renderPage();
+      updateMappingsAndRender();
       lastDragRect = null;
       lastDragName = "";
       clearPendingRectVisual();
     };
   }
 
-  // --- Backend communication: POST mappings when Save Mappings clicked ---
   saveMappingsBtn.onclick = async () => {
     if (saveMappingsBtn.disabled) return;
+    saveMappingsToStorage();
     const mappingData = {
       filename: mappingFilenameSpan.textContent || "",
       mappings: mappingRectangles,
-      fullDocument: mappingRectangles.length === 0 // If no mappings, process full document
+      fullDocument: mappingRectangles.length === 0
     };
     try {
       const response = await fetch('https://utmatic-backend.onrender.com/api/mappings', {
@@ -378,64 +397,63 @@
     }
   };
 
-  // Canvas drawing
-  if (pdfMappingCanvas) {
-    pdfMappingCanvas.onmousedown = (e) => {
-      if (!pdfDoc) return;
-      isDrawing = true;
-      const rect = pdfMappingCanvas.getBoundingClientRect();
-      startX = e.clientX - rect.left;
-      startY = e.clientY - rect.top;
-      mappingRectangleDiv.style.display = 'block';
-      mappingRectangleDiv.style.left = startX + 'px';
-      mappingRectangleDiv.style.top = startY + 'px';
-      mappingRectangleDiv.style.width = '0px';
-      mappingRectangleDiv.style.height = '0px';
-    };
-    pdfMappingCanvas.onmousemove = (e) => {
-      if (!isDrawing) return;
-      const rect = pdfMappingCanvas.getBoundingClientRect();
-      endX = e.clientX - rect.left;
-      endY = e.clientY - rect.top;
-      const left = Math.min(startX, endX);
-      const top = Math.min(startY, endY);
-      const width = Math.abs(endX - startX);
-      const height = Math.abs(endY - startY);
-      mappingRectangleDiv.style.left = left + 'px';
-      mappingRectangleDiv.style.top = top + 'px';
-      mappingRectangleDiv.style.width = width + 'px';
-      mappingRectangleDiv.style.height = height + 'px';
-    };
-    pdfMappingCanvas.onmouseup = (e) => {
-      if (!isDrawing || !pdfDoc) return;
+  pdfMappingCanvas.onmousedown = (e) => {
+    if (!pdfDoc) return;
+    isDrawing = true;
+    const rect = pdfMappingCanvas.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    mappingRectangleDiv.style.display = 'block';
+    mappingRectangleDiv.style.left = startX + 'px';
+    mappingRectangleDiv.style.top = startY + 'px';
+    mappingRectangleDiv.style.width = '0px';
+    mappingRectangleDiv.style.height = '0px';
+  };
+  pdfMappingCanvas.onmousemove = (e) => {
+    if (!isDrawing) return;
+    const rect = pdfMappingCanvas.getBoundingClientRect();
+    endX = e.clientX - rect.left;
+    endY = e.clientY - rect.top;
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+    mappingRectangleDiv.style.left = left + 'px';
+    mappingRectangleDiv.style.top = top + 'px';
+    mappingRectangleDiv.style.width = width + 'px';
+    mappingRectangleDiv.style.height = height + 'px';
+  };
+  pdfMappingCanvas.onmouseup = (e) => {
+    if (!isDrawing || !pdfDoc) return;
+    isDrawing = false;
+    mappingRectangleDiv.style.display = 'none';
+    pdfDoc.getPage(mappingCurrentPage).then(page => {
+      let viewport = page.getViewport({ scale: 1.0 });
+      let scale = Math.min(
+        pdfMappingCanvas.width / viewport.width,
+        pdfMappingCanvas.height / viewport.height
+      );
+      const x0 = Math.min(startX, endX) / scale;
+      const y0 = Math.min(startY, endY) / scale;
+      const x1 = Math.max(startX, endX) / scale;
+      const y1 = Math.max(startY, endY) / scale;
+      lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
+      lastDragName = "";
+      showPendingRectVisual();
+    });
+  };
+  pdfMappingCanvas.onmouseleave = () => {
+    if (isDrawing) {
       isDrawing = false;
       mappingRectangleDiv.style.display = 'none';
-      pdfDoc.getPage(mappingCurrentPage).then(page => {
-        let viewport = page.getViewport({ scale: 1.0 });
-        let scale = Math.min(
-          pdfMappingCanvas.width / viewport.width,
-          pdfMappingCanvas.height / viewport.height
-        );
-        const x0 = Math.min(startX, endX) / scale;
-        const y0 = Math.min(startY, endY) / scale;
-        const x1 = Math.max(startX, endX) / scale;
-        const y1 = Math.max(startY, endY) / scale;
-        lastDragRect = { x0, y0, x1, y1, page: mappingCurrentPage };
-        lastDragName = "";
-        showPendingRectVisual();
-      });
-    };
-    pdfMappingCanvas.onmouseleave = () => {
-      if (isDrawing) {
-        isDrawing = false;
-        mappingRectangleDiv.style.display = 'none';
-      }
-    };
-  }
+    }
+  };
+
   if (mainFileInput) {
     mainFileInput.onchange = () => {
       pdfDoc = null;
       mappingRectangles.length = 0;
+      clearMappingsFromStorage();
       if (mappingFilenameSpan) mappingFilenameSpan.textContent = "";
       renderMappingsList();
       lastDragRect = null;
@@ -444,7 +462,14 @@
     };
   }
 
-  // Initial state: disable save button
   saveMappingsBtn.disabled = true;
   saveMappingsBtn.classList.add('disabled');
+
+  // --- Helper to get mappings and full_document for process/preview requests ---
+  window.getCurrentMappingsForPDFProcess = function() {
+    return {
+      mappings: mappingRectangles.slice(),
+      full_document: mappingRectangles.length === 0 ? "true" : "false"
+    };
+  };
 })();
