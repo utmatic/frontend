@@ -347,4 +347,10 @@
     height: 60vw;
     max-height: 75vh;
   }
+  .mapping-mode {
+  color: #666;
+  font-style: italic;
+  margin-left: 0.3em;
+  font-size: 0.98em;
+  }
 }
