@@ -190,21 +190,40 @@
       } else if (isContiguous || isFullRangeOddOrEven(group.pages, group.mode)) {
         pageLabel = `Pages ${first}-${last}`;
       } else {
-        // show as comma-separated
         pageLabel = `Pages ${group.pages.join(", ")}`;
       }
 
-      let namePart = group.name
-        ? `<span class="mapping-name">${escapeHTML(group.name)}</span>`
-        : "";
+      let contentDiv = document.createElement('span');
+      contentDiv.className = 'mapping-entry-content';
 
-      let modePart = getModeLabel(group.mode);
+      // Add page label
+      let pageSpan = document.createElement('span');
+      pageSpan.className = 'mapping-page-label';
+      pageSpan.textContent = pageLabel;
+      contentDiv.appendChild(pageSpan);
 
-      // Final format: Page range: Mapping name (Mode)
-      let label = `${pageLabel}: ${namePart} <span class="mapping-mode">(${modePart})</span>`;
+      // Add colon and name only if name present
+      if (group.name) {
+        let colonSpan = document.createElement('span');
+        colonSpan.textContent = ':';
+        colonSpan.style.margin = '0 0.2em 0 0.2em';
+        contentDiv.appendChild(colonSpan);
+
+        let nameSpan = document.createElement('span');
+        nameSpan.className = 'mapping-name';
+        nameSpan.textContent = group.name;
+        contentDiv.appendChild(nameSpan);
+      }
+
+      // Always add mode, tight to previous if no name
+      let modeSpan = document.createElement('span');
+      modeSpan.className = 'mapping-mode';
+      modeSpan.textContent = `(${getModeLabel(group.mode)})`;
+      contentDiv.appendChild(modeSpan);
 
       const li = document.createElement('li');
-      li.innerHTML = label;
+      li.appendChild(contentDiv);
+
       const removeBtn = document.createElement('button');
       removeBtn.textContent = '×';
       removeBtn.onclick = () => {
