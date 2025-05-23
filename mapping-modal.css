@@ -333,7 +333,7 @@
   user-select: auto;
 }
 #open-mapping-modal-link.active:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 @media (max-width: 1300px) {
