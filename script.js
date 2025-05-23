@@ -13,9 +13,10 @@ window.pdfjsViewer =
   undefined;
 
 // SVG ICONS
-const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 13.5l2.25 2.25L15 12"/></svg>`;
-const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
+const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>`;
+const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
 
+let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
 let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
 function updateBaseUrlMemory(newUrl) {
   if (newUrl && !baseUrlMemory.includes(newUrl)) {
@@ -526,8 +527,7 @@ Each match is combined with the Base URL:<br>
   const infoBtn = document.createElement("button");
   infoBtn.type = "button";
   infoBtn.className = "info-icon-btn";
-  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
-  const infoPopup = document.createElement("div");
+  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
   infoPopup.className = "info-popup";
   infoPopup.innerHTML = `
     <strong>Why UTM Content Is Set Automatically</strong><br><br>
@@ -567,8 +567,7 @@ Each match is combined with the Base URL:<br>
   mappingToolLink.style.fontWeight = "600";
   mappingToolLink.style.marginBottom = "0.5em";
   mappingToolLink.style.alignSelf = "flex-start";
-  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>`;
-
+  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
   // --- Underline Checkbox ---
   const underlineWrapper = document.createElement("div");
   underlineWrapper.className = "checkbox-wrapper hidden";
