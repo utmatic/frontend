@@ -325,13 +325,25 @@
   padding: 0 5px;
   align-self: flex-start;
 }
+
+/* --- Save button always appears below the list, with spacing --- */
 #save-mappings-btn {
-  margin-top: 10px;
+  margin-top: 1.6em;
   min-width: 130px;
   font-size: 1.05em;
+  align-self: flex-start;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+  opacity: 1;
+}
+#save-mappings-btn.disabled,
+#save-mappings-btn:disabled {
+  background: #e5e7eb !important;
+  color: #b0b0b0 !important;
+  border: 1px solid #e5e7eb !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
 }
 
-/* --- NEW: Style for the mapping tool trigger link (inline, not button) --- */
 #open-mapping-modal-link {
   display: inline-flex;
   align-items: center;
