@@ -242,12 +242,13 @@
   border: 1px solid #bbb;
   background: #f0f9ff;
   color: #2563eb;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: background 0.16s;
 }
 #mapping-modal button:hover:not(:disabled) {
   background: #dbeafe;
+  text-decoration: none;
 }
 #mapping-modal .primary,
 #mapping-modal button#save-mappings-btn {
