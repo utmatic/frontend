@@ -25,7 +25,9 @@
           <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
         </div>
         <div id="tab-contents">
+          <!-- The tab-contents will be filled by JS, but here is the template for a single tab's form: -->
           <form autocomplete="off" style="max-width:540px; margin:2em auto;">
+            <!-- Upload PDF -->
             <div class="field-group">
               <label for="file">Upload PDF</label>
               <div style="display:flex;align-items:center;gap:0.7em;">
@@ -33,17 +35,18 @@
                 <span id="file-selected">No file chosen</span>
               </div>
             </div>
-            <div class="field-row jobtype-row">
-              <div class="field-group job-type-group">
+            <!-- JOB TYPE + MAPPING TOOL, SAME ROW -->
+            <div class="field-row jobtype-row" style="display:flex;align-items:center;gap:0.7em;">
+              <div class="field-group job-type-group" style="flex:1;min-width:0;">
                 <label for="job_type">Job Type</label>
-                <select name="job_type" id="job_type">
+                <select name="job_type" id="job_type" style="width:100%;">
                   <option value="">Select one</option>
                   <option value="utm_only">Add UTM Only</option>
                   <option value="links_and_utm">Add Links and UTM</option>
                 </select>
               </div>
-              <div class="mapping-tool-wrapper">
-                <span id="open-mapping-modal-link">
+              <div class="mapping-tool-wrapper" style="display:flex;align-items:center;min-width:fit-content;margin-left:1em;">
+                <span id="open-mapping-modal-link" style="display:inline-flex;align-items:center;font-weight:600;color:#888;cursor:not-allowed;opacity:0.6;user-select:none;gap:0.3em;font-size:1.03rem;line-height:2.6em;height:2.6em;">
                   Open Mapping Area Tool
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -51,14 +54,16 @@
                 </span>
               </div>
             </div>
-            <div class="field-row target-row">
-              <div class="field-group target-format-group">
+            <!-- Target Format + Base URL, SAME ROW -->
+            <div class="field-row target-row" style="display:flex;align-items:center;gap:0.7em;">
+              <div class="field-group target-format-group" style="flex:1;min-width:0;">
                 <input type="text" name="target_format" id="target_format" placeholder="Target Format">
               </div>
-              <div class="field-group base-url-group">
+              <div class="field-group base-url-group" style="flex:1;min-width:0;">
                 <input type="text" name="base_url" id="base_url" placeholder="Base URL">
               </div>
             </div>
+            <!-- Add new row button goes here if you use it -->
             <div class="utm-label" style="margin-top:2em;font-weight:600;">UTM Parameters</div>
             <div class="field-group"><input type="text" placeholder="Source" name="source" required></div>
             <div class="field-group"><input type="text" placeholder="Medium" name="medium" required></div>
