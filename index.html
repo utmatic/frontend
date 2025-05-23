@@ -24,38 +24,62 @@
         <div class="tab-bar" id="tab-bar">
           <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
         </div>
-        <div id="tab-contents"></div>
-        <!-- BEGIN: Aligned Job Type row and Target/Base row (for static fallback or template) -->
-        <form class="demo-form" autocomplete="off" style="max-width: 540px; margin: 2em auto;">
-          <div class="field-row jobtype-row">
-            <div class="field-group job-type-group">
-              <label for="job_type">Job Type</label>
-              <select name="job_type" id="job_type">
-                <option value="">Select one</option>
-                <option value="utm_only">Add UTM Only</option>
-                <option value="links_and_utm">Add Links and UTM</option>
-              </select>
+        <div id="tab-contents">
+          <!-- BEGIN: Main Form Fields (static fallback example; your JS should produce this structure) -->
+          <form autocomplete="off" style="max-width:540px; margin:2em auto;">
+            <div class="field-group">
+              <label for="file">Upload PDF</label>
+              <div style="display:flex;align-items:center;gap:0.7em;">
+                <input type="file" name="file" id="file" required/>
+                <span id="file-selected">No file chosen</span>
+              </div>
             </div>
-            <div class="mapping-tool-wrapper">
-              <span id="open-mapping-modal-link">
-                Open Mapping Area Tool
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                </svg>
-              </span>
+            <div class="field-row jobtype-row">
+              <div class="field-group job-type-group">
+                <label for="job_type">Job Type</label>
+                <select name="job_type" id="job_type">
+                  <option value="">Select one</option>
+                  <option value="utm_only">Add UTM Only</option>
+                  <option value="links_and_utm">Add Links and UTM</option>
+                </select>
+              </div>
+              <div class="mapping-tool-wrapper">
+                <span id="open-mapping-modal-link">
+                  Open Mapping Area Tool
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                  </svg>
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="field-row target-row">
-            <div class="field-group target-format-group">
-              <input type="text" name="target_format" id="target_format" placeholder="Target Format">
+            <div class="field-row target-row">
+              <div class="field-group target-format-group">
+                <input type="text" name="target_format" id="target_format" placeholder="Target Format">
+              </div>
+              <div class="field-group base-url-group">
+                <input type="text" name="base_url" id="base_url" placeholder="Base URL">
+              </div>
             </div>
-            <div class="field-group base-url-group">
-              <input type="text" name="base_url" id="base_url" placeholder="Base URL">
+            <!-- Add new, UTM Parameters, Document Name, etc, as needed -->
+            <div class="utm-label" style="margin-top:2em;font-weight:600;">UTM Parameters</div>
+            <div class="field-group"><input type="text" placeholder="Source" name="source" required></div>
+            <div class="field-group"><input type="text" placeholder="Medium" name="medium" required></div>
+            <div class="field-group"><input type="text" placeholder="Campaign" name="campaign" required></div>
+            <div class="field-group"><input type="text" placeholder="Content (automatic)" name="utm_content" readonly style="background:#f9f9f9"></div>
+            <div class="field-group">
+              <label for="filename">Document Name</label>
+              <input type="text" name="filename" id="filename" placeholder="MyFileName" required>
             </div>
-          </div>
-          <!-- Add any additional fields here for demo display -->
-        </form>
-        <!-- END: Demo form fields for layout preview -->
+            <div class="checkbox-wrapper" style="margin-bottom:0.75rem;margin-top:-0.5rem;">
+              <input type="checkbox" name="underline" id="underline">
+              <label for="underline">Add underline to links?</label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="save-btn" disabled>Save</button>
+            </div>
+          </form>
+          <!-- END -->
+        </div>
       </div>
       <div class="file-list">
         <strong>File List</strong>
