@@ -827,15 +827,23 @@ processBtn.addEventListener("click", async function() {
   const previewDocsToShow = [];
   let encounteredError = null;
   const API_BASE = "https://utmatic-backend.onrender.com";
-  for (let i = 0; i < tabData.length; ++i) {
-    const { form, tabId } = tabData[i];
-    const formData = new FormData(form);
-    if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
-    try {
-      const res = await fetch(`${API_BASE}/preview`, {
-        method: "POST",
-        body: formData
-      });
+for (let i = 0; i < tabData.length; ++i) {
+  const { form, tabId } = tabData[i];
+  const formData = new FormData(form);
+  if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
+
+  // PATCH: Add mappings and full_document from mapping tool
+  if (window.getCurrentMappingsForPDFProcess) {
+    const { mappings, full_document } = window.getCurrentMappingsForPDFProcess();
+    formData.set('mappings', JSON.stringify(mappings));
+    formData.set('full_document', full_document);
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/preview`, {
+      method: "POST",
+      body: formData
+    });
       if (!res.ok) {
         const errorText = await res.text();
         encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
@@ -1069,6 +1077,15 @@ async function downloadFinalPdf() {
     btn.textContent = "Downloading...";
     const API_BASE = "https://utmatic-backend.onrender.com";
     try {
+      
+      // If you want to ensure mappings are included for download:
+const formData = new FormData();
+for (const [k, v] of doc.formData.entries()) formData.append(k, v);
+if (window.getCurrentMappingsForPDFProcess) {
+  const { mappings, full_document } = window.getCurrentMappingsForPDFProcess();
+  formData.set('mappings', JSON.stringify(mappings));
+  formData.set('full_document', full_document);
+}
       const res = await fetch(`${API_BASE}/process`, {
         method: "POST",
         body: doc.formData
