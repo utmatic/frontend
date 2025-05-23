@@ -13,8 +13,8 @@ window.pdfjsViewer =
   undefined;
 
 // SVG ICONS
-const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>`;
-const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
+const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 13.5l2.25 2.25L15 12"/></svg>`;
+const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
 
 let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
 function updateBaseUrlMemory(newUrl) {
@@ -306,14 +306,14 @@ function renderFormFields(form, tabId, docName, fileObj) {
 
   form.appendChild(pdfField);
 
-  // --- Job Type + Mapping Tool Row ---
+  // --- Job Type Row ---
   const jobTypeRow = document.createElement("div");
   jobTypeRow.className = "field-row";
   jobTypeRow.style.display = "flex";
   jobTypeRow.style.gap = "1rem";
   jobTypeRow.style.alignItems = "center";
 
-  // Job Type Field (same width as Target Format)
+  // Job Type Field
   const jobTypeField = document.createElement("div");
   jobTypeField.className = "field-group job-type-group";
   jobTypeField.style.flex = "1";
@@ -341,61 +341,9 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeLabel);
   jobTypeField.appendChild(jobTypeSelect);
 
-  // --- Mapping Tool as Text+SVG ---
-  const mappingToolWrapper = document.createElement("div");
-  mappingToolWrapper.className = "mapping-tool-row";
-  mappingToolWrapper.style.display = "flex";
-  mappingToolWrapper.style.alignItems = "center";
-  mappingToolWrapper.style.maxWidth = "320px";
-  mappingToolWrapper.style.marginLeft = "0";
-  mappingToolWrapper.style.paddingLeft = "0";
-  mappingToolWrapper.style.marginTop = "0.08em";
-
-  const mappingToolLink = document.createElement("span");
-  mappingToolLink.id = "open-mapping-modal-link";
-  mappingToolLink.style.display = "none";
-  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.21em;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
-
-  mappingToolLink.className = ""; // initial class, toggled later
-  mappingToolWrapper.appendChild(mappingToolLink);
-
-  // Add both fields to the row
+  // Only append jobTypeField (no mapping tool in row)
   jobTypeRow.appendChild(jobTypeField);
-  jobTypeRow.appendChild(mappingToolWrapper);
-
   form.appendChild(jobTypeRow);
-
-  // --- Mapping tool logic (scoped to this form/tab only) ---
-  function updateMappingToolLinkState() {
-    // Only active if jobType is "links_and_utm" and a file is uploaded
-    const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
-    mappingToolLink.classList.toggle("active", enabled);
-    mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
-    mappingToolLink.style.opacity = enabled ? "1" : "0.6";
-    mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
-    mappingToolLink.style.userSelect = enabled ? "auto" : "none";
-    mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
-  }
-  jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
-  fileInput.addEventListener("change", updateMappingToolLinkState);
-  updateMappingToolLinkState();
-
-  mappingToolLink.addEventListener("click", function () {
-    if (mappingToolLink.classList.contains("active")) {
-      const mappingModal = document.getElementById('mapping-modal');
-      if (mappingModal) {
-        mappingModal.classList.add('show');
-        const mainFileInput = fileInput;
-        const mappingFileInput = document.getElementById('mapping-file-input');
-        if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
-          const dt = new DataTransfer();
-          dt.items.add(mainFileInput.files[0]);
-          mappingFileInput.files = dt.files;
-          mappingFileInput.dispatchEvent(new Event('change'));
-        }
-      }
-    }
-  });
 
   // --- Target Format & Base URL dynamic rows ---
   const targetBaseRowsWrapper = document.createElement("div");
@@ -456,7 +404,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
       infoBtn.setAttribute("aria-label", "How to use Base URL and Target Formats?");
       infoBtn.style.display = "none"; // will show only for Add Links and UTM
 
-      infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+      infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
 
       const infoPopup = document.createElement("div");
       infoPopup.className = "info-popup base-url-info-popup";
@@ -578,7 +526,7 @@ Each match is combined with the Base URL:<br>
   const infoBtn = document.createElement("button");
   infoBtn.type = "button";
   infoBtn.className = "info-icon-btn";
-  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>`;
+  infoBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6.75h2.25A3.75 3.75 0 0120 10.5v2.25A3.75 3.75 0 0116.25 16.5H14.25M10.5 17.25H8.25A3.75 3.75 0 014.5 13.5V11.25A3.75 3.75 0 018.25 7.5H9.75"/></svg>`;
   const infoPopup = document.createElement("div");
   infoPopup.className = "info-popup";
   infoPopup.innerHTML = `
@@ -610,6 +558,18 @@ Each match is combined with the Base URL:<br>
   filenameGroup.appendChild(filenameInput);
   form.appendChild(filenameGroup);
 
+  // --- Mapping Tool as Text+SVG (now at the bottom, above underline) ---
+  const mappingToolLink = document.createElement("span");
+  mappingToolLink.id = "open-mapping-modal-link";
+  mappingToolLink.style.display = "none";
+  mappingToolLink.style.cursor = "pointer";
+  mappingToolLink.style.color = "#2563eb";
+  mappingToolLink.style.fontWeight = "600";
+  mappingToolLink.style.marginBottom = "0.5em";
+  mappingToolLink.style.alignSelf = "flex-start";
+  mappingToolLink.innerHTML = `Open Mapping Area Tool <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em;height:1.2em;vertical-align:-0.2em;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>`;
+
+  // --- Underline Checkbox ---
   const underlineWrapper = document.createElement("div");
   underlineWrapper.className = "checkbox-wrapper hidden";
   underlineWrapper.style.marginBottom = "0.75rem";
@@ -623,6 +583,9 @@ Each match is combined with the Base URL:<br>
   underlineLabel.textContent = "Add underline to links?";
   underlineWrapper.appendChild(underlineInput);
   underlineWrapper.appendChild(underlineLabel);
+
+  // Insert mappingToolLink just above underlineWrapper
+  form.appendChild(mappingToolLink);
   form.appendChild(underlineWrapper);
 
   const actionsDiv = document.createElement("div");
@@ -634,6 +597,38 @@ Each match is combined with the Base URL:<br>
   saveBtn.disabled = true;
   actionsDiv.appendChild(saveBtn);
   form.appendChild(actionsDiv);
+
+  // --- Mapping tool logic (at the bottom, above underline) ---
+  function updateMappingToolLinkState() {
+    // Only active if jobType is "links_and_utm" and a file is uploaded
+    const enabled = jobTypeSelect.value === "links_and_utm" && fileInput.files.length > 0;
+    mappingToolLink.classList.toggle("active", enabled);
+    mappingToolLink.style.cursor = enabled ? "pointer" : "not-allowed";
+    mappingToolLink.style.opacity = enabled ? "1" : "0.6";
+    mappingToolLink.style.color = enabled ? "#2563eb" : "#888";
+    mappingToolLink.style.userSelect = enabled ? "auto" : "none";
+    mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
+  }
+  jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
+  fileInput.addEventListener("change", updateMappingToolLinkState);
+  updateMappingToolLinkState();
+
+  mappingToolLink.addEventListener("click", function () {
+    if (mappingToolLink.classList.contains("active")) {
+      const mappingModal = document.getElementById('mapping-modal');
+      if (mappingModal) {
+        mappingModal.classList.add('show');
+        const mainFileInput = fileInput;
+        const mappingFileInput = document.getElementById('mapping-file-input');
+        if (mainFileInput && mappingFileInput && mainFileInput.files.length > 0) {
+          const dt = new DataTransfer();
+          dt.items.add(mainFileInput.files[0]);
+          mappingFileInput.files = dt.files;
+          mappingFileInput.dispatchEvent(new Event('change'));
+        }
+      }
+    }
+  });
 
   // --- Save/Dirty logic ---
   tabLastSavedState[tabId] = "";
@@ -696,6 +691,7 @@ Each match is combined with the Base URL:<br>
     const filenameInput = form.querySelector("input[name='filename']");
     updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
     checkDirtyAndUpdateSaveBtn();
+    updateMappingToolLinkState(); // Ensure mapping tool visibility updates
   });
 
   filenameInput.addEventListener("input", () => {
@@ -714,6 +710,7 @@ Each match is combined with the Base URL:<br>
       updateFileListStatus(tabId, base, false, jobTypeSelect.value);
       tabLastSavedState[tabId] = "";
       checkDirtyAndUpdateSaveBtn();
+      updateMappingToolLinkState(); // Ensure mapping tool visibility updates
     }
   });
 
