@@ -378,6 +378,20 @@ function renderFormFields(form, tabId, docName, fileObj) {
   }
   jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
 
+    // Adjust styling only when 'Add Links and UTM' is selected
+    if (jobTypeSelect.value === "links_and_utm") {
+      jobTypeSelect.style.maxWidth = "240px";
+      mappingToolWrapper.style.marginTop = "0";
+      mappingToolWrapper.style.marginLeft = "0";
+      mappingToolWrapper.style.alignItems = "center";
+      mappingToolLink.style.display = "inline-flex";
+    } else {
+      jobTypeSelect.style.maxWidth = "";
+      mappingToolWrapper.style.marginTop = "";
+      mappingToolLink.style.display = "none";
+    }
+
+
     // Adjust styling when 'Add Links and UTM' is selected
     if (jobTypeSelect.value === "links_and_utm") {
       jobTypeSelect.style.maxWidth = "240px";
