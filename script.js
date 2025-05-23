@@ -377,6 +377,18 @@ function renderFormFields(form, tabId, docName, fileObj) {
     mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
   }
   jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
+
+    // Adjust styling when 'Add Links and UTM' is selected
+    if (jobTypeSelect.value === "links_and_utm") {
+      jobTypeSelect.style.maxWidth = "240px";
+      mappingToolWrapper.style.marginTop = "0";
+      mappingToolWrapper.style.marginLeft = "0";
+      mappingToolWrapper.style.alignItems = "center";
+    } else {
+      jobTypeSelect.style.maxWidth = "";
+      mappingToolWrapper.style.marginTop = "";
+    }
+
   fileInput.addEventListener("change", updateMappingToolLinkState);
   updateMappingToolLinkState();
 
