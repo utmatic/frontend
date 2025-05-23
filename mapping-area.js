@@ -151,7 +151,13 @@
 
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
-    if (!mappingRectangles.length) return;
+    if (!mappingRectangles.length) {
+      saveMappingsBtn.disabled = true;
+      saveMappingsBtn.classList.add('disabled');
+      return;
+    }
+    saveMappingsBtn.disabled = false;
+    saveMappingsBtn.classList.remove('disabled');
 
     // Group mappings by area + mode + name
     let grouped = [];
@@ -292,15 +298,6 @@
       lastDragName = "";
     };
   }
-  // Remove click-outside-to-close behavior!
-  // mappingModal.addEventListener('mousedown', function(e) {
-  //   if (e.target === mappingModal) {
-  //     mappingModal.classList.remove('show');
-  //     clearPendingRectVisual();
-  //     lastDragRect = null;
-  //     lastDragName = "";
-  //   }
-  // });
 
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
@@ -354,18 +351,33 @@
       clearPendingRectVisual();
     };
   }
-  if (saveMappingsBtn) {
-    saveMappingsBtn.onclick = () => {
-      const mappingData = JSON.stringify(mappingRectangles);
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([mappingData], { type: "application/json" }));
-      a.download = (mappingFilenameSpan.textContent || "mapping-areas") + '.json';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      document.body.removeChild(a);
+
+  // --- Backend communication: POST mappings when Save Mappings clicked ---
+  saveMappingsBtn.onclick = async () => {
+    if (saveMappingsBtn.disabled) return;
+    const mappingData = {
+      filename: mappingFilenameSpan.textContent || "",
+      mappings: mappingRectangles,
+      fullDocument: mappingRectangles.length === 0 // If no mappings, process full document
     };
-  }
+    try {
+      const response = await fetch('/api/mappings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(mappingData)
+      });
+      if (response.ok) {
+        alert('Mappings sent to backend!');
+      } else {
+        alert('Error saving mappings to backend.');
+      }
+    } catch (err) {
+      alert('Network error saving mappings.');
+    }
+  };
+
   // Canvas drawing
   if (pdfMappingCanvas) {
     pdfMappingCanvas.onmousedown = (e) => {
@@ -431,4 +443,8 @@
       clearPendingRectVisual();
     };
   }
+
+  // Initial state: disable save button
+  saveMappingsBtn.disabled = true;
+  saveMappingsBtn.classList.add('disabled');
 })();
