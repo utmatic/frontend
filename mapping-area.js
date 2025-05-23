@@ -361,7 +361,7 @@
       fullDocument: mappingRectangles.length === 0 // If no mappings, process full document
     };
     try {
-      const response = await fetch('/api/mappings', {
+      const response = await fetch('https://utmatic-backend.onrender.com/api/mappings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
