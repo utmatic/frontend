@@ -1145,3 +1145,22 @@ observer.observe(document.body, { childList: true, subtree: true });
 // (If you have other global .job-type-group or .mapping-tool-row logic, refactor to use only within renderFormFields or per-tab.)
 
 // Remove the old global DOMContentLoaded jobTypeSelects logic (was for mapping-toggle-wrapper, now obsolete)
+
+
+
+  function adjustJobTypeLayout() {
+    const isLinksAndUtm = jobTypeSelect.value === "links_and_utm";
+    jobTypeSelect.style.maxWidth = isLinksAndUtm ? "240px" : "";
+    mappingToolWrapper.style.marginLeft = isLinksAndUtm ? "0.7rem" : "";
+    mappingToolWrapper.style.marginTop = isLinksAndUtm ? "0" : "";
+    mappingToolWrapper.style.display = "flex";
+    mappingToolWrapper.style.alignItems = "center";
+    mappingToolLink.style.display = isLinksAndUtm ? "inline-flex" : "none";
+    mappingToolLink.style.alignItems = "center";
+  }
+  jobTypeSelect.addEventListener("change", () => {
+    updateMappingToolLinkState();
+    adjustJobTypeLayout();
+  });
+  fileInput.addEventListener("change", adjustJobTypeLayout);
+  adjustJobTypeLayout();
