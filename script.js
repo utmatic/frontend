@@ -317,7 +317,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   const jobTypeField = document.createElement("div");
   jobTypeField.className = "field-group job-type-group";
   jobTypeField.style.flex = "1";
-  jobTypeField.style.minWidth = 0;
+  jobTypeField.style.minWidth = 295.4;
   const jobTypeLabel = document.createElement("label");
   jobTypeLabel.htmlFor = "job_type";
   jobTypeLabel.textContent = "Job Type";
