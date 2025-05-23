@@ -377,32 +377,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     mappingToolLink.style.display = jobTypeSelect.value === "links_and_utm" ? "inline-flex" : "none";
   }
   jobTypeSelect.addEventListener("change", updateMappingToolLinkState);
-
-    // Adjust styling only when 'Add Links and UTM' is selected
-    if (jobTypeSelect.value === "links_and_utm") {
-      jobTypeSelect.style.maxWidth = "240px";
-      mappingToolWrapper.style.marginTop = "0";
-      mappingToolWrapper.style.marginLeft = "0";
-      mappingToolWrapper.style.alignItems = "center";
-      mappingToolLink.style.display = "inline-flex";
-    } else {
-      jobTypeSelect.style.maxWidth = "";
-      mappingToolWrapper.style.marginTop = "";
-      mappingToolLink.style.display = "none";
-    }
-
-
-    // Adjust styling when 'Add Links and UTM' is selected
-    if (jobTypeSelect.value === "links_and_utm") {
-      jobTypeSelect.style.maxWidth = "240px";
-      mappingToolWrapper.style.marginTop = "0";
-      mappingToolWrapper.style.marginLeft = "0";
-      mappingToolWrapper.style.alignItems = "center";
-    } else {
-      jobTypeSelect.style.maxWidth = "";
-      mappingToolWrapper.style.marginTop = "";
-    }
-
   fileInput.addEventListener("change", updateMappingToolLinkState);
   updateMappingToolLinkState();
 
@@ -1145,22 +1119,3 @@ observer.observe(document.body, { childList: true, subtree: true });
 // (If you have other global .job-type-group or .mapping-tool-row logic, refactor to use only within renderFormFields or per-tab.)
 
 // Remove the old global DOMContentLoaded jobTypeSelects logic (was for mapping-toggle-wrapper, now obsolete)
-
-
-
-  function adjustJobTypeLayout() {
-    const isLinksAndUtm = jobTypeSelect.value === "links_and_utm";
-    jobTypeSelect.style.maxWidth = isLinksAndUtm ? "240px" : "";
-    mappingToolWrapper.style.marginLeft = isLinksAndUtm ? "0.7rem" : "";
-    mappingToolWrapper.style.marginTop = isLinksAndUtm ? "0" : "";
-    mappingToolWrapper.style.display = "flex";
-    mappingToolWrapper.style.alignItems = "center";
-    mappingToolLink.style.display = isLinksAndUtm ? "inline-flex" : "none";
-    mappingToolLink.style.alignItems = "center";
-  }
-  jobTypeSelect.addEventListener("change", () => {
-    updateMappingToolLinkState();
-    adjustJobTypeLayout();
-  });
-  fileInput.addEventListener("change", adjustJobTypeLayout);
-  adjustJobTypeLayout();
