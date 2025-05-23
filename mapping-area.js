@@ -143,6 +143,12 @@
     return true;
   }
 
+  function getModeLabel(mode) {
+    if (mode === "even") return "Even only";
+    if (mode === "odd") return "Odd only";
+    return "All pages";
+  }
+
   function renderMappingsList() {
     mappingsListEl.innerHTML = '';
     if (!mappingRectangles.length) return;
@@ -178,21 +184,25 @@
           break;
         }
       }
-      let label = "";
-      let modeStr = "";
-      if(group.mode === "even") modeStr = " (even only)";
-      if(group.mode === "odd") modeStr = " (odd only)";
+      let pageLabel = "";
       if (group.pages.length === 1) {
-        label = `Page ${group.pages[0]}${modeStr}`;
+        pageLabel = `Page ${group.pages[0]}`;
       } else if (isContiguous || isFullRangeOddOrEven(group.pages, group.mode)) {
-        label = `Pages ${first}-${last}${modeStr}`;
+        pageLabel = `Pages ${first}-${last}`;
       } else {
         // show as comma-separated
-        label = `Pages ${group.pages.join(", ")}${modeStr}`;
+        pageLabel = `Pages ${group.pages.join(", ")}`;
       }
-      if(group.name) {
-        label += ': <span class="mapping-name">' + escapeHTML(group.name) + '</span>';
-      }
+
+      let namePart = group.name
+        ? `<span class="mapping-name">${escapeHTML(group.name)}</span>`
+        : "";
+
+      let modePart = getModeLabel(group.mode);
+
+      // Final format: Page range: Mapping name (Mode)
+      let label = `${pageLabel}: ${namePart} <span class="mapping-mode">(${modePart})</span>`;
+
       const li = document.createElement('li');
       li.innerHTML = label;
       const removeBtn = document.createElement('button');
