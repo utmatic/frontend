@@ -260,6 +260,7 @@
 #mapping-modal .primary:hover,
 #mapping-modal button#save-mappings-btn:hover {
   background: #1d4ed8;
+  text-decoration: none;
 }
 .mapping-radio-group {
   display: flex;
