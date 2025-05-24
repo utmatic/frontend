@@ -221,27 +221,45 @@
     });
   }
 
+  // Helper: fetch saved mappings from backend
+  async function fetchMappingsFromBackend(mappingId) {
+    try {
+      const res = await fetch("https://utmatic-backend.onrender.com/api/mappings?id=" + encodeURIComponent(mappingId));
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.mappings) ? data.mappings : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
   // PATCH: Allow both the old button and the new mapping tool link to open the modal and load the PDF
   [openMappingModalBtn, openMappingModalLink].forEach(el => {
     if (el) {
       el.onclick = async (e) => {
         if (e) e.preventDefault && e.preventDefault();
         mappingModal.classList.add('show');
+        let fileName = "";
         if (mainFileInput && mainFileInput.files.length > 0) {
           const file = mainFileInput.files[0];
           if (file && file.type === "application/pdf") {
-            mappingFilenameSpan.textContent = file.name.replace(/\.[^.]+$/, '');
+            fileName = file.name.replace(/\.[^.]+$/, '');
+            mappingFilenameSpan.textContent = fileName;
             const arrayBuffer = await file.arrayBuffer();
             const loadingTask = window.pdfjsLib.getDocument(arrayBuffer);
             pdfDoc = await loadingTask.promise;
             mappingCurrentPage = 1;
             mappingTotalPages = pdfDoc.numPages;
-            renderPage();
+
+            // --- Load mappings from backend ---
+            const loaded = await fetchMappingsFromBackend(fileName);
             mappingRectangles.length = 0;
+            loaded.forEach(rec => mappingRectangles.push(rec));
             renderMappingsList();
             lastDragRect = null;
             lastDragName = "";
             clearPendingRectVisual();
+            renderPage();
           } else {
             mappingFilenameSpan.textContent = "";
             pdfDoc = null;
@@ -263,15 +281,6 @@
       lastDragName = "";
     };
   }
-  // Remove click-outside-to-close behavior!
-  // mappingModal.addEventListener('mousedown', function(e) {
-  //   if (e.target === mappingModal) {
-  //     mappingModal.classList.remove('show');
-  //     clearPendingRectVisual();
-  //     lastDragRect = null;
-  //     lastDragName = "";
-  //   }
-  // });
 
   if (prevPageBtn) {
     prevPageBtn.onclick = () => {
@@ -327,17 +336,7 @@
   }
   if (saveMappingsBtn) {
     saveMappingsBtn.onclick = async () => {
-      // Download mapping file as before
-      const mappingData = JSON.stringify(mappingRectangles);
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([mappingData], { type: "application/json" }));
-      a.download = (mappingFilenameSpan.textContent || "mapping-areas") + '.json';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      document.body.removeChild(a);
-
-      // --- PATCH: Also save to backend ---
+      // --- Save to backend only (no download) ---
       const mappingId = (mappingFilenameSpan.textContent || "mapping-areas").replace(/\.json$/i, "");
       const payload = {
         id: mappingId,
@@ -353,7 +352,6 @@
           const msg = await res.text();
           alert("Error saving mappings to backend: " + msg);
         } else {
-          // Optionally, show a small success toast instead of alert
           alert("Mappings saved to backend!");
         }
       } catch (err) {
