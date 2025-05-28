@@ -1,5 +1,7 @@
 .delete-row-btn, .delete-row-placeholder {
   background: none;
+  visibility: hidden;
+  pointer-events: none;
   border: none;
   color: #f43f5e;
   font-size: 1.5rem;
