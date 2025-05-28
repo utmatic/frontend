@@ -1,117 +1,4 @@
-
-
-.input-icon-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5em; /* space between input and icon */
-  position: relative;
-}
-
-.input-icon-wrapper input[name="base_url"] {
-  width: 100%;
-  box-sizing: border-box;
-  padding-right: 0 !important; /* <--- THIS IS IMPORTANT */
-}
-
-.base-url-info-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  height: 22px;
-  width: 22px;
-  position: static !important; /* <--- THIS IS CRUCIAL */
-  right: auto !important;      /* <--- Remove any "right" positioning */
-}
-
-.base-url-info-btn .info-svg {
-  width: 22px;
-  height: 22px;
-  color: #3b82f6;
-  display: block;
-}
-
-/* Popup */
-.base-url-info-popup {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  margin-left: 12px;
-  padding: 0.85em 1.2em;
-  background: #fff;
-  color: #23272f;
-  border: 1.5px solid #eee;
-  border-radius: 7px;
-  box-shadow: 0 2px 16px rgba(30,40,80,0.14);
-  font-size: 0.98em;
-  width: 570px;
-  z-index: 10;
-  display: none;
-  transition: opacity 0.15s;
-}
-
-.base-url-info-btn:hover + .base-url-info-popup,
-.base-url-info-btn:focus + .base-url-info-popup {
-  display: block;
-}
-  
-  .utm-content-group.input-icon-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .info-icon-btn {
-    position: absolute; 
-    right: 8px;
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .info-icon-btn .info-svg {
-    width: 22px;
-    height: 22px;
-    color: #3b82f6;
-  }
-  
-  .input-icon-wrapper input {
-    width: 100%;
-    padding-right: 32px; /* space for icon */
-  }
-  
-  .info-popup {
-    display: none;
-    position: absolute;
-    z-index: 10;
-    left: 100%;
-    top: 0;
-    margin-left: 12px;
-    padding: 0.85em 1.2em;
-    background: #fff;
-    color: #23272f;
-    border: 1.5px solid #eee;
-    border-radius: 7px;
-    box-shadow: 0 2px 16px rgba(30,40,80,0.14);
-    font-size: 0.98em;
-    width: 570px;
-    transition: opacity 0.15s;
-  }
-
-.info-icon-btn:hover + .info-popup,
-.info-icon-btn:focus + .info-popup {
-  display: block;
-}
-
-    /* Sleek scrollbar styling for PDF viewer */
+/* Sleek scrollbar styling for PDF viewer */
     #pdf-preview-inner-container,
     #pdf-canvas,
     #modal-pdf-container {
@@ -204,13 +91,10 @@
       height: 1.7em;
     }
   
-body *:not(input):not(textarea):not([contenteditable="true"]) {
-  caret-color: transparent !important;
-}
 
 
     :root {
-      --primary: #3b82f6;
+      --primary: #2563eb;
       --primary-dark: #1e40af;
       --success: #22c55e;
       --gray-bg: #fff;
@@ -223,21 +107,21 @@ body *:not(input):not(textarea):not([contenteditable="true"]) {
       --transition: 0.18s cubic-bezier(.4,0,.2,1);
       --input-bg: #fff;
       --input-border: #cbd5e1;
-      --input-focus: #3b82f6;
+      --input-focus: #2563eb;
       --input-shadow: 0 0 0 2px rgba(37,99,235,.08);
       --label: #334155;
       --placeholder: #94a3b8;
-      --col1: #3b82f6;
+      --col1: #2563eb;
       --col2: #1e40af;
       --col3: #22c55e;
       --spinner-overlay-bg: rgba(20,24,32,0.92);
 
       --previewer-bg: #f8faff;
       --previewer-border: #dde6f6;
-      --previewer-accent: #3b82f6;
+      --previewer-accent: #2563eb;
 
       --loader-bg: rgba(255,255,255,0.96);  /* almost opaque white */
-      --spinner-border: #3b82f6;  /* blue spinner */
+      --spinner-border: #2563eb;  /* blue spinner */
       --spinner-transparent: transparent;
     }
     html, body {
@@ -682,12 +566,12 @@ body *:not(input):not(textarea):not([contenteditable="true"]) {
   box-shadow: none;
   letter-spacing: 0.01em;
   font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
-  background: #3b82f6; /* Default for .save-btn, overridden below for .process-btn */
+  background: #2563eb; /* Default for .save-btn, overridden below for .process-btn */
   color: #fff;
 }
 
 .save-btn {
-  background: #3b82f6;
+  background: #2563eb;
 }
 
 .process-btn {
@@ -1078,7 +962,7 @@ select {
   stroke: var(--previewer-accent);
 }
 #download-final-btn {
-  background: #3b82f6;
+  background: #2563eb;
   color: #fff;
   border: none;
   border-radius: 9px;
@@ -1191,12 +1075,12 @@ select {
 }
 .zoom-btn:hover, .zoom-btn:focus {
   background: #ededed;
-  color: #3b82f6;
+  color: #2563eb;
   transform: scale(1.10);
 }
 .zoom-btn svg {
   display: block;
   stroke: currentColor;
   pointer-events: none;
-  }
 }
+/* --- End of new CSS --- */
