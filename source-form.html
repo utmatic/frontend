@@ -6,6 +6,24 @@
   <title>Utmatic Source File Processor</title>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* Inline for demonstration; put in styles.css for production */
+    .side-by-side-fields {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .side-by-side-fields .field-group {
+      flex: 1 1 200px;
+      min-width: 200px;
+    }
+    @media (max-width: 700px) {
+      .side-by-side-fields {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="page-wrapper" id="main-form-wrapper">
@@ -29,14 +47,25 @@
                 <span class="custom-file-filename" id="file-filename">No file chosen</span>
               </div>
             </div>
-            <!-- REMOVE job_type & disable_utm for classic backend compatibility -->
+            <!-- Job Type Field -->
             <div class="field-group">
-              <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
-              <textarea name="target_formats" id="target_formats" rows="3" required style="resize:vertical;min-height:48px;"></textarea>
+              <label for="job_type">Job Type:</label>
+              <select name="job_type" id="job_type" required>
+                <option value="add_utm">Add UTM</option>
+                <option value="add_links_only">Add links only</option>
+                <option value="add_links_with_utm">Add links with UTM</option>
+              </select>
             </div>
-            <div class="field-group">
-              <label for="base_url">Base URL:</label>
-              <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+            <!-- Target Format & Base URL side by side -->
+            <div class="side-by-side-fields" id="link-fields" style="display:none;">
+              <div class="field-group">
+                <label for="target_formats">Target Format:</label>
+                <input type="text" name="target_formats" id="target_formats" required placeholder="e.g. NNNN-NNNN, 1234-5678">
+              </div>
+              <div class="field-group">
+                <label for="base_url">Base URL:</label>
+                <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+              </div>
             </div>
             <span class="utm-label" id="utm-label">UTM Parameters</span>
             <div class="utm-row" id="utm-row">
@@ -77,6 +106,37 @@
         span.textContent = "No file chosen";
       }
     });
+
+    // Job type logic for showing/hiding fields
+    function updateJobTypeFields() {
+      const jobType = document.getElementById('job_type').value;
+      const linkFields = document.getElementById('link-fields');
+      const utmRow = document.getElementById('utm-row');
+      const utmLabel = document.getElementById('utm-label');
+      // Show/hide Target Format & Base URL
+      if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
+        linkFields.style.display = "flex";
+      } else {
+        linkFields.style.display = "none";
+      }
+      // Show/hide UTM parameters
+      if (jobType === "add_links_only") {
+        utmRow.style.display = "none";
+        utmLabel.style.display = "none";
+        // Also remove required attribute from UTM fields
+        document.getElementById('utm_source').required = false;
+        document.getElementById('utm_medium').required = false;
+        document.getElementById('utm_campaign').required = false;
+      } else {
+        utmRow.style.display = "";
+        utmLabel.style.display = "";
+        document.getElementById('utm_source').required = true;
+        document.getElementById('utm_medium').required = true;
+        document.getElementById('utm_campaign').required = true;
+      }
+    }
+    document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
+    window.addEventListener('DOMContentLoaded', updateJobTypeFields);
   </script>
 </body>
 </html>
