@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Utmatic Modular</title>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://unpkg.com/pdfjs-dist@4.2.67/web/pdf_viewer.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      if (window.pdfjsLib) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+      }
+    });
+  </script>
+
+  <div class="page-wrapper" id="main-form-wrapper">
+    <div class="main-group">
+      <div class="header-container">
+        <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
+        <div class="header-text">
+          <p>Equip your documents with tracking links — <em>instantly.</em></p>
+        </div>
+      </div>
+      <div class="container">
+        <div class="form-container">
+          <div class="tab-bar" id="tab-bar">
+            <button aria-label="Add New Document" class="tab" id="add-tab" title="Add New Document">+</button>
+          </div>
+          <div id="tab-contents"></div>
+        </div>
+        <div class="file-list">
+          <strong>File List</strong>
+          <ul id="file-list"></ul>
+          <button class="process-btn" disabled="" id="process-btn">Process PDFs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <datalist id="base-url-datalist"></datalist>
+
+  <!-- PDF Previewer Modal Overlay (MODERN) -->
+  <div id="pdf-preview-modal-overlay">
+    <div id="pdf-preview-container">
+      <button id="pdf-previewer-close" onclick="closePdfPreview()" title="Close Previewer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6"/>
+        </svg>
+      </button>
+      <div id="pdf-previewer-docswitch">
+        <span id="previewer-title">Agreement.pdf</span>
+        <svg class="caret" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 10l8 8 8-8"/>
+        </svg>
+        <div id="pdf-previewer-doclist"></div>
+      </div>
+      <div id="pdf-preview-page-counter">Page 1 / 9</div>
+      <div id="pdf-zoom-controls">
+        <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="28" height="28">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"/>
+          </svg>
+        </button>
+        <button id="zoom-in-btn" class="zoom-btn" title="Zoom In" aria-label="Zoom In">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="28" height="28">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/>
+          </svg>
+        </button>
+      </div>
+      <div id="pdf-preview-inner-container" style="position:relative;">
+        <button id="pdf-arrow-prev" class="pdf-arrow-btn" onclick="prevPage()" title="Previous Page">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 22l-8-8 8-8"/>
+          </svg>
+        </button>
+        <div id="pdf-container" style="overflow: auto; max-width: 98vw; max-height: 66vh;">
+          <canvas id="pdf-canvas"></canvas>
+        </div>
+        <button id="pdf-arrow-next" class="pdf-arrow-btn" onclick="nextPage()" title="Next Page">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6l8 8-8 8"/>
+          </svg>
+        </button>
+      </div>
+      <div id="pdf-previewer-actions-bar">
+        <button id="pdf-previewer-startnew" title="Start New">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0
+                3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181
+                3.182m0-4.991v4.99"/>
+          </svg>
+          Start new
+        </button>
+        <button id="download-final-btn" class="primary" title="Download Final PDF">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader/Spinner Overlay -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Processing...</div>
+    <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
