@@ -1,7 +1,5 @@
 .delete-row-btn, .delete-row-placeholder {
   background: none;
-  visibility: hidden;
-  pointer-events: none;
   border: none;
   color: #f43f5e;
   font-size: 1.5rem;
@@ -21,9 +19,8 @@
 
 .delete-row-btn:disabled,
 .delete-row-placeholder {
-  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  cursor: default;
 }
 
 /* Sleek scrollbar styling for PDF viewer */
