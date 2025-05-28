@@ -29,21 +29,10 @@
                 <span class="custom-file-filename" id="file-filename">No file chosen</span>
               </div>
             </div>
+            <!-- REMOVE job_type & disable_utm for classic backend compatibility -->
             <div class="field-group">
-              <label for="job_type">Job Type</label>
-              <select name="job_type" id="job_type" required>
-                <option value="">Select one</option>
-                <option value="links_and_utm">Add Links and UTM</option>
-                <option value="utm_only">Add UTM Only</option>
-              </select>
-            </div>
-            <div class="checkbox-wrapper hidden" id="utm-toggle-row">
-              <input type="checkbox" id="disable_utm" name="disable_utm">
-              <label for="disable_utm">Add links only (no UTM parameters)</label>
-            </div>
-            <div class="field-group">
-              <label for="target_format">Target Format</label>
-              <input type="text" name="target_format" id="target_format" placeholder="e.g., NNNN-NNNN" required>
+              <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
+              <textarea name="target_formats" id="target_formats" rows="3" required style="resize:vertical;min-height:48px;"></textarea>
             </div>
             <div class="field-group">
               <label for="base_url">Base URL:</label>
@@ -88,30 +77,6 @@
         span.textContent = "No file chosen";
       }
     });
-
-    // Job type/UTM logic
-    const jobType = document.getElementById('job_type');
-    const utmToggleRow = document.getElementById('utm-toggle-row');
-    const utmRow = document.getElementById('utm-row');
-    const utmLabel = document.getElementById('utm-label');
-    const disableUtm = document.getElementById('disable_utm');
-
-    function updateUtmDisplay() {
-      if (jobType.value === "links_and_utm") {
-        utmToggleRow.classList.remove("hidden");
-        const hideUtm = disableUtm.checked;
-        utmRow.classList.toggle("hidden", hideUtm);
-        utmLabel.classList.toggle("hidden", hideUtm);
-        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = !hideUtm);
-      } else {
-        utmToggleRow.classList.add("hidden");
-        utmRow.classList.remove("hidden");
-        utmLabel.classList.remove("hidden");
-        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = true);
-      }
-    }
-    jobType.addEventListener('change', updateUtmDisplay);
-    disableUtm.addEventListener('change', updateUtmDisplay);
   </script>
 </body>
 </html>
