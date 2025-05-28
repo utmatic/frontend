@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,14 +21,8 @@
         <div class="form-container">
           <form id="iddForm" enctype="multipart/form-data" autocomplete="off">
             <div class="field-group">
-              <label for="file">Upload InDesign File (.indd):</label>
-              <div class="custom-file-input-wrapper">
-                <label class="custom-file-input-label" tabindex="0">
-                  Choose File
-                  <input type="file" name="file" id="file" accept=".indd" class="custom-file-input" required>
-                </label>
-                <span class="custom-file-filename" id="file-filename">No file chosen</span>
-              </div>
+              <label for="file">Upload InDesign or PDF File:</label>
+              <input type="file" name="file" id="file" accept=".indd,.pdf" required>
             </div>
             <div class="field-group">
               <label for="job_type">Job Type</label>
@@ -42,23 +37,45 @@
               <label for="disable_utm">Add links only (no UTM parameters)</label>
             </div>
             <div class="field-group">
-              <label for="target_format">Target Format</label>
-              <input type="text" name="target_format" id="target_format" placeholder="e.g., NNNN-NNNN" required>
+              <label for="target_format">Target Format(s)</label>
+              <input type="text" name="target_format" id="target_format" placeholder="e.g., NNNN-NNNN (comma-separated for multiple)">
             </div>
             <div class="field-group">
-              <label for="base_url">Base URL:</label>
-              <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+              <label for="base_url">Base URL(s):</label>
+              <input type="text" name="base_url" id="base_url" placeholder="Comma-separated URLs">
+            </div>
+            <div class="field-group">
+              <label for="utm_content">UTM Content (optional):</label>
+              <input type="text" name="utm_content" id="utm_content" placeholder="Optional UTM content">
+            </div>
+            <div class="field-group">
+              <label for="filename">Output Filename (optional):</label>
+              <input type="text" name="filename" id="filename" placeholder="Without .pdf/.indd extension">
+            </div>
+            <div class="field-group">
+              <label for="underline">Underline Links?</label>
+              <select name="underline" id="underline">
+                <option value="false" selected>No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="diagnostics">Diagnostics?</label>
+              <select name="diagnostics" id="diagnostics">
+                <option value="false" selected>No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
             <span class="utm-label" id="utm-label">UTM Parameters</span>
             <div class="utm-row" id="utm-row">
               <div class="field-group">
-                <input type="text" name="source" id="utm_source" placeholder="Source" required>
+                <input type="text" name="source" id="utm_source" placeholder="Source">
               </div>
               <div class="field-group">
-                <input type="text" name="medium" id="utm_medium" placeholder="Medium" required>
+                <input type="text" name="medium" id="utm_medium" placeholder="Medium">
               </div>
               <div class="field-group">
-                <input type="text" name="campaign" id="utm_campaign" placeholder="Campaign" required>
+                <input type="text" name="campaign" id="utm_campaign" placeholder="Campaign">
               </div>
             </div>
             <div class="form-actions">
@@ -71,47 +88,6 @@
       </div>
     </div>
   </div>
-  <!-- Loader/Spinner Overlay -->
-  <div id="loader">
-    <div class="spinner"></div>
-    <div class="loader-text">Processing...</div>
-    <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
-  </div>
-  <script src="src-script.js"></script>
-  <script>
-    // File input display
-    document.getElementById('file').addEventListener('change', function() {
-      const span = document.getElementById('file-filename');
-      if (this.files && this.files.length > 0) {
-        span.textContent = this.files[0].name;
-      } else {
-        span.textContent = "No file chosen";
-      }
-    });
-
-    // Job type/UTM logic
-    const jobType = document.getElementById('job_type');
-    const utmToggleRow = document.getElementById('utm-toggle-row');
-    const utmRow = document.getElementById('utm-row');
-    const utmLabel = document.getElementById('utm-label');
-    const disableUtm = document.getElementById('disable_utm');
-
-    function updateUtmDisplay() {
-      if (jobType.value === "links_and_utm") {
-        utmToggleRow.classList.remove("hidden");
-        const hideUtm = disableUtm.checked;
-        utmRow.classList.toggle("hidden", hideUtm);
-        utmLabel.classList.toggle("hidden", hideUtm);
-        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = !hideUtm);
-      } else {
-        utmToggleRow.classList.add("hidden");
-        utmRow.classList.remove("hidden");
-        utmLabel.classList.remove("hidden");
-        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = true);
-      }
-    }
-    jobType.addEventListener('change', updateUtmDisplay);
-    disableUtm.addEventListener('change', updateUtmDisplay);
-  </script>
+  <script src="updated_src_script.js"></script>
 </body>
 </html>
