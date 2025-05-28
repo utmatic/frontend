@@ -48,28 +48,31 @@ function createRow(tfValue = '', buValue = '') {
   buGroup.appendChild(buInput);
   row.appendChild(tfGroup);
   row.appendChild(buGroup);
-
-  // Only show delete button for rows after the first
-  setTimeout(() => {
-    const rows = rowsContainer.querySelectorAll('.field-row');
-    if (rows.length > 0 || rowsContainer.childElementCount > 0) {
-      // If this is not the very first row, show delete button
-      if (rowsContainer.childElementCount > 0) {
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'delete-row-btn';
-        delBtn.innerHTML = '&times;';
-        delBtn.title = 'Remove row';
-        delBtn.onclick = function() {
-          row.remove();
-          updateRowControls();
-        };
-        row.appendChild(delBtn);
-      }
-    }
-    updateRowControls();
-  }, 0);
   return row;
+}
+
+function updateDeleteButtons() {
+  const rows = Array.from(rowsContainer.querySelectorAll('.field-row'));
+  rows.forEach((row, idx) => {
+    // Remove any existing delete buttons
+    let delBtn = row.querySelector('.delete-row-btn');
+    if (delBtn) delBtn.remove();
+    // Add delete button only for rows after the first
+    if (idx > 0) {
+      delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'delete-row-btn';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Remove row';
+      delBtn.onclick = function() {
+        row.remove();
+        updateDeleteButtons();
+        updateRowControls();
+      };
+      row.appendChild(delBtn);
+    }
+  });
+  updateRowControls();
 }
 
 function updateRowControls() {
@@ -84,41 +87,15 @@ function showLinkFields(show) {
     rowsContainer.appendChild(createRow());
   }
   updateDeleteButtons();
-  updateRowControls();
   // Set required only if visible
   const allInputs = linkFields.querySelectorAll('input');
   allInputs.forEach(input => input.required = show);
-}
-
-function updateDeleteButtons() {
-  const rows = Array.from(rowsContainer.querySelectorAll('.field-row'));
-  rows.forEach((row, idx) => {
-    let delBtn = row.querySelector('.delete-row-btn');
-    if (idx === 0) {
-      if (delBtn) delBtn.remove();
-    } else {
-      if (!delBtn) {
-        delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'delete-row-btn';
-        delBtn.innerHTML = '&times;';
-        delBtn.title = 'Remove row';
-        delBtn.onclick = function() {
-          row.remove();
-          updateDeleteButtons();
-          updateRowControls();
-        };
-        row.appendChild(delBtn);
-      }
-    }
-  });
 }
 
 addRowBtn.onclick = function() {
   if (rowsContainer.childElementCount < MAX_ROWS) {
     rowsContainer.appendChild(createRow());
     updateDeleteButtons();
-    updateRowControls();
   }
 };
 
