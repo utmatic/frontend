@@ -28,7 +28,6 @@ form.onsubmit = async (e) => {
 
   statusDiv.textContent = "Uploading and initializing job...";
   try {
-    // === CHANGE: Use the correct endpoint ===
     const resp = await fetch("https://backend-idd.onrender.com/process", {
       method: "POST",
       body: formData
