@@ -72,7 +72,7 @@ function updateRowControls() {
 }
 
 function showLinkFields(show) {
-  linkFields.style.display = show ? "flex" : "none";
+  linkFields.style.display = show ? "block" : "none";
   // Ensure at least one row exists when showing
   if (show && rowsContainer.childElementCount === 0) {
     rowsContainer.appendChild(createRow());
