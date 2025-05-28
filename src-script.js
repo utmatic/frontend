@@ -74,10 +74,12 @@ if (idx > 0) {
   };
   row.appendChild(delBtn);
 } else {
-  // Add invisible placeholder to keep widths consistent
-  placeholder = document.createElement('span');
-  placeholder.className = 'delete-row-placeholder';
+  // Add invisible but identical button as placeholder
+  placeholder = document.createElement('button');
+  placeholder.type = 'button';
+  placeholder.className = 'delete-row-btn delete-row-placeholder';
   placeholder.innerHTML = '&times;';
+  placeholder.disabled = true;
   row.appendChild(placeholder);
 }
   });
