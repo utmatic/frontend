@@ -7,6 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
   <style>
+    .field-row-wrapper {
+      margin-bottom: 1em;
+    }
     .side-by-side-fields {
       display: flex;
       gap: 16px;
@@ -37,18 +40,25 @@
       opacity: 0.4;
       cursor: not-allowed;
     }
-    .add-row-btn {
+    .add-new-row-btn {
       background: #3653f8;
-      border: none;
       color: #fff;
+      border: none;
       border-radius: 4px;
-      padding: 0.32em 1.2em;
-      margin-bottom: 1em;
+      padding: 0.38em 1.3em;
+      margin-left: 0;
+      margin-bottom: 0.18em;
+      margin-top: 0;
+      display: block;
       font-size: 1em;
-      cursor: pointer;
       font-family: inherit;
       font-weight: 500;
-      margin-top: 0;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .add-new-row-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
     @media (max-width: 700px) {
       .side-by-side-fields, .field-row {
@@ -170,9 +180,9 @@
               </select>
             </div>
             <!-- Target Format & Base URL dynamic rows -->
-            <div id="link-fields" style="display:none;">
+            <div id="link-fields" class="field-row-wrapper" style="display:none;">
               <div id="target-base-rows"></div>
-              <button type="button" class="add-row-btn" id="add-row-btn">+ Add Row</button>
+              <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
             </div>
             <span class="utm-label" id="utm-label">UTM Parameters</span>
             <div class="utm-row" id="utm-row">
