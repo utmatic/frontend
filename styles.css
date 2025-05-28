@@ -1,13 +1,27 @@
-.delete-row-placeholder {
-  display: inline-flex;
-  width: 1.5rem; /* match .delete-row-btn font-size */
-  height: 1.5rem;
-  opacity: 0;
-  pointer-events: none;
-  align-items: center;
-  justify-content: center;
+.delete-row-btn, .delete-row-placeholder {
+  background: none;
+  border: none;
+  color: #f43f5e;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.3em;
+  line-height: 1;
+  transition: color 0.15s;
   margin-left: 8px;
   margin-right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;      /* Force width for consistency */
+  height: 1.5em;     /* Force height for consistency */
+  box-sizing: content-box;
+}
+
+.delete-row-btn:disabled,
+.delete-row-placeholder {
+  opacity: 0;
+  pointer-events: none;
+  cursor: default;
 }
 
 /* Sleek scrollbar styling for PDF viewer */
