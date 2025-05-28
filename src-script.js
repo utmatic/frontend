@@ -21,14 +21,15 @@ form.onsubmit = async (e) => {
   if (document.getElementById('disable_utm').checked) {
     formData.set('disable_utm', 'true');
     // Optionally clear UTM fields if you want
-    formData.set('utm_source', '');
-    formData.set('utm_medium', '');
-    formData.set('utm_campaign', '');
+    formData.set('source', '');
+    formData.set('medium', '');
+    formData.set('campaign', '');
   }
 
   statusDiv.textContent = "Uploading and initializing job...";
   try {
-    const resp = await fetch("https://backend-idd.onrender.com/upload/", {
+    // === CHANGE: Use the correct endpoint ===
+    const resp = await fetch("https://backend-idd.onrender.com/process", {
       method: "POST",
       body: formData
     });
