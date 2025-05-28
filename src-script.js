@@ -11,6 +11,25 @@ form.onsubmit = async (e) => {
 
   const formData = new FormData(form);
 
+  // Remove fields based on job type for classic backend compatibility
+  const jobType = form.job_type.value;
+
+  // For "Add UTM", do not send target_formats or base_url
+  if (jobType === "add_utm") {
+    formData.delete("target_formats");
+    formData.delete("base_url");
+  }
+
+  // For "Add links only", do not send UTM parameters
+  if (jobType === "add_links_only") {
+    formData.delete("utm_source");
+    formData.delete("utm_medium");
+    formData.delete("utm_campaign");
+  }
+
+  // For "Add UTM", we should still make sure UTM params are present
+  // (Fields will always be present unless hidden by HTML, so nothing needed here)
+
   statusDiv.textContent = "Uploading and initializing job...";
   try {
     const resp = await fetch("https://backend-idd.onrender.com/upload/", {
