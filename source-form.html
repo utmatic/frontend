@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Source File Processor</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="main-group">
+      <div class="header-container">
+        <img alt="Utmatic Logo" class="logo" src="logo.png"/>
+        <div class="header-text">
+          <p>Process your InDesign source files with automatic linking and UTM tracking.</p>
+        </div>
+      </div>
+      <div class="container">
+        <div class="form-container">
+          <h2>Submit InDesign File for Processing</h2>
+          <form id="iddForm" enctype="multipart/form-data">
+            <div class="field-group">
+              <label for="file">Upload InDesign File (.indd):</label>
+              <input type="file" name="file" id="file" accept=".indd" required>
+            </div>
+            <div class="field-group">
+              <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
+              <textarea name="target_formats" id="target_formats" rows="5" required></textarea>
+            </div>
+            <div class="field-group">
+              <label for="base_url">Base URL:</label>
+              <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+            </div>
+            <div class="field-group">
+              <label for="utm_source">UTM Source:</label>
+              <input type="text" name="utm_source" id="utm_source" required>
+            </div>
+            <div class="field-group">
+              <label for="utm_medium">UTM Medium:</label>
+              <input type="text" name="utm_medium" id="utm_medium" required>
+            </div>
+            <div class="field-group">
+              <label for="utm_campaign">UTM Campaign:</label>
+              <input type="text" name="utm_campaign" id="utm_campaign" required>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submitBtn">Submit</button>
+            </div>
+          </form>
+          <div id="status"></div>
+          <div id="downloads"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="src-script.js"></script>
+</body>
+</html>
