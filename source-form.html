@@ -1,74 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Source File Processor</title>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Utmatic Source File Processor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <div class="page-wrapper">
+  <div class="page-wrapper" id="main-form-wrapper">
     <div class="main-group">
       <div class="header-container">
-        <img alt="Utmatic Logo" class="logo" src="logo.png"/>
+        <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
         <div class="header-text">
           <p>Process your InDesign source files with automatic hyperlinking and UTM tracking.</p>
         </div>
       </div>
       <div class="container">
         <div class="form-container">
-          <div class="tab-bar">
-            <button class="tab active" disabled style="pointer-events:none;">Source File</button>
-          </div>
-          <div id="tab-contents">
-            <div class="tab-content active" id="source-file-form">
-              <form id="iddForm" enctype="multipart/form-data" autocomplete="off">
-                <div class="field-group">
-                  <label for="file">Upload InDesign File (.indd):</label>
-                  <div class="custom-file-input-wrapper">
-                    <label class="custom-file-input-label" tabindex="0">
-                      Choose File
-                      <input type="file" name="file" id="file" accept=".indd" class="custom-file-input" required>
-                    </label>
-                    <span class="custom-file-filename" id="file-filename">No file chosen</span>
-                  </div>
-                </div>
-                <div class="field-group">
-                  <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
-                  <textarea name="target_formats" id="target_formats" rows="3" required style="resize:vertical;min-height:48px;"></textarea>
-                </div>
-                <div class="field-group">
-                  <label for="base_url">Base URL:</label>
-                  <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
-                </div>
-                <span class="utm-label">UTM Parameters</span>
-                <div class="utm-row">
-                  <div class="field-group">
-                    <input type="text" name="utm_source" id="utm_source" placeholder="Source" required>
-                  </div>
-                  <div class="field-group">
-                    <input type="text" name="utm_medium" id="utm_medium" placeholder="Medium" required>
-                  </div>
-                  <div class="field-group">
-                    <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
-                  </div>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" id="submitBtn" class="process-btn">Process Source File</button>
-                </div>
-              </form>
-              <div id="status"></div>
-              <div id="downloads"></div>
+          <form id="iddForm" enctype="multipart/form-data" autocomplete="off">
+            <div class="field-group">
+              <label for="file">Upload InDesign File (.indd):</label>
+              <div class="custom-file-input-wrapper">
+                <label class="custom-file-input-label" tabindex="0">
+                  Choose File
+                  <input type="file" name="file" id="file" accept=".indd" class="custom-file-input" required>
+                </label>
+                <span class="custom-file-filename" id="file-filename">No file chosen</span>
+              </div>
             </div>
-          </div>
+            <div class="field-group">
+              <label for="job_type">Job Type</label>
+              <select name="job_type" id="job_type" required>
+                <option value="">Select one</option>
+                <option value="links_and_utm">Add Links and UTM</option>
+                <option value="utm_only">Add UTM Only</option>
+              </select>
+            </div>
+            <div class="checkbox-wrapper hidden" id="utm-toggle-row">
+              <input type="checkbox" id="disable_utm" name="disable_utm">
+              <label for="disable_utm">Add links only (no UTM parameters)</label>
+            </div>
+            <div class="field-group">
+              <label for="target_format">Target Format</label>
+              <input type="text" name="target_format" id="target_format" placeholder="e.g., NNNN-NNNN" required>
+            </div>
+            <div class="field-group">
+              <label for="base_url">Base URL:</label>
+              <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+            </div>
+            <span class="utm-label" id="utm-label">UTM Parameters</span>
+            <div class="utm-row" id="utm-row">
+              <div class="field-group">
+                <input type="text" name="utm_source" id="utm_source" placeholder="Source" required>
+              </div>
+              <div class="field-group">
+                <input type="text" name="utm_medium" id="utm_medium" placeholder="Medium" required>
+              </div>
+              <div class="field-group">
+                <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submitBtn" class="process-btn">Process Source File</button>
+            </div>
+          </form>
+          <div id="status"></div>
+          <div id="downloads"></div>
         </div>
       </div>
     </div>
   </div>
-
+  <!-- Loader/Spinner Overlay -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Processing...</div>
+    <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
+  </div>
   <script src="src-script.js"></script>
   <script>
-    // Custom file input filename display (matches PDF form behavior)
+    // File input display
     document.getElementById('file').addEventListener('change', function() {
       const span = document.getElementById('file-filename');
       if (this.files && this.files.length > 0) {
@@ -77,6 +88,30 @@
         span.textContent = "No file chosen";
       }
     });
+
+    // Job type/UTM logic
+    const jobType = document.getElementById('job_type');
+    const utmToggleRow = document.getElementById('utm-toggle-row');
+    const utmRow = document.getElementById('utm-row');
+    const utmLabel = document.getElementById('utm-label');
+    const disableUtm = document.getElementById('disable_utm');
+
+    function updateUtmDisplay() {
+      if (jobType.value === "links_and_utm") {
+        utmToggleRow.classList.remove("hidden");
+        const hideUtm = disableUtm.checked;
+        utmRow.classList.toggle("hidden", hideUtm);
+        utmLabel.classList.toggle("hidden", hideUtm);
+        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = !hideUtm);
+      } else {
+        utmToggleRow.classList.add("hidden");
+        utmRow.classList.remove("hidden");
+        utmLabel.classList.remove("hidden");
+        Array.from(utmRow.querySelectorAll("input")).forEach(i => i.required = true);
+      }
+    }
+    jobType.addEventListener('change', updateUtmDisplay);
+    disableUtm.addEventListener('change', updateUtmDisplay);
   </script>
 </body>
 </html>
