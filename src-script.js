@@ -6,8 +6,122 @@ const mainFormWrapper = document.getElementById('main-form-wrapper');
 const resultScreen = document.getElementById('result-screen');
 const resultBtns = document.getElementById('result-btns');
 const startNewBtn = document.getElementById('start-new-btn');
+
+// File input display
+document.getElementById('file').addEventListener('change', function() {
+  const span = document.getElementById('file-filename');
+  if (this.files && this.files.length > 0) {
+    span.textContent = this.files[0].name;
+  } else {
+    span.textContent = "No file chosen";
+  }
+});
+
+// --- Dynamic Target Format & Base URL Rows ---
 const linkFields = document.getElementById('link-fields');
 const rowsContainer = document.getElementById('target-base-rows');
+const addRowBtn = document.getElementById('add-row-btn');
+const MAX_ROWS = 5;
+
+function createRow(tfValue = '', buValue = '') {
+  const row = document.createElement('div');
+  row.className = 'field-row side-by-side-fields';
+  // Target Format
+  const tfGroup = document.createElement('div');
+  tfGroup.className = 'field-group';
+  const tfInput = document.createElement('input');
+  tfInput.type = 'text';
+  tfInput.name = 'target_formats[]';
+  tfInput.placeholder = 'e.g. NNNN-NNNN, 1234-5678';
+  tfInput.required = true;
+  tfInput.value = tfValue;
+  tfGroup.appendChild(tfInput);
+  // Base URL
+  const buGroup = document.createElement('div');
+  buGroup.className = 'field-group';
+  const buInput = document.createElement('input');
+  buInput.type = 'text';
+  buInput.name = 'base_urls[]';
+  buInput.placeholder = 'https://www.agilent.com/store/productDetail.jsp?catalogId=';
+  buInput.required = true;
+  buInput.value = buValue;
+  buGroup.appendChild(buInput);
+  // Delete button
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'delete-row-btn';
+  delBtn.innerHTML = '&times;';
+  delBtn.title = 'Remove row';
+  delBtn.onclick = function() {
+    row.remove();
+    updateRowControls();
+  };
+  row.appendChild(tfGroup);
+  row.appendChild(buGroup);
+  row.appendChild(delBtn);
+  return row;
+}
+
+function updateRowControls() {
+  const rows = rowsContainer.querySelectorAll('.field-row');
+  addRowBtn.disabled = rows.length >= MAX_ROWS;
+  rows.forEach((row) => {
+    const delBtn = row.querySelector('.delete-row-btn');
+    delBtn.disabled = rows.length === 1;
+  });
+}
+
+function showLinkFields(show) {
+  linkFields.style.display = show ? "flex" : "none";
+  // Ensure at least one row exists when showing
+  if (show && rowsContainer.childElementCount === 0) {
+    rowsContainer.appendChild(createRow());
+  }
+  updateRowControls();
+  // Set required only if visible
+  const allInputs = linkFields.querySelectorAll('input');
+  allInputs.forEach(input => input.required = show);
+}
+
+addRowBtn.onclick = function() {
+  if (rowsContainer.childElementCount < MAX_ROWS) {
+    rowsContainer.appendChild(createRow());
+    updateRowControls();
+  }
+};
+
+// --- Job type logic for showing/hiding fields
+function updateJobTypeFields() {
+  const jobType = document.getElementById('job_type').value;
+  // Show/hide Target Format & Base URL
+  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
+    showLinkFields(true);
+  } else {
+    showLinkFields(false);
+    // Remove all rows if hiding
+    rowsContainer.innerHTML = '';
+  }
+  // Show/hide UTM parameters
+  const utmRow = document.getElementById('utm-row');
+  const utmLabel = document.getElementById('utm-label');
+  if (jobType === "add_links_only") {
+    utmRow.style.display = "none";
+    utmLabel.style.display = "none";
+    document.getElementById('utm_source').required = false;
+    document.getElementById('utm_medium').required = false;
+    document.getElementById('utm_campaign').required = false;
+  } else {
+    utmRow.style.display = "";
+    utmLabel.style.display = "";
+    document.getElementById('utm_source').required = true;
+    document.getElementById('utm_medium').required = true;
+    document.getElementById('utm_campaign').required = true;
+  }
+}
+document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
+window.addEventListener('DOMContentLoaded', () => {
+  updateJobTypeFields();
+});
 
 // --- Helper for showing/hiding loader overlay ---
 function showLoader() {
