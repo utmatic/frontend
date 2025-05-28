@@ -1,4 +1,3 @@
-// --- INDD Source File Processor Script ---
 
 const form = document.getElementById('iddForm');
 const statusDiv = document.getElementById('status');
@@ -13,14 +12,11 @@ form.onsubmit = async (e) => {
   statusDiv.textContent = "";
   downloadsDiv.innerHTML = "";
   submitBtn.disabled = true;
-
-  // Show spinner
   loader.classList.add('active');
 
   const formData = new FormData(form);
-
-  // For job_type "links_and_utm", optionally allow disabling UTM fields
   const jobTypeVal = formData.get('job_type');
+
   if (jobTypeVal === "links_and_utm" && document.getElementById('disable_utm').checked) {
     formData.set('disable_utm', 'true');
     formData.set('source', '');
@@ -28,24 +24,13 @@ form.onsubmit = async (e) => {
     formData.set('campaign', '');
   }
 
-  // For fields that are supposed to be lists, convert comma-separated to multiple entries
-  // (as FastAPI will expect List[str] for target_format and base_url)
-  // Target format
-  let targetFormatVal = formData.get('target_format');
-  if (targetFormatVal && targetFormatVal.includes(',')) {
-    formData.delete('target_format');
-    targetFormatVal.split(',').map(s => s.trim()).forEach(fmt => {
-      if (fmt) formData.append('target_format', fmt);
-    });
-  }
-  // Base URL
-  let baseUrlVal = formData.get('base_url');
-  if (baseUrlVal && baseUrlVal.includes(',')) {
-    formData.delete('base_url');
-    baseUrlVal.split(',').map(s => s.trim()).forEach(url => {
-      if (url) formData.append('base_url', url);
-    });
-  }
+  ['target_format', 'base_url'].forEach(field => {
+    let val = formData.get(field);
+    if (val && val.includes(',')) {
+      formData.delete(field);
+      val.split(',').map(s => s.trim()).forEach(v => { if (v) formData.append(field, v); });
+    }
+  });
 
   statusDiv.textContent = "Uploading and initializing job...";
   try {
@@ -53,7 +38,6 @@ form.onsubmit = async (e) => {
       method: "POST",
       body: formData
     });
-
     const res = await resp.json();
     if (resp.ok && res.job_id) {
       statusDiv.textContent = "Processing your file, please wait...";
