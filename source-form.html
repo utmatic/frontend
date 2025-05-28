@@ -7,21 +7,134 @@
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    /* Inline for demonstration; put in styles.css for production */
     .side-by-side-fields {
       display: flex;
       gap: 16px;
       flex-wrap: wrap;
+      margin-bottom: 0.5em;
     }
     .side-by-side-fields .field-group {
       flex: 1 1 200px;
       min-width: 200px;
     }
+    .field-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 0.5em;
+      align-items: center;
+    }
+    .delete-row-btn {
+      background: none;
+      border: none;
+      color: #f43f5e;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0 0.25em;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .delete-row-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .add-row-btn {
+      background: #3653f8;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      padding: 0.32em 1.2em;
+      margin-bottom: 1em;
+      font-size: 1em;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      margin-top: 0;
+    }
     @media (max-width: 700px) {
-      .side-by-side-fields {
+      .side-by-side-fields, .field-row {
         flex-direction: column;
         gap: 0;
       }
+    }
+    /* Loader overlay */
+    #loader {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.84);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: opacity 0.2s;
+    }
+    #loader.active {
+      display: flex;
+    }
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border: 7px solid #e4e7ef;
+      border-top: 7px solid #3653f8;
+      border-radius: 50%;
+      animation: spin 1.1s linear infinite;
+      margin-bottom: 1em;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loader-text {
+      font-weight: 600;
+      font-size: 1.2em;
+      margin-bottom: 0.25em;
+      color: #222;
+      text-align: center;
+    }
+    .loader-subtext {
+      color: #666;
+      font-size: 1em;
+      text-align: center;
+    }
+    /* Download and new submission screen */
+    #result-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 330px;
+      margin-top: 4em;
+    }
+    #result-screen .result-heading {
+      font-size: 1.25em;
+      font-weight: 600;
+      margin-bottom: 1.4em;
+      color: #222;
+      text-align: center;
+    }
+    #result-screen .result-btns {
+      display: flex;
+      flex-direction: row;
+      gap: 1.5em;
+      margin-bottom: 1.3em;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #result-screen .process-btn, #result-screen .startnew-btn {
+      background: #3653f8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.62em 2.2em;
+      font-size: 1em;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      margin-top: 0.25em;
+      transition: background 0.16s;
+      box-shadow: 0 2px 9px 0 rgba(54,83,248,0.07);
+    }
+    #result-screen .process-btn:hover, #result-screen .startnew-btn:hover {
+      background: #2537b8;
     }
   </style>
 </head>
@@ -56,16 +169,10 @@
                 <option value="add_links_with_utm">Add links with UTM</option>
               </select>
             </div>
-            <!-- Target Format & Base URL side by side -->
-            <div class="side-by-side-fields" id="link-fields" style="display:none;">
-              <div class="field-group">
-                <label for="target_formats">Target Format:</label>
-                <input type="text" name="target_formats" id="target_formats" required placeholder="e.g. NNNN-NNNN, 1234-5678">
-              </div>
-              <div class="field-group">
-                <label for="base_url">Base URL:</label>
-                <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
-              </div>
+            <!-- Target Format & Base URL dynamic rows -->
+            <div id="link-fields" style="display:none;">
+              <div id="target-base-rows"></div>
+              <button type="button" class="add-row-btn" id="add-row-btn">+ Add Row</button>
             </div>
             <span class="utm-label" id="utm-label">UTM Parameters</span>
             <div class="utm-row" id="utm-row">
@@ -84,7 +191,6 @@
             </div>
           </form>
           <div id="status"></div>
-          <div id="downloads"></div>
         </div>
       </div>
     </div>
@@ -92,8 +198,14 @@
   <!-- Loader/Spinner Overlay -->
   <div id="loader">
     <div class="spinner"></div>
-    <div class="loader-text">Processing...</div>
+    <div class="loader-text">Processing your file...</div>
     <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
+  </div>
+  <!-- Result/Download Screen -->
+  <div id="result-screen">
+    <div class="result-heading">Your processed files are ready!</div>
+    <div class="result-btns" id="result-btns"></div>
+    <button class="startnew-btn" id="start-new-btn">Start new submission</button>
   </div>
   <script src="src-script.js"></script>
   <script>
@@ -107,23 +219,106 @@
       }
     });
 
-    // Job type logic for showing/hiding fields
+    // --- Dynamic Target Format & Base URL Rows ---
+    const linkFields = document.getElementById('link-fields');
+    const rowsContainer = document.getElementById('target-base-rows');
+    const addRowBtn = document.getElementById('add-row-btn');
+    const MAX_ROWS = 5;
+
+    function createRow(tfValue = '', buValue = '') {
+      const row = document.createElement('div');
+      row.className = 'field-row side-by-side-fields';
+      // Target Format
+      const tfGroup = document.createElement('div');
+      tfGroup.className = 'field-group';
+      const tfLabel = document.createElement('label');
+      tfLabel.setAttribute('for', 'target_formats[]');
+      tfLabel.textContent = 'Target Format:';
+      tfLabel.style.display = 'none';
+      const tfInput = document.createElement('input');
+      tfInput.type = 'text';
+      tfInput.name = 'target_formats[]';
+      tfInput.placeholder = 'e.g. NNNN-NNNN, 1234-5678';
+      tfInput.required = true;
+      tfInput.value = tfValue;
+      tfGroup.appendChild(tfLabel);
+      tfGroup.appendChild(tfInput);
+      // Base URL
+      const buGroup = document.createElement('div');
+      buGroup.className = 'field-group';
+      const buLabel = document.createElement('label');
+      buLabel.setAttribute('for', 'base_urls[]');
+      buLabel.textContent = 'Base URL:';
+      buLabel.style.display = 'none';
+      const buInput = document.createElement('input');
+      buInput.type = 'text';
+      buInput.name = 'base_urls[]';
+      buInput.placeholder = 'https://www.agilent.com/store/productDetail.jsp?catalogId=';
+      buInput.required = true;
+      buInput.value = buValue;
+      buGroup.appendChild(buLabel);
+      buGroup.appendChild(buInput);
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'delete-row-btn';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Remove row';
+      delBtn.onclick = function() {
+        row.remove();
+        updateRowControls();
+      };
+      row.appendChild(tfGroup);
+      row.appendChild(buGroup);
+      row.appendChild(delBtn);
+      return row;
+    }
+
+    function updateRowControls() {
+      const rows = rowsContainer.querySelectorAll('.field-row');
+      addRowBtn.disabled = rows.length >= MAX_ROWS;
+      // At least one row is required if shown
+      rows.forEach((row, idx) => {
+        const delBtn = row.querySelector('.delete-row-btn');
+        delBtn.disabled = rows.length === 1;
+      });
+    }
+
+    function showLinkFields(show) {
+      linkFields.style.display = show ? "block" : "none";
+      const allInputs = linkFields.querySelectorAll('input');
+      allInputs.forEach(input => input.required = show);
+      if (show && rowsContainer.childElementCount === 0) {
+        // Add default row if none exists
+        rowsContainer.appendChild(createRow());
+        updateRowControls();
+      }
+    }
+
+    addRowBtn.onclick = function() {
+      if (rowsContainer.childElementCount < MAX_ROWS) {
+        rowsContainer.appendChild(createRow());
+        updateRowControls();
+      }
+    };
+
+    // --- Job type logic for showing/hiding fields
     function updateJobTypeFields() {
       const jobType = document.getElementById('job_type').value;
-      const linkFields = document.getElementById('link-fields');
-      const utmRow = document.getElementById('utm-row');
-      const utmLabel = document.getElementById('utm-label');
       // Show/hide Target Format & Base URL
       if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
-        linkFields.style.display = "flex";
+        showLinkFields(true);
       } else {
-        linkFields.style.display = "none";
+        showLinkFields(false);
+        // Remove all rows if hiding
+        rowsContainer.innerHTML = '';
       }
       // Show/hide UTM parameters
+      const utmRow = document.getElementById('utm-row');
+      const utmLabel = document.getElementById('utm-label');
       if (jobType === "add_links_only") {
         utmRow.style.display = "none";
         utmLabel.style.display = "none";
-        // Also remove required attribute from UTM fields
         document.getElementById('utm_source').required = false;
         document.getElementById('utm_medium').required = false;
         document.getElementById('utm_campaign').required = false;
@@ -136,7 +331,14 @@
       }
     }
     document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
-    window.addEventListener('DOMContentLoaded', updateJobTypeFields);
+    window.addEventListener('DOMContentLoaded', () => {
+      updateJobTypeFields();
+      // Always ensure at least one row if visible
+      if (linkFields.style.display !== "none" && rowsContainer.childElementCount === 0) {
+        rowsContainer.appendChild(createRow());
+        updateRowControls();
+      }
+    });
   </script>
 </body>
 </html>
