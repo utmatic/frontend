@@ -10,6 +10,32 @@
     .field-row-wrapper {
       margin-bottom: 1em;
     }
+    .add-new-row-btn {
+      background: none;
+      border: none;
+      color: #3653f8;
+      font-size: 1em;
+      font-family: inherit;
+      font-weight: 500;
+      margin-left: 0;
+      margin-bottom: 0.6em;
+      margin-top: 0;
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.13s;
+      display: inline-block;
+    }
+    .add-new-row-btn:hover:not(:disabled) {
+      text-decoration: underline;
+      color: #2537b8;
+    }
+    .add-new-row-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
     .side-by-side-fields {
       display: flex;
       gap: 16px;
@@ -32,33 +58,37 @@
       color: #f43f5e;
       font-size: 1.5rem;
       cursor: pointer;
-      padding: 0 0.25em;
+      padding: 0 0.3em;
       line-height: 1;
       transition: color 0.15s;
+      margin-left: 8px;
+      margin-right: 2px;
+      display: flex;
+      align-items: center;
     }
     .delete-row-btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
     }
-    .add-new-row-btn {
-      background: #3653f8;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 0.38em 1.3em;
-      margin-left: 0;
-      margin-bottom: 0.18em;
-      margin-top: 0;
-      display: block;
+    .side-by-side-fields input[type="text"] {
+      border: 1px solid #d0d6e1;
+      border-radius: 6px;
+      padding: 0.5em 1em;
       font-size: 1em;
       font-family: inherit;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.16s;
+      background: #fff;
+      color: #222;
+      outline: none;
+      margin-bottom: 0;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border 0.12s;
     }
-    .add-new-row-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    .side-by-side-fields input[type="text"]:focus {
+      border-color: #3653f8;
+    }
+    .side-by-side-fields .field-group label {
+      display: none;
     }
     @media (max-width: 700px) {
       .side-by-side-fields, .field-row {
@@ -181,8 +211,8 @@
             </div>
             <!-- Target Format & Base URL dynamic rows -->
             <div id="link-fields" class="field-row-wrapper" style="display:none;">
-              <div id="target-base-rows"></div>
               <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
+              <div id="target-base-rows"></div>
             </div>
             <span class="utm-label" id="utm-label">UTM Parameters</span>
             <div class="utm-row" id="utm-row">
