@@ -6,6 +6,8 @@ const downloadsDiv = document.getElementById('downloads');
 const submitBtn = document.getElementById('submitBtn');
 const loader = document.getElementById('loader');
 
+const API_BASE = "https://utmatic-backend.onrender.com";
+
 form.onsubmit = async (e) => {
   e.preventDefault();
   statusDiv.textContent = "";
@@ -28,7 +30,7 @@ form.onsubmit = async (e) => {
 
   statusDiv.textContent = "Uploading and initializing job...";
   try {
-    const resp = await fetch("https://backend-idd.onrender.com/process", {
+    const resp = await fetch(`${API_BASE}/process`, {
       method: "POST",
       body: formData
     });
@@ -53,7 +55,7 @@ async function pollStatus(jobId) {
   let timer;
   async function check() {
     try {
-      const resp = await fetch(`https://backend-idd.onrender.com/job_status/${jobId}`);
+      const resp = await fetch(`${API_BASE}/job_status/${jobId}`);
       const res = await resp.json();
       if ((res.processed_ready || res.report_ready) && (res.processed_url || res.report_url)) {
         loader.classList.remove('active');
