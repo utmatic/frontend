@@ -19,13 +19,32 @@ form.onsubmit = async (e) => {
 
   const formData = new FormData(form);
 
-  // If "Add links only" is checked, send a flag
-  if (document.getElementById('disable_utm').checked) {
+  // For job_type "links_and_utm", optionally allow disabling UTM fields
+  const jobTypeVal = formData.get('job_type');
+  if (jobTypeVal === "links_and_utm" && document.getElementById('disable_utm').checked) {
     formData.set('disable_utm', 'true');
-    // Optionally clear UTM fields if you want
     formData.set('source', '');
     formData.set('medium', '');
     formData.set('campaign', '');
+  }
+
+  // For fields that are supposed to be lists, convert comma-separated to multiple entries
+  // (as FastAPI will expect List[str] for target_format and base_url)
+  // Target format
+  let targetFormatVal = formData.get('target_format');
+  if (targetFormatVal && targetFormatVal.includes(',')) {
+    formData.delete('target_format');
+    targetFormatVal.split(',').map(s => s.trim()).forEach(fmt => {
+      if (fmt) formData.append('target_format', fmt);
+    });
+  }
+  // Base URL
+  let baseUrlVal = formData.get('base_url');
+  if (baseUrlVal && baseUrlVal.includes(',')) {
+    formData.delete('base_url');
+    baseUrlVal.split(',').map(s => s.trim()).forEach(url => {
+      if (url) formData.append('base_url', url);
+    });
   }
 
   statusDiv.textContent = "Uploading and initializing job...";
