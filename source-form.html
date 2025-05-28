@@ -12,47 +12,71 @@
       <div class="header-container">
         <img alt="Utmatic Logo" class="logo" src="logo.png"/>
         <div class="header-text">
-          <p>Process your InDesign source files with automatic linking and UTM tracking.</p>
+          <p>Process your InDesign source files with automatic hyperlinking and UTM tracking.</p>
         </div>
       </div>
       <div class="container">
         <div class="form-container">
-          <h2>Submit InDesign File for Processing</h2>
-          <form id="iddForm" enctype="multipart/form-data">
-            <div class="field-group">
-              <label for="file">Upload InDesign File (.indd):</label>
-              <input type="file" name="file" id="file" accept=".indd" required>
+          <div class="tab-bar">
+            <button class="tab active" disabled style="pointer-events:none;">Source File</button>
+          </div>
+          <div id="tab-contents">
+            <div class="tab-content active" id="source-file-form">
+              <form id="iddForm" enctype="multipart/form-data" autocomplete="off">
+                <div class="field-group">
+                  <label for="file">Upload InDesign File (.indd):</label>
+                  <div class="custom-file-input-wrapper">
+                    <label class="custom-file-input-label" tabindex="0">
+                      Choose File
+                      <input type="file" name="file" id="file" accept=".indd" class="custom-file-input" required>
+                    </label>
+                    <span class="custom-file-filename" id="file-filename">No file chosen</span>
+                  </div>
+                </div>
+                <div class="field-group">
+                  <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
+                  <textarea name="target_formats" id="target_formats" rows="3" required style="resize:vertical;min-height:48px;"></textarea>
+                </div>
+                <div class="field-group">
+                  <label for="base_url">Base URL:</label>
+                  <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
+                </div>
+                <span class="utm-label">UTM Parameters</span>
+                <div class="utm-row">
+                  <div class="field-group">
+                    <input type="text" name="utm_source" id="utm_source" placeholder="Source" required>
+                  </div>
+                  <div class="field-group">
+                    <input type="text" name="utm_medium" id="utm_medium" placeholder="Medium" required>
+                  </div>
+                  <div class="field-group">
+                    <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" id="submitBtn" class="process-btn">Process Source File</button>
+                </div>
+              </form>
+              <div id="status"></div>
+              <div id="downloads"></div>
             </div>
-            <div class="field-group">
-              <label for="target_formats">Target Formats (one per line, e.g., NNNN-NNNN):</label>
-              <textarea name="target_formats" id="target_formats" rows="5" required></textarea>
-            </div>
-            <div class="field-group">
-              <label for="base_url">Base URL:</label>
-              <input type="text" name="base_url" id="base_url" value="https://www.agilent.com/store/productDetail.jsp?catalogId=" required>
-            </div>
-            <div class="field-group">
-              <label for="utm_source">UTM Source:</label>
-              <input type="text" name="utm_source" id="utm_source" required>
-            </div>
-            <div class="field-group">
-              <label for="utm_medium">UTM Medium:</label>
-              <input type="text" name="utm_medium" id="utm_medium" required>
-            </div>
-            <div class="field-group">
-              <label for="utm_campaign">UTM Campaign:</label>
-              <input type="text" name="utm_campaign" id="utm_campaign" required>
-            </div>
-            <div class="form-actions">
-              <button type="submit" id="submitBtn">Submit</button>
-            </div>
-          </form>
-          <div id="status"></div>
-          <div id="downloads"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
   <script src="src-script.js"></script>
+  <script>
+    // Custom file input filename display (matches PDF form behavior)
+    document.getElementById('file').addEventListener('change', function() {
+      const span = document.getElementById('file-filename');
+      if (this.files && this.files.length > 0) {
+        span.textContent = this.files[0].name;
+      } else {
+        span.textContent = "No file chosen";
+      }
+    });
+  </script>
 </body>
 </html>
