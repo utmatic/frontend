@@ -189,6 +189,12 @@ function validateForm() {
     }
   }
 
+  // Document Name field
+  const documentNameInput = document.getElementById('document_name');
+  if (documentNameInput && !documentNameInput.value.trim()) {
+    isValid = false;
+  }
+
   submitBtn.disabled = !isValid;
   submitBtn.style.opacity = isValid ? "1" : "0.65";
   submitBtn.style.cursor = isValid ? "pointer" : "not-allowed";
@@ -196,7 +202,7 @@ function validateForm() {
 
 function bindValidationListeners() {
   // Static fields
-  ['utm_source', 'utm_medium', 'utm_campaign'].forEach(id => {
+  ['utm_source', 'utm_medium', 'utm_campaign', 'document_name'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', validateForm);
   });
@@ -279,6 +285,12 @@ form.onsubmit = async (e) => {
     formData.append("utm_medium", form.utm_medium.value);
     formData.append("utm_campaign", form.utm_campaign.value);
     // utm_content is automatic, not user-editable
+  }
+
+  // Document name field
+  const documentNameValue = form.document_name.value.trim();
+  if (documentNameValue) {
+    formData.append("document_name", documentNameValue);
   }
 
   // Show loader
