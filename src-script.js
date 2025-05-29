@@ -196,7 +196,7 @@ function validateForm() {
 
 function bindValidationListeners() {
   // Static fields
-  ['utm_source', 'utm_medium', 'utm_campaign', 'document_name'].forEach(id => {
+  ['utm_source', 'utm_medium', 'utm_campaign'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', validateForm);
   });
@@ -279,12 +279,6 @@ form.onsubmit = async (e) => {
     formData.append("utm_medium", form.utm_medium.value);
     formData.append("utm_campaign", form.utm_campaign.value);
     // utm_content is automatic, not user-editable
-  }
-
-  // Document name field
-  const documentNameValue = form.document_name.value.trim();
-  if (documentNameValue) {
-    formData.append("document_name", documentNameValue);
   }
 
   // Show loader
