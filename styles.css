@@ -131,7 +131,7 @@ input, textarea, select {
 
 :root {
   --primary: #2563eb;
-  --primary-dark: #1e40af;
+  --primary-dark: #1a1a1a;
   --success: #22c55e;
   --gray-bg: #fff;
   --gray-100: #f5f7fa;
@@ -148,7 +148,7 @@ input, textarea, select {
   --label: #334155;
   --placeholder: #94a3b8;
   --col1: #2563eb;
-  --col2: #1e40af;
+  --col2: #1a1a1a;
   --col3: #22c55e;
   --spinner-overlay-bg: rgba(20,24,32,0.92);
 
