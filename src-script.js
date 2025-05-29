@@ -56,32 +56,32 @@ function updateDeleteButtons() {
   rows.forEach((row, idx) => {
     // Remove any existing delete buttons
     let delBtn = row.querySelector('.delete-row-btn');
-if (delBtn) delBtn.remove();
-let placeholder = row.querySelector('.delete-row-placeholder');
-if (placeholder) placeholder.remove();
+    if (delBtn) delBtn.remove();
+    let placeholder = row.querySelector('.delete-row-placeholder');
+    if (placeholder) placeholder.remove();
 
-if (idx > 0) {
-  // Add real delete button
-  delBtn = document.createElement('button');
-  delBtn.type = 'button';
-  delBtn.className = 'delete-row-btn';
-  delBtn.innerHTML = '&times;';
-  delBtn.title = 'Remove row';
-  delBtn.onclick = function() {
-    row.remove();
-    updateDeleteButtons();
-    updateRowControls();
-  };
-  row.appendChild(delBtn);
-} else {
-  // Add invisible but identical button as placeholder
-  placeholder = document.createElement('button');
-  placeholder.type = 'button';
-  placeholder.className = 'delete-row-btn delete-row-placeholder';
-  placeholder.innerHTML = '&times;';
-  placeholder.disabled = true;
-  row.appendChild(placeholder);
-}
+    if (idx > 0) {
+      // Add real delete button
+      delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'delete-row-btn';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Remove row';
+      delBtn.onclick = function() {
+        row.remove();
+        updateDeleteButtons();
+        updateRowControls();
+      };
+      row.appendChild(delBtn);
+    } else {
+      // Add invisible but identical button as placeholder
+      placeholder = document.createElement('button');
+      placeholder.type = 'button';
+      placeholder.className = 'delete-row-btn delete-row-placeholder';
+      placeholder.innerHTML = '&times;';
+      placeholder.disabled = true;
+      row.appendChild(placeholder);
+    }
   });
   updateRowControls();
 }
