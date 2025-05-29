@@ -310,3 +310,65 @@ async function pollStatus(jobId) {
   }
   check();
 }
+// Bind validation listeners for all static fields
+function bindValidationListeners() {
+  // Static UTM fields
+  ['utm_source', 'utm_medium', 'utm_campaign'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', validateForm);
+  });
+  // Job Type
+  document.getElementById('job_type').addEventListener('change', validateForm);
+  // File input
+  document.getElementById('file').addEventListener('change', validateForm);
+}
+
+// Whenever you create a new row for Target Format/Base URL:
+function createRow(tfValue = '', buValue = '') {
+  const row = document.createElement('div');
+  row.className = 'field-row side-by-side-fields';
+
+  // Target Format
+  const tfGroup = document.createElement('div');
+  tfGroup.className = 'field-group';
+  const tfInput = document.createElement('input');
+  tfInput.type = 'text';
+  tfInput.name = 'target_formats[]';
+  tfInput.placeholder = 'Target Format';
+  tfInput.required = true;
+  tfInput.value = tfValue;
+  tfInput.addEventListener('input', validateForm);
+
+  tfGroup.appendChild(tfInput);
+
+  // Base URL
+  const buGroup = document.createElement('div');
+  buGroup.className = 'field-group';
+  const buInput = document.createElement('input');
+  buInput.type = 'text';
+  buInput.name = 'base_urls[]';
+  buInput.placeholder = 'Base URL';
+  buInput.required = true;
+  buInput.value = buValue;
+  buInput.addEventListener('input', validateForm);
+
+  buGroup.appendChild(buInput);
+
+  row.appendChild(tfGroup);
+  row.appendChild(buGroup);
+
+  return row;
+}
+
+// After removing a row, call validateForm
+function updateDeleteButtons() {
+  // ...existing logic...
+  validateForm();
+}
+
+// On DOM load, call the bindValidationListeners and validateForm
+window.addEventListener('DOMContentLoaded', () => {
+  // ...other init code...
+  bindValidationListeners();
+  validateForm();
+});
