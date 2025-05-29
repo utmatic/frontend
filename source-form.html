@@ -242,6 +242,11 @@
       line-height: 1.15;
       font-family: 'Work Sans', Arial, sans-serif;
     }
+    /* UTM Content (automatic) field style */
+    #utm_content {
+      background-color: #f9f9f9;
+      cursor: not-allowed;
+    }
     /* Responsive: shrink padding on mobile */
     @media (max-width: 560px) {
       .form-container {
@@ -282,6 +287,7 @@
             <div class="field-group">
               <label for="job_type">Job Type:</label>
               <select name="job_type" id="job_type" required>
+                <option value="" disabled selected>Select one</option>
                 <option value="add_utm">Add UTM</option>
                 <option value="add_links_only">Add links only</option>
                 <option value="add_links_with_utm">Add links with UTM</option>
@@ -302,6 +308,10 @@
               </div>
               <div class="field-group">
                 <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
+              </div>
+              <!-- Content (automatic) field, visually present but read-only -->
+              <div class="field-group">
+                <input type="text" name="utm_content" id="utm_content" placeholder="Content (automatic)" readonly>
               </div>
             </div>
             <div class="form-actions">
