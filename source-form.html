@@ -137,46 +137,87 @@
       font-size: 1em;
       text-align: center;
     }
+
+    /* === POLISHED RESULT SCREEN === */
     #result-screen {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 330px;
-      margin-top: 4em;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0 1em;
+      box-sizing: border-box;
+      background: #fcfdff;
+      position: fixed;
+      left: 0; right: 0; top: 0; bottom: 0;
+      z-index: 2025;
     }
-    #result-screen .result-heading {
-      font-size: 1.25em;
-      font-weight: 600;
-      margin-bottom: 1.4em;
-      color: #222;
+    .result-heading {
+      font-size: 1.55em;
+      font-weight: 700;
+      margin-bottom: 2em;
+      color: #2537b8;
       text-align: center;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 9px 0 rgba(54,83,248,0.09);
     }
-    #result-screen .result-btns {
+    .result-btns {
       display: flex;
       flex-direction: row;
-      gap: 1.5em;
-      margin-bottom: 1.3em;
+      gap: 1.8em;
+      margin-bottom: 2em;
       flex-wrap: wrap;
       justify-content: center;
     }
-    #result-screen .process-btn, #result-screen .startnew-btn {
-      background: #3653f8;
+    .process-btn {
+      background: linear-gradient(90deg, #3653f8 0%, #6a84f7 100%);
       color: #fff;
       border: none;
-      border-radius: 4px;
-      padding: 0.62em 2.2em;
+      border-radius: 6px;
+      padding: 0.7em 2.5em;
       font-size: 1em;
       cursor: pointer;
       font-family: inherit;
-      font-weight: 500;
+      font-weight: 600;
       margin-top: 0.25em;
-      transition: background 0.16s;
-      box-shadow: 0 2px 9px 0 rgba(54,83,248,0.07);
+      transition: background 0.22s, box-shadow 0.22s;
+      box-shadow: 0 2px 12px 0 rgba(54,83,248,0.11);
     }
-    #result-screen .process-btn:hover, #result-screen .startnew-btn:hover {
-      background: #2537b8;
+    .process-btn:hover {
+      background: linear-gradient(90deg, #2537b8 0%, #6a84f7 100%);
+      box-shadow: 0 4px 18px 0 rgba(54,83,248,0.15);
     }
+    .startnew-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55em;
+      color: #3653f8;
+      font-weight: 500;
+      font-size: 1.06em;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      margin-top: 0.2em;
+      transition: color 0.18s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      box-shadow: none;
+    }
+    .startnew-link:hover,
+    .startnew-link:focus {
+      color: #2537b8;
+      text-decoration: underline;
+    }
+    .startnew-icon {
+      width: 1.25em;
+      height: 1.25em;
+      display: inline-block;
+      vertical-align: middle;
+      stroke: currentColor;
+    }
+
     .container {
       display: flex;
       justify-content: center;
@@ -249,6 +290,9 @@
       .form-header-title {
         font-size: 1.1em;
       }
+      #result-screen {
+        min-height: 90vh;
+      }
     }
   </style>
 </head>
@@ -319,7 +363,12 @@
   <div id="result-screen">
     <div class="result-heading">Your processed files are ready!</div>
     <div class="result-btns" id="result-btns"></div>
-    <button class="startnew-btn" id="start-new-btn">Start new submission</button>
+    <a href="https://app.utmatic.com/source-form.html" id="start-new-link" class="startnew-link">
+      <span>Start new submission</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+      </svg>
+    </a>
   </div>
   <script src="src-script.js"></script>
 </body>
