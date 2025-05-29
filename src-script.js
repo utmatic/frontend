@@ -4,8 +4,7 @@ const submitBtn = document.getElementById('submitBtn');
 const loader = document.getElementById('loader');
 const mainFormWrapper = document.getElementById('main-form-wrapper');
 const resultScreen = document.getElementById('result-screen');
-const resultBtns = document.getElementById('result-btns');
-const startNewLink = document.getElementById('start-new-link');
+// resultBtns and startNewLink are now handled inside showResultScreen
 
 // --- Dynamic Target Format & Base URL Rows ---
 const linkFields = document.getElementById('link-fields');
@@ -218,6 +217,34 @@ function hideLoader() {
 function showResultScreen(processedUrl, reportUrl) {
   mainFormWrapper.style.display = 'none';
   resultScreen.style.display = 'flex';
+
+  // Clear (or create) result-content
+  let resultContent = resultScreen.querySelector('.result-content');
+  if (!resultContent) {
+    resultContent = document.createElement('div');
+    resultContent.className = 'result-content';
+    resultScreen.appendChild(resultContent);
+  }
+  // Fill content
+  resultContent.innerHTML = `
+    <div class="result-heading">
+      <svg class="result-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 32 32" stroke-width="1.5" stroke="#2563eb" width="42" height="42">
+        <circle cx="16" cy="16" r="15" fill="#e8f0fe" stroke="#e3eafc"/>
+        <path stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M11 16.5l3 3 7-7"/>
+      </svg>
+      <div class="result-title-text">Your processed files are ready!</div>
+    </div>
+    <div class="result-btns"></div>
+    <a href="https://app.utmatic.com/source-form.html" class="startnew-link" id="start-new-link">
+      <span>Start new submission</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" width="21" height="21" style="margin-left:7px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+      </svg>
+    </a>
+  `;
+
+  // Add download buttons
+  const resultBtns = resultContent.querySelector('.result-btns');
   resultBtns.innerHTML = '';
   if (processedUrl) {
     const btn = document.createElement('a');
@@ -233,14 +260,14 @@ function showResultScreen(processedUrl, reportUrl) {
     btn.innerHTML = '<button class="process-btn">Download Hyperlink Report</button>';
     resultBtns.appendChild(btn);
   }
-}
-
-// --- Start new submission as polished link ---
-if (startNewLink) {
-  startNewLink.onclick = function(e) {
-    e.preventDefault();
-    window.location.href = "https://app.utmatic.com/source-form.html";
-  };
+  // Add link handler for "Start new submission"
+  const startNewLink = resultContent.querySelector('#start-new-link');
+  if (startNewLink) {
+    startNewLink.onclick = function(e) {
+      e.preventDefault();
+      window.location.href = "https://app.utmatic.com/source-form.html";
+    };
+  }
 }
 
 form.onsubmit = async (e) => {
