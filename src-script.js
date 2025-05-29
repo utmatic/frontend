@@ -201,7 +201,7 @@ function showResultScreen(processedUrl, reportUrl) {
   }
   resultContent.innerHTML = `
     <div class="result-heading">
-      <div class="result-title-text">Your processed files are ready!</div>
+      <div class="result-title-text">Your processed file is ready!</div>
     </div>
     <div class="result-btns"></div>
     <a href="https://app.utmatic.com/source-form.html" class="startnew-link" id="start-new-link">
