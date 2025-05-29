@@ -110,6 +110,40 @@ addRowBtn.onclick = function() {
   }
 };
 
+// --- Add Content (automatic) UTM field ---
+function addUtmContentField() {
+  const utmRow = document.getElementById('utm-row');
+  if (!utmRow) return;
+
+  // Only add if not already there
+  if (!document.getElementById('utm_content')) {
+    const contentGroup = document.createElement('div');
+    contentGroup.className = 'field-group';
+    const contentInput = document.createElement('input');
+    contentInput.type = 'text';
+    contentInput.name = 'utm_content';
+    contentInput.id = 'utm_content';
+    contentInput.placeholder = 'Content (automatic)';
+    contentInput.readOnly = true;
+    contentInput.style.backgroundColor = '#f9f9f9';
+    contentInput.style.cursor = 'not-allowed';
+    contentGroup.appendChild(contentInput);
+
+    // Insert after campaign field (last .field-group in utm-row)
+    const groups = utmRow.querySelectorAll('.field-group');
+    if (groups.length > 0) {
+      utmRow.insertBefore(contentGroup, groups[groups.length].nextSibling);
+      // fallback: if nextSibling is null, this is equivalent to appendChild
+    } else {
+      utmRow.appendChild(contentGroup);
+    }
+  }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  addUtmContentField();
+  updateJobTypeFields();
+});
+
 // --- Job type logic for showing/hiding fields
 function updateJobTypeFields() {
   const jobType = document.getElementById('job_type').value;
@@ -139,8 +173,19 @@ function updateJobTypeFields() {
   }
 }
 document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
+
+// --- Set placeholder for Job Type select ---
 window.addEventListener('DOMContentLoaded', () => {
-  updateJobTypeFields();
+  // Add placeholder option only if not already present
+  const jobTypeSelect = document.getElementById('job_type');
+  if (jobTypeSelect && !jobTypeSelect.querySelector('option[disabled]')) {
+    const placeholder = document.createElement('option');
+    placeholder.value = "";
+    placeholder.textContent = "Select one";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    jobTypeSelect.insertBefore(placeholder, jobTypeSelect.firstChild);
+  }
 });
 
 // --- Helper for showing/hiding loader overlay ---
@@ -217,6 +262,7 @@ form.onsubmit = async (e) => {
     formData.append("utm_source", form.utm_source.value);
     formData.append("utm_medium", form.utm_medium.value);
     formData.append("utm_campaign", form.utm_campaign.value);
+    // utm_content is automatic, not user-editable
   }
 
   // Show loader
