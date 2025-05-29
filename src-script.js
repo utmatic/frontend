@@ -13,6 +13,23 @@ const rowsContainer = document.getElementById('target-base-rows');
 const addRowBtn = document.getElementById('add-row-btn');
 const MAX_ROWS = 5;
 
+// --- File input logic to persist file selection if user cancels file dialog ---
+let lastValidFile = null;
+
+document.getElementById('file').addEventListener('change', function() {
+  const span = document.getElementById('file-filename');
+  if (this.files && this.files.length > 0) {
+    lastValidFile = this.files[0];
+    span.textContent = lastValidFile.name;
+  } else if (lastValidFile) {
+    // User canceled dialog, keep displaying last file
+    span.textContent = lastValidFile.name;
+  } else {
+    span.textContent = "No file chosen";
+  }
+  validateForm();
+});
+
 function createRow(tfValue = '', buValue = '') {
   const row = document.createElement('div');
   row.className = 'field-row side-by-side-fields';
@@ -142,8 +159,7 @@ function validateForm() {
   let isValid = true;
 
   // File required
-  const fileInput = document.getElementById('file');
-  if (!fileInput || fileInput.files.length === 0) isValid = false;
+  if (!lastValidFile) isValid = false;
 
   // Job type required
   const jobType = document.getElementById('job_type').value;
@@ -187,16 +203,6 @@ function bindValidationListeners() {
   document.getElementById('job_type').addEventListener('change', validateForm);
   document.getElementById('file').addEventListener('change', validateForm);
 }
-
-// File input display
-document.getElementById('file').addEventListener('change', function() {
-  const span = document.getElementById('file-filename');
-  if (this.files && this.files.length > 0) {
-    span.textContent = this.files[0].name;
-  } else {
-    span.textContent = "No file chosen";
-  }
-});
 
 // --- UTM Content (automatic) field already in HTML ---
 
@@ -242,9 +248,9 @@ form.onsubmit = async (e) => {
   // Prepare FormData
   const formData = new FormData();
 
-  // File
-  if (form.file.files.length > 0) {
-    formData.append("file", form.file.files[0]);
+  // Use lastValidFile for the upload
+  if (lastValidFile) {
+    formData.append("file", lastValidFile);
   }
 
   // Job type
