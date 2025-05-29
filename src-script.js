@@ -7,16 +7,6 @@ const resultScreen = document.getElementById('result-screen');
 const resultBtns = document.getElementById('result-btns');
 const startNewBtn = document.getElementById('start-new-btn');
 
-// File input display
-document.getElementById('file').addEventListener('change', function() {
-  const span = document.getElementById('file-filename');
-  if (this.files && this.files.length > 0) {
-    span.textContent = this.files[0].name;
-  } else {
-    span.textContent = "No file chosen";
-  }
-});
-
 // --- Dynamic Target Format & Base URL Rows ---
 const linkFields = document.getElementById('link-fields');
 const rowsContainer = document.getElementById('target-base-rows');
@@ -35,6 +25,7 @@ function createRow(tfValue = '', buValue = '') {
   tfInput.placeholder = 'Target Format';
   tfInput.required = true;
   tfInput.value = tfValue;
+  tfInput.addEventListener('input', validateForm);
   tfGroup.appendChild(tfInput);
   // Base URL
   const buGroup = document.createElement('div');
@@ -45,6 +36,7 @@ function createRow(tfValue = '', buValue = '') {
   buInput.placeholder = 'Base URL';
   buInput.required = true;
   buInput.value = buValue;
+  buInput.addEventListener('input', validateForm);
   buGroup.appendChild(buInput);
   row.appendChild(tfGroup);
   row.appendChild(buGroup);
@@ -71,6 +63,7 @@ function updateDeleteButtons() {
         row.remove();
         updateDeleteButtons();
         updateRowControls();
+        validateForm();
       };
       row.appendChild(delBtn);
     } else {
@@ -101,48 +94,16 @@ function showLinkFields(show) {
   // Set required only if visible
   const allInputs = linkFields.querySelectorAll('input');
   allInputs.forEach(input => input.required = show);
+  validateForm();
 }
 
 addRowBtn.onclick = function() {
   if (rowsContainer.childElementCount < MAX_ROWS) {
     rowsContainer.appendChild(createRow());
     updateDeleteButtons();
+    validateForm();
   }
 };
-
-// --- Add Content (automatic) UTM field ---
-function addUtmContentField() {
-  const utmRow = document.getElementById('utm-row');
-  if (!utmRow) return;
-
-  // Only add if not already there
-  if (!document.getElementById('utm_content')) {
-    const contentGroup = document.createElement('div');
-    contentGroup.className = 'field-group';
-    const contentInput = document.createElement('input');
-    contentInput.type = 'text';
-    contentInput.name = 'utm_content';
-    contentInput.id = 'utm_content';
-    contentInput.placeholder = 'Content (automatic)';
-    contentInput.readOnly = true;
-    contentInput.style.backgroundColor = '#f9f9f9';
-    contentInput.style.cursor = 'not-allowed';
-    contentGroup.appendChild(contentInput);
-
-    // Insert after campaign field (last .field-group in utm-row)
-    const groups = utmRow.querySelectorAll('.field-group');
-    if (groups.length > 0) {
-      utmRow.insertBefore(contentGroup, groups[groups.length].nextSibling);
-      // fallback: if nextSibling is null, this is equivalent to appendChild
-    } else {
-      utmRow.appendChild(contentGroup);
-    }
-  }
-}
-window.addEventListener('DOMContentLoaded', () => {
-  addUtmContentField();
-  updateJobTypeFields();
-});
 
 // --- Job type logic for showing/hiding fields
 function updateJobTypeFields() {
@@ -171,22 +132,73 @@ function updateJobTypeFields() {
     document.getElementById('utm_medium').required = true;
     document.getElementById('utm_campaign').required = true;
   }
+  validateForm();
 }
+
 document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
 
-// --- Set placeholder for Job Type select ---
-window.addEventListener('DOMContentLoaded', () => {
-  // Add placeholder option only if not already present
-  const jobTypeSelect = document.getElementById('job_type');
-  if (jobTypeSelect && !jobTypeSelect.querySelector('option[disabled]')) {
-    const placeholder = document.createElement('option');
-    placeholder.value = "";
-    placeholder.textContent = "Select one";
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    jobTypeSelect.insertBefore(placeholder, jobTypeSelect.firstChild);
+// --- FORM VALIDATION & BUTTON LOGIC ---
+function validateForm() {
+  let isValid = true;
+
+  // File required
+  const fileInput = document.getElementById('file');
+  if (!fileInput || fileInput.files.length === 0) isValid = false;
+
+  // Job type required
+  const jobType = document.getElementById('job_type').value;
+  if (!jobType) isValid = false;
+
+  // Target Format & Base URL if visible
+  if ((jobType === "add_links_only" || jobType === "add_links_with_utm") && linkFields.style.display !== 'none') {
+    const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
+    const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
+    if (tfInputs.length === 0 || buInputs.length === 0) isValid = false;
+    for (let i = 0; i < tfInputs.length; i++) {
+      if (!tfInputs[i].value.trim() || !buInputs[i].value.trim()) {
+        isValid = false;
+        break;
+      }
+    }
+  }
+
+  // UTM params if visible
+  const utmRow = document.getElementById('utm-row');
+  if (utmRow && utmRow.style.display !== 'none' && (jobType !== "add_links_only")) {
+    const utmSource = document.getElementById('utm_source');
+    const utmMedium = document.getElementById('utm_medium');
+    const utmCampaign = document.getElementById('utm_campaign');
+    if (!utmSource.value.trim() || !utmMedium.value.trim() || !utmCampaign.value.trim()) {
+      isValid = false;
+    }
+  }
+
+  submitBtn.disabled = !isValid;
+  submitBtn.style.opacity = isValid ? "1" : "0.65";
+  submitBtn.style.cursor = isValid ? "pointer" : "not-allowed";
+}
+
+function bindValidationListeners() {
+  // Static fields
+  ['utm_source', 'utm_medium', 'utm_campaign'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', validateForm);
+  });
+  document.getElementById('job_type').addEventListener('change', validateForm);
+  document.getElementById('file').addEventListener('change', validateForm);
+}
+
+// File input display
+document.getElementById('file').addEventListener('change', function() {
+  const span = document.getElementById('file-filename');
+  if (this.files && this.files.length > 0) {
+    span.textContent = this.files[0].name;
+  } else {
+    span.textContent = "No file chosen";
   }
 });
+
+// --- UTM Content (automatic) field already in HTML ---
 
 // --- Helper for showing/hiding loader overlay ---
 function showLoader() {
@@ -241,7 +253,6 @@ form.onsubmit = async (e) => {
 
   // Target formats and base urls (as CSV strings, or you could repeat fields)
   if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
-    // Collect all row values
     const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
     const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
     let tfValues = [];
@@ -252,7 +263,6 @@ form.onsubmit = async (e) => {
         buValues.push(buInputs[i].value.trim());
       }
     }
-    // You may want to join as CSV or send as repeated fields. Here, join as comma-separated.
     formData.append("target_formats", tfValues.join(","));
     formData.append("base_url", buValues[0] || "");
   }
@@ -310,65 +320,10 @@ async function pollStatus(jobId) {
   }
   check();
 }
-// Bind validation listeners for all static fields
-function bindValidationListeners() {
-  // Static UTM fields
-  ['utm_source', 'utm_medium', 'utm_campaign'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', validateForm);
-  });
-  // Job Type
-  document.getElementById('job_type').addEventListener('change', validateForm);
-  // File input
-  document.getElementById('file').addEventListener('change', validateForm);
-}
 
-// Whenever you create a new row for Target Format/Base URL:
-function createRow(tfValue = '', buValue = '') {
-  const row = document.createElement('div');
-  row.className = 'field-row side-by-side-fields';
-
-  // Target Format
-  const tfGroup = document.createElement('div');
-  tfGroup.className = 'field-group';
-  const tfInput = document.createElement('input');
-  tfInput.type = 'text';
-  tfInput.name = 'target_formats[]';
-  tfInput.placeholder = 'Target Format';
-  tfInput.required = true;
-  tfInput.value = tfValue;
-  tfInput.addEventListener('input', validateForm);
-
-  tfGroup.appendChild(tfInput);
-
-  // Base URL
-  const buGroup = document.createElement('div');
-  buGroup.className = 'field-group';
-  const buInput = document.createElement('input');
-  buInput.type = 'text';
-  buInput.name = 'base_urls[]';
-  buInput.placeholder = 'Base URL';
-  buInput.required = true;
-  buInput.value = buValue;
-  buInput.addEventListener('input', validateForm);
-
-  buGroup.appendChild(buInput);
-
-  row.appendChild(tfGroup);
-  row.appendChild(buGroup);
-
-  return row;
-}
-
-// After removing a row, call validateForm
-function updateDeleteButtons() {
-  // ...existing logic...
-  validateForm();
-}
-
-// On DOM load, call the bindValidationListeners and validateForm
+// --- Initial setup ---
 window.addEventListener('DOMContentLoaded', () => {
-  // ...other init code...
   bindValidationListeners();
+  updateJobTypeFields();
   validateForm();
 });
