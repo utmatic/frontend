@@ -1,375 +1,908 @@
-const form = document.getElementById('iddForm');
-const statusDiv = document.getElementById('status');
-const submitBtn = document.getElementById('submitBtn');
-const loader = document.getElementById('loader');
-const mainFormWrapper = document.getElementById('main-form-wrapper');
-const resultScreen = document.getElementById('result-screen');
-const resultBtns = document.getElementById('result-btns');
-const startNewBtn = document.getElementById('start-new-btn');
+// main.js
 
-// File input display
-document.getElementById('file').addEventListener('change', function() {
-  const span = document.getElementById('file-filename');
-  if (this.files && this.files.length > 0) {
-    span.textContent = this.files[0].name;
-  } else {
-    span.textContent = "No file chosen";
+// Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
+window.pdfjsViewer =
+  window.pdfjsViewer ||
+  window.pdfjsDistWebPdf_viewer ||
+  window['pdfjs-dist/web/pdf_viewer'] ||
+  undefined;
+
+// SVG ICONS
+const TAG_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="height:1.15em;vertical-align:-0.13em;" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>`;
+const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="height:1.15em;vertical-align:-0.13em;"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`;
+
+let baseUrlMemory = JSON.parse(localStorage.getItem('baseUrlMemory') || "[]");
+function updateBaseUrlMemory(newUrl) {
+  if (newUrl && !baseUrlMemory.includes(newUrl)) {
+    baseUrlMemory.push(newUrl);
+    if (baseUrlMemory.length > 15) baseUrlMemory.shift();
+    localStorage.setItem('baseUrlMemory', JSON.stringify(baseUrlMemory));
   }
-  validateForm(); // Check form validity when a file is selected
-});
-
-// --- Dynamic Target Format & Base URL Rows ---
-const linkFields = document.getElementById('link-fields');
-const rowsContainer = document.getElementById('target-base-rows');
-const addRowBtn = document.getElementById('add-row-btn');
-const MAX_ROWS = 5;
-
-function createRow(tfValue = '', buValue = '') {
-  const row = document.createElement('div');
-  row.className = 'field-row side-by-side-fields';
-  // Target Format
-  const tfGroup = document.createElement('div');
-  tfGroup.className = 'field-group';
-  const tfInput = document.createElement('input');
-  tfInput.type = 'text';
-  tfInput.name = 'target_formats[]';
-  tfInput.placeholder = 'Target Format';
-  tfInput.required = true;
-  tfInput.value = tfValue;
-  tfInput.addEventListener('input', validateForm);
-  tfGroup.appendChild(tfInput);
-  // Base URL
-  const buGroup = document.createElement('div');
-  buGroup.className = 'field-group';
-  const buInput = document.createElement('input');
-  buInput.type = 'text';
-  buInput.name = 'base_urls[]';
-  buInput.placeholder = 'Base URL';
-  buInput.required = true;
-  buInput.value = buValue;
-  buInput.addEventListener('input', validateForm);
-  buGroup.appendChild(buInput);
-  row.appendChild(tfGroup);
-  row.appendChild(buGroup);
-  return row;
+  let dl = document.getElementById('base-url-datalist');
+  if (!dl) {
+    dl = document.createElement('datalist');
+    dl.id = 'base-url-datalist';
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = baseUrlMemory.map(url => `<option value="${url}">`).join('');
 }
+updateBaseUrlMemory("");
+let docCount = 1;
+const MAX_DOCS = 5;
+const MAX_TARGET_ROWS = 5;
+const tabBar = document.getElementById("tab-bar");
+const tabContents = document.getElementById("tab-contents");
+const fileList = document.getElementById("file-list");
+const processBtn = document.getElementById("process-btn");
 
-function updateDeleteButtons() {
-  const rows = Array.from(rowsContainer.querySelectorAll('.field-row'));
-  rows.forEach((row, idx) => {
-    // Remove any existing delete buttons
-    let delBtn = row.querySelector('.delete-row-btn');
-    if (delBtn) delBtn.remove();
-    let placeholder = row.querySelector('.delete-row-placeholder');
-    if (placeholder) placeholder.remove();
+// Track per-tab last saved state for Save/Dirty logic
+let tabLastSavedState = {};
 
-    if (idx > 0) {
-      // Add real delete button
-      delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'delete-row-btn';
-      delBtn.innerHTML = '&times;';
-      delBtn.title = 'Remove row';
-      delBtn.onclick = function() {
-        row.remove();
-        updateDeleteButtons();
-        updateRowControls();
-        validateForm();
-      };
-      row.appendChild(delBtn);
-    } else {
-      // Add invisible but identical button as placeholder
-      placeholder = document.createElement('button');
-      placeholder.type = 'button';
-      placeholder.className = 'delete-row-btn delete-row-placeholder';
-      placeholder.innerHTML = '&times;';
-      placeholder.disabled = true;
-      row.appendChild(placeholder);
+// PDF Previewer Zoom Button Listeners
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("zoom-in-btn").addEventListener("click", () => {
+    if (pdfZoomLevel < pdfZoomMax) {
+      pdfZoomLevel = Math.min(pdfZoomLevel + pdfZoomStep, pdfZoomMax);
+      renderPage();
     }
   });
-  updateRowControls();
-}
-
-function updateRowControls() {
-  const rows = rowsContainer.querySelectorAll('.field-row');
-  addRowBtn.disabled = rows.length >= MAX_ROWS;
-}
-
-function showLinkFields(show) {
-  linkFields.style.display = show ? "block" : "none";
-  // Ensure at least one row exists when showing
-  if (show && rowsContainer.childElementCount === 0) {
-    rowsContainer.appendChild(createRow());
-  }
-  updateDeleteButtons();
-  // Set required only if visible
-  const allInputs = linkFields.querySelectorAll('input');
-  allInputs.forEach(input => input.required = show);
-  validateForm();
-}
-
-addRowBtn.onclick = function() {
-  if (rowsContainer.childElementCount < MAX_ROWS) {
-    rowsContainer.appendChild(createRow());
-    updateDeleteButtons();
-    validateForm();
-  }
-};
-
-// --- Add Content (automatic) UTM field ---
-function addUtmContentField() {
-  const utmRow = document.getElementById('utm-row');
-  if (!utmRow) return;
-
-  // Only add if not already there
-  if (!document.getElementById('utm_content')) {
-    const contentGroup = document.createElement('div');
-    contentGroup.className = 'field-group';
-    const contentInput = document.createElement('input');
-    contentInput.type = 'text';
-    contentInput.name = 'utm_content';
-    contentInput.id = 'utm_content';
-    contentInput.placeholder = 'Content (automatic)';
-    contentInput.readOnly = true;
-    contentInput.style.backgroundColor = '#f9f9f9';
-    contentInput.style.cursor = 'not-allowed';
-    contentGroup.appendChild(contentInput);
-
-    // Insert after campaign field (last .field-group in utm-row)
-    const groups = utmRow.querySelectorAll('.field-group');
-    if (groups.length > 0) {
-      utmRow.insertBefore(contentGroup, groups[groups.length].nextSibling);
-      // fallback: if nextSibling is null, this is equivalent to appendChild
-    } else {
-      utmRow.appendChild(contentGroup);
+  document.getElementById("zoom-out-btn").addEventListener("click", () => {
+    if (pdfZoomLevel > pdfZoomMin) {
+      pdfZoomLevel = Math.max(pdfZoomLevel - pdfZoomStep, pdfZoomMin);
+      renderPage();
     }
-  }
-}
-
-// --- Job type logic for showing/hiding fields
-function updateJobTypeFields() {
-  const jobType = document.getElementById('job_type').value;
-  // Show/hide Target Format & Base URL
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
-    showLinkFields(true);
-  } else {
-    showLinkFields(false);
-    // Remove all rows if hiding
-    rowsContainer.innerHTML = '';
-  }
-  // Show/hide UTM parameters
-  const utmRow = document.getElementById('utm-row');
-  const utmLabel = document.getElementById('utm-label');
-  if (jobType === "add_links_only") {
-    utmRow.style.display = "none";
-    utmLabel.style.display = "none";
-    document.getElementById('utm_source').required = false;
-    document.getElementById('utm_medium').required = false;
-    document.getElementById('utm_campaign').required = false;
-  } else {
-    utmRow.style.display = "";
-    utmLabel.style.display = "";
-    document.getElementById('utm_source').required = true;
-    document.getElementById('utm_medium').required = true;
-    document.getElementById('utm_campaign').required = true;
-  }
-  validateForm();
-}
-document.getElementById('job_type').addEventListener('change', updateJobTypeFields);
-
-// --- Set placeholder for Job Type select ---
-window.addEventListener('DOMContentLoaded', () => {
-  // Add placeholder option only if not already present
-  const jobTypeSelect = document.getElementById('job_type');
-  if (jobTypeSelect && !jobTypeSelect.querySelector('option[disabled]')) {
-    const placeholder = document.createElement('option');
-    placeholder.value = "";
-    placeholder.textContent = "Select one";
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    jobTypeSelect.insertBefore(placeholder, jobTypeSelect.firstChild);
-  }
-  addUtmContentField();
-  updateJobTypeFields();
-  bindValidationListeners();
-  validateForm();
+  });
+  // No need to call updateZoomDisplay() anymore
 });
 
-function bindValidationListeners() {
-  // Listen to all input/select fields for validation
-  const utmFields = ['utm_source', 'utm_medium', 'utm_campaign'];
-  utmFields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', validateForm);
+function showSpinner() { 
+  document.getElementById('loader').classList.add('active');
+}
+function hideSpinner() { 
+  document.getElementById('loader').classList.remove('active');
+}
+function getTabCount() { return tabBar.querySelectorAll(".tab[data-tab]").length; }
+function updateDeleteTabButtons() {
+  const tabs = tabBar.querySelectorAll(".tab[data-tab]");
+  const count = tabs.length;
+  tabs.forEach(tab => {
+    const delBtn = tab.querySelector(".delete-tab");
+    if (delBtn) {
+      delBtn.disabled = (count === 1);
+      if (count === 1) {
+        delBtn.setAttribute("disabled", "true");
+        delBtn.style.opacity = "0.3";
+        delBtn.style.cursor = "not-allowed";
+      } else {
+        delBtn.removeAttribute("disabled");
+        delBtn.style.opacity = "";
+        delBtn.style.cursor = "";
+      }
+    }
   });
-  document.getElementById('job_type').addEventListener('change', validateForm);
-
-  // For dynamic fields, we already bind in createRow above
-  // Listen to static file field
-  const fileInput = document.getElementById('file');
-  if (fileInput) fileInput.addEventListener('change', validateForm);
+}
+function updateAddTabButton() {
+  const addTabBtn = document.getElementById("add-tab");
+  const numDocs = getTabCount();
+  addTabBtn.disabled = numDocs >= MAX_DOCS;
+  addTabBtn.style.opacity = numDocs >= MAX_DOCS ? "0.5" : "1";
+  addTabBtn.style.cursor = numDocs >= MAX_DOCS ? "not-allowed" : "pointer";
+}
+function updateTabBarCount() {
+  const numTabs = getTabCount();
+  tabBar.setAttribute('data-tabs', numTabs);
+  updateDeleteTabButtons();
+}
+function setActiveTab(tabId) {
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".tab-bar .tab").forEach(t => t.classList.remove("active"));
+  document.querySelector(`.tab-content#${tabId}`)?.classList.add("active");
+  document.querySelector(`.tab-bar .tab[data-tab="${tabId}"]`)?.classList.add("active");
 }
 
-// --- FORM VALIDATION & BUTTON LOGIC ---
-function validateForm() {
-  let isValid = true;
+// Helper to build a unique hash of form data (for Save/Dirty logic)
+function formToHash(form) {
+  // Custom serialization: input type, name, value, checked, selectedIndex, file name if any
+  let arr = [];
+  Array.from(form.elements).forEach(el => {
+    if (el.name && !el.disabled && !el.closest('.hidden')) {
+      if (el.type === "file") {
+        arr.push(el.name + ":" + (el.files[0]?.name || ""));
+      } else if (el.type === "checkbox" || el.type === "radio") {
+        arr.push(el.name + ":" + (el.checked ? "1" : "0"));
+      } else if (el.tagName === "SELECT") {
+        arr.push(el.name + ":" + el.selectedIndex);
+      } else {
+        arr.push(el.name + ":" + el.value);
+      }
+    }
+  });
+  return arr.join("|");
+}
 
-  // File required
-  const fileInput = document.getElementById('file');
-  if (!fileInput || fileInput.files.length === 0) isValid = false;
+function updateFileListStatus(tabId, name, saved, jobType) {
+  let item = fileList.querySelector(`[data-tab="${tabId}"]`);
+  if (!item) {
+    item = document.createElement("li");
+    item.dataset.tab = tabId;
+    fileList.appendChild(item);
+  }
+  let jobIcons = item.querySelector('.job-icons');
+  if (!jobIcons) {
+    jobIcons = document.createElement('span');
+    jobIcons.className = 'job-icons';
+    item.insertBefore(jobIcons, item.firstChild);
+  }
+  // Update job icons
+  jobIcons.innerHTML = "";
+  if (jobType === "utm_only") {
+    jobIcons.innerHTML = TAG_ICON;
+  } else if (jobType === "links_and_utm") {
+    jobIcons.innerHTML = LINK_ICON;
+  }
+  let existingCheck = item.querySelector(".checkmark");
+  if (existingCheck) existingCheck.remove();
+  let nameSpan = item.querySelector('.file-list-name');
+  if (!nameSpan) {
+    nameSpan = document.createElement('span');
+    nameSpan.className = 'file-list-name';
+    item.appendChild(nameSpan);
+  }
+  nameSpan.textContent = name || "Untitled Document";
+  // Make sure nameSpan is after jobIcons (for ellipsis to work)
+  if (nameSpan.previousSibling !== jobIcons) {
+    item.insertBefore(nameSpan, null);
+  }
+  if (saved) {
+    item.className = "saved";
+    const checkSvg = document.createElement('span');
+    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>`;
+    item.insertBefore(checkSvg, jobIcons.nextSibling);
+  } else {
+    item.className = "";
+  }
+  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+}
 
-  // Job type required
-  const jobType = document.getElementById('job_type').value;
-  if (!jobType) isValid = false;
+// ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
+function renderFormFields(form, tabId, docName, fileObj) {
+  // PDF Upload
+  const pdfField = document.createElement("div");
+  pdfField.className = "field-group";
+  const pdfLabel = document.createElement("label");
+  pdfLabel.htmlFor = "file";
+  pdfLabel.textContent = "Upload PDF";
+  const fileInputWrapper = document.createElement("div");
+  fileInputWrapper.className = "custom-file-input-wrapper";
+  const fileInputLabel = document.createElement("label");
+  fileInputLabel.className = "custom-file-input-label";
+  fileInputLabel.textContent = "Choose File";
+  fileInputLabel.setAttribute("tabindex", "0");
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = ".pdf,application/pdf";
+  fileInput.name = "file";
+  fileInput.id = "file";
+  fileInput.required = true;
+  fileInput.className = "custom-file-input";
+  fileInput.tabIndex = -1;
+  fileInput.multiple = true;
+  const fileNameSpan = document.createElement("span");
+  fileNameSpan.className = "custom-file-filename";
+  fileNameSpan.textContent = "No file chosen";
+  if (fileObj instanceof File) {
+    const dt = new DataTransfer();
+    dt.items.add(fileObj);
+    fileInput.files = dt.files;
+    fileNameSpan.textContent = fileObj.name;
+    setTimeout(() => {
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) {
+        let base = fileObj.name.replace(/\.pdf$/i, "");
+        filenameInput.value = base;
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        if (tabLabel) tabLabel.textContent = base;
+        let jtSelect = form.querySelector('select[name="job_type"]');
+        let jt = jtSelect ? jtSelect.value : "";
+        updateFileListStatus(tabId, base, false, jt);
+      }
+    });
+  }
 
-  // Target Format & Base URL if visible
-  if ((jobType === "add_links_only" || jobType === "add_links_with_utm") && linkFields.style.display !== 'none') {
-    const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
-    const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
-    if (tfInputs.length === 0 || buInputs.length === 0) isValid = false;
-    for (let i = 0; i < tfInputs.length; i++) {
-      if (!tfInputs[i].value.trim() || !buInputs[i].value.trim()) {
-        isValid = false;
+  fileInput.addEventListener("change", function() {
+    if (fileInput.files && fileInput.files.length > 0) {
+      const files = Array.from(fileInput.files);
+      if (files.length > 1) {
+        fileInput.files = (function() {
+          let dt = new DataTransfer();
+          dt.items.add(files[0]);
+          return dt.files;
+        })();
+        fileNameSpan.textContent = files[0].name;
+        const filenameInput = form.querySelector("input[name='filename']");
+        if (filenameInput) {
+          let base = files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          let jtSelect = form.querySelector('select[name="job_type"]');
+          let jt = jtSelect ? jtSelect.value : "";
+          updateFileListStatus(tabId, base, false, jt);
+          tabLastSavedState[tabId] = "";
+          form.querySelector('.save-btn').disabled = false;
+        }
+        let slots = MAX_DOCS - getTabCount();
+        for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+          createTab(files[i]);
+        }
+      } else {
+        fileNameSpan.textContent = files[0].name;
+        const filenameInput = form.querySelector("input[name='filename']");
+        if (filenameInput) {
+          let base = files[0].name.replace(/\.pdf$/i, "");
+          filenameInput.value = base;
+          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+          if (tabLabel) tabLabel.textContent = base;
+          let jtSelect = form.querySelector('select[name="job_type"]');
+          let jt = jtSelect ? jtSelect.value : "";
+          updateFileListStatus(tabId, base, false, jt);
+          tabLastSavedState[tabId] = "";
+          form.querySelector('.save-btn').disabled = false;
+        }
+      }
+    } else {
+      fileNameSpan.textContent = "No file chosen";
+    }
+  });
+
+  fileInputLabel.appendChild(fileInput);
+  fileInputWrapper.appendChild(fileInputLabel);
+  fileInputWrapper.appendChild(fileNameSpan);
+  pdfField.appendChild(pdfLabel);
+  pdfField.appendChild(fileInputWrapper);
+  form.appendChild(pdfField);
+
+  // --- Job Type ---
+  const jobTypeField = document.createElement("div");
+  jobTypeField.className = "field-group";
+  const jobTypeLabel = document.createElement("label");
+  jobTypeLabel.htmlFor = "job_type";
+  jobTypeLabel.textContent = "Job Type";
+  const jobTypeSelect = document.createElement("select");
+  jobTypeSelect.name = "job_type";
+  jobTypeSelect.id = "job_type";
+  jobTypeSelect.required = true;
+  [
+    { value: "", label: "Select one", icon: "" },
+    { value: "utm_only", label: "Add UTM Only", icon: TAG_ICON },
+    { value: "links_and_utm", label: "Add Links and UTM", icon: LINK_ICON }
+  ].forEach(opt => {
+    const option = document.createElement("option");
+    option.value = opt.value;
+    option.textContent = opt.label;
+    jobTypeSelect.appendChild(option);
+  });
+  jobTypeField.appendChild(jobTypeLabel);
+  jobTypeField.appendChild(jobTypeSelect);
+  form.appendChild(jobTypeField);
+
+  // --- Target Format & Base URL dynamic rows ---
+  const targetBaseRowsWrapper = document.createElement("div");
+  targetBaseRowsWrapper.className = "field-row-wrapper hidden";
+  form.appendChild(targetBaseRowsWrapper);
+  const addNewRowBtn = document.createElement("button");
+  addNewRowBtn.type = "button";
+  addNewRowBtn.className = "add-new-row-btn";
+  addNewRowBtn.textContent = "+ Add new";
+  addNewRowBtn.style.marginLeft = "0";
+  addNewRowBtn.style.marginBottom = "0.18em";
+  addNewRowBtn.style.marginTop = "0";
+  addNewRowBtn.style.display = "block";
+  targetBaseRowsWrapper.appendChild(addNewRowBtn);
+  addTargetBaseRow(targetBaseRowsWrapper, form);
+  function addTargetBaseRow(wrapper, form) {
+    const fieldRow = document.createElement("div");
+    fieldRow.className = "field-row";
+    // Target Format
+    const tfGroup = document.createElement("div");
+    tfGroup.className = "field-group";
+    tfGroup.style.flex = "1";
+    tfGroup.style.minWidth = 0;
+    const tfInput = document.createElement("input");
+    tfInput.type = "text";
+    tfInput.name = "target_format";
+    tfInput.placeholder = "Target Format";
+    tfInput.required = true;
+    tfInput.style.width = "100%";
+    tfInput.style.boxSizing = "border-box";
+    tfGroup.appendChild(tfInput);
+    // Base URL
+    const buGroup = document.createElement("div");
+    buGroup.className = "field-group";
+    buGroup.style.flex = "1";
+    buGroup.style.minWidth = 0;
+    const buInput = document.createElement("input");
+    buInput.type = "text";
+    buInput.name = "base_url";
+    buInput.placeholder = "Base URL";
+    buInput.required = true;
+    buInput.setAttribute('list', 'base-url-datalist');
+    buInput.style.width = "100%";
+    buInput.style.boxSizing = "border-box";
+    buGroup.appendChild(buInput);
+    buInput.addEventListener('change', () => {
+      updateBaseUrlMemory(buInput.value.trim());
+    });
+    // Remove Button (except for first row)
+    const delCol = document.createElement("div");
+    delCol.className = "delete-col";
+    if (wrapper.querySelectorAll(".field-row").length > 0) {
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "✕";
+      removeBtn.style.background = "none";
+      removeBtn.style.border = "none";
+      removeBtn.style.color = "#f43f5e";
+      removeBtn.style.fontSize = "1.25rem";
+      removeBtn.style.cursor = "pointer";
+      removeBtn.title = "Remove row";
+      removeBtn.addEventListener("click", function() {
+        fieldRow.remove();
+        updateAddNewRowBtn();
+        validateForm(form);
+      });
+      delCol.appendChild(removeBtn);
+    } else {
+      delCol.innerHTML = "&nbsp;";
+    }
+    fieldRow.appendChild(tfGroup);
+    fieldRow.appendChild(buGroup);
+    fieldRow.appendChild(delCol);
+    wrapper.appendChild(fieldRow);
+    updateAddNewRowBtn();
+    updateBaseUrlMemory("");
+  }
+  function updateAddNewRowBtn() {
+    const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
+    addNewRowBtn.disabled = numRows >= MAX_TARGET_ROWS;
+  }
+  addNewRowBtn.addEventListener("click", function() {
+    addTargetBaseRow(targetBaseRowsWrapper, form);
+    updateAddNewRowBtn();
+  });
+
+  // --- UTM Parameters group ---
+  const utmLabel = document.createElement("span");
+  utmLabel.className = "utm-label";
+  utmLabel.textContent = "UTM Parameters";
+  form.appendChild(utmLabel);
+  const utmRow = document.createElement("div");
+  utmRow.className = "utm-row";
+  [
+    { id: "source", placeholder: "Source", required: true },
+    { id: "medium", placeholder: "Medium", required: true },
+    { id: "campaign", placeholder: "Campaign", required: true }
+  ].forEach(field => {
+    const group = document.createElement("div");
+    group.className = "field-group";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = field.id;
+    input.placeholder = field.placeholder;
+    input.required = true;
+    group.appendChild(input);
+    utmRow.appendChild(group);
+  });
+  form.appendChild(utmRow);
+  const utmContentGroup = document.createElement("div");
+  utmContentGroup.className = "field-group";
+  const utmContentInput = document.createElement("input");
+  utmContentInput.type = "text";
+  utmContentInput.name = "utm_content";
+  utmContentInput.placeholder = "Content (automatic)";
+  utmContentInput.readOnly = true;
+  utmContentInput.style.backgroundColor = "#f9f9f9";
+  utmContentInput.style.cursor = "not-allowed";
+  utmContentGroup.appendChild(utmContentInput);
+  form.appendChild(utmContentGroup);
+  const filenameGroup = document.createElement("div");
+  filenameGroup.className = "field-group";
+  const filenameLabel = document.createElement("label");
+  filenameLabel.htmlFor = "filename";
+  filenameLabel.textContent = "Document Name";
+  const filenameInput = document.createElement("input");
+  filenameInput.type = "text";
+  filenameInput.name = "filename";
+  filenameInput.id = "filename";
+  filenameInput.placeholder = "MyFileName";
+  filenameInput.required = true;
+  filenameInput.value = docName || '';
+  filenameGroup.appendChild(filenameLabel);
+  filenameGroup.appendChild(filenameInput);
+  form.appendChild(filenameGroup);
+  const underlineWrapper = document.createElement("div");
+  underlineWrapper.className = "checkbox-wrapper hidden";
+  underlineWrapper.style.marginBottom = "0.75rem";
+  underlineWrapper.style.marginTop = "-0.5rem";
+  const underlineInput = document.createElement("input");
+  underlineInput.type = "checkbox";
+  underlineInput.name = "underline";
+  underlineInput.id = "underline";
+  const underlineLabel = document.createElement("label");
+  underlineLabel.htmlFor = "underline";
+  underlineLabel.textContent = "Add underline to links?";
+  underlineWrapper.appendChild(underlineInput);
+  underlineWrapper.appendChild(underlineLabel);
+  form.appendChild(underlineWrapper);
+  const actionsDiv = document.createElement("div");
+  actionsDiv.className = "form-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.textContent = "Save";
+  saveBtn.className = "save-btn";
+  saveBtn.disabled = true;
+  actionsDiv.appendChild(saveBtn);
+  form.appendChild(actionsDiv);
+
+  // --- Save/Dirty logic ---
+  tabLastSavedState[tabId] = "";
+
+  function checkDirtyAndUpdateSaveBtn() {
+    let current = formToHash(form);
+    let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+    saveBtn.disabled = !formIsValid(form) || !dirty;
+  }
+  function formIsValid(form) {
+    let valid = true;
+    form.querySelectorAll("input, select").forEach(input => {
+      if (
+        !input.closest(".hidden") &&
+        input.required &&
+        ((input.type === "file" && input.files.length === 0) ||
+         (input.type !== "file" && !input.value.trim()))
+      ) {
+        valid = false;
+      }
+    });
+    return valid;
+  }
+  // Validate and update save button whenever form changes
+  form.addEventListener("input", function() {
+    checkDirtyAndUpdateSaveBtn();
+  });
+  form.addEventListener("change", function() {
+    checkDirtyAndUpdateSaveBtn();
+  });
+
+  // Save handler
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const filenameInput = form.querySelector("input[name='filename']");
+    const name = filenameInput?.value || docName;
+    const jt = jobTypeSelect.value;
+    updateFileListStatus(tabId, name, true, jt);
+    tabLastSavedState[tabId] = formToHash(form);
+    saveBtn.disabled = true;
+    saveBtn.dataset.justSaved = "1";
+    setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
+  });
+
+  // Job type select: update file list with correct icon
+  jobTypeSelect.addEventListener("change", function() {
+    const show = jobTypeSelect.value === "links_and_utm";
+    targetBaseRowsWrapper.classList.toggle("hidden", !show);
+    underlineWrapper.classList.toggle("hidden", !show);
+    targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+      input.required = show;
+    });
+    underlineInput.required = false;
+    const filenameInput = form.querySelector("input[name='filename']");
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+    checkDirtyAndUpdateSaveBtn();
+  });
+
+  // When filename is changed, update tab label and file list (don't mark as saved)
+  filenameInput.addEventListener("input", () => {
+    const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+    tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+    checkDirtyAndUpdateSaveBtn();
+  });
+
+  // File input change: update filename and clear saved state
+  fileInput.addEventListener("change", function() {
+    if (fileInput.files && fileInput.files.length > 0) {
+      let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+      filenameInput.value = base;
+      const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+      if (tabLabel) tabLabel.textContent = base;
+      updateFileListStatus(tabId, base, false, jobTypeSelect.value);
+      tabLastSavedState[tabId] = "";
+      saveBtn.disabled = false;
+    }
+  });
+
+  updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+  checkDirtyAndUpdateSaveBtn();
+}
+
+function createTab(fileObj) {
+  const tabId = `doc-${docCount}`;
+  const tabBtn = document.createElement("button");
+  tabBtn.className = "tab";
+  tabBtn.setAttribute("type", "button");
+  tabBtn.setAttribute("title", `Switch to ${tabId}`);
+  tabBtn.dataset.tab = tabId;
+  const tabLabel = document.createElement("span");
+  tabLabel.className = "tab-label";
+  tabLabel.textContent = `Document ${docCount}`;
+  tabBtn.appendChild(tabLabel);
+  const delBtn = document.createElement("button");
+  delBtn.setAttribute("type", "button");
+  delBtn.className = "delete-tab";
+  delBtn.setAttribute("title", "Delete tab");
+  delBtn.dataset.tab = tabId;
+  delBtn.innerHTML = "&times;";
+  tabBtn.appendChild(delBtn);
+  tabBtn.addEventListener("click", function(e) {
+    if (e.target.classList.contains("delete-tab")) return;
+    setActiveTab(tabId);
+  });
+  tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
+  const tabContent = document.createElement("div");
+  tabContent.className = "tab-content";
+  tabContent.id = tabId;
+  const form = document.createElement("form");
+  form.setAttribute("autocomplete", "off");
+  renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
+  tabContent.appendChild(form);
+  tabContents.appendChild(tabContent);
+  setActiveTab(tabId);
+  docCount++;
+  updateAddTabButton();
+  updateTabBarCount();
+  updateDeleteTabButtons();
+}
+createTab();
+
+document.addEventListener("click", function (e) {
+  if (e.target.classList && e.target.classList.contains("delete-tab")) {
+    if (e.target.hasAttribute('disabled')) return;
+    const tabId = e.target.dataset.tab;
+    const tab = document.querySelector(`[data-tab="${tabId}"]`);
+    const content = document.getElementById(tabId);
+    const fileItem = document.querySelector(`.file-list [data-tab="${tabId}"]`);
+    if (tab) tab.remove();
+    if (content) content.remove();
+    if (fileItem) fileItem.remove();
+    const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+    let newActive = null;
+    if (remainingTabs.length) {
+      newActive = remainingTabs[remainingTabs.length-1];
+    }
+    if (newActive) setActiveTab(newActive.dataset.tab);
+    updateAddTabButton();
+    updateTabBarCount();
+    updateDeleteTabButtons();
+  }
+});
+updateTabBarCount();
+
+let lastProcessedForms = [];
+processBtn.addEventListener("click", async function() {
+  if (processBtn.disabled) return;
+  showSpinner();
+
+  const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
+  const tabData = [];
+  for (const tab of docTabs) {
+    const tabId = tab.dataset.tab;
+    const tabContent = document.getElementById(tabId);
+    if (!tabContent) continue;
+    const form = tabContent.querySelector("form");
+    if (!form) continue;
+    if (!fileList.querySelector(`li[data-tab="${tabId}"].saved`)) continue;
+    tabData.push({ form, tabId });
+  }
+  if (!tabData.length) {
+    hideSpinner();
+    return;
+  }
+
+  lastProcessedForms = tabData.map(({form, tabId}) => {
+    let values = {};
+    Array.from(form.elements).forEach(el => {
+      if (el.name) {
+        if (el.type === "file") {
+        } else if (el.type === "checkbox" || el.type === "radio") {
+          values[el.name] = el.checked;
+        } else {
+          values[el.name] = el.value;
+        }
+      }
+    });
+    return {
+      tabId,
+      values
+    };
+  });
+
+  const previewDocsToShow = [];
+  let encounteredError = null;
+  const API_BASE = "https://utmatic-backend.onrender.com";
+  for (let i = 0; i < tabData.length; ++i) {
+    const { form, tabId } = tabData[i];
+    const formData = new FormData(form);
+    if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
+    try {
+      const res = await fetch(`${API_BASE}/preview`, {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${errorText}`;
         break;
       }
+      const blob = await res.blob();
+      const name = formData.get("filename") || `Document ${i+1}`;
+      const url = URL.createObjectURL(blob);
+      previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
+    } catch (err) {
+      encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
+      break;
     }
   }
 
-  // UTM params if visible
-  const utmRow = document.getElementById('utm-row');
-  if (utmRow && utmRow.style.display !== 'none' && (jobType !== "add_links_only")) {
-    const utmSource = document.getElementById('utm_source');
-    const utmMedium = document.getElementById('utm_medium');
-    const utmCampaign = document.getElementById('utm_campaign');
-    if (!utmSource.value.trim() || !utmMedium.value.trim() || !utmCampaign.value.trim()) {
-      isValid = false;
+  hideSpinner();
+
+  if (encounteredError) {
+    alert(encounteredError);
+    previewDocsToShow.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+    return;
+  }
+
+  openPdfPreviewer(previewDocsToShow, 0);
+});
+
+document.getElementById("add-tab").addEventListener("click", function(e) {
+  if (getTabCount() < MAX_DOCS) {
+    createTab();
+  }
+  updateAddTabButton();
+  updateTabBarCount();
+});
+
+let pdfDocs = [];
+let currentDocIndex = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pdfInstance = null;
+let pdfCanvas = null;
+let pdfCtx = null;
+
+let pdfZoomLevel = 1.0;
+const pdfZoomMin = 0.5;
+const pdfZoomMax = 3.0;
+const pdfZoomStep = 0.1;
+
+function getDocName(idx) {
+  return pdfDocs[idx]?.name || `Document ${idx+1}`;
+}
+
+window.openPdfPreviewer = function(docs, index=0) {
+  pdfDocs = docs;
+  currentDocIndex = index;
+  document.getElementById("pdf-preview-modal-overlay").classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docList = document.getElementById("pdf-previewer-doclist");
+  let docNameSpan = docSwitch.querySelector("span");
+  if (!docNameSpan) {
+    docNameSpan = document.createElement("span");
+    docSwitch.prepend(docNameSpan);
+  }
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+
+  docList.innerHTML = "";
+  pdfDocs.forEach((doc, i) => {
+    const div = document.createElement("div");
+    div.textContent = getDocName(i);
+    div.className = (i === currentDocIndex) ? "active" : "";
+    div.onclick = function(e) {
+      e.stopPropagation();
+      currentDocIndex = i;
+      docNameSpan.textContent = getDocName(i);
+      docSwitch.title = getDocName(i);
+      docSwitch.classList.remove("open");
+      docList.style.display = "none";
+      loadDocument(currentDocIndex);
+    };
+    docList.appendChild(div);
+  });
+
+  docSwitch.onclick = function(e) {
+    if (
+      e.target === docSwitch ||
+      e.target === docNameSpan ||
+      e.target.classList.contains("caret")
+    ) {
+      docSwitch.classList.toggle("open");
+      docList.style.display = docSwitch.classList.contains("open") ? "block" : "none";
     }
-  }
+  };
 
-  submitBtn.disabled = !isValid;
-  submitBtn.style.opacity = isValid ? "1" : "0.65";
-  submitBtn.style.cursor = isValid ? "pointer" : "not-allowed";
-}
-
-// --- Helper for showing/hiding loader overlay ---
-function showLoader() {
-  loader.classList.add('active');
-}
-function hideLoader() {
-  loader.classList.remove('active');
-}
-
-// --- Show result screen ---
-function showResultScreen(processedUrl, reportUrl) {
-  mainFormWrapper.style.display = 'none';
-  resultScreen.style.display = 'flex';
-  resultBtns.innerHTML = '';
-  if (processedUrl) {
-    const btn = document.createElement('a');
-    btn.href = processedUrl;
-    btn.download = "";
-    btn.innerHTML = '<button class="process-btn">Download Processed INDD</button>';
-    resultBtns.appendChild(btn);
-  }
-  if (reportUrl) {
-    const btn = document.createElement('a');
-    btn.href = reportUrl;
-    btn.download = "";
-    btn.innerHTML = '<button class="process-btn">Download Hyperlink Report</button>';
-    resultBtns.appendChild(btn);
-  }
-}
-
-// --- Start new submission ---
-startNewBtn.onclick = function() {
-  window.location.href = "https://app.utmatic.com/source-form.html";
-};
-
-form.onsubmit = async (e) => {
-  e.preventDefault();
-  statusDiv.textContent = "";
-  submitBtn.disabled = true;
-
-  // Prepare FormData
-  const formData = new FormData();
-
-  // File
-  if (form.file.files.length > 0) {
-    formData.append("file", form.file.files[0]);
-  }
-
-  // Job type
-  const jobType = form.job_type.value;
-  formData.append("job_type", jobType);
-
-  // Target formats and base urls (as CSV strings, or you could repeat fields)
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
-    // Collect all row values
-    const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
-    const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
-    let tfValues = [];
-    let buValues = [];
-    for (let i = 0; i < tfInputs.length; i++) {
-      if (tfInputs[i].value.trim() && buInputs[i].value.trim()) {
-        tfValues.push(tfInputs[i].value.trim());
-        buValues.push(buInputs[i].value.trim());
+  document.addEventListener(
+    "click",
+    function outsideClick(e) {
+      if (!docSwitch.contains(e.target)) {
+        docSwitch.classList.remove("open");
+        docList.style.display = "none";
       }
-    }
-    // You may want to join as CSV or send as repeated fields. Here, join as comma-separated.
-    formData.append("target_formats", tfValues.join(","));
-    formData.append("base_url", buValues[0] || "");
+    },
+    { capture: true, once: true }
+  );
+
+  const closeBtn = document.getElementById("pdf-previewer-close");
+  if (closeBtn) {
+    closeBtn.onclick = window.closePdfPreview;
   }
 
-  // UTM params
-  if (jobType !== "add_links_only") {
-    formData.append("utm_source", form.utm_source.value);
-    formData.append("utm_medium", form.utm_medium.value);
-    formData.append("utm_campaign", form.utm_campaign.value);
-    // utm_content is automatic, not user-editable
+  const downloadBtn = document.getElementById("download-final-btn");
+  if (downloadBtn) {
+    downloadBtn.onclick = downloadFinalPdf;
   }
 
-  // Show loader
-  showLoader();
-  mainFormWrapper.style.pointerEvents = "none";
-  try {
-    const resp = await fetch("https://backend-idd.onrender.com/upload/", {
-      method: "POST",
-      body: formData
+  const prevBtn = document.getElementById("pdf-arrow-prev");
+  const nextBtn = document.getElementById("pdf-arrow-next");
+  if (prevBtn) prevBtn.onclick = window.prevPage;
+  if (nextBtn) nextBtn.onclick = window.nextPage;
+
+  const startNewBtn = document.getElementById("pdf-previewer-startnew");
+  if (startNewBtn) startNewBtn.onclick = window.processNew;
+
+  document.getElementById("pdf-preview-page-counter").textContent = "";
+
+  loadDocument(currentDocIndex);
+};
+
+window.closePdfPreview = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  if (pdfCanvas) {
+    const ctx = pdfCanvas.getContext("2d");
+    ctx && ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+  }
+  pdfDocs.forEach(doc => { if (doc._tempUrl) URL.revokeObjectURL(doc._tempUrl); });
+  pdfDocs = [];
+  pdfInstance = null;
+  currentDocIndex = 0;
+  currentPage = 1;
+  totalPages = 1;
+
+  if (window.lastProcessedForms && window.lastProcessedForms.length > 0) {
+    document.getElementById("main-form-wrapper").style.display = "";
+    window.lastProcessedForms.forEach((tab, idx) => {
+      const tabId = `doc-${idx+1}`;
+      let content = document.getElementById(tabId);
+      if (!content) return;
+      let form = content.querySelector("form");
+      if (!form) return;
+      Object.entries(tab.values).forEach(([name, value]) => {
+        let el = form.elements[name];
+        if (!el) return;
+        if (el.type === "checkbox" || el.type === "radio") {
+          el.checked = value;
+        } else {
+          el.value = value;
+        }
+      });
     });
-
-    const res = await resp.json();
-    if (resp.ok && res.job_id) {
-      pollStatus(res.job_id);
-    } else {
-      hideLoader();
-      mainFormWrapper.style.pointerEvents = "";
-      statusDiv.textContent = "Error: " + (res.error || "Unknown error");
-      submitBtn.disabled = false;
-    }
-  } catch (err) {
-    hideLoader();
-    mainFormWrapper.style.pointerEvents = "";
-    statusDiv.textContent = "Network error: " + err;
-    submitBtn.disabled = false;
   }
 };
 
-async function pollStatus(jobId) {
-  async function check() {
+window.processNew = function() {
+  document.getElementById("pdf-preview-modal-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+  window.lastProcessedForms = [];
+  tabContents.innerHTML = "";
+  tabBar.querySelectorAll(".tab[data-tab]").forEach(tab => tab.remove());
+  fileList.innerHTML = "";
+  docCount = 1;
+  createTab();
+  updateAddTabButton();
+  updateTabBarCount();
+  setActiveTab("doc-1");
+  document.getElementById("main-form-wrapper").style.display = "";
+};
+
+window.switchDocument = function(index) {
+  currentDocIndex = parseInt(index);
+  const docSwitch = document.getElementById("pdf-previewer-docswitch");
+  const docNameSpan = docSwitch.querySelector("span");
+  docNameSpan.textContent = getDocName(currentDocIndex);
+  docSwitch.title = getDocName(currentDocIndex);
+  loadDocument(currentDocIndex);
+};
+
+async function loadDocument(index) {
+  const url = pdfDocs[index].url;
+  const loadingTask = pdfjsLib.getDocument(url);
+  pdfInstance = await loadingTask.promise;
+  currentPage = 1;
+  totalPages = pdfInstance.numPages;
+  renderPage();
+}
+
+async function renderPage() {
+  const page = await pdfInstance.getPage(currentPage);
+  const viewport = page.getViewport({ scale: pdfZoomLevel });
+  pdfCanvas = document.getElementById("pdf-canvas");
+  pdfCanvas.height = viewport.height;
+  pdfCanvas.width = viewport.width;
+  pdfCtx = pdfCanvas.getContext("2d");
+  await page.render({ canvasContext: pdfCtx, viewport }).promise;
+  document.getElementById("pdf-preview-page-counter").textContent = `Page ${currentPage} / ${totalPages}`;
+}
+
+window.nextPage = function() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderPage();
+  }
+};
+
+window.prevPage = function() {
+  if (currentPage > 1) {
+    currentPage--;
+    renderPage();
+  }
+};
+
+async function downloadFinalPdf() {
+  const doc = pdfDocs[currentDocIndex];
+  if (!doc) return;
+  if (doc.formData) {
+    const btn = document.getElementById("download-final-btn");
+    btn.disabled = true;
+    btn.textContent = "Downloading...";
+    const API_BASE = "https://utmatic-backend.onrender.com";
     try {
-      const resp = await fetch(`https://backend-idd.onrender.com/job_status/${jobId}`);
-      const res = await resp.json();
-      if ((res.processed_ready || res.report_ready) && (res.processed_url || res.report_url)) {
-        hideLoader();
-        showResultScreen(res.processed_url, res.report_url);
-        submitBtn.disabled = false;
-        mainFormWrapper.style.pointerEvents = "";
+      const res = await fetch(`${API_BASE}/process`, {
+        method: "POST",
+        body: doc.formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert("Download failed: " + errorText);
+        btn.disabled = false;
+        btn.textContent = "Download PDF";
         return;
       }
-    } catch (e) {
-      // Ignore and retry
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Download failed: " + err);
     }
-    setTimeout(check, 4000);
+    btn.disabled = false;
+    btn.textContent = "Download PDF";
+  } else {
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = (doc.name?.replace(/[^\w.-]+/g, '_') || 'document') + '_preview.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
-  check();
 }
