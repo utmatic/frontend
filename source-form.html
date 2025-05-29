@@ -7,6 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
   <style>
+    body {
+      background: #fff; /* White background behind the form */
+    }
     .field-row-wrapper {
       margin-bottom: 1em;
     }
@@ -176,20 +179,22 @@
     #result-screen .process-btn:hover, #result-screen .startnew-btn:hover {
       background: #2537b8;
     }
-    /* --- NEW: Shrink form container with content --- */
+    /* --- Shrink form container with content --- */
     .container {
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 0;
       padding: 2.5em 0;
+      background: #fff; /* White background behind the container */
     }
     .form-container {
       width: 100%;
       max-width: 540px;
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 2px 16px 0 rgba(54,83,248,0.07), 0 0.5px 1.5px rgba(0,0,0,0.06);
+      /* Remove box-shadow */
+      /* box-shadow: 0 2px 16px 0 rgba(54,83,248,0.07), 0 0.5px 1.5px rgba(0,0,0,0.06); */
       padding: 2.6em 2.4em 2.1em 2.4em;
       margin: 0 auto;
       min-height: 0;
@@ -212,10 +217,42 @@
     .form-actions {
       margin-top: 0.8em;
     }
+    /* Center logo and header in form */
+    .form-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2.1em;
+      margin-top: 0;
+    }
+    .form-header img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.55em;
+      display: block;
+    }
+    .form-header-title {
+      font-size: 1.45em;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.01em;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: 1.15;
+      font-family: 'Work Sans', Arial, sans-serif;
+    }
     /* Responsive: shrink padding on mobile */
     @media (max-width: 560px) {
       .form-container {
         padding: 1.7em 0.7em 1.3em 0.7em;
+      }
+      .form-header img {
+        width: 40px;
+        height: 40px;
+      }
+      .form-header-title {
+        font-size: 1.1em;
       }
     }
   </style>
@@ -223,15 +260,14 @@
 <body>
   <div class="page-wrapper" id="main-form-wrapper">
     <div class="main-group">
-      <div class="header-container">
-        <img alt="Utmatic Logo" class="logo" src="https://static1.squarespace.com/static/680bb671dac3025d584cb957/t/6821ece9779432159d432868/1747053801328/logo-utmatic-nobackground.png"/>
-        <div class="header-text">
-          <p>Process your InDesign source files with automatic hyperlinking and UTM tracking.</p>
-        </div>
-      </div>
       <div class="container">
         <div class="form-container">
           <form id="iddForm" enctype="multipart/form-data" autocomplete="off">
+            <!-- Form Logo and Title -->
+            <div class="form-header">
+              <img src="https://images.squarespace-cdn.com/content/v1/680bb671dac3025d584cb957/635bc57a-38c1-43a1-8442-0c28b347d03d/favicon.ico?format=100w" alt="Utmatic Logo Icon" />
+              <h1 class="form-header-title">Source Processor</h1>
+            </div>
             <div class="field-group">
               <label for="file">Upload InDesign File (.indd):</label>
               <div class="custom-file-input-wrapper">
