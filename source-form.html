@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css"/>
   <style>
     body {
-      background: #fff; /* White background behind the form */
+      background: #fff;
     }
     .field-row-wrapper {
       margin-bottom: 1em;
@@ -99,7 +99,6 @@
         gap: 0;
       }
     }
-    /* Loader overlay */
     #loader {
       display: none;
       position: fixed;
@@ -138,7 +137,6 @@
       font-size: 1em;
       text-align: center;
     }
-    /* Download and new submission screen */
     #result-screen {
       display: none;
       flex-direction: column;
@@ -179,22 +177,19 @@
     #result-screen .process-btn:hover, #result-screen .startnew-btn:hover {
       background: #2537b8;
     }
-    /* --- Shrink form container with content --- */
     .container {
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 0;
       padding: 2.5em 0;
-      background: #fff; /* White background behind the container */
+      background: #fff;
     }
     .form-container {
       width: 100%;
       max-width: 540px;
       background: #fff;
       border-radius: 12px;
-      /* Remove box-shadow */
-      /* box-shadow: 0 2px 16px 0 rgba(54,83,248,0.07), 0 0.5px 1.5px rgba(0,0,0,0.06); */
       padding: 2.6em 2.4em 2.1em 2.4em;
       margin: 0 auto;
       min-height: 0;
@@ -203,7 +198,6 @@
       justify-content: flex-start;
       transition: min-height 0.18s, height 0.18s;
     }
-    /* --- Add extra space only below visible fields --- */
     .utm-row,
     #link-fields {
       margin-bottom: 1.25em;
@@ -213,11 +207,9 @@
     #link-fields[style*="display: none"] {
       margin-bottom: 0 !important;
     }
-    /* --- Extra space between last field and process button --- */
     .form-actions {
       margin-top: 0.8em;
     }
-    /* Center logo and header in form */
     .form-header {
       display: flex;
       flex-direction: column;
@@ -242,12 +234,10 @@
       line-height: 1.15;
       font-family: 'Work Sans', Arial, sans-serif;
     }
-    /* UTM Content (automatic) field style */
     #utm_content {
       background-color: #f9f9f9;
       cursor: not-allowed;
     }
-    /* Responsive: shrink padding on mobile */
     @media (max-width: 560px) {
       .form-container {
         padding: 1.7em 0.7em 1.3em 0.7em;
@@ -283,7 +273,6 @@
                 <span class="custom-file-filename" id="file-filename">No file chosen</span>
               </div>
             </div>
-            <!-- Job Type Field -->
             <div class="field-group">
               <label for="job_type">Job Type:</label>
               <select name="job_type" id="job_type" required>
@@ -293,7 +282,6 @@
                 <option value="add_links_with_utm">Add links with UTM</option>
               </select>
             </div>
-            <!-- Target Format & Base URL dynamic rows -->
             <div id="link-fields" class="field-row-wrapper" style="display:none;">
               <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
               <div id="target-base-rows"></div>
@@ -313,6 +301,11 @@
                 <input type="text" name="utm_content" id="utm_content" placeholder="Content (automatic)" readonly>
               </div>
             </div>
+            <!-- Document Name field (required) -->
+            <div class="field-group">
+              <label for="document_name">Document Name (for output):</label>
+              <input type="text" name="document_name" id="document_name" placeholder="e.g. Spring Sale Brochure" required>
+            </div>
             <div class="form-actions">
               <button type="submit" id="submitBtn" class="process-btn" disabled>Process</button>
             </div>
@@ -322,13 +315,11 @@
       </div>
     </div>
   </div>
-  <!-- Loader/Spinner Overlay -->
   <div id="loader">
     <div class="spinner"></div>
     <div class="loader-text">Processing your file...</div>
     <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
   </div>
-  <!-- Result/Download Screen -->
   <div id="result-screen">
     <div class="result-heading">Your processed files are ready!</div>
     <div class="result-btns" id="result-btns"></div>
