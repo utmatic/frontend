@@ -176,6 +176,48 @@
     #result-screen .process-btn:hover, #result-screen .startnew-btn:hover {
       background: #2537b8;
     }
+    /* --- NEW: Shrink form container with content --- */
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 0;
+      padding: 2.5em 0;
+    }
+    .form-container {
+      width: 100%;
+      max-width: 540px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px 0 rgba(54,83,248,0.07), 0 0.5px 1.5px rgba(0,0,0,0.06);
+      padding: 2.6em 2.4em 2.1em 2.4em;
+      margin: 0 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      transition: min-height 0.18s, height 0.18s;
+    }
+    /* --- Add extra space only below visible fields --- */
+    .utm-row,
+    #link-fields {
+      margin-bottom: 1.25em;
+      transition: margin-bottom 0.14s;
+    }
+    .utm-row[style*="display: none"],
+    #link-fields[style*="display: none"] {
+      margin-bottom: 0 !important;
+    }
+    /* --- Extra space between last field and process button --- */
+    .form-actions {
+      margin-top: 0.8em;
+    }
+    /* Responsive: shrink padding on mobile */
+    @media (max-width: 560px) {
+      .form-container {
+        padding: 1.7em 0.7em 1.3em 0.7em;
+      }
+    }
   </style>
 </head>
 <body>
