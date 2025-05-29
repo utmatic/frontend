@@ -169,6 +169,9 @@ function updateFileListStatus(tabId, name, saved, jobType) {
 
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
 function renderFormFields(form, tabId, docName, fileObj) {
+  // --- Sticky file for this tab ---
+  let lastValidFile = fileObj instanceof File ? fileObj : null;
+
   // PDF Upload
   const pdfField = document.createElement("div");
   pdfField.className = "field-group";
@@ -192,16 +195,15 @@ function renderFormFields(form, tabId, docName, fileObj) {
   fileInput.multiple = true;
   const fileNameSpan = document.createElement("span");
   fileNameSpan.className = "custom-file-filename";
-  fileNameSpan.textContent = "No file chosen";
-  if (fileObj instanceof File) {
+  fileNameSpan.textContent = lastValidFile ? lastValidFile.name : "No file chosen";
+  if (lastValidFile) {
     const dt = new DataTransfer();
-    dt.items.add(fileObj);
+    dt.items.add(lastValidFile);
     fileInput.files = dt.files;
-    fileNameSpan.textContent = fileObj.name;
     setTimeout(() => {
       const filenameInput = form.querySelector("input[name='filename']");
       if (filenameInput) {
-        let base = fileObj.name.replace(/\.pdf$/i, "");
+        let base = lastValidFile.name.replace(/\.pdf$/i, "");
         filenameInput.value = base;
         const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
         if (tabLabel) tabLabel.textContent = base;
@@ -212,47 +214,34 @@ function renderFormFields(form, tabId, docName, fileObj) {
     });
   }
 
+  // --- Sticky file change handler ---
   fileInput.addEventListener("change", function() {
-    if (fileInput.files && fileInput.files.length > 0) {
-      const files = Array.from(fileInput.files);
-      if (files.length > 1) {
-        fileInput.files = (function() {
-          let dt = new DataTransfer();
-          dt.items.add(files[0]);
-          return dt.files;
-        })();
-        fileNameSpan.textContent = files[0].name;
-        const filenameInput = form.querySelector("input[name='filename']");
-        if (filenameInput) {
-          let base = files[0].name.replace(/\.pdf$/i, "");
-          filenameInput.value = base;
-          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-          if (tabLabel) tabLabel.textContent = base;
-          let jtSelect = form.querySelector('select[name="job_type"]');
-          let jt = jtSelect ? jtSelect.value : "";
-          updateFileListStatus(tabId, base, false, jt);
-          tabLastSavedState[tabId] = "";
-          form.querySelector('.save-btn').disabled = false;
-        }
-        let slots = MAX_DOCS - getTabCount();
-        for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
-          createTab(files[i]);
-        }
-      } else {
-        fileNameSpan.textContent = files[0].name;
-        const filenameInput = form.querySelector("input[name='filename']");
-        if (filenameInput) {
-          let base = files[0].name.replace(/\.pdf$/i, "");
-          filenameInput.value = base;
-          const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-          if (tabLabel) tabLabel.textContent = base;
-          let jtSelect = form.querySelector('select[name="job_type"]');
-          let jt = jtSelect ? jtSelect.value : "";
-          updateFileListStatus(tabId, base, false, jt);
-          tabLastSavedState[tabId] = "";
-          form.querySelector('.save-btn').disabled = false;
-        }
+    const files = Array.from(fileInput.files);
+    if (files.length > 0) {
+      lastValidFile = files[0];
+      fileNameSpan.textContent = files[0].name;
+      // Update filename and tab label, etc.
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) {
+        let base = files[0].name.replace(/\.pdf$/i, "");
+        filenameInput.value = base;
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        if (tabLabel) tabLabel.textContent = base;
+        let jtSelect = form.querySelector('select[name="job_type"]');
+        let jt = jtSelect ? jtSelect.value : "";
+        updateFileListStatus(tabId, base, false, jt);
+        tabLastSavedState[tabId] = "";
+        form.querySelector('.save-btn').disabled = false;
       }
+      // Handle multi-file (tabs) as before
+      let slots = MAX_DOCS - getTabCount();
+      for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+        createTab(files[i]);
+      }
+    } else if (lastValidFile) {
+      // User canceled dialog, keep previous file name in UI
+      fileNameSpan.textContent = lastValidFile.name;
+      // No need to update fileInput.files: browsers block setting it programmatically
     } else {
       fileNameSpan.textContent = "No file chosen";
     }
@@ -461,7 +450,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
       if (
         !input.closest(".hidden") &&
         input.required &&
-        ((input.type === "file" && input.files.length === 0) ||
+        ((input.type === "file" && !lastValidFile) ||
          (input.type !== "file" && !input.value.trim()))
       ) {
         valid = false;
@@ -527,6 +516,9 @@ function renderFormFields(form, tabId, docName, fileObj) {
 
   updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
   checkDirtyAndUpdateSaveBtn();
+
+  // --- INTERCEPT FormData for preview/process to use lastValidFile if needed ---
+  form.getLastValidFile = () => lastValidFile;
 }
 
 function createTab(fileObj) {
@@ -635,7 +627,13 @@ processBtn.addEventListener("click", async function() {
   const API_BASE = "https://utmatic-backend.onrender.com";
   for (let i = 0; i < tabData.length; ++i) {
     const { form, tabId } = tabData[i];
-    const formData = new FormData(form);
+    let formData = new FormData(form);
+    // --- Patch FormData to use sticky file if file input is empty but we have a lastValidFile ---
+    const fileInput = form.querySelector('input[type="file"][name="file"]');
+    const lastValidFile = form.getLastValidFile ? form.getLastValidFile() : null;
+    if (fileInput && (!fileInput.files || fileInput.files.length === 0) && lastValidFile) {
+      formData.set('file', lastValidFile);
+    }
     if (formData.has("underline")) formData.set("underline", form.querySelector('input[name="underline"]').checked ? "true" : "false");
     try {
       const res = await fetch(`${API_BASE}/preview`, {
