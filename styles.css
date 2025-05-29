@@ -1,3 +1,8 @@
+/* Hide the caret everywhere except real form fields */
+body :not(input):not(textarea):not(select) {
+  caret-color: transparent !important;
+}
+
 .delete-row-btn, .delete-row-placeholder {
   background: none;
   border: none;
