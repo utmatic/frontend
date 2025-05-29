@@ -189,12 +189,6 @@ function validateForm() {
     }
   }
 
-  // Document Name field
-  const documentNameInput = document.getElementById('document_name');
-  if (documentNameInput && !documentNameInput.value.trim()) {
-    isValid = false;
-  }
-
   submitBtn.disabled = !isValid;
   submitBtn.style.opacity = isValid ? "1" : "0.65";
   submitBtn.style.cursor = isValid ? "pointer" : "not-allowed";
