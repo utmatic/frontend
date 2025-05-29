@@ -5,7 +5,7 @@ const loader = document.getElementById('loader');
 const mainFormWrapper = document.getElementById('main-form-wrapper');
 const resultScreen = document.getElementById('result-screen');
 const resultBtns = document.getElementById('result-btns');
-const startNewBtn = document.getElementById('start-new-btn');
+const startNewLink = document.getElementById('start-new-link');
 
 // --- Dynamic Target Format & Base URL Rows ---
 const linkFields = document.getElementById('link-fields');
@@ -235,10 +235,13 @@ function showResultScreen(processedUrl, reportUrl) {
   }
 }
 
-// --- Start new submission ---
-startNewBtn.onclick = function() {
-  window.location.href = "https://app.utmatic.com/source-form.html";
-};
+// --- Start new submission as polished link ---
+if (startNewLink) {
+  startNewLink.onclick = function(e) {
+    e.preventDefault();
+    window.location.href = "https://app.utmatic.com/source-form.html";
+  };
+}
 
 form.onsubmit = async (e) => {
   e.preventDefault();
