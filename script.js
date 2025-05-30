@@ -348,13 +348,22 @@ function renderFormFields(form, tabId, docName, fileObj) {
     updateAddNewRowBtn();
   });
 
-  // --- UTM Parameters group ---
-  const utmLabel = document.createElement("span");
-  utmLabel.className = "utm-label";
-  utmLabel.textContent = "UTM Parameters";
-  form.appendChild(utmLabel);
-  const utmRow = document.createElement("div");
-  utmRow.className = "utm-row";
+// --- UTM Parameters group ---
+const utmGroup = document.createElement("div");
+utmGroup.className = "utm-group"; // Add this as a wrapper
+utmGroup.id = "utm-group";        // Add an id for easy selection/hiding
+
+const utmLabel = document.createElement("span");
+utmLabel.className = "utm-label";
+utmLabel.textContent = "UTM Parameters";
+utmGroup.appendChild(utmLabel);
+
+const utmRow = document.createElement("div");
+utmRow.className = "utm-row";
+// ... your input creation code as before ...
+utmGroup.appendChild(utmRow);
+
+form.appendChild(utmGroup);
   [
     { id: "source", placeholder: "Source", required: true },
     { id: "medium", placeholder: "Medium", required: true },
@@ -466,13 +475,22 @@ function renderFormFields(form, tabId, docName, fileObj) {
 
   // Job type select: update file list with correct icon
 jobTypeSelect.addEventListener("change", function() {
-  // Show Target Format/Base URL and Underline for both "links_and_utm" and "add_links_only"
   const needsFormats = jobTypeSelect.value === "links_and_utm" || jobTypeSelect.value === "add_links_only";
   targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
   underlineWrapper.classList.toggle("hidden", !needsFormats);
   targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
     input.required = needsFormats;
   });
+
+  // Hide UTM fields (label + inputs) for "add_links_only"
+  const utmGroup = form.querySelector("#utm-group");
+  if (utmGroup) {
+    utmGroup.classList.toggle("hidden", jobTypeSelect.value === "add_links_only");
+    utmGroup.querySelectorAll("input").forEach(input => {
+      input.required = !(jobTypeSelect.value === "add_links_only");
+    });
+  }
+  
   underlineInput.required = false;
   const filenameInput = form.querySelector("input[name='filename']");
   updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
