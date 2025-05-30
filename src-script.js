@@ -12,25 +12,34 @@ const MAX_ROWS = 5;
 
 // --- UTM Parameters Section ---
 const utmSection = document.getElementById('utm-section');
-const utmLabel = document.getElementById('utm-label');
-const utmRow = document.getElementById('utm-row');
 const utmSource = document.getElementById('utm_source');
 const utmMedium = document.getElementById('utm_medium');
 const utmCampaign = document.getElementById('utm_campaign');
 
 let lastValidFile = null;
 
-document.getElementById('file').addEventListener('change', function() {
+// Improved file input handler
+const fileInput = document.getElementById('file');
+fileInput.addEventListener('change', function() {
   const span = document.getElementById('file-filename');
   if (this.files && this.files.length > 0) {
     lastValidFile = this.files[0];
     span.textContent = lastValidFile.name;
-  } else if (lastValidFile) {
-    span.textContent = lastValidFile.name;
   } else {
+    // File removed or cleared
+    lastValidFile = null;
     span.textContent = "No file chosen";
   }
   validateForm();
+});
+
+// Defensive: If user clicks submit with no file, block submission even if UI state is weird
+form.addEventListener('submit', function(e) {
+  if (!lastValidFile) {
+    e.preventDefault();
+    statusDiv.textContent = "Please select a file to upload.";
+    return false;
+  }
 });
 
 function createRow(tfValue = '', buValue = '') {
@@ -200,6 +209,17 @@ function hideLoader() {
   loader.classList.remove('active');
 }
 
+function resetForm() {
+  form.reset();
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  rowsContainer.innerHTML = '';
+  if (utmSection) utmSection.style.display = "none";
+  statusDiv.textContent = "";
+  validateForm();
+}
+
 function showResultScreen(processedUrl, reportUrl) {
   mainFormWrapper.style.display = 'none';
   resultScreen.style.display = 'flex';
@@ -249,6 +269,7 @@ function showResultScreen(processedUrl, reportUrl) {
   if (startNewLink) {
     startNewLink.onclick = function(e) {
       e.preventDefault();
+      resetForm();
       window.location.href = "https://app.utmatic.com/source-form.html";
     };
   }
@@ -337,6 +358,9 @@ async function pollStatus(fileName) {
 window.addEventListener('DOMContentLoaded', () => {
   // --- Always hide UTM section on load ---
   if (utmSection) utmSection.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
   bindValidationListeners();
   updateJobTypeFields();
   validateForm();
