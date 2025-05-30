@@ -1167,7 +1167,7 @@ input::placeholder {
   stroke-width: 2.3;
 }
 
-/* Updated DOCSWITCH and CARET for true centered name */
+/* Updated DOCSWITCH and CARET for true centered name using flex layout and caret hiding */
 #pdf-previewer-docswitch {
   position: relative;
   width: 100%;
@@ -1183,34 +1183,34 @@ input::placeholder {
   align-items: center;
   justify-content: center;
   transition: color 0.14s;
+  gap: 0.33em;
 }
 #pdf-previewer-docswitch:hover {
   color: var(--previewer-accent);
 }
-/* Center the document name absolutely */
 #previewer-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+  flex: 0 1 auto;
+  text-align: center;
   white-space: nowrap;
-  pointer-events: none;
-  z-index: 1;
+  width: auto;
 }
-/* Position the caret visually to the right of the centered name */
 #pdf-previewer-docswitch .caret {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-left: calc(100% + 0.13em);
   width: 1.32em;
   height: 1.32em;
+  margin-left: 0.13em;
   stroke: #1a1a1a;
   transition: stroke 0.18s, transform 0.19s;
-  z-index: 2;
+  flex: 0 0 auto;
+  display: block;
 }
 #pdf-previewer-docswitch.open .caret {
-  transform: translateX(-50%) rotate(-180deg);
+  transform: rotate(-180deg);
   stroke: var(--previewer-accent);
+}
+#pdf-previewer-docswitch.single-doc .caret {
+  display: none;
 }
 #pdf-previewer-doclist {
   display: none;
@@ -1297,6 +1297,8 @@ input::placeholder {
   }
   #pdf-previewer-docswitch {
     font-size: 1.09rem;
+  }
+}
   }
   #pdf-arrow-prev, #pdf-arrow-next {
     left: -6px;
