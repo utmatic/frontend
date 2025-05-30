@@ -4,6 +4,10 @@
     .field-row-wrapper {
       margin-bottom: 1em;
     }
+    .form-header-logo svg {
+  margin-bottom: 0.9em;
+  display: block;
+    }
     .add-new-row-btn {
       background: none;
       border: none;
