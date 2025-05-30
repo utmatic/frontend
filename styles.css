@@ -327,6 +327,17 @@
       }
     }
 
+/* Prevent caret/focus ring on everything except real fields */
+body *:not(input):not(textarea):not(select):not(button):not([tabindex="-1"]) {
+  outline: none !important;
+  user-select: none;
+}
+
+/* Only allow pointer events on real fields and buttons */
+body *:not(input):not(textarea):not(select):not(button) {
+  pointer-events: auto;
+}
+
 /* Remove accidental focus from containers */
 .form-container, .field-group, .container, .form-header {
   outline: none !important;
