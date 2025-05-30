@@ -1102,8 +1102,7 @@ input::placeholder {
   position: relative;
   background: var(--previewer-bg);
   border: 2.5px solid var(--previewer-border);
-  box-shadow: 0 10px 56px 0 rgba(37,99,235,.16), 0 4px 24px 0 rgba(80,80,80,0.13);
-  border-radius: 28px;
+  border-radius: 12px;
   padding: 2.7rem 3.2rem 2.4rem 3.2rem;
   width: 99vw;
   max-width: 1060px;
@@ -1132,7 +1131,6 @@ input::placeholder {
   background: rgba(255,255,255,0.91);
   border: none;
   border-radius: 50%;
-  box-shadow: 0 2px 12px #b6c5f444;
   display: flex;
   align-items: center;
   justify-content: center;
