@@ -481,18 +481,19 @@ function renderFormFields(form, tabId, docName, fileObj) {
   });
 
   // Job type select: update file list with correct icon
-  jobTypeSelect.addEventListener("change", function() {
-    const show = jobTypeSelect.value === "links_and_utm";
-    targetBaseRowsWrapper.classList.toggle("hidden", !show);
-    underlineWrapper.classList.toggle("hidden", !show);
-    targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
-      input.required = show;
-    });
-    underlineInput.required = false;
-    const filenameInput = form.querySelector("input[name='filename']");
-    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-    checkDirtyAndUpdateSaveBtn();
+jobTypeSelect.addEventListener("change", function() {
+  // Show Target Format/Base URL and Underline for both "links_and_utm" and "add_links_only"
+  const needsFormats = jobTypeSelect.value === "links_and_utm" || jobTypeSelect.value === "add_links_only";
+  targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
+  underlineWrapper.classList.toggle("hidden", !needsFormats);
+  targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+    input.required = needsFormats;
   });
+  underlineInput.required = false;
+  const filenameInput = form.querySelector("input[name='filename']");
+  updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+  checkDirtyAndUpdateSaveBtn();
+});
 
   // When filename is changed, update tab label and file list (don't mark as saved)
   filenameInput.addEventListener("input", () => {
