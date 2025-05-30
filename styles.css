@@ -133,10 +133,11 @@
   min-height: 100vh;
   width: 100vw;
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #f6f9fe 0%, #f0f4fb 100%);
+  background: none;
   z-index: 999;
   box-shadow: 0 0px 0px rgba(0,0,0,0.01);
 }
@@ -144,8 +145,8 @@
 #result-screen .result-content {
   background: #fff;
   padding: 2.7em 2.6em 2.1em 2.6em;
-  border-radius: 12px;
-  box-shadow: 0 2px 28px 0 rgba(54,83,248,0.14), 0 1.5px 6px 0 rgba(54,83,248,0.08);
+  border-radius: 8px;
+  border: 1.5px solid var(--gray-200);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -186,19 +187,16 @@
 .result-report-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.37em;
+  gap: 0.3em;
   color: #2563eb;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font-size: 1em;
-  font-family: inherit;
+  font-size: 1.08em;
   font-weight: 500;
-  cursor: pointer;
   text-decoration: none;
-  transition: color 0.15s, background 0.13s;
+  cursor: pointer;
+  transition: color 0.13s, background 0.13s;
   border-radius: 4px;
+  padding: 0.16em 0.45em;
+  background: none;
 }
 
 .result-report-link svg {
