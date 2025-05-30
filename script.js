@@ -143,7 +143,7 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
       <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
     </svg>`;
-    item.insertBefore(checkSvg, jobIcons.nextSibling);
+    item.insertBefore(checkSvg, nameSpan);
   } else {
     item.className = "";
   }
