@@ -1197,13 +1197,16 @@ input::placeholder {
   width: auto;
 }
 #pdf-previewer-docswitch .caret {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%);
+  margin-left: 3.6em;  /* adjust this until the caret is just to the right of the text */
   width: 1.32em;
   height: 1.32em;
-  margin-left: 0.13em;
   stroke: #1a1a1a;
   transition: stroke 0.18s, transform 0.19s;
-  flex: 0 0 auto;
-  display: block;
+  z-index: 3;
 }
 #pdf-previewer-docswitch.open .caret {
   transform: rotate(-180deg);
