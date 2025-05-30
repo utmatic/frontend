@@ -123,31 +123,32 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-  let existingCheck = item.querySelector(".checkmark");
-  if (existingCheck) existingCheck.remove();
-  let nameSpan = item.querySelector('.file-list-name');
-  if (!nameSpan) {
-    nameSpan = document.createElement('span');
-    nameSpan.className = 'file-list-name';
-    item.appendChild(nameSpan);
-  }
-  nameSpan.textContent = name || "Untitled Document";
-  // Make sure nameSpan is after jobIcons (for ellipsis to work)
-  if (nameSpan.previousSibling !== jobIcons) {
-    item.insertBefore(nameSpan, null);
-  }
-  if (saved) {
-    item.className = "saved";
-    const checkSvg = document.createElement('span');
-    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-    </svg>`;
-    item.insertBefore(checkSvg, nameSpan);
-  } else {
-    item.className = "";
-  }
-  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+let existingCheck = item.querySelector(".checkmark");
+if (existingCheck) existingCheck.remove();
+let nameSpan = item.querySelector('.file-list-name');
+if (!nameSpan) {
+  nameSpan = document.createElement('span');
+  nameSpan.className = 'file-list-name';
+  item.appendChild(nameSpan);
+}
+nameSpan.textContent = name || "Untitled Document";
+// No more jobIcons: just ensure nameSpan is in the item
+if (nameSpan.parentNode !== item) {
+  item.appendChild(nameSpan);
+}
+if (saved) {
+  item.className = "saved";
+  const checkSvg = document.createElement('span');
+  checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+  </svg>`;
+  // Insert checkmark before (to the left of) the document name
+  item.insertBefore(checkSvg, nameSpan);
+} else {
+  item.className = "";
+}
+processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
