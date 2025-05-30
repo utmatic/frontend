@@ -287,8 +287,8 @@ form.onsubmit = async (e) => {
     });
 
     const res = await resp.json();
-    if (resp.ok && res.job_id) {
-      pollStatus(res.job_id);
+    if (resp.ok && res.file_name) {
+      pollStatus(res.file_name);
     } else {
       hideLoader();
       mainFormWrapper.style.pointerEvents = "";
@@ -303,10 +303,10 @@ form.onsubmit = async (e) => {
   }
 };
 
-async function pollStatus(jobId) {
+async function pollStatus(fileName) {
   async function check() {
     try {
-      const resp = await fetch(`https://backend-idd.onrender.com/job_status/${jobId}`);
+      const resp = await fetch(`https://backend-idd.onrender.com/job_status/${fileName}`);
       const res = await resp.json();
       if ((res.processed_ready || res.report_ready) && (res.processed_url || res.report_url)) {
         hideLoader();
