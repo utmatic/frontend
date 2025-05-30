@@ -1128,7 +1128,7 @@ input::placeholder {
   right: 22px;
   width: 38px;
   height: 38px;
-  background: rgba(255,255,255,0.91);
+  background: none;
   border: none;
   border-radius: 50%;
   display: flex;
