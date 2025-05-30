@@ -250,7 +250,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeSelect.id = "job_type";
   jobTypeSelect.required = true;
   [
-    { value: "", label: "Select one", icon: "" },
+    { value: "", label: "Select one", icon: "", disabled: true, selected: true },
     { value: "utm_only", label: "Add UTM only" },
     { value: "add_links_only", label: "Add links only" },
     { value: "links_and_utm", label: "Add links with UTM" }
@@ -258,6 +258,8 @@ function renderFormFields(form, tabId, docName, fileObj) {
     const option = document.createElement("option");
     option.value = opt.value;
     option.textContent = opt.label;
+    if (opt.disabled) option.disabled = true;
+    if (opt.selected) option.selected = true;
     jobTypeSelect.appendChild(option);
   });
   jobTypeField.appendChild(jobTypeLabel);
