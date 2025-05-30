@@ -11,7 +11,7 @@ const addRowBtn = document.getElementById('add-row-btn');
 const MAX_ROWS = 5;
 
 // --- UTM Parameters Section ---
-const utmSection = document.getElementById('utm-section'); // NEW: wrapper for UTM label + fields
+const utmSection = document.getElementById('utm-section');
 const utmLabel = document.getElementById('utm-label');
 const utmRow = document.getElementById('utm-row');
 const utmSource = document.getElementById('utm_source');
@@ -132,14 +132,14 @@ addRowBtn.onclick = function() {
 function updateJobTypeFields() {
   const jobType = document.getElementById('job_type').value;
   // Show link fields for jobs that need them:
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") {
+  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
     showLinkFields(true);
   } else {
     showLinkFields(false);
     rowsContainer.innerHTML = '';
   }
   // Show UTM only for jobs that include it
-  if (jobType === "add_links_with_utm" || jobType === "links_and_utm" || jobType === "utm_only") {
+  if (jobType === "add_links_with_utm" || jobType === "add_utm") {
     showUtmFields(true);
   } else {
     showUtmFields(false);
@@ -160,7 +160,7 @@ function validateForm() {
   const jobType = document.getElementById('job_type').value;
   if (!jobType) isValid = false;
 
-  if ((jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") && linkFields.style.display !== 'none') {
+  if ((jobType === "add_links_only" || jobType === "add_links_with_utm") && linkFields.style.display !== 'none') {
     const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
     const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
     if (tfInputs.length === 0 || buInputs.length === 0) isValid = false;
@@ -268,7 +268,7 @@ form.onsubmit = async (e) => {
   const jobType = form.job_type.value;
   formData.append("job_type", jobType);
 
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") {
+  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
     const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
     const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
     let tfValues = [];
