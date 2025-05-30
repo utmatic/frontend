@@ -437,20 +437,24 @@ form.appendChild(utmGroup);
     let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
     saveBtn.disabled = !formIsValid(form) || !dirty;
   }
-  function formIsValid(form) {
-    let valid = true;
-    form.querySelectorAll("input, select").forEach(input => {
-      if (
-        !input.closest(".hidden") &&
-        input.required &&
-        ((input.type === "file" && !lastValidFile) ||
-         (input.type !== "file" && !input.value.trim()))
-      ) {
-        valid = false;
-      }
-    });
-    return valid;
-  }
+function formIsValid(form) {
+  let valid = true;
+  form.querySelectorAll("input, select").forEach(input => {
+    // Only validate if the input is required and visible (not in a .hidden ancestor)
+    if (
+      input.required && 
+      !input.closest(".hidden") &&
+      !input.disabled &&
+      (
+        (input.type === "file" && !lastValidFile) ||
+        (input.type !== "file" && !input.value.trim())
+      )
+    ) {
+      valid = false;
+    }
+  });
+  return valid;
+}
   // Validate and update save button whenever form changes
   form.addEventListener("input", function() {
     checkDirtyAndUpdateSaveBtn();
