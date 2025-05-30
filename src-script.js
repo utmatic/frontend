@@ -10,6 +10,14 @@ const rowsContainer = document.getElementById('target-base-rows');
 const addRowBtn = document.getElementById('add-row-btn');
 const MAX_ROWS = 5;
 
+// --- UTM Parameters Section ---
+const utmSection = document.getElementById('utm-section'); // NEW: wrapper for UTM label + fields
+const utmLabel = document.getElementById('utm-label');
+const utmRow = document.getElementById('utm-row');
+const utmSource = document.getElementById('utm_source');
+const utmMedium = document.getElementById('utm_medium');
+const utmCampaign = document.getElementById('utm_campaign');
+
 let lastValidFile = null;
 
 document.getElementById('file').addEventListener('change', function() {
@@ -102,6 +110,17 @@ function showLinkFields(show) {
   validateForm();
 }
 
+// --- UTM show/hide utility for form shrink/grow ---
+function showUtmFields(show) {
+  if (!utmSection) return;
+  utmSection.style.display = show ? "block" : "none";
+  // Required attributes
+  if (utmSource) utmSource.required = show;
+  if (utmMedium) utmMedium.required = show;
+  if (utmCampaign) utmCampaign.required = show;
+  validateForm();
+}
+
 addRowBtn.onclick = function() {
   if (rowsContainer.childElementCount < MAX_ROWS) {
     rowsContainer.appendChild(createRow());
@@ -112,26 +131,21 @@ addRowBtn.onclick = function() {
 
 function updateJobTypeFields() {
   const jobType = document.getElementById('job_type').value;
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
+  // Show link fields for jobs that need them:
+  if (jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") {
     showLinkFields(true);
   } else {
     showLinkFields(false);
     rowsContainer.innerHTML = '';
   }
-  const utmRow = document.getElementById('utm-row');
-  const utmLabel = document.getElementById('utm-label');
-  if (jobType === "add_links_only") {
-    utmRow.style.display = "none";
-    utmLabel.style.display = "none";
-    document.getElementById('utm_source').required = false;
-    document.getElementById('utm_medium').required = false;
-    document.getElementById('utm_campaign').required = false;
+  // Show UTM only for jobs that include it
+  if (jobType === "add_links_with_utm" || jobType === "links_and_utm" || jobType === "utm_only") {
+    showUtmFields(true);
   } else {
-    utmRow.style.display = "";
-    utmLabel.style.display = "";
-    document.getElementById('utm_source').required = true;
-    document.getElementById('utm_medium').required = true;
-    document.getElementById('utm_campaign').required = true;
+    showUtmFields(false);
+    if (utmSource) utmSource.value = '';
+    if (utmMedium) utmMedium.value = '';
+    if (utmCampaign) utmCampaign.value = '';
   }
   validateForm();
 }
@@ -146,7 +160,7 @@ function validateForm() {
   const jobType = document.getElementById('job_type').value;
   if (!jobType) isValid = false;
 
-  if ((jobType === "add_links_only" || jobType === "add_links_with_utm") && linkFields.style.display !== 'none') {
+  if ((jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") && linkFields.style.display !== 'none') {
     const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
     const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
     if (tfInputs.length === 0 || buInputs.length === 0) isValid = false;
@@ -158,11 +172,8 @@ function validateForm() {
     }
   }
 
-  const utmRow = document.getElementById('utm-row');
-  if (utmRow && utmRow.style.display !== 'none' && (jobType !== "add_links_only")) {
-    const utmSource = document.getElementById('utm_source');
-    const utmMedium = document.getElementById('utm_medium');
-    const utmCampaign = document.getElementById('utm_campaign');
+  // Only validate UTM fields if UTM section is visible
+  if (utmSection && utmSection.style.display !== 'none') {
     if (!utmSource.value.trim() || !utmMedium.value.trim() || !utmCampaign.value.trim()) {
       isValid = false;
     }
@@ -257,7 +268,7 @@ form.onsubmit = async (e) => {
   const jobType = form.job_type.value;
   formData.append("job_type", jobType);
 
-  if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
+  if (jobType === "add_links_only" || jobType === "add_links_with_utm" || jobType === "links_and_utm") {
     const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
     const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
     let tfValues = [];
@@ -272,7 +283,8 @@ form.onsubmit = async (e) => {
     formData.append("base_url", buValues[0] || "");
   }
 
-  if (jobType !== "add_links_only") {
+  // Only submit UTM fields if visible
+  if (utmSection && utmSection.style.display !== 'none') {
     formData.append("utm_source", form.utm_source.value);
     formData.append("utm_medium", form.utm_medium.value);
     formData.append("utm_campaign", form.utm_campaign.value);
@@ -323,6 +335,8 @@ async function pollStatus(fileName) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // --- Always hide UTM section on load ---
+  if (utmSection) utmSection.style.display = "none";
   bindValidationListeners();
   updateJobTypeFields();
   validateForm();
