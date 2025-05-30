@@ -389,7 +389,7 @@ form.appendChild(utmGroup);
   utmContentInput.style.backgroundColor = "#f9f9f9";
   utmContentInput.style.cursor = "not-allowed";
   utmContentGroup.appendChild(utmContentInput);
-  form.appendChild(utmContentGroup);
+  utmGroup.appendChild(utmContentGroup);
   const filenameGroup = document.createElement("div");
   filenameGroup.className = "field-group";
   const filenameLabel = document.createElement("label");
