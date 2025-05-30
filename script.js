@@ -393,6 +393,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   utmGroup.appendChild(utmContentGroup);
 
   form.appendChild(utmGroup);
+  utmGroup.classList.add('hidden'); // or utmGroup.style.display = "none";
 
   const filenameGroup = document.createElement("div");
   filenameGroup.className = "field-group";
