@@ -123,32 +123,32 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-let existingCheck = item.querySelector(".checkmark");
-if (existingCheck) existingCheck.remove();
-let nameSpan = item.querySelector('.file-list-name');
-if (!nameSpan) {
-  nameSpan = document.createElement('span');
-  nameSpan.className = 'file-list-name';
-  item.appendChild(nameSpan);
-}
-nameSpan.textContent = name || "Untitled Document";
-// No more jobIcons: just ensure nameSpan is in the item
-if (nameSpan.parentNode !== item) {
-  item.appendChild(nameSpan);
-}
-if (saved) {
-  item.className = "saved";
-  const checkSvg = document.createElement('span');
-  checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-  </svg>`;
-  // Insert checkmark before (to the left of) the document name
-  item.insertBefore(checkSvg, nameSpan);
-} else {
-  item.className = "";
-}
-processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+  let existingCheck = item.querySelector(".checkmark");
+  if (existingCheck) existingCheck.remove();
+  let nameSpan = item.querySelector('.file-list-name');
+  if (!nameSpan) {
+    nameSpan = document.createElement('span');
+    nameSpan.className = 'file-list-name';
+    item.appendChild(nameSpan);
+  }
+  nameSpan.textContent = name || "Untitled Document";
+  // No more jobIcons: just ensure nameSpan is in the item
+  if (nameSpan.parentNode !== item) {
+    item.appendChild(nameSpan);
+  }
+  if (saved) {
+    item.className = "saved";
+    const checkSvg = document.createElement('span');
+    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+    </svg>`;
+    // Insert checkmark before (to the left of) the document name
+    item.insertBefore(checkSvg, nameSpan);
+  } else {
+    item.className = "";
+  }
+  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
@@ -348,22 +348,20 @@ function renderFormFields(form, tabId, docName, fileObj) {
     updateAddNewRowBtn();
   });
 
-// --- UTM Parameters group ---
-const utmGroup = document.createElement("div");
-utmGroup.className = "utm-group"; // Add this as a wrapper
-utmGroup.id = "utm-group";        // Add an id for easy selection/hiding
+  // --- UTM Parameters group ---
+  const utmGroup = document.createElement("div");
+  utmGroup.className = "utm-group"; // Add this as a wrapper
+  utmGroup.id = "utm-group";        // Add an id for easy selection/hiding
 
-const utmLabel = document.createElement("span");
-utmLabel.className = "utm-label";
-utmLabel.textContent = "UTM Parameters";
-utmGroup.appendChild(utmLabel);
+  const utmLabel = document.createElement("span");
+  utmLabel.className = "utm-label";
+  utmLabel.textContent = "UTM Parameters";
+  utmGroup.appendChild(utmLabel);
 
-const utmRow = document.createElement("div");
-utmRow.className = "utm-row";
-// ... your input creation code as before ...
-utmGroup.appendChild(utmRow);
+  const utmRow = document.createElement("div");
+  utmRow.className = "utm-row";
+  utmGroup.appendChild(utmRow);
 
-form.appendChild(utmGroup);
   [
     { id: "source", placeholder: "Source", required: true },
     { id: "medium", placeholder: "Medium", required: true },
@@ -390,6 +388,9 @@ form.appendChild(utmGroup);
   utmContentInput.style.cursor = "not-allowed";
   utmContentGroup.appendChild(utmContentInput);
   utmGroup.appendChild(utmContentGroup);
+
+  form.appendChild(utmGroup);
+
   const filenameGroup = document.createElement("div");
   filenameGroup.className = "field-group";
   const filenameLabel = document.createElement("label");
@@ -437,24 +438,24 @@ form.appendChild(utmGroup);
     let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
     saveBtn.disabled = !formIsValid(form) || !dirty;
   }
-function formIsValid(form) {
-  let valid = true;
-  form.querySelectorAll("input, select").forEach(input => {
-    // Only validate if the input is required and visible (not in a .hidden ancestor)
-    if (
-      input.required && 
-      !input.closest(".hidden") &&
-      !input.disabled &&
-      (
-        (input.type === "file" && !lastValidFile) ||
-        (input.type !== "file" && !input.value.trim())
-      )
-    ) {
-      valid = false;
-    }
-  });
-  return valid;
-}
+  function formIsValid(form) {
+    let valid = true;
+    form.querySelectorAll("input, select").forEach(input => {
+      // Only validate if the input is required and visible (not in a .hidden ancestor)
+      if (
+        input.required && 
+        !input.closest(".hidden") &&
+        !input.disabled &&
+        (
+          (input.type === "file" && !lastValidFile) ||
+          (input.type !== "file" && !input.value.trim())
+        )
+      ) {
+        valid = false;
+      }
+    });
+    return valid;
+  }
   // Validate and update save button whenever form changes
   form.addEventListener("input", function() {
     checkDirtyAndUpdateSaveBtn();
@@ -477,28 +478,34 @@ function formIsValid(form) {
   });
 
   // Job type select: update file list with correct icon
-jobTypeSelect.addEventListener("change", function() {
-  const needsFormats = jobTypeSelect.value === "links_and_utm" || jobTypeSelect.value === "add_links_only";
-  targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
-  underlineWrapper.classList.toggle("hidden", !needsFormats);
-  targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
-    input.required = needsFormats;
-  });
+  jobTypeSelect.addEventListener("change", function() {
+    const jobType = jobTypeSelect.value;
+    const needsFormats = jobType === "links_and_utm" || jobType === "add_links_only";
+    const needsUtm = jobType === "utm_only" || jobType === "links_and_utm";
 
-  // Hide UTM fields (label + inputs) for "add_links_only"
-  const utmGroup = form.querySelector("#utm-group");
-  if (utmGroup) {
-    utmGroup.classList.toggle("hidden", jobTypeSelect.value === "add_links_only");
-    utmGroup.querySelectorAll("input").forEach(input => {
-      input.required = !(jobTypeSelect.value === "add_links_only");
+    // Toggle rows and underline
+    targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
+    underlineWrapper.classList.toggle("hidden", !needsFormats);
+
+    // Set required for target/base
+    targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+      input.required = needsFormats;
     });
-  }
-  
-  underlineInput.required = false;
-  const filenameInput = form.querySelector("input[name='filename']");
-  updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-  checkDirtyAndUpdateSaveBtn();
-});
+
+    // Toggle UTM group and set required for UTM
+    const utmGroup = form.querySelector("#utm-group");
+    if (utmGroup) {
+      utmGroup.classList.toggle("hidden", !needsUtm);
+      utmGroup.querySelectorAll("input").forEach(input => {
+        input.required = needsUtm && input.name !== "utm_content"; // utm_content is always readonly
+      });
+    }
+
+    underlineInput.required = false;
+    const filenameInput = form.querySelector("input[name='filename']");
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+    checkDirtyAndUpdateSaveBtn();
+  });
 
   // When filename is changed, update tab label and file list (don't mark as saved)
   filenameInput.addEventListener("input", () => {
