@@ -432,15 +432,14 @@ form.appendChild(utmGroup);
   // --- Save/Dirty logic ---
   tabLastSavedState[tabId] = "";
 
-  function checkDirtyAndUpdateSaveBtn() {
-    let current = formToHash(form);
-    let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
-    saveBtn.disabled = !formIsValid(form) || !dirty;
-  }
-function formIsValid(form) {
+function checkDirtyAndUpdateSaveBtn() {
+  let current = formToHash(form);
+  let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+  saveBtn.disabled = !formIsValid(form, lastValidFile) || !dirty;
+}
+function formIsValid(form, lastValidFile) {
   let valid = true;
   form.querySelectorAll("input, select").forEach(input => {
-    // Only validate if the input is required and visible (not in a .hidden ancestor)
     if (
       input.required && 
       !input.closest(".hidden") &&
