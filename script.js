@@ -1,3 +1,5 @@
+// main.js
+
 // Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
 window.pdfjsViewer =
   window.pdfjsViewer ||
@@ -34,18 +36,19 @@ let tabLastSavedState = {};
 
 // PDF Previewer Zoom Button Listeners
 window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("zoom-in-btn")?.addEventListener("click", () => {
+  document.getElementById("zoom-in-btn").addEventListener("click", () => {
     if (pdfZoomLevel < pdfZoomMax) {
       pdfZoomLevel = Math.min(pdfZoomLevel + pdfZoomStep, pdfZoomMax);
       renderPage();
     }
   });
-  document.getElementById("zoom-out-btn")?.addEventListener("click", () => {
+  document.getElementById("zoom-out-btn").addEventListener("click", () => {
     if (pdfZoomLevel > pdfZoomMin) {
       pdfZoomLevel = Math.max(pdfZoomLevel - pdfZoomStep, pdfZoomMin);
       renderPage();
     }
   });
+  // No need to call updateZoomDisplay() anymore
 });
 
 function showSpinner() { 
@@ -95,6 +98,7 @@ function setActiveTab(tabId) {
 
 // Helper to build a unique hash of form data (for Save/Dirty logic)
 function formToHash(form) {
+  // Custom serialization: input type, name, value, checked, selectedIndex, file name if any
   let arr = [];
   Array.from(form.elements).forEach(el => {
     if (el.name && !el.disabled && !el.closest('.hidden')) {
@@ -119,34 +123,37 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-  // Remove job icons completely (no SVGs)
-  let jobIcons = item.querySelector('.job-icons');
-  if (jobIcons) jobIcons.remove();
-  let existingCheck = item.querySelector(".checkmark");
-  if (existingCheck) existingCheck.remove();
-  let nameSpan = item.querySelector('.file-list-name');
-  if (!nameSpan) {
-    nameSpan = document.createElement('span');
-    nameSpan.className = 'file-list-name';
-    item.appendChild(nameSpan);
-  }
-  nameSpan.textContent = name || "Untitled Document";
-  if (saved) {
-    item.className = "saved";
-    const checkSvg = document.createElement('span');
-    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-      <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-    </svg>`;
-    item.insertBefore(checkSvg, nameSpan);
-  } else {
-    item.className = "";
-  }
-  processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
+let existingCheck = item.querySelector(".checkmark");
+if (existingCheck) existingCheck.remove();
+let nameSpan = item.querySelector('.file-list-name');
+if (!nameSpan) {
+  nameSpan = document.createElement('span');
+  nameSpan.className = 'file-list-name';
+  item.appendChild(nameSpan);
+}
+nameSpan.textContent = name || "Untitled Document";
+// No more jobIcons: just ensure nameSpan is in the item
+if (nameSpan.parentNode !== item) {
+  item.appendChild(nameSpan);
+}
+if (saved) {
+  item.className = "saved";
+  const checkSvg = document.createElement('span');
+  checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+  </svg>`;
+  // Insert checkmark before (to the left of) the document name
+  item.insertBefore(checkSvg, nameSpan);
+} else {
+  item.className = "";
+}
+processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
 // ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
 function renderFormFields(form, tabId, docName, fileObj) {
+  // --- Sticky file for this tab ---
   let lastValidFile = fileObj instanceof File ? fileObj : null;
 
   // PDF Upload
@@ -190,6 +197,40 @@ function renderFormFields(form, tabId, docName, fileObj) {
       }
     });
   }
+
+  // --- Sticky file change handler ---
+  fileInput.addEventListener("change", function() {
+    const files = Array.from(fileInput.files);
+    if (files.length > 0) {
+      lastValidFile = files[0];
+      fileNameSpan.textContent = files[0].name;
+      // Update filename and tab label, etc.
+      const filenameInput = form.querySelector("input[name='filename']");
+      if (filenameInput) {
+        let base = files[0].name.replace(/\.pdf$/i, "");
+        filenameInput.value = base;
+        const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+        if (tabLabel) tabLabel.textContent = base;
+        let jtSelect = form.querySelector('select[name="job_type"]');
+        let jt = jtSelect ? jtSelect.value : "";
+        updateFileListStatus(tabId, base, false, jt);
+        tabLastSavedState[tabId] = "";
+        form.querySelector('.save-btn').disabled = false;
+      }
+      // Handle multi-file (tabs) as before
+      let slots = MAX_DOCS - getTabCount();
+      for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+        createTab(files[i]);
+      }
+    } else if (lastValidFile) {
+      // User canceled dialog, keep previous file name in UI
+      fileNameSpan.textContent = lastValidFile.name;
+      // No need to update fileInput.files: browsers block setting it programmatically
+    } else {
+      fileNameSpan.textContent = "No file chosen";
+    }
+  });
+
   fileInputLabel.appendChild(fileInput);
   fileInputWrapper.appendChild(fileInputLabel);
   fileInputWrapper.appendChild(fileNameSpan);
@@ -208,7 +249,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeSelect.id = "job_type";
   jobTypeSelect.required = true;
   [
-    { value: "", label: "Select one" },
+    { value: "", label: "Select one", icon: "" },
     { value: "utm_only", label: "Add UTM only" },
     { value: "add_links_only", label: "Add links only" },
     { value: "links_and_utm", label: "Add links with UTM" }
@@ -221,18 +262,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeLabel);
   jobTypeField.appendChild(jobTypeSelect);
   form.appendChild(jobTypeField);
-
-
-// --- Actions (Save) ---  (MOVED UP)
-const actionsDiv = document.createElement("div");
-actionsDiv.className = "form-actions";
-const saveBtn = document.createElement("button");
-saveBtn.type = "submit";
-saveBtn.textContent = "Save";
-saveBtn.className = "save-btn";
-saveBtn.disabled = true;
-actionsDiv.appendChild(saveBtn);
-form.appendChild(actionsDiv);
 
   // --- Target Format & Base URL dynamic rows ---
   const targetBaseRowsWrapper = document.createElement("div");
@@ -297,7 +326,7 @@ form.appendChild(actionsDiv);
       removeBtn.addEventListener("click", function() {
         fieldRow.remove();
         updateAddNewRowBtn();
-        checkDirtyAndUpdateSaveBtn();
+        validateForm(form);
       });
       delCol.appendChild(removeBtn);
     } else {
@@ -309,7 +338,6 @@ form.appendChild(actionsDiv);
     wrapper.appendChild(fieldRow);
     updateAddNewRowBtn();
     updateBaseUrlMemory("");
-    checkDirtyAndUpdateSaveBtn();
   }
   function updateAddNewRowBtn() {
     const numRows = targetBaseRowsWrapper.querySelectorAll(".field-row").length;
@@ -318,19 +346,24 @@ form.appendChild(actionsDiv);
   addNewRowBtn.addEventListener("click", function() {
     addTargetBaseRow(targetBaseRowsWrapper, form);
     updateAddNewRowBtn();
-    checkDirtyAndUpdateSaveBtn();
   });
 
-  // --- UTM Parameters group as a wrapper (for easy show/hide) ---
-  const utmGroup = document.createElement("div");
-  utmGroup.className = "utm-group";
-  utmGroup.id = "utm-group-" + tabId;
-  const utmLabel = document.createElement("span");
-  utmLabel.className = "utm-label";
-  utmLabel.textContent = "UTM Parameters";
-  utmGroup.appendChild(utmLabel);
-  const utmRow = document.createElement("div");
-  utmRow.className = "utm-row";
+// --- UTM Parameters group ---
+const utmGroup = document.createElement("div");
+utmGroup.className = "utm-group"; // Add this as a wrapper
+utmGroup.id = "utm-group";        // Add an id for easy selection/hiding
+
+const utmLabel = document.createElement("span");
+utmLabel.className = "utm-label";
+utmLabel.textContent = "UTM Parameters";
+utmGroup.appendChild(utmLabel);
+
+const utmRow = document.createElement("div");
+utmRow.className = "utm-row";
+// ... your input creation code as before ...
+utmGroup.appendChild(utmRow);
+
+form.appendChild(utmGroup);
   [
     { id: "source", placeholder: "Source", required: true },
     { id: "medium", placeholder: "Medium", required: true },
@@ -346,7 +379,6 @@ form.appendChild(actionsDiv);
     group.appendChild(input);
     utmRow.appendChild(group);
   });
-  utmGroup.appendChild(utmRow);
   const utmContentGroup = document.createElement("div");
   utmContentGroup.className = "field-group";
   const utmContentInput = document.createElement("input");
@@ -358,9 +390,6 @@ form.appendChild(actionsDiv);
   utmContentInput.style.cursor = "not-allowed";
   utmContentGroup.appendChild(utmContentInput);
   utmGroup.appendChild(utmContentGroup);
-  form.appendChild(utmGroup);
-
-  // --- Document Name field ---
   const filenameGroup = document.createElement("div");
   filenameGroup.className = "field-group";
   const filenameLabel = document.createElement("label");
@@ -376,8 +405,6 @@ form.appendChild(actionsDiv);
   filenameGroup.appendChild(filenameLabel);
   filenameGroup.appendChild(filenameInput);
   form.appendChild(filenameGroup);
-
-  // --- Underline Checkbox ---
   const underlineWrapper = document.createElement("div");
   underlineWrapper.className = "checkbox-wrapper hidden";
   underlineWrapper.style.marginBottom = "0.75rem";
@@ -392,85 +419,47 @@ form.appendChild(actionsDiv);
   underlineWrapper.appendChild(underlineInput);
   underlineWrapper.appendChild(underlineLabel);
   form.appendChild(underlineWrapper);
+  const actionsDiv = document.createElement("div");
+  actionsDiv.className = "form-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.textContent = "Save";
+  saveBtn.className = "save-btn";
+  saveBtn.disabled = true;
+  actionsDiv.appendChild(saveBtn);
+  form.appendChild(actionsDiv);
 
+  // --- Save/Dirty logic ---
   tabLastSavedState[tabId] = "";
 
-  // --- Validation logic ---
-  function formIsValid(form) {
-    let valid = true;
-    // File required
-    if (!lastValidFile) return false;
-    // UTM fields
-    if (utmGroup && !utmGroup.classList.contains("hidden")) {
-      utmGroup.querySelectorAll("input[required]").forEach(input => {
-        if (!input.value.trim()) valid = false;
-      });
-    }
-    // Target format/base url
-    if (!targetBaseRowsWrapper.classList.contains("hidden")) {
-      targetBaseRowsWrapper.querySelectorAll("input[required]").forEach(input => {
-        if (!input.value.trim()) valid = false;
-      });
-    }
-    // Filename
-    if (!filenameInput.value.trim()) valid = false;
-    // Job type
-    if (!jobTypeSelect.value) valid = false;
-    return valid;
-  }
   function checkDirtyAndUpdateSaveBtn() {
     let current = formToHash(form);
     let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
     saveBtn.disabled = !formIsValid(form) || !dirty;
   }
-
-  // --- Job type select logic ---
-  function updateVisibilityByJobType() {
-    const jt = jobTypeSelect.value;
-    // UTM section: visible for utm_only and links_and_utm, hidden for add_links_only
-    utmGroup.classList.toggle("hidden", jt === "add_links_only");
-    utmGroup.querySelectorAll("input").forEach(input => {
-      input.required = jt !== "add_links_only";
-    });
-    // Target rows and underline: visible for links_and_utm and add_links_only
-    const showTargets = jt === "links_and_utm" || jt === "add_links_only";
-    targetBaseRowsWrapper.classList.toggle("hidden", !showTargets);
-    underlineWrapper.classList.toggle("hidden", !showTargets);
-    targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
-      input.required = showTargets;
-    });
-    // Underline not required
-    underlineInput.required = false;
-    checkDirtyAndUpdateSaveBtn();
-  }
-
-  // --- Event binding ---
-  jobTypeSelect.addEventListener("change", function() {
-    updateVisibilityByJobType();
-    const filenameInput = form.querySelector("input[name='filename']");
-    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-  });
-  form.addEventListener("input", checkDirtyAndUpdateSaveBtn);
-  form.addEventListener("change", checkDirtyAndUpdateSaveBtn);
-
-  // When filename is changed, update tab label and file list (don't mark as saved)
-  filenameInput.addEventListener("input", () => {
-    const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-    tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
-    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
-    checkDirtyAndUpdateSaveBtn();
-  });
-  // File input change: update filename and clear saved state
-  fileInput.addEventListener("change", function() {
-    if (fileInput.files && fileInput.files.length > 0) {
-      let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
-      filenameInput.value = base;
-      const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
-      if (tabLabel) tabLabel.textContent = base;
-      updateFileListStatus(tabId, base, false, jobTypeSelect.value);
-      tabLastSavedState[tabId] = "";
-      saveBtn.disabled = false;
+function formIsValid(form) {
+  let valid = true;
+  form.querySelectorAll("input, select").forEach(input => {
+    // Only validate if the input is required and visible (not in a .hidden ancestor)
+    if (
+      input.required && 
+      !input.closest(".hidden") &&
+      !input.disabled &&
+      (
+        (input.type === "file" && !lastValidFile) ||
+        (input.type !== "file" && !input.value.trim())
+      )
+    ) {
+      valid = false;
     }
+  });
+  return valid;
+}
+  // Validate and update save button whenever form changes
+  form.addEventListener("input", function() {
+    checkDirtyAndUpdateSaveBtn();
+  });
+  form.addEventListener("change", function() {
     checkDirtyAndUpdateSaveBtn();
   });
 
@@ -487,13 +476,56 @@ form.appendChild(actionsDiv);
     setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
   });
 
-  // Expose lastValidFile for process
-  form.getLastValidFile = () => lastValidFile;
+  // Job type select: update file list with correct icon
+jobTypeSelect.addEventListener("change", function() {
+  const needsFormats = jobTypeSelect.value === "links_and_utm" || jobTypeSelect.value === "add_links_only";
+  targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
+  underlineWrapper.classList.toggle("hidden", !needsFormats);
+  targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
+    input.required = needsFormats;
+  });
 
-  // Initial vis/required states
-  updateVisibilityByJobType();
+  // Hide UTM fields (label + inputs) for "add_links_only"
+  const utmGroup = form.querySelector("#utm-group");
+  if (utmGroup) {
+    utmGroup.classList.toggle("hidden", jobTypeSelect.value === "add_links_only");
+    utmGroup.querySelectorAll("input").forEach(input => {
+      input.required = !(jobTypeSelect.value === "add_links_only");
+    });
+  }
+  
+  underlineInput.required = false;
+  const filenameInput = form.querySelector("input[name='filename']");
   updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
   checkDirtyAndUpdateSaveBtn();
+});
+
+  // When filename is changed, update tab label and file list (don't mark as saved)
+  filenameInput.addEventListener("input", () => {
+    const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+    tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
+    updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+    checkDirtyAndUpdateSaveBtn();
+  });
+
+  // File input change: update filename and clear saved state
+  fileInput.addEventListener("change", function() {
+    if (fileInput.files && fileInput.files.length > 0) {
+      let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
+      filenameInput.value = base;
+      const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
+      if (tabLabel) tabLabel.textContent = base;
+      updateFileListStatus(tabId, base, false, jobTypeSelect.value);
+      tabLastSavedState[tabId] = "";
+      saveBtn.disabled = false;
+    }
+  });
+
+  updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
+  checkDirtyAndUpdateSaveBtn();
+
+  // --- INTERCEPT FormData for preview/process to use lastValidFile if needed ---
+  form.getLastValidFile = () => lastValidFile;
 }
 
 function createTab(fileObj) {
@@ -649,7 +681,6 @@ document.getElementById("add-tab").addEventListener("click", function(e) {
   updateTabBarCount();
 });
 
-// PDF previewer code (unchanged from your original)
 let pdfDocs = [];
 let currentDocIndex = 0;
 let currentPage = 1;
