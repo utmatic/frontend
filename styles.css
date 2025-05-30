@@ -327,6 +327,12 @@
       }
     }
 
+/* Remove accidental focus from containers */
+.form-container, .field-group, .container, .form-header {
+  outline: none !important;
+  caret-color: transparent !important;
+}
+
 /* Hide the caret everywhere except real form fields */
 body :not(input):not(textarea):not(select) {
   caret-color: transparent !important;
