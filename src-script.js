@@ -218,7 +218,7 @@ function showResultScreen(processedUrl, reportUrl) {
     const btn = document.createElement('a');
     btn.href = processedUrl;
     btn.download = "";
-    btn.innerHTML = '<button class="process-btn">Download Processed INDD</button>';
+    btn.innerHTML = '<button class="process-btn">Download now</button>';
     resultBtns.appendChild(btn);
   }
   if (reportUrl) {
