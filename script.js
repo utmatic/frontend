@@ -123,8 +123,8 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-  let existingCheck = item.querySelector(".checkmark");
-  if (existingCheck) existingCheck.remove();
+  // Remove ALL checkmarks before adding one (fixes repeated checkmarks and indentation bug)
+  item.querySelectorAll(".checkmark").forEach(e => e.remove());
   let nameSpan = item.querySelector('.file-list-name');
   if (!nameSpan) {
     nameSpan = document.createElement('span');
@@ -132,7 +132,7 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.appendChild(nameSpan);
   }
   nameSpan.textContent = name || "Untitled Document";
-  // No more jobIcons: just ensure nameSpan is in the item
+  // Always ensure nameSpan is the last child
   if (nameSpan.parentNode !== item) {
     item.appendChild(nameSpan);
   }
@@ -143,7 +143,7 @@ function updateFileListStatus(tabId, name, saved, jobType) {
       <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
       <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
     </svg>`;
-    // Insert checkmark before (to the left of) the document name
+    // Insert checkmark before nameSpan
     item.insertBefore(checkSvg, nameSpan);
   } else {
     item.className = "";
@@ -219,8 +219,13 @@ function renderFormFields(form, tabId, docName, fileObj) {
       }
       // Handle multi-file (tabs) as before
       let slots = MAX_DOCS - getTabCount();
-      for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
-        createTab(files[i]);
+      // NEW: If this is the very first document (only one existing tab, and it's empty), just update the first tab's form instead of making a new tab
+      if (getTabCount() === 1 && docCount === 2 && !formToHash(form)) {
+        // do nothing, let user fill out the form
+      } else {
+        for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
+          createTab(files[i], /*doNotAutoSelect*/true);
+        }
       }
     } else if (lastValidFile) {
       // User canceled dialog, keep previous file name in UI
@@ -436,6 +441,9 @@ function renderFormFields(form, tabId, docName, fileObj) {
   function checkDirtyAndUpdateSaveBtn() {
     let current = formToHash(form);
     let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
+    // Update file list dirty/saved status live
+    const filenameInput = form.querySelector("input[name='filename']");
+    updateFileListStatus(tabId, filenameInput.value, !dirty, jobTypeSelect.value);
     saveBtn.disabled = !formIsValid(form) || !dirty;
   }
   function formIsValid(form) {
@@ -535,7 +543,8 @@ function renderFormFields(form, tabId, docName, fileObj) {
   form.getLastValidFile = () => lastValidFile;
 }
 
-function createTab(fileObj) {
+// Accepts doNotAutoSelect param: if true, do NOT activate the new tab (for multi-upload, etc)
+function createTab(fileObj, doNotAutoSelect = false) {
   const tabId = `doc-${docCount}`;
   const tabBtn = document.createElement("button");
   tabBtn.className = "tab";
@@ -566,7 +575,7 @@ function createTab(fileObj) {
   renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
   tabContent.appendChild(form);
   tabContents.appendChild(tabContent);
-  setActiveTab(tabId);
+  if (!doNotAutoSelect) setActiveTab(tabId); // Only activate new tab if not in batch add
   docCount++;
   updateAddTabButton();
   updateTabBarCount();
@@ -587,7 +596,8 @@ document.addEventListener("click", function (e) {
     const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
     let newActive = null;
     if (remainingTabs.length) {
-      newActive = remainingTabs[remainingTabs.length-1];
+      // Always activate the leftmost (first) tab after a delete
+      newActive = remainingTabs[0];
     }
     if (newActive) setActiveTab(newActive.dataset.tab);
     updateAddTabButton();
@@ -682,7 +692,7 @@ processBtn.addEventListener("click", async function() {
 
 document.getElementById("add-tab").addEventListener("click", function(e) {
   if (getTabCount() < MAX_DOCS) {
-    createTab();
+    createTab(undefined, /*doNotAutoSelect*/true);
   }
   updateAddTabButton();
   updateTabBarCount();
