@@ -222,6 +222,18 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeSelect);
   form.appendChild(jobTypeField);
 
+
+// --- Actions (Save) ---  (MOVED UP)
+const actionsDiv = document.createElement("div");
+actionsDiv.className = "form-actions";
+const saveBtn = document.createElement("button");
+saveBtn.type = "submit";
+saveBtn.textContent = "Save";
+saveBtn.className = "save-btn";
+saveBtn.disabled = true;
+actionsDiv.appendChild(saveBtn);
+form.appendChild(actionsDiv);
+
   // --- Target Format & Base URL dynamic rows ---
   const targetBaseRowsWrapper = document.createElement("div");
   targetBaseRowsWrapper.className = "field-row-wrapper hidden";
@@ -380,17 +392,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   underlineWrapper.appendChild(underlineInput);
   underlineWrapper.appendChild(underlineLabel);
   form.appendChild(underlineWrapper);
-
-  // --- Actions (Save) ---
-  const actionsDiv = document.createElement("div");
-  actionsDiv.className = "form-actions";
-  const saveBtn = document.createElement("button");
-  saveBtn.type = "submit";
-  saveBtn.textContent = "Save";
-  saveBtn.className = "save-btn";
-  saveBtn.disabled = true;
-  actionsDiv.appendChild(saveBtn);
-  form.appendChild(actionsDiv);
 
   tabLastSavedState[tabId] = "";
 
