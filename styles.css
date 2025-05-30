@@ -582,7 +582,7 @@ body {
   width: 100%;
   max-width: 750px;
   min-width: 370px;
-  min-height: 610px;
+  min-height: 0px;
   display: flex;
   flex-direction: column;
   z-index: 1;
