@@ -266,8 +266,9 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeSelect.required = true;
   [
     { value: "", label: "Select one", icon: "" },
-    { value: "utm_only", label: "Add UTM only", icon: TAG_ICON },
-    { value: "links_and_utm", label: "Add links with UTM", icon: LINK_ICON }
+    { value: "utm_only", label: "Add UTM only" },
+    { value: "add_links_only", label: "Add links only" },
+    { value: "links_and_utm", label: "Add links with UTM" }
   ].forEach(opt => {
     const option = document.createElement("option");
     option.value = opt.value;
