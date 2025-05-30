@@ -379,7 +379,6 @@ form.appendChild(utmGroup);
     group.appendChild(input);
     utmRow.appendChild(group);
   });
-  form.appendChild(utmRow);
   const utmContentGroup = document.createElement("div");
   utmContentGroup.className = "field-group";
   const utmContentInput = document.createElement("input");
