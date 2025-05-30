@@ -580,7 +580,7 @@ body {
   border: 1.5px solid var(--gray-200);
   border-radius: var(--radius);
   width: 100%;
-  max-width: 650px;
+  max-width: 750px;
   min-width: 370px;
   min-height: 610px;
   display: flex;
