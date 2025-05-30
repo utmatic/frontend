@@ -46,19 +46,22 @@
               <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
               <div id="target-base-rows"></div>
             </div>
-            <span class="utm-label" id="utm-label">UTM Parameters</span>
-            <div class="utm-row" id="utm-row">
-              <div class="field-group">
-                <input type="text" name="utm_source" id="utm_source" placeholder="Source" required>
-              </div>
-              <div class="field-group">
-                <input type="text" name="utm_medium" id="utm_medium" placeholder="Medium" required>
-              </div>
-              <div class="field-group">
-                <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
-              </div>
-              <div class="field-group">
-                <input type="text" name="utm_content" id="utm_content" placeholder="Content (automatic)" readonly>
+            <!-- UTM section is now fully wrapped -->
+            <div id="utm-section">
+              <span class="utm-label" id="utm-label">UTM Parameters</span>
+              <div class="utm-row" id="utm-row">
+                <div class="field-group">
+                  <input type="text" name="utm_source" id="utm_source" placeholder="Source" required>
+                </div>
+                <div class="field-group">
+                  <input type="text" name="utm_medium" id="utm_medium" placeholder="Medium" required>
+                </div>
+                <div class="field-group">
+                  <input type="text" name="utm_campaign" id="utm_campaign" placeholder="Campaign" required>
+                </div>
+                <div class="field-group">
+                  <input type="text" name="utm_content" id="utm_content" placeholder="Content (automatic)" readonly>
+                </div>
               </div>
             </div>
             <!-- Document Name field REMOVED -->
