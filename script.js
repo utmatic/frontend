@@ -738,6 +738,13 @@ window.openPdfPreviewer = function(docs, index=0) {
     docList.appendChild(div);
   });
 
+    // Hide caret if only one doc
+  if (pdfDocs.length <= 1) {
+    docSwitch.classList.add("single-doc");
+  } else {
+    docSwitch.classList.remove("single-doc");
+  }
+
   docSwitch.onclick = function(e) {
     if (
       e.target === docSwitch ||
