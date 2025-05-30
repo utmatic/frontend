@@ -123,31 +123,27 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-  // Remove ALL checkmarks before adding one (fixes repeated checkmarks and indentation bug)
-  item.querySelectorAll(".checkmark").forEach(e => e.remove());
+  // 1. Remove ALL children except for the name span (reset item)
   let nameSpan = item.querySelector('.file-list-name');
   if (!nameSpan) {
     nameSpan = document.createElement('span');
     nameSpan.className = 'file-list-name';
-    item.appendChild(nameSpan);
   }
   nameSpan.textContent = name || "Untitled Document";
-  // Always ensure nameSpan is the last child
-  if (nameSpan.parentNode !== item) {
-    item.appendChild(nameSpan);
-  }
+  item.innerHTML = ""; // Remove all children
   if (saved) {
     item.className = "saved";
-    const checkSvg = document.createElement('span');
-    checkSvg.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    const checkSpan = document.createElement('span');
+    checkSpan.innerHTML = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
       <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
       <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
     </svg>`;
-    // Insert checkmark before nameSpan
-    item.insertBefore(checkSvg, nameSpan);
+    item.appendChild(checkSpan);
   } else {
     item.className = "";
   }
+  item.appendChild(nameSpan);
+
   processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
