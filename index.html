@@ -1,55 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utmatic | Document Processing Tools</title>
-  <link rel="stylesheet" href="index.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Utmatic – Pricing & Time Savings</title>
+  <link rel="stylesheet" href="landing.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 </head>
 <body>
-  <header class="site-header">
-    <img src="logo.svg" alt="Utmatic Logo" class="logo" />
-    <h1 class="site-title">Transform Your Documents at Scale</h1>
-    <p class="site-subtitle">Inject links, track engagement, and save time with Utmatic's automated processing tools.</p>
+  <nav class="navbar">
+    <div class="navbar-left">
+      <a href="/" class="logo-link" aria-label="Utmatic Home">
+        <img src="https://www.utmatic.com/favicon.ico" alt="Utmatic Logo" class="utmatic-logo"/>
+        <span class="brand-name">Utmatic</span>
+      </a>
+    </div>
+    <div class="navbar-right">
+      <a href="#" class="nav-link">Pricing</a>
+      <a href="#" class="signup-btn">Sign Up / Sign In</a>
+    </div>
+  </nav>
+  <header class="hero">
+    <h1>
+      <span class="primary-headline">Automate Document Tracking.</span>
+      <span class="secondary-headline">Save Hours. Unlock Smarter Marketing.</span>
+    </h1>
+    <p class="hero-subhead">
+      The fastest way for marketing and creative teams to add, track, and manage links in all your PDFs and source files—<strong>without manual work or errors</strong>.
+    </p>
+    <div class="cta-container">
+      <a href="#" class="cta-btn">Try Utmatic Free</a>
+    </div>
+    <div class="tagline">From upload to analytics—make every document measurable.</div>
   </header>
 
-  <section class="pricing-section">
-    <div class="toggle-container">
-      <span>Monthly</span>
-      <label class="switch">
-        <input type="checkbox" id="billing-toggle">
-        <span class="slider"></span>
-      </label>
-      <span>Yearly <small>(Save 15%)</small></span>
-    </div>
-
-    <div class="cards-container">
-      <!-- Pricing cards will be injected here by JS -->
-    </div>
-  </section>
-
-  <section class="info-section">
-    <h2>How Utmatic Works</h2>
-    <p>Upload your PDFs or InDesign source files. Utmatic automatically detects product codes, part numbers, and important data, injecting hyperlinks and UTM parameters with precision. No more manual work or costly errors—just fast, reliable processing at scale.</p>
-
-    <div class="accordion">
-      <button class="accordion-toggle">Learn More About Processing Speeds</button>
-      <div class="accordion-content">
-        <ul>
-          <li><strong>Essential:</strong> Standard queue, baseline performance.</li>
-          <li><strong>Priority:</strong> 2x faster processing than Essential.</li>
-          <li><strong>Express:</strong> 4x faster processing for high-demand teams.</li>
-          <li><strong>Lightning:</strong> 8x faster processing—top of the queue every time.</li>
+  <main>
+    <section class="impact-section">
+      <div class="impact-left">
+        <h2>Stop Wasting Time Manually Adding Links</h2>
+        <ul class="value-list">
+          <li>Automate UTM tagging &amp; link insertion across all your documents in seconds</li>
+          <li>Batch process PDFs &amp; InDesign files—no more repetitive edits</li>
+          <li>Built for teams: unlimited projects, unlimited users<span class="muted">*</span></li>
+          <li>Consistent, error-free campaign tracking—every single time</li>
         </ul>
       </div>
-    </div>
-  </section>
+      <div class="impact-right">
+        <div id="timesave-widget" class="timesave-widget">
+          <div class="timesave-header">
+            <span>How much time could you save?</span>
+          </div>
+          <div class="timesave-slider-row">
+            <label for="num-docs">Documents per month:</label>
+            <input type="range" id="num-docs" min="1" max="200" value="25" />
+            <span id="num-docs-value">25</span>
+          </div>
+          <div class="timesave-slider-row">
+            <label for="links-per-doc">Links per document:</label>
+            <input type="range" id="links-per-doc" min="1" max="100" value="10" />
+            <span id="links-per-doc-value">10</span>
+          </div>
+          <div class="timesave-estimate">
+            <span class="timesave-big" id="timesave-hours">~4</span>
+            <span class="timesave-unit">hours saved/month</span>
+          </div>
+          <div class="timesave-subtext">
+            <small>Based on 1 minute per manual hyperlink</small>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <footer class="site-footer">
-    <p>&copy; 2025 Utmatic. All rights reserved.</p>
+    <section class="pricing-section">
+      <h2 class="pricing-headline">
+        Simple, <span class="highlight">transparent</span> pricing.
+      </h2>
+      <p class="pricing-subhead">
+        Save hours, scale your team, and track every campaign—choose the plan that fits your workflow.
+      </p>
+      <div class="pricing-table">
+        <div class="pricing-card">
+          <div class="plan-name">Lite</div>
+          <div class="plan-price">$79<span class="plan-unit">/mo</span></div>
+          <div class="plan-desc">For individuals or small teams automating PDF workflows</div>
+          <ul class="plan-features">
+            <li><span class="checkmark">✔</span> PDF Processor</li>
+            <li><span class="xmark">✖</span> Source File Processor</li>
+            <li><strong>File Size</strong>: 10 MB</li>
+            <li><strong>Included Users:</strong> 1</li>
+            <li><strong>Additional Users:</strong> $59/user/mo</li>
+            <li><span class="xmark">✖</span> Saved Presets</li>
+            <li><strong>Processing Speed:</strong> Standard</li>
+          </ul>
+          <a href="#" class="plan-btn">Get Started</a>
+        </div>
+        <div class="pricing-card featured">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$399<span class="plan-unit">/mo</span></div>
+          <div class="plan-desc">For growing teams & agencies</div>
+          <ul class="plan-features">
+            <li><span class="checkmark">✔</span> PDF Processor</li>
+            <li><span class="checkmark">✔</span> Source File Processor</li>
+            <li><strong>File Size</strong>: 100 MB</li>
+            <li><strong>Included Users:</strong> 3</li>
+            <li><strong>Additional Users:</strong> $49/user/mo</li>
+            <li><span class="checkmark">✔</span> Saved Presets</li>
+            <li><strong>Processing Speed:</strong> Accelerated</li>
+          </ul>
+          <a href="#" class="plan-btn featured-btn">Start 14-day Free Trial</a>
+        </div>
+        <div class="pricing-card">
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">$799<span class="plan-unit">/mo</span></div>
+          <div class="plan-desc">For high-volume teams & enterprises</div>
+          <ul class="plan-features">
+            <li><span class="checkmark">✔</span> PDF Processor</li>
+            <li><span class="checkmark">✔</span> Source File Processor</li>
+            <li><strong>File Size</strong>: 250 MB</li>
+            <li><strong>Included Users:</strong> 5</li>
+            <li><strong>Additional Users:</strong> $39/user/mo</li>
+            <li><span class="checkmark">✔</span> Saved Presets</li>
+            <li><strong>Processing Speed:</strong> Lightning</li>
+          </ul>
+          <a href="#" class="plan-btn">Contact Sales</a>
+        </div>
+      </div>
+      <div class="pricing-footnote">
+        <span class="muted">*</span> Unlimited users available on request. Annual billing options available—contact sales for custom plans.
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div>© 2025 Utmatic. All rights reserved.</div>
   </footer>
-
-  <script src="index.js"></script>
+  <script src="landing.js"></script>
 </body>
 </html>
