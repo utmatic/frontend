@@ -1,0 +1,79 @@
+/* Reset + Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Work Sans', sans-serif;
+  background: #fff;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+a {
+  text-decoration: none;
+}
+.landing-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2em 1.5em;
+}
+.landing-header {
+  text-align: center;
+  margin-bottom: 2em;
+}
+.landing-logo svg {
+  display: block;
+  margin: 0 auto 0.6em;
+}
+.landing-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.landing-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 2em;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.landing-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 1.8em;
+  text-align: center;
+  flex: 1 1 320px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.landing-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.8em;
+  color: #1a1a1a;
+}
+.landing-card p {
+  font-size: 0.95rem;
+  margin-bottom: 1.2em;
+  color: #555;
+}
+.landing-btn {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff;
+  padding: 0.75em 1.5em;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+.landing-btn:hover {
+  background: #1e40af;
+}
+.landing-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 2em;
+}
