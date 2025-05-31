@@ -3,33 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Utmatic: Document Processing Tools</title>
+  <title>Utmatic | Document Processing Tools</title>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="landing.css" />
 </head>
 <body>
   <div class="landing-wrapper">
     <header class="landing-header">
-      <span class="landing-logo" aria-label="Utmatic Logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 163.03 173.87" width="44" height="44">
+      <div class="landing-logo" aria-label="Utmatic Logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 163.03 173.87" width="50" height="50">
           <path fill="#1a1a1a" d="M138.6,0H24.43C10.96,0,0,10.96,0,24.43v70.51c0,43.52,35.41,78.93,78.93,78.93h5.18c43.52,0,78.93-35.41,78.93-78.93V24.43c0-13.47-10.96-24.43-24.43-24.43ZM84.11,153.45h-5.18c-32.26,0-58.51-26.25-58.51-58.51v-35.67h28.08v38.55c0,18.2,14.81,33.01,33.01,33.01s33.01-14.81,33.01-33.01v-38.55h28.08v35.67c0,32.26-26.25,58.51-58.51,58.51ZM94.11,38.85v58.98c0,6.94-5.65,12.59-12.59,12.59s-12.59-5.65-12.59-12.59v-58.98H20.42v-14.41c0-2.21,1.8-4.01,4.01-4.01h114.17c2.21,0,4.01,1.8,4.01,4.01v14.41h-48.5Z"/>
         </svg>
-      </span>
+      </div>
       <h1 class="landing-title">Choose Your Processing Tool</h1>
     </header>
 
-    <main class="landing-cards">
-      <div class="landing-card">
+    <main class="landing-options">
+      <section class="processor">
         <h2>PDF Processor</h2>
-        <p>Inject hyperlinks and UTM tracking directly into final PDF files. Perfect for quick updates and batch processing.</p>
-        <a href="https://app.utmatic.com/pdf-form.html" class="landing-btn">Go to PDF Processor</a>
-      </div>
+        <p>Inject hyperlinks and UTM tracking directly into final PDFs — no source files needed. Perfect for quick updates and batch processing.</p>
+        <button class="accordion-toggle">Learn More</button>
+        <div class="accordion-content">
+          <ul>
+            <li>🔗 Add links and tracking to final PDFs, even if you don’t have the source file.</li>
+            <li>⚙️ Process up to 5 PDFs at once for batch jobs.</li>
+            <li>✅ Get a preview before downloading.</li>
+            <li>🎯 Ideal for marketing and sales teams handling distributed documents.</li>
+          </ul>
+          <a href="https://app.utmatic.com/pdf-form.html" class="landing-btn">Go to PDF Processor</a>
+        </div>
+      </section>
 
-      <div class="landing-card">
+      <section class="processor">
         <h2>Source File Processor</h2>
-        <p>Edit InDesign source files to embed links and tracking before exporting. Ideal for designers and teams managing source files.</p>
-        <a href="https://app.utmatic.com/source-form.html" class="landing-btn">Go to Source File Processor</a>
-      </div>
+        <p>Update InDesign source files with hyperlinks and UTM tracking. Ideal for teams working with original design files.</p>
+        <button class="accordion-toggle">Learn More</button>
+        <div class="accordion-content">
+          <ul>
+            <li>🖋️ Edit original InDesign files to embed links and tracking directly into source documents.</li>
+            <li>📊 Regex-powered matching for precision targeting (e.g., SKUs, part numbers).</li>
+            <li>🧩 Keeps your design workflow intact — just upload the `.indd` file, we handle the rest.</li>
+            <li>🚀 Perfect for catalogs, brochures, and technical documents that require ongoing updates.</li>
+          </ul>
+          <a href="https://app.utmatic.com/source-form.html" class="landing-btn">Go to Source File Processor</a>
+        </div>
+      </section>
     </main>
 
     <footer class="landing-footer">
