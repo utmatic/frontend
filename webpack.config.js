@@ -80,8 +80,8 @@ module.exports = {
   plugins: [
     ...generateHTMLPlugins(),
     new MiniCssExtractPlugin({
-      filename: 'style.css',
-      chunkFilename: 'style.css',
+      filename: 'landing.css',
+      chunkFilename: 'landing.css',
     }),
   ],
   output: {
