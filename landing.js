@@ -28,3 +28,17 @@ const footer = document.querySelector(".landing-footer");
 footer.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
+
+// Accordion functionality
+document.querySelectorAll(".accordion-toggle").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const content = btn.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+      btn.textContent = "Learn More";
+    } else {
+      content.style.display = "block";
+      btn.textContent = "Hide Details";
+    }
+  });
+});
