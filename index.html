@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pricing Plans</title>
-  <link rel="stylesheet" href="index.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utmatic | Document Processing Tools</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <header class="site-header">
+    <img src="logo.svg" alt="Utmatic Logo" class="logo" />
+    <h1 class="site-title">Transform Your Documents at Scale</h1>
+    <p class="site-subtitle">Inject links, track engagement, and save time with Utmatic's automated processing tools.</p>
+  </header>
+
   <section class="pricing-section">
     <div class="toggle-container">
       <span>Monthly</span>
@@ -14,14 +21,35 @@
         <input type="checkbox" id="billing-toggle">
         <span class="slider"></span>
       </label>
-      <span>Yearly</span>
+      <span>Yearly <small>(Save 15%)</small></span>
     </div>
 
     <div class="cards-container">
-      <!-- Plan cards will be injected here by JavaScript -->
+      <!-- Pricing cards will be injected here by JS -->
     </div>
   </section>
 
-  <script src="index.js"></script>
+  <section class="info-section">
+    <h2>How Utmatic Works</h2>
+    <p>Upload your PDFs or InDesign source files. Utmatic automatically detects product codes, part numbers, and important data, injecting hyperlinks and UTM parameters with precision. No more manual work or costly errors—just fast, reliable processing at scale.</p>
+
+    <div class="accordion">
+      <button class="accordion-toggle">Learn More About Processing Speeds</button>
+      <div class="accordion-content">
+        <ul>
+          <li><strong>Essential:</strong> Standard queue, baseline performance.</li>
+          <li><strong>Priority:</strong> 2x faster processing than Essential.</li>
+          <li><strong>Express:</strong> 4x faster processing for high-demand teams.</li>
+          <li><strong>Lightning:</strong> 8x faster processing—top of the queue every time.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Utmatic. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
