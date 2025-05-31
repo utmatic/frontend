@@ -7,187 +7,202 @@
   <link rel="icon" href="favicon.ico" />
   <style>
     :root {
-      --utmatic-blue: #00a0e3;
-      --utmatic-dark: #20232a;
-      --utmatic-gray: #6c7380;
-      --utmatic-bg: #f8fafc;
-      --utmatic-card: #f3f8fb;
-      --utmatic-tip-bg: #e8f5fd;
-      --utmatic-tip-text: #1775b8;
+      --ut-blue: #0097df;
+      --ut-blue-light: #eaf6fd;
+      --ut-bg: #f6f9fb;
+      --ut-text: #111927;
+      --ut-gray: #5e6a7c;
+      --ut-card: #f3f8fb;
+      --ut-card-hover: #e7f4fc;
+      --ut-tip-bg: #eaf6fd;
+      --ut-tip-border: #bfe3fa;
     }
     html, body {
       margin: 0;
       padding: 0;
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-      background: var(--utmatic-bg);
+      background: var(--ut-bg);
+      color: var(--ut-text);
       min-height: 100vh;
-      color: var(--utmatic-dark);
     }
-    .container {
-      max-width: 670px;
-      margin: 48px auto 0 auto;
-      padding: 32px 18px;
+    body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .main {
       background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 7px 32px rgba(0,0,0,0.07);
+      margin: 48px 0;
+      border-radius: 24px;
+      box-shadow: 0 8px 36px rgba(0,0,0,0.09);
+      max-width: 760px;
+      width: 95vw;
+      padding: 38px 36px 32px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
     }
     .branding {
       display: flex;
       align-items: center;
-      margin-bottom: 2.2rem;
+      margin-bottom: 18px;
     }
     .branding-logo {
       width: 44px;
       height: 44px;
-      margin-right: 14px;
+      background: var(--ut-blue);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-right: 12px;
+    }
+    .branding-logo svg {
+      width: 26px;
+      height: 26px;
+      display: block;
     }
     .branding-text {
-      font-size: 2.1rem;
+      font-size: 2rem;
       font-weight: 700;
-      letter-spacing: -1.5px;
-      color: var(--utmatic-dark);
+      color: var(--ut-text);
+      letter-spacing: -1px;
     }
     h1 {
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 800;
-      margin-bottom: 0.3rem;
-      margin-top: 0;
+      margin: 0 0 0.5rem 0;
       letter-spacing: -1px;
-      color: var(--utmatic-dark);
+      color: var(--ut-text);
     }
     .subtitle {
-      font-size: 1.13rem;
-      color: var(--utmatic-gray);
-      margin-bottom: 2.2rem;
-      margin-top: 0;
+      font-size: 1.09rem;
+      color: var(--ut-gray);
+      margin-bottom: 1.7rem;
       font-weight: 400;
     }
-    .groups {
+    .workflows {
       display: flex;
       gap: 1.5rem;
+      margin-bottom: 1.6rem;
       flex-wrap: wrap;
-      margin-bottom: 2rem;
     }
     .workflow-card {
       flex: 1 1 240px;
-      min-width: 220px;
-      background: var(--utmatic-card);
-      border-radius: 13px;
-      box-shadow: 0 2px 12px rgba(0,160,227,0.07);
-      padding: 1.5rem 1.3rem 1.2rem 1.3rem;
+      min-width: 230px;
+      background: var(--ut-blue-light);
+      border-radius: 16px;
+      box-shadow: 0 1px 12px rgba(0,151,223,0.07);
+      padding: 1.3rem 1.2rem 1.2rem 1.2rem;
       display: flex;
       flex-direction: column;
-      transition: box-shadow 0.12s;
+      transition: background 0.13s, box-shadow 0.13s;
     }
     .workflow-card:hover {
-      box-shadow: 0 4px 24px rgba(0,160,227,0.13);
+      background: var(--ut-card-hover);
+      box-shadow: 0 2px 20px rgba(0,151,223,0.11);
     }
     .workflow-title {
-      font-size: 1.19rem;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
-      color: var(--utmatic-blue);
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 0.45em;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ut-blue);
+      margin-bottom: 0.28rem;
+      letter-spacing: -0.2px;
     }
     .workflow-desc {
-      color: var(--utmatic-dark);
-      font-size: 1.01rem;
+      color: var(--ut-text);
+      font-size: 1rem;
       font-weight: 400;
-      margin-bottom: 0.6rem;
+      margin-bottom: 1.1rem;
       margin-top: 0;
+      line-height: 1.45;
     }
     .workflow-link {
-      color: var(--utmatic-blue);
+      color: var(--ut-blue);
       text-decoration: none;
-      font-weight: 500;
-      font-size: 1.02rem;
-      margin-top: auto;
+      font-weight: 600;
+      font-size: 1.05rem;
       display: inline-block;
-      transition: color 0.17s;
+      transition: color 0.16s;
+      margin-top: auto;
     }
     .workflow-link:hover {
-      color: #0077b6;
+      color: #08539d;
       text-decoration: underline;
     }
     .tip-box {
-      background: var(--utmatic-tip-bg);
-      color: var(--utmatic-tip-text);
-      border-radius: 10px;
+      background: var(--ut-tip-bg);
+      border-radius: 12px;
       padding: 1.1rem 1.3rem;
       font-size: 1rem;
-      margin-top: 10px;
+      margin-top: 8px;
+      margin-bottom: 0;
+      color: #2274a5;
+      border: 1px solid var(--ut-tip-border);
       display: flex;
       align-items: flex-start;
-      gap: 0.65em;
-      box-shadow: 0 1px 8px rgba(0,160,227,0.06);
+      gap: 0.7em;
+      box-shadow: 0 1px 8px rgba(0,151,223,0.07);
     }
     .tip-icon {
-      font-size: 1.3em;
+      font-size: 1.26em;
       margin-top: 2px;
       opacity: 0.82;
+      flex-shrink: 0;
+      color: var(--ut-blue);
     }
-    @media (max-width: 650px) {
-      .container {
-        padding: 18px 4vw;
+    @media (max-width: 690px) {
+      .main {
+        padding: 18px 2vw 18px 2vw;
         border-radius: 0;
-        box-shadow: none;
       }
-      .groups {
+      .workflows {
         flex-direction: column;
-        gap: 1.1rem;
+        gap: 1.05rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="main">
     <div class="branding">
-      <span class="branding-logo">
-        <!-- Simple "U" logo SVG -->
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <rect width="40" height="40" rx="10" fill="#00a0e3"/>
-          <path d="M12 13v8.5c0 5.2 3.8 8.1 8 8.1s8-2.9 8-8.1V13h-3v8.5c0 3.5-2.2 5.1-5 5.1s-5-1.6-5-5.1V13h-3z" fill="#fff"/>
+      <div class="branding-logo">
+        <!-- "U" logo SVG on blue, matches your screenshot -->
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#0097df"/>
+          <path d="M9.5 11.1v6.6c0 4 2.9 6.2 6.5 6.2s6.5-2.2 6.5-6.2v-6.6h-2.5v6.6c0 2.6-1.6 3.9-4 3.9s-4-1.3-4-3.9v-6.6H9.5z" fill="#fff"/>
         </svg>
-      </span>
-      <span class="branding-text">utmatic</span>
+      </div>
+      <div class="branding-text">utmatic</div>
     </div>
     <h1>Welcome to the Utmatic Document Hub</h1>
     <div class="subtitle">
       Choose the type of document you want to process.<br>
       Each workflow is tailored for your specific needs—get started in seconds!
     </div>
-    <div class="groups">
+    <div class="workflows">
       <div class="workflow-card">
-        <div class="workflow-title">
-          <span>PDFs</span>
-        </div>
+        <div class="workflow-title">PDFs</div>
         <div class="workflow-desc">
           Process final, exported PDFs.<br>
           Perfect for reviewing or updating ready-to-share documents.
         </div>
-        <a class="workflow-link" href="/pdf">Start PDF Workflow &rarr;</a>
+        <a class="workflow-link" href="https://app.utmatic.com/pdf-form.html">Start PDF Workflow &rarr;</a>
       </div>
       <div class="workflow-card">
-        <div class="workflow-title">
-          <span>Source Files</span>
-        </div>
+        <div class="workflow-title">Source Files</div>
         <div class="workflow-desc">
           Work with original InDesign or Illustrator files.<br>
           Ideal for editing, link/UTM management, and prepping for export.
         </div>
-        <a class="workflow-link" href="/source">Start Source File Workflow &rarr;</a>
+        <a class="workflow-link" href="https://app.utmatic.com/source-form.html">Start Source File Workflow &rarr;</a>
       </div>
     </div>
     <div class="tip-box">
       <span class="tip-icon">&#9432;</span>
       <span>
-        <strong>Tip:</strong> Unsure which to pick? <b>PDFs</b> are best for reviewing exports, while <b>Source Files</b> let you make deep content changes.
+        <b>Tip:</b> Unsure which to pick? <b>PDFs</b> are best for reviewing exports, while <b>Source Files</b> let you make deep content changes.
       </span>
     </div>
   </div>
