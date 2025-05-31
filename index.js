@@ -1,128 +1,90 @@
-import '../../node_modules/glightbox/dist/css/glightbox.min.css';
-import '../css/animate.css';
-import '../css/style.css';
-
-import GLightbox from 'glightbox';
-import WOW from 'wowjs';
-
-window.wow = new WOW.WOW({
-  live: false,
-});
-
-window.wow.init({
-  offset: 50,
-});
-
-//========= glightbox
-const lightbox = GLightbox({
-  href: 'https://www.youtube.com/watch?v=r44RKWyfcFw&fbclid=IwAR21beSJORalzmzokxDRcGfkZA1AtRTE__l5N4r09HcGS5Y6vOluyouM9EM',
-  type: 'video',
-  source: 'youtube', //vimeo, youtube or local
-  width: 900,
-  autoplayVideos: true,
-});
-
-(function () {
-  'use strict';
-
-  // ==== darkToggler
-  const darkTogglerCheckbox = document.querySelector('#darkToggler');
-  const html = document.querySelector('html');
-
-  const darkModeToggler = () => {
-    darkTogglerCheckbox.checked ? html.classList.remove('dark') : html.classList.add('dark');
-  };
-  darkModeToggler();
-
-  darkTogglerCheckbox.addEventListener('click', darkModeToggler);
-
-  // ======= Sticky
-  window.onscroll = function () {
-    const ud_header = document.querySelector('.header');
-    const sticky = ud_header.offsetTop;
-
-    if (window.pageYOffset > sticky) {
-      ud_header.classList.add('sticky');
-    } else {
-      ud_header.classList.remove('sticky');
-    }
-
-    // show or hide the back-top-top button
-    const backToTop = document.querySelector('.back-to-top');
-    if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-      backToTop.style.display = 'flex';
-    } else {
-      backToTop.style.display = 'none';
-    }
-  };
-
-  // ===== responsive navbar
-  let navbarToggler = document.querySelector('#navbarToggler');
-  const navbarCollapse = document.querySelector('#navbarCollapse');
-
-  navbarToggler.addEventListener('click', () => {
-    navbarToggler.classList.toggle('navbarTogglerActive');
-    navbarCollapse.classList.toggle('hidden');
-  });
-
-  //===== close navbar-collapse when a  clicked
-  document.querySelectorAll('#navbarCollapse ul li:not(.submenu-item) a').forEach((e) =>
-    e.addEventListener('click', () => {
-      navbarToggler.classList.remove('navbarTogglerActive');
-      navbarCollapse.classList.add('hidden');
-    })
-  );
-
-  // ===== Sub-menu
-  const submenuItems = document.querySelectorAll('.submenu-item');
-  submenuItems.forEach((el) => {
-    el.querySelector('a').addEventListener('click', () => {
-      el.querySelector('.submenu').classList.toggle('hidden');
-    });
-  });
-
-  // ===== Faq accordion
-  const faqs = document.querySelectorAll('.single-faq');
-  faqs.forEach((el) => {
-    el.querySelector('.faq-btn').addEventListener('click', () => {
-      el.querySelector('.icon').classList.toggle('rotate-180');
-      el.querySelector('.faq-content').classList.toggle('hidden');
-    });
-  });
-
-  // ====== scroll top js
-  function scrollTo(element, to = 0, duration = 500) {
-    const start = element.scrollTop;
-    const change = to - start;
-    const increment = 20;
-    let currentTime = 0;
-
-    const animateScroll = () => {
-      currentTime += increment;
-
-      const val = Math.easeInOutQuad(currentTime, start, change, duration);
-
-      element.scrollTop = val;
-
-      if (currentTime < duration) {
-        setTimeout(animateScroll, increment);
-      }
-    };
-
-    animateScroll();
+const plans = [
+  {
+    name: "Essential",
+    monthly: "$99/mo",
+    yearly: "$1,089/yr",
+    features: [
+      "PDF Processor",
+      "10 MB Max File Size",
+      "1 User",
+      "Standard Processing",
+      "Basic Regex",
+      "Email Support (48h)"
+    ],
+    link: "#"
+  },
+  {
+    name: "Pro",
+    monthly: "$399/mo",
+    yearly: "$4,069/yr",
+    features: [
+      "PDF + Source Processors",
+      "100 MB Max File Size",
+      "3 Users",
+      "Advanced Processing (4x)",
+      "Advanced Regex",
+      "Preview Before Download"
+    ],
+    link: "#"
+  },
+  {
+    name: "Premium",
+    monthly: "$799/mo",
+    yearly: "$8,149/yr",
+    features: [
+      "All Processors",
+      "250 MB Max File Size",
+      "5 Users (+ $39/user)",
+      "Lightning Processing (8x)",
+      "Custom Regex + Consulting",
+      "Slack Support + Beta Access"
+    ],
+    link: "#"
   }
+];
 
-  Math.easeInOutQuad = function (t, b, c, d) {
-    t /= d / 2;
-    if (t < 1) return (c / 2) * t * t + b;
-    t--;
-    return (-c / 2) * (t * (t - 2) - 1) + b;
-  };
+const cardsContainer = document.querySelector(".cards-container");
+const toggle = document.getElementById("billing-toggle");
+const accordionToggle = document.querySelector(".accordion-toggle");
+const accordionContent = document.querySelector(".accordion-content");
 
-  document.querySelector('.back-to-top').onclick = () => {
-    scrollTo(document.documentElement);
-  };
-})();
+function renderCards(isYearly) {
+  cardsContainer.innerHTML = "";
+  plans.forEach(plan => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-// Document Loaded
-document.addEventListener('DOMContentLoaded', () => {});
+    const title = document.createElement("h3");
+    title.textContent = plan.name;
+
+    const price = document.createElement("div");
+    price.className = "price";
+    price.textContent = isYearly ? plan.yearly : plan.monthly;
+
+    const featureList = document.createElement("ul");
+    plan.features.forEach(feature => {
+      const li = document.createElement("li");
+      li.textContent = feature;
+      featureList.appendChild(li);
+    });
+
+    const button = document.createElement("button");
+    button.textContent = "Sign Up";
+    button.onclick = () => window.location.href = plan.link;
+
+    card.appendChild(title);
+    card.appendChild(price);
+    card.appendChild(featureList);
+    card.appendChild(button);
+
+    cardsContainer.appendChild(card);
+  });
+}
+
+toggle.addEventListener("change", () => renderCards(toggle.checked));
+accordionToggle.addEventListener("click", () => {
+  accordionContent.style.display = (accordionContent.style.display === "block") ? "none" : "block";
+});
+
+// Initial load
+renderCards(false);
