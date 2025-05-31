@@ -85,7 +85,7 @@ module.exports = {
     }),
   ],
   output: {
-    filename: 'bundle.js',
+    filename: 'landing.js',
     path: path.resolve(__dirname, 'build'),
     clean: true,
     assetModuleFilename: 'images/[name][ext]',
