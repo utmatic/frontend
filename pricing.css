@@ -14,7 +14,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: none;
+  background: var(--gray-bg);
   font-family: var(--font);
   color: var(--brand-black);
 }
@@ -22,21 +22,21 @@ html, body {
 .pricing-wrapper {
   max-width: 1350px;
   margin: 0 auto;
-  padding: 40px 16px 48px 16px;
+  padding: 48px 16px 60px 16px;
 }
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 60px;
 }
 .pricing-header h1 {
-  font-size: 3.2em;
+  font-size: 3em;
   font-weight: 800;
-  margin: 0 0 0.35em 0;
+  margin: 0 0 0.4em 0;
   letter-spacing: -0.01em;
 }
 .pricing-blurb {
-  font-size: 1.18em;
+  font-size: 1.15em;
   color: #565c67;
   margin: 0;
   font-weight: 400;
@@ -46,9 +46,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2em;
-  margin-bottom: 48px;
-  font-size: 1.13em;
+  gap: 1.4em;
+  margin-bottom: 52px;
+  font-size: 1.14em;
   font-weight: 600;
 }
 
@@ -72,9 +72,6 @@ html, body {
   align-items: center;
   transition: background .18s;
 }
-.toggle-switch.active {
-  background: #e5e8ef;
-}
 .toggle-slider {
   position: absolute;
   left: 7px;
@@ -92,7 +89,7 @@ html, body {
 
 .pricing-tiers {
   display: flex;
-  gap: 3.2em;
+  gap: 3em;
   justify-content: center;
   align-items: stretch;
   margin-top: 0;
@@ -103,14 +100,14 @@ html, body {
   background: var(--brand-white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 2.6em 2.2em 2.2em 2.2em;
+  padding: 2.4em 2em 2.1em 2em;
   min-width: 320px;
   max-width: 380px;
   flex: 1 1 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2em;
+  margin-bottom: 2.2em;
   transition: box-shadow .2s;
 }
 
@@ -119,11 +116,11 @@ html, body {
 }
 
 .plan-name {
-  font-size: 1.6em;
+  font-size: 1.5em;
   font-weight: 800;
   color: var(--brand-black);
   letter-spacing: 0.02em;
-  margin-bottom: 0.32em;
+  margin-bottom: 0.16em;
   margin-top: 0;
   text-align: center;
   line-height: 1.18;
@@ -136,13 +133,13 @@ html, body {
   margin-bottom: 0.08em;
 }
 .plan-price {
-  font-size: 2.3em;
+  font-size: 2.2em;
   font-weight: 800;
   color: var(--brand-black);
   letter-spacing: -0.01em;
 }
 .plan-per {
-  font-size: 1.16em;
+  font-size: 1.12em;
   color: #888;
   margin-left: 0.18em;
   font-weight: 500;
@@ -150,24 +147,24 @@ html, body {
 }
 .plan-billed {
   color: #888;
-  font-size: 1.04em;
-  margin-bottom: 0.7em;
+  font-size: 1.02em;
+  margin-bottom: 1.1em;
   margin-top: 0.02em;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 
 .plan-desc {
-  margin-bottom: 1.25em;
-  margin-top: 0.12em;
+  margin-bottom: 1.55em;
+  margin-top: 0.10em;
   color: #323232;
-  font-size: 1.12em;
+  font-size: 1.13em;
   text-align: center;
   min-height: 2.2em;
-  line-height: 1.45;
+  line-height: 1.5;
   font-weight: 400;
   letter-spacing: 0.01em;
-  max-width: 90%;
+  max-width: 95%;
 }
 
 .plan-btn {
@@ -175,12 +172,12 @@ html, body {
   background: var(--brand-blue);
   color: #fff;
   border-radius: 8px;
-  padding: 0.96em 0;
+  padding: 1em 0;
   font-size: 1.17em;
   font-weight: 700;
   border: none;
-  margin-bottom: 1.25em;
-  margin-top: 0.2em;
+  margin-bottom: 1.3em;
+  margin-top: 0.1em;
   cursor: pointer;
   transition: background .18s;
   box-shadow: 0 1px 8px #2960f71a;
@@ -194,14 +191,14 @@ html, body {
   border: none;
   border-top: 1px solid var(--gray-100);
   width: 100%;
-  margin: 1.15em 0 1.15em 0;
+  margin: 1.2em 0 1.2em 0;
 }
 
 .plan-meta {
   list-style: none;
   padding: 0;
   margin: 0;
-  margin-bottom: 0.68em;
+  margin-bottom: 0.8em;
   width: 100%;
   text-align: center;
   color: #232323;
@@ -210,7 +207,7 @@ html, body {
   letter-spacing: -0.01em;
 }
 .plan-meta li:not(:last-child) {
-  margin-bottom: 0.36em;
+  margin-bottom: 0.4em;
 }
 .plan-features {
   list-style: none;
@@ -219,18 +216,23 @@ html, body {
   width: 100%;
   text-align: left;
   color: #232323;
-  font-size: 1.04em;
+  font-size: 1.07em;
   font-weight: 400;
 }
 .plan-features li {
-  margin-bottom: 0.7em;
+  margin-bottom: 0.82em;
   display: flex;
   align-items: center;
   gap: 0.44em;
 }
+.plan-features li strong {
+  font-weight: 700;
+  color: var(--brand-blue);
+  margin-right: 0.33em;
+}
 .plan-features .checkmark {
   color: #1cb651;
-  font-size: 1.22em;
+  font-size: 1.24em;
   font-weight: 700;
   margin-right: 0.18em;
 }
@@ -248,5 +250,5 @@ html, body {
   }
 }
 @media (max-width: 700px) {
-  .pricing-header h1 { font-size: 2em;}
+  .pricing-header h1 { font-size: 2em; }
 }
