@@ -1,13 +1,11 @@
 :root {
-  --brand-blue: #4a85ed;
-  --brand-bg: #17212d;
-  --brand-bg2: #202d3a;
-  --brand-black: #fff;
+  --brand-blue: #2960f7;
+  --brand-black: #232323;
   --brand-white: #fff;
-  --gray-100: #cce1ff;
-  --gray-300: #b2c5db;
+  --gray-100: #ececec;
+  --gray-300: #dde3ee;
   --gray-400: #aaa;
-  --gray-bg: #17212d;
+  --gray-bg: #f4f7fa;
   --shadow: 0 6px 32px #23232312;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
   --radius: 14px;
