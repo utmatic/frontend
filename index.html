@@ -21,16 +21,18 @@
       </div>
 
       <form class="auth-form" id="signin-form" autocomplete="on">
-        <label>Email
-          <input type="email" name="email" autocomplete="email" required/>
-        </label>
-        <label>
-          Password
-          <input type="password" name="password" autocomplete="current-password" required/>
-        </label>
-        <div class="auth-actions">
-          <label class="remember-me">
-            <input type="checkbox" name="remember"/> Remember me
+        <div class="form-group">
+          <label for="signin-email">Email</label>
+          <input type="email" id="signin-email" name="email" autocomplete="email" required/>
+        </div>
+        <div class="form-group">
+          <label for="signin-password">Password</label>
+          <input type="password" id="signin-password" name="password" autocomplete="current-password" required/>
+        </div>
+        <div class="form-row align-center">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember"/>
+            <span>Remember me</span>
           </label>
           <a href="#" class="forgot-link">Forgot password?</a>
         </div>
@@ -40,20 +42,31 @@
       </form>
 
       <form class="auth-form" id="signup-form" style="display:none;" autocomplete="on">
-        <label>Email
-          <input type="email" name="email" autocomplete="email" required/>
-        </label>
-        <label>
-          Password
-          <input type="password" name="password" autocomplete="new-password" required minlength="8"/>
-        </label>
-        <label>
-          Confirm password
-          <input type="password" name="confirm" autocomplete="new-password" required minlength="8"/>
-        </label>
-        <div class="auth-actions">
-          <label class="remember-me">
-            <input type="checkbox" name="tos" required/> I agree to the <a href="#" target="_blank">Terms</a> and <a href="#" target="_blank">Privacy Policy</a>
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" name="email" autocomplete="email" required/>
+        </div>
+        <div class="form-group">
+          <label for="signup-company">Company or Organization</label>
+          <input type="text" id="signup-company" name="company" autocomplete="organization" required/>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" name="password" autocomplete="new-password" required minlength="8"/>
+        </div>
+        <div class="form-group">
+          <label for="signup-confirm">Confirm password</label>
+          <input type="password" id="signup-confirm" name="confirm" autocomplete="new-password" required minlength="8"/>
+        </div>
+        <div class="form-row">
+          <label class="checkbox-label checkbox-agree">
+            <input type="checkbox" name="tos" required/>
+            <span>
+              I agree to the
+              <a href="#" target="_blank">Terms</a>
+              and
+              <a href="#" target="_blank">Privacy Policy</a>
+            </span>
           </label>
         </div>
         <button type="submit" class="auth-btn">Sign up</button>
