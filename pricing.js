@@ -17,12 +17,12 @@ let yearly = false;
 
 function updatePricing() {
   const prices = yearly ? pricingData.yearly : pricingData.monthly;
-  document.getElementById('lite-price').textContent = prices[0].price;
-  document.getElementById('lite-billed').textContent = prices[0].billed;
-  document.getElementById('pro-price').textContent = prices[1].price;
-  document.getElementById('pro-billed').textContent = prices[1].billed;
-  document.getElementById('premium-price').textContent = prices[2].price;
-  document.getElementById('premium-billed').textContent = prices[2].billed;
+  document.getElementById('starter-price').textContent = prices[0].price;
+  document.getElementById('starter-billed').textContent = prices[0].billed;
+  document.getElementById('builder-price').textContent = prices[1].price;
+  document.getElementById('builder-billed').textContent = prices[1].billed;
+  document.getElementById('enterprise-price').textContent = prices[2].price;
+  document.getElementById('enterprise-billed').textContent = prices[2].billed;
 }
 
 // Toggle switch logic
