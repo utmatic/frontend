@@ -1,13 +1,13 @@
 :root {
-  --brand-blue: #4a85ed;
-  --brand-bg: #17212d;
-  --brand-bg2: #202d3a;
-  --brand-black: #fff;
-  --brand-white: #fff;
-  --gray-100: #cce1ff;
-  --gray-300: #b2c5db;
-  --gray-400: #aaa;
-  --gray-bg: #f4f7fa;
+  --color-primary: #4a85ed;
+  --color-bg-primary: #17212d;
+  --color-bg-secondary: #202d3a;
+  --color-text-primary: #fff;       /* main text on dark bg */
+  --color-text-on-primary: #fff;    /* text on primary color */
+  --color-accent-light: #cce1ff;
+  --color-accent: #b2c5db;
+  --color-accent-dark: #aaa;
+  --color-bg-light: #f4f7fa;
   --shadow: 0 6px 32px #23232312;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
   --radius: 14px;
@@ -16,9 +16,9 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--brand-bg);
+  background: var(--color-bg-primary);
   font-family: var(--font);
-  color: var(--brand-black);
+  color: var(--color-text-primary);
 }
 
 .pricing-wrapper {
@@ -36,10 +36,11 @@ html, body {
   font-weight: 800;
   margin: 0 0 0.4em 0;
   letter-spacing: -0.01em;
+  color: var(--color-text-primary);
 }
 .pricing-blurb {
   font-size: 1.15em;
-  color: #565c67;
+  color: var(--color-accent-light);
   margin: 0;
   font-weight: 400;
 }
@@ -52,16 +53,17 @@ html, body {
   margin-bottom: 52px;
   font-size: 1.14em;
   font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .toggle-label {
-  color: var(--brand-black);
+  color: var(--color-text-primary);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .toggle-switch {
-  background: #e5e8ef;
+  background: var(--color-bg-secondary);
   border: none;
   border-radius: 22px;
   width: 56px;
@@ -81,7 +83,7 @@ html, body {
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  background: var(--brand-blue);
+  background: var(--color-primary);
   border-radius: 50%;
   transition: left 0.23s cubic-bezier(.4,0,.2,1);
 }
@@ -99,7 +101,7 @@ html, body {
 }
 
 .pricing-card {
-  background: var(--brand-bg2);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 2.4em 2em 2.1em 2em;
@@ -111,6 +113,7 @@ html, body {
   align-items: center;
   margin-bottom: 2.2em;
   transition: box-shadow .2s;
+  color: var(--color-text-primary);
 }
 
 .pricing-card:hover {
@@ -120,7 +123,7 @@ html, body {
 .plan-name {
   font-size: 1.5em;
   font-weight: 800;
-  color: var(--brand-black);
+  color: var(--color-accent-light);
   letter-spacing: 0.02em;
   margin-bottom: 0.16em;
   margin-top: 0;
@@ -137,18 +140,18 @@ html, body {
 .plan-price {
   font-size: 2.2em;
   font-weight: 800;
-  color: var(--brand-black);
+  color: var(--color-primary);
   letter-spacing: -0.01em;
 }
 .plan-per {
   font-size: 1.12em;
-  color: #888;
+  color: var(--color-accent-light);
   margin-left: 0.18em;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 .plan-billed {
-  color: #888;
+  color: var(--color-accent);
   font-size: 1.02em;
   margin-bottom: 1.1em;
   margin-top: 0.02em;
@@ -159,7 +162,7 @@ html, body {
 .plan-desc {
   margin-bottom: 1.55em;
   margin-top: 0.10em;
-  color: #323232;
+  color: var(--color-accent-light);
   font-size: 1.13em;
   text-align: center;
   min-height: 2.2em;
@@ -171,8 +174,8 @@ html, body {
 
 .plan-btn {
   width: 100%;
-  background: var(--brand-blue);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   border-radius: 8px;
   padding: 1em 0;
   font-size: 1.17em;
@@ -182,16 +185,16 @@ html, body {
   margin-top: 0.1em;
   cursor: pointer;
   transition: background .18s;
-  box-shadow: 0 1px 8px #2960f71a;
+  box-shadow: 0 1px 8px #4a85ed1a;
   letter-spacing: -0.01em;
 }
 .plan-btn:hover {
-  background: #1746be;
+  background: #3a6fcc;
 }
 
 .plan-divider {
   border: none;
-  border-top: 1px solid var(--gray-100);
+  border-top: 1px solid var(--color-accent);
   width: 100%;
   margin: 1.2em 0 1.2em 0;
 }
@@ -203,7 +206,7 @@ html, body {
   margin-bottom: 0.8em;
   width: 100%;
   text-align: center;
-  color: #232323;
+  color: var(--color-accent-light);
   font-size: 1.09em;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -214,7 +217,7 @@ html, body {
 
 /* Subtle style for additional user pricing */
 .plan-meta .additional-user {
-  color: #888;
+  color: var(--color-accent-dark);
   font-size: 0.98em;
   font-weight: 400;
   margin-top: 0.2em;
@@ -227,7 +230,7 @@ html, body {
   margin: 0;
   width: 100%;
   text-align: left;
-  color: #232323;
+  color: var(--color-accent-light);
   font-size: 1.07em;
   font-weight: 400;
 }
@@ -239,18 +242,18 @@ html, body {
 }
 .plan-features li strong {
   font-weight: 700;
-  color: var(--brand-blue);
+  color: var(--color-primary);
   margin-right: 0.33em;
 }
 .plan-features .checkmark {
   display: flex;
   align-items: center;
   margin-right: 0.18em;
-  color: #1cb651;
+  color: #44d492;
 }
 .plan-features .checkmark svg {
   display: block;
-  color: #1cb651;
+  color: #44d492;
   width: 1.22em;
   height: 1.22em;
   min-width: 1.22em;
