@@ -14,7 +14,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: none;
+  background: var(--gray-bg);
   font-family: var(--font);
   color: var(--brand-black);
 }
@@ -27,12 +27,12 @@ html, body {
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 56px;
 }
 .pricing-header h1 {
-  font-size: 2.2em;
+  font-size: 3em;
   font-weight: 700;
-  margin: 0 0 0.2em 0;
+  margin: 0 0 0.25em 0;
   letter-spacing: -0.01em;
 }
 .pricing-blurb {
@@ -113,6 +113,16 @@ html, body {
   margin-bottom: 2em;
 }
 
+.plan-name {
+  font-size: 1.6em;
+  font-weight: 800;
+  color: var(--brand-black);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.18em;
+  margin-top: 0;
+  text-align: center;
+}
+
 .plan-price-row {
   display: flex;
   align-items: baseline;
@@ -135,14 +145,6 @@ html, body {
   margin-bottom: 0.1em;
   margin-top: -0.18em;
   font-weight: 400;
-}
-.plan-name {
-  margin-top: 0.15em;
-  font-size: 1.12em;
-  font-weight: 700;
-  color: var(--brand-black);
-  letter-spacing: 0.02em;
-  margin-bottom: 0.27em;
 }
 .plan-desc {
   margin-bottom: 1.1em;
@@ -228,5 +230,5 @@ html, body {
   }
 }
 @media (max-width: 700px) {
-  .pricing-header h1 { font-size: 1.5em;}
+  .pricing-header h1 { font-size: 2em;}
 }
