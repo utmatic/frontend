@@ -14,7 +14,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--gray-bg);
+  background: none;
   font-family: var(--font);
   color: var(--brand-black);
 }
