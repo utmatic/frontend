@@ -20,7 +20,7 @@ html, body {
 }
 
 .pricing-wrapper {
-  max-width: 1200px;
+  max-width: 1350px;
   margin: 0 auto;
   padding: 40px 16px 48px 16px;
 }
@@ -30,13 +30,13 @@ html, body {
   margin-bottom: 56px;
 }
 .pricing-header h1 {
-  font-size: 3em;
-  font-weight: 700;
-  margin: 0 0 0.25em 0;
+  font-size: 3.2em;
+  font-weight: 800;
+  margin: 0 0 0.35em 0;
   letter-spacing: -0.01em;
 }
 .pricing-blurb {
-  font-size: 1.15em;
+  font-size: 1.18em;
   color: #565c67;
   margin: 0;
   font-weight: 400;
@@ -47,7 +47,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 1.2em;
-  margin-bottom: 36px;
+  margin-bottom: 48px;
   font-size: 1.13em;
   font-weight: 600;
 }
@@ -92,7 +92,7 @@ html, body {
 
 .pricing-tiers {
   display: flex;
-  gap: 2.2em;
+  gap: 3.2em;
   justify-content: center;
   align-items: stretch;
   margin-top: 0;
@@ -103,14 +103,19 @@ html, body {
   background: var(--brand-white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 2.1em 2em 2.1em 2em;
-  min-width: 295px;
-  max-width: 340px;
-  flex: 1 1 300px;
+  padding: 2.6em 2.2em 2.2em 2.2em;
+  min-width: 320px;
+  max-width: 380px;
+  flex: 1 1 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 2em;
+  transition: box-shadow .2s;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 12px 32px #23232320;
 }
 
 .plan-name {
@@ -118,55 +123,68 @@ html, body {
   font-weight: 800;
   color: var(--brand-black);
   letter-spacing: 0.02em;
-  margin-bottom: 0.18em;
+  margin-bottom: 0.32em;
   margin-top: 0;
   text-align: center;
+  line-height: 1.18;
 }
 
 .plan-price-row {
   display: flex;
   align-items: baseline;
   gap: 0.19em;
+  margin-bottom: 0.08em;
 }
 .plan-price {
-  font-size: 2.1em;
-  font-weight: 700;
+  font-size: 2.3em;
+  font-weight: 800;
   color: var(--brand-black);
+  letter-spacing: -0.01em;
 }
 .plan-per {
-  font-size: 1.1em;
+  font-size: 1.16em;
   color: #888;
   margin-left: 0.18em;
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 .plan-billed {
   color: #888;
-  font-size: 0.98em;
-  margin-bottom: 0.1em;
-  margin-top: -0.18em;
-  font-weight: 400;
+  font-size: 1.04em;
+  margin-bottom: 0.7em;
+  margin-top: 0.02em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
+
 .plan-desc {
-  margin-bottom: 1.1em;
-  color: #444;
-  font-size: 1.02em;
+  margin-bottom: 1.25em;
+  margin-top: 0.12em;
+  color: #323232;
+  font-size: 1.12em;
   text-align: center;
-  min-height: 1.5em;
+  min-height: 2.2em;
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  max-width: 90%;
 }
+
 .plan-btn {
   width: 100%;
   background: var(--brand-blue);
   color: #fff;
   border-radius: 8px;
-  padding: 0.93em 0;
-  font-size: 1.08em;
-  font-weight: 600;
+  padding: 0.96em 0;
+  font-size: 1.17em;
+  font-weight: 700;
   border: none;
-  margin-bottom: 1.15em;
-  margin-top: 0.1em;
+  margin-bottom: 1.25em;
+  margin-top: 0.2em;
   cursor: pointer;
   transition: background .18s;
   box-shadow: 0 1px 8px #2960f71a;
+  letter-spacing: -0.01em;
 }
 .plan-btn:hover {
   background: #1746be;
@@ -176,23 +194,23 @@ html, body {
   border: none;
   border-top: 1px solid var(--gray-100);
   width: 100%;
-  margin: 1em 0 1em 0;
+  margin: 1.15em 0 1.15em 0;
 }
 
 .plan-meta {
   list-style: none;
   padding: 0;
   margin: 0;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.68em;
   width: 100%;
   text-align: center;
   color: #232323;
-  font-size: 1.05em;
+  font-size: 1.09em;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 .plan-meta li:not(:last-child) {
-  margin-bottom: 0.3em;
+  margin-bottom: 0.36em;
 }
 .plan-features {
   list-style: none;
@@ -212,7 +230,7 @@ html, body {
 }
 .plan-features .checkmark {
   color: #1cb651;
-  font-size: 1.2em;
+  font-size: 1.22em;
   font-weight: 700;
   margin-right: 0.18em;
 }
@@ -221,10 +239,10 @@ html, body {
   .pricing-tiers {
     flex-direction: column;
     align-items: center;
-    gap: 1.8em;
+    gap: 2.2em;
   }
   .pricing-card {
-    max-width: 430px;
+    max-width: 480px;
     min-width: 0;
     width: 97vw;
   }
