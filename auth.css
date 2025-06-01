@@ -38,8 +38,8 @@ html, body {
 }
 
 .auth-logo img {
-  width: 76px;
-  height: 76px;
+  width: 150px;
+  height: 75px;
   object-fit: contain;
   margin-bottom: 1.6em;
   margin-top: 0.3em;
