@@ -3,18 +3,12 @@ const tabSignin = document.getElementById('tab-signin');
 const tabSignup = document.getElementById('tab-signup');
 const signinForm = document.getElementById('signin-form');
 const signupForm = document.getElementById('signup-form');
-const footerSignin = document.getElementById('footer-signin');
-const footerSignup = document.getElementById('footer-signup');
-const footerSignupLink = document.getElementById('footer-signup-link');
-const footerSigninLink = document.getElementById('footer-signin-link');
 
 function showSignin() {
   tabSignin.classList.add('active');
   tabSignup.classList.remove('active');
   signinForm.style.display = '';
   signupForm.style.display = 'none';
-  footerSignin.style.display = '';
-  footerSignup.style.display = 'none';
 }
 
 function showSignup() {
@@ -22,14 +16,10 @@ function showSignup() {
   tabSignup.classList.add('active');
   signinForm.style.display = 'none';
   signupForm.style.display = '';
-  footerSignin.style.display = 'none';
-  footerSignup.style.display = '';
 }
 
 tabSignin.addEventListener('click', showSignin);
 tabSignup.addEventListener('click', showSignup);
-footerSignupLink.addEventListener('click', (e) => { e.preventDefault(); showSignup(); });
-footerSigninLink.addEventListener('click', (e) => { e.preventDefault(); showSignin(); });
 
 // Demo: Prevent actual submit, show alert
 document.querySelectorAll('.auth-form').forEach(form => {
