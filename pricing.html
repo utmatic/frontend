@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Choose Your Plan · Utmatic</title>
+  <link rel="stylesheet" href="pricing.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="pricing-wrapper">
+    <header class="pricing-header">
+      <h1>Choose your plan</h1>
+      <p class="pricing-blurb">Select the plan that best fits your workflow. All plans include a free trial and you can upgrade or downgrade anytime.</p>
+    </header>
+    <div class="pricing-toggle-row">
+      <span class="toggle-label">Monthly</span>
+      <button class="toggle-switch" id="billing-toggle" aria-label="Switch billing period" type="button">
+        <span class="toggle-slider"></span>
+      </button>
+      <span class="toggle-label">Yearly</span>
+    </div>
+
+    <div class="pricing-tiers">
+      <!-- Lite Plan -->
+      <div class="pricing-card">
+        <div class="plan-price-row">
+          <span class="plan-price" id="lite-price">$79</span>
+          <span class="plan-per">/mo</span>
+        </div>
+        <div class="plan-billed" id="lite-billed">billed monthly</div>
+        <div class="plan-name">Lite</div>
+        <div class="plan-desc">Lorem ipsum dolor sit amet, consectetuer adipiscing nibh euismod.</div>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>1 user</li>
+          <li>10MB max file size</li>
+          <li>Standard processing speed</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li><span class="checkmark">✔</span> Add links to PDFs</li>
+          <li><span class="checkmark">✔</span> Add UTM tracking to PDFs</li>
+        </ul>
+      </div>
+      <!-- Pro Plan -->
+      <div class="pricing-card">
+        <div class="plan-price-row">
+          <span class="plan-price" id="pro-price">$399</span>
+          <span class="plan-per">/mo</span>
+        </div>
+        <div class="plan-billed" id="pro-billed">billed monthly</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-desc">Lorem ipsum dolor sit amet, consectetuer adipiscing nibh euismod.</div>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>Up to 3 users</li>
+          <li>100MB max file size</li>
+          <li>Accelerated processing speed</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li><span class="checkmark">✔</span> Add links to PDFs</li>
+          <li><span class="checkmark">✔</span> Add UTM tracking to PDFs</li>
+          <li><span class="checkmark">✔</span> Add links to INDD files</li>
+          <li><span class="checkmark">✔</span> Add links to INDD</li>
+        </ul>
+      </div>
+      <!-- Premium Plan -->
+      <div class="pricing-card">
+        <div class="plan-price-row">
+          <span class="plan-price" id="premium-price">$799</span>
+          <span class="plan-per">/mo</span>
+        </div>
+        <div class="plan-billed" id="premium-billed">billed monthly</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-desc">Lorem ipsum dolor sit amet, consectetuer adipiscing nibh euismod.</div>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>Up to 5 users</li>
+          <li>No file size limit</li>
+          <li>Fastest processing speed</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li><span class="checkmark">✔</span> Add links to PDFs</li>
+          <li><span class="checkmark">✔</span> Add UTM tracking to PDFs</li>
+          <li><span class="checkmark">✔</span> Add links to INDD files</li>
+          <li><span class="checkmark">✔</span> Add links to INDD</li>
+          <li><span class="checkmark">✔</span> Saved Presets</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script src="pricing.js"></script>
+</body>
+</html>
