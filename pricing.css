@@ -19,6 +19,14 @@ html, body {
   color: var(--brand-black);
 }
 
+.plan-meta .additional-user {
+  color: #888;
+  font-size: 0.98em;
+  font-weight: 400;
+  margin-top: 0.2em;
+  letter-spacing: 0;
+}
+
 .pricing-wrapper {
   max-width: 1350px;
   margin: 0 auto;
