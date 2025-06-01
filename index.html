@@ -1,161 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Utmatic – Automate Document Busywork</title>
-  <link rel="stylesheet" href="landing.css"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Sign In · Utmatic</title>
+  <link rel="stylesheet" href="auth.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="navbar-left">
-      <a href="/" class="logo-link" aria-label="Utmatic Home">
-        <img src="https://images.squarespace-cdn.com/content/v1/680bb671dac3025d584cb957/18d85426-497a-4e59-a47e-df025211ffee/logo-utmatic-nobackground.png?format=1500w" alt="Utmatic Logo" class="utmatic-logo"/>
-        <span class="brand-name">utmatic</span>
-      </a>
-    </div>
-    <div class="navbar-right">
-      <a href="#pricing" class="nav-link">Pricing</a>
-      <a href="#" class="nav-link">Sign in</a>
-      <a href="#" class="signup-btn">Sign up</a>
-    </div>
-  </nav>
+  <div class="auth-container">
+    <div class="auth-card">
 
-  <!-- Step 1: Question -->
-  <section class="question-section" id="question-section">
-    <div class="question-content">
-      <h1 class="question-title">How do you use documents?</h1>
-      <ul class="question-options">
-        <li class="option active" data-role="builder">
-          <span class="option-arrow">&#9654;</span>
-          <span class="option-text option-bold">I build them.</span>
-        </li>
-        <li class="option" data-role="distributor">
-          <span class="option-arrow"></span>
-          <span class="option-text">I distribute them.</span>
-        </li>
-        <li class="option" data-role="both">
-          <span class="option-arrow"></span>
-          <span class="option-text">I do both.</span>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Step 2: Hero / Contextual Messaging (hidden until selection) -->
-  <section class="context-hero" id="context-hero" style="display:none;">
-    <div class="context-label" id="context-label">FOR BUILDERS <span class="context-caret">&#9660;</span></div>
-    <h2 class="context-title" id="context-title">Create smarter. Skip the busywork.</h2>
-    <p class="context-desc" id="context-desc">
-      You’re already creating the content—building the assets, writing the copy, designing the layouts. But manually adding links to every product, part number, and SKU? That’s hours of tedious work. Let automation handle the links, so you can focus on creating and keep moving forward.
-    </p>
-  </section>
-
-  <!-- Step 3: Time Savings Calculator -->
-  <section class="timesave-section">
-    <div class="timesave-widget">
-      <div class="timesave-output">
-        <span class="timesave-approx">~</span>
-        <span class="timesave-hours" id="timesave-hours">9</span>
-        <span class="timesave-units">hrs</span>
+      <div class="auth-logo">
+        <img src="https://images.squarespace-cdn.com/content/v1/680bb671dac3025d584cb957/18d85426-497a-4e59-a47e-df025211ffee/logo-utmatic-nobackground.png?format=1500w" alt="Utmatic Logo"/>
       </div>
-      <div class="timesave-label">How much time could you save?</div>
-      <div class="timesave-slider-row">
-        <label for="docs-created">Documents created</label>
-        <input type="range" id="docs-created" min="1" max="50" value="15" />
-        <span class="slider-value" id="docs-created-value">15</span>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin" type="button">Sign in</button>
+        <button class="auth-tab" id="tab-signup" type="button">Sign up</button>
       </div>
-      <div class="timesave-slider-row">
-        <label for="links-per-doc">Links per document</label>
-        <input type="range" id="links-per-doc" min="1" max="100" value="50" />
-        <span class="slider-value" id="links-per-doc-value">50</span>
+
+      <form class="auth-form" id="signin-form" autocomplete="on">
+        <label>Email
+          <input type="email" name="email" autocomplete="email" required/>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" autocomplete="current-password" required/>
+        </label>
+        <div class="auth-actions">
+          <label class="remember-me">
+            <input type="checkbox" name="remember"/> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="auth-btn">Sign in</button>
+        <div class="auth-or"><span>or</span></div>
+        <button type="button" class="auth-btn auth-btn-google"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="" class="google-icon"/> Sign in with Google</button>
+      </form>
+
+      <form class="auth-form" id="signup-form" style="display:none;" autocomplete="on">
+        <label>Email
+          <input type="email" name="email" autocomplete="email" required/>
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" autocomplete="new-password" required minlength="8"/>
+        </label>
+        <label>
+          Confirm password
+          <input type="password" name="confirm" autocomplete="new-password" required minlength="8"/>
+        </label>
+        <div class="auth-actions">
+          <label class="remember-me">
+            <input type="checkbox" name="tos" required/> I agree to the <a href="#" target="_blank">Terms</a> and <a href="#" target="_blank">Privacy Policy</a>
+          </label>
+        </div>
+        <button type="submit" class="auth-btn">Sign up</button>
+        <div class="auth-or"><span>or</span></div>
+        <button type="button" class="auth-btn auth-btn-google"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="" class="google-icon"/> Sign up with Google</button>
+      </form>
+
+      <div class="auth-footer">
+        <span id="footer-signin">New to Utmatic? <a href="#" id="footer-signup-link">Sign up</a></span>
+        <span id="footer-signup" style="display:none;">Already have an account? <a href="#" id="footer-signin-link">Sign in</a></span>
       </div>
     </div>
-  </section>
-
-  <!-- Feature Highlights -->
-  <section class="features-section">
-    <div class="features-container">
-      <div class="feature-card">
-        <h3>Automate tedious linking</h3>
-        <p>Stop wasting hours manually inserting links and tracking codes. Utmatic finds, tags, and automates them for you—no more copy-paste fatigue.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Scale campaign attribution</h3>
-        <p>Deploy unique, trackable docs for every campaign, region, or team—at scale, in seconds, with zero manual editing required.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Works everywhere</h3>
-        <p>Utmatic integrates with your current tools—Word, Google Docs, PDFs, and more. No new workflows, just more time saved.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section class="how-section">
-    <div class="how-container">
-      <h2>How it works</h2>
-      <ol class="how-steps">
-        <li><strong>Upload:</strong> Add your doc or connect your source.</li>
-        <li><strong>Set rules:</strong> Choose how to tag, link, and attribute.</li>
-        <li><strong>Automate:</strong> Utmatic does the busywork—your doc is ready to deploy, fully tracked.</li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Pricing Section -->
-  <section class="pricing-section" id="pricing">
-    <h2 class="pricing-title">Pricing</h2>
-    <div class="pricing-tiers">
-      <div class="pricing-card">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price">$0<span class="plan-period">/mo</span></div>
-        <ul class="plan-features">
-          <li>Up to 10 documents/month</li>
-          <li>Basic link automation</li>
-          <li>Manual downloads</li>
-          <li>Email support</li>
-        </ul>
-        <a href="#" class="plan-btn plan-btn-outline">Get Started</a>
-      </div>
-      <div class="pricing-card pricing-card-featured">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">$29<span class="plan-period">/mo</span></div>
-        <ul class="plan-features">
-          <li>Unlimited documents</li>
-          <li>Advanced link automation</li>
-          <li>Bulk exports</li>
-          <li>Campaign tracking tools</li>
-          <li>Priority support</li>
-        </ul>
-        <a href="#" class="plan-btn">Start Free Trial</a>
-      </div>
-      <div class="pricing-card">
-        <div class="plan-name">Enterprise</div>
-        <div class="plan-price">Custom</div>
-        <ul class="plan-features">
-          <li>Everything in Pro</li>
-          <li>Custom integrations</li>
-          <li>Dedicated onboarding</li>
-          <li>SLA & support</li>
-        </ul>
-        <a href="#" class="plan-btn plan-btn-outline">Contact Sales</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-inner">
-      <div>&copy; 2025 Utmatic. All rights reserved.</div>
-      <div>
-        <a href="#" class="footer-link">Privacy Policy</a>
-        <a href="#" class="footer-link">Terms</a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="landing.js"></script>
+  </div>
+  <script src="auth.js"></script>
 </body>
 </html>
