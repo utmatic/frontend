@@ -6,7 +6,7 @@ const pricingData = {
     { price: "$799", billed: "billed monthly" }
   ],
   yearly: [
-    { price: "$65", billed: "billed yearly" },   // No dollar amount in billed text
+    { price: "$65", billed: "billed yearly" },
     { price: "$329", billed: "billed yearly" },
     { price: "$659", billed: "billed yearly" }
   ]
