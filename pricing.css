@@ -1,9 +1,11 @@
 :root {
-  --brand-blue: #2960f7;
-  --brand-black: #232323;
+  --brand-blue: #4a85ed;
+  --brand-bg: #17212d;
+  --brand-bg2: #202d3a;
+  --brand-black: #fff;
   --brand-white: #fff;
-  --gray-100: #ececec;
-  --gray-300: #dde3ee;
+  --gray-100: #cce1ff;
+  --gray-300: #b2c5db;
   --gray-400: #aaa;
   --gray-bg: #f4f7fa;
   --shadow: 0 6px 32px #23232312;
@@ -14,7 +16,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--gray-bg);
+  background: var(--brand-bg);
   font-family: var(--font);
   color: var(--brand-black);
 }
@@ -97,7 +99,7 @@ html, body {
 }
 
 .pricing-card {
-  background: var(--brand-white);
+  background: var(--brand-bg2);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 2.4em 2em 2.1em 2em;
@@ -241,10 +243,18 @@ html, body {
   margin-right: 0.33em;
 }
 .plan-features .checkmark {
-  color: #1cb651;
-  font-size: 1.24em;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
   margin-right: 0.18em;
+  color: #1cb651;
+}
+.plan-features .checkmark svg {
+  display: block;
+  color: #1cb651;
+  width: 1.22em;
+  height: 1.22em;
+  min-width: 1.22em;
+  min-height: 1.22em;
 }
 
 @media (max-width: 1100px) {
