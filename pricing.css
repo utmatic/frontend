@@ -1,0 +1,232 @@
+:root {
+  --brand-blue: #2960f7;
+  --brand-black: #232323;
+  --brand-white: #fff;
+  --gray-100: #ececec;
+  --gray-300: #dde3ee;
+  --gray-400: #aaa;
+  --gray-bg: #f4f7fa;
+  --shadow: 0 6px 32px #23232312;
+  --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
+  --radius: 14px;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--gray-bg);
+  font-family: var(--font);
+  color: var(--brand-black);
+}
+
+.pricing-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 16px 48px 16px;
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.pricing-header h1 {
+  font-size: 2.2em;
+  font-weight: 700;
+  margin: 0 0 0.2em 0;
+  letter-spacing: -0.01em;
+}
+.pricing-blurb {
+  font-size: 1.15em;
+  color: #565c67;
+  margin: 0;
+  font-weight: 400;
+}
+
+.pricing-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2em;
+  margin-bottom: 36px;
+  font-size: 1.13em;
+  font-weight: 600;
+}
+
+.toggle-label {
+  color: var(--brand-black);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.toggle-switch {
+  background: #e5e8ef;
+  border: none;
+  border-radius: 22px;
+  width: 56px;
+  height: 28px;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  display: flex;
+  align-items: center;
+  transition: background .18s;
+}
+.toggle-switch.active {
+  background: #e5e8ef;
+}
+.toggle-slider {
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background: var(--brand-blue);
+  border-radius: 50%;
+  transition: left 0.23s cubic-bezier(.4,0,.2,1);
+}
+.toggle-switch.yearly .toggle-slider {
+  left: 31px;
+}
+
+.pricing-tiers {
+  display: flex;
+  gap: 2.2em;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 0;
+  flex-wrap: wrap;
+}
+
+.pricing-card {
+  background: var(--brand-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.1em 2em 2.1em 2em;
+  min-width: 295px;
+  max-width: 340px;
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2em;
+}
+
+.plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.19em;
+}
+.plan-price {
+  font-size: 2.1em;
+  font-weight: 700;
+  color: var(--brand-black);
+}
+.plan-per {
+  font-size: 1.1em;
+  color: #888;
+  margin-left: 0.18em;
+  font-weight: 500;
+}
+.plan-billed {
+  color: #888;
+  font-size: 0.98em;
+  margin-bottom: 0.1em;
+  margin-top: -0.18em;
+  font-weight: 400;
+}
+.plan-name {
+  margin-top: 0.15em;
+  font-size: 1.12em;
+  font-weight: 700;
+  color: var(--brand-black);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.27em;
+}
+.plan-desc {
+  margin-bottom: 1.1em;
+  color: #444;
+  font-size: 1.02em;
+  text-align: center;
+  min-height: 1.5em;
+}
+.plan-btn {
+  width: 100%;
+  background: var(--brand-blue);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.93em 0;
+  font-size: 1.08em;
+  font-weight: 600;
+  border: none;
+  margin-bottom: 1.15em;
+  margin-top: 0.1em;
+  cursor: pointer;
+  transition: background .18s;
+  box-shadow: 0 1px 8px #2960f71a;
+}
+.plan-btn:hover {
+  background: #1746be;
+}
+
+.plan-divider {
+  border: none;
+  border-top: 1px solid var(--gray-100);
+  width: 100%;
+  margin: 1em 0 1em 0;
+}
+
+.plan-meta {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 0.5em;
+  width: 100%;
+  text-align: center;
+  color: #232323;
+  font-size: 1.05em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.plan-meta li:not(:last-child) {
+  margin-bottom: 0.3em;
+}
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  color: #232323;
+  font-size: 1.04em;
+  font-weight: 400;
+}
+.plan-features li {
+  margin-bottom: 0.7em;
+  display: flex;
+  align-items: center;
+  gap: 0.44em;
+}
+.plan-features .checkmark {
+  color: #1cb651;
+  font-size: 1.2em;
+  font-weight: 700;
+  margin-right: 0.18em;
+}
+
+@media (max-width: 1100px) {
+  .pricing-tiers {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.8em;
+  }
+  .pricing-card {
+    max-width: 430px;
+    min-width: 0;
+    width: 97vw;
+  }
+}
+@media (max-width: 700px) {
+  .pricing-header h1 { font-size: 1.5em;}
+}
