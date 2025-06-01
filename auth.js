@@ -21,12 +21,16 @@ function showSignup() {
 tabSignin.addEventListener('click', showSignin);
 tabSignup.addEventListener('click', showSignup);
 
-// Demo: Prevent actual submit, show alert
-document.querySelectorAll('.auth-form').forEach(form => {
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    alert('This is a demo UI.\nImplement actual authentication logic here.');
-  });
+// On signup, redirect to pricing page
+signupForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  window.location.href = "/pricing.html"; // Use "/pricing" if using Next.js route
+});
+
+// Demo: Prevent actual submit for sign in, show alert
+signinForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  alert('This is a demo UI.\nImplement actual authentication logic here.');
 });
 document.querySelectorAll('.auth-btn-google').forEach(btn => {
   btn.addEventListener('click', e => {
