@@ -6,9 +6,9 @@ const pricingData = {
     { price: "$799", billed: "billed monthly" }
   ],
   yearly: [
-    { price: "$65", billed: "billed yearly ($780/yr)" },   // Example: 1 month free
-    { price: "$329", billed: "billed yearly ($3,948/yr)" },
-    { price: "$659", billed: "billed yearly ($7,908/yr)" }
+    { price: "$65", billed: "billed yearly" },   // No dollar amount in billed text
+    { price: "$329", billed: "billed yearly" },
+    { price: "$659", billed: "billed yearly" }
   ]
 };
 
