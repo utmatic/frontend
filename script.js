@@ -198,6 +198,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   fileInput.addEventListener("change", function() {
     const files = Array.from(fileInput.files);
     if (files.length > 0) {
+      // User selected a new file
       lastValidFile = files[0];
       fileNameSpan.textContent = files[0].name;
       // Update filename and tab label, etc.
@@ -215,7 +216,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
       }
       // Handle multi-file (tabs) as before
       let slots = MAX_DOCS - getTabCount();
-      // NEW: If this is the very first document (only one existing tab, and it's empty), just update the first tab's form instead of making a new tab
       if (getTabCount() === 1 && docCount === 2 && !formToHash(form)) {
         // do nothing, let user fill out the form
       } else {
@@ -224,11 +224,14 @@ function renderFormFields(form, tabId, docName, fileObj) {
         }
       }
     } else if (lastValidFile) {
-      // User canceled dialog, keep previous file name in UI
+      // User canceled dialog; keep previous file name in UI and keep lastValidFile
       fileNameSpan.textContent = lastValidFile.name;
       // No need to update fileInput.files: browsers block setting it programmatically
+      // lastValidFile is still valid, so formIsValid/form.getLastValidFile will work
     } else {
+      // No file ever selected
       fileNameSpan.textContent = "No file chosen";
+      lastValidFile = null;
     }
   });
 
