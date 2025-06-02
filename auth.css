@@ -1,17 +1,22 @@
 :root {
-  --brand-blue: #2960f7;
-  --brand-black: #232323;
-  --brand-white: #fff;
-  --gray-100: #ececec;
-  --gray-300: #bfc2c7;
-  --gray-400: #aaa;
-  --shadow: 0 8px 32px #23232318;
+  /* Updated color variables for dark mode */
+  --brand-blue: #4d89f9;
+  --brand-blue-hover: #3474e0;
+  --brand-black: #e4e8ef;    /* Main text color on dark */
+  --brand-white: #232a33;    /* Card surface, not true white */
+  --gray-100: #29313a;       /* Input borders, dividers */
+  --gray-300: #b3b9c5;       /* Muted text */
+  --gray-400: #7a8597;       /* More muted text */
+  --shadow: 0 8px 32px #000a;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
+  --background-main: #1c232b;
+  --background-alt: #222a33;
+  --accent-yellow: #ffd33d;
 }
 
 html, body {
   height: 100%;
-  background: #f5f8fa;
+  background: var(--background-main);
   margin: 0;
   font-family: var(--font);
   color: var(--brand-black);
@@ -56,7 +61,7 @@ html, body {
 .auth-tab {
   font-size: 1.18em;
   font-weight: 600;
-  color: var(--brand-black);
+  color: var(--gray-300);
   background: none;
   border: none;
   border-bottom: 2.5px solid transparent;
@@ -102,7 +107,7 @@ html, body {
   align-items: center;
   font-size: 1em;
   font-weight: 400;
-  color: #555;
+  color: var(--gray-300);
   gap: 0.5em;
   cursor: pointer;
   margin-bottom: 0;
@@ -113,13 +118,14 @@ html, body {
   height: 18px;
   margin: 0 0.25em 0 0;
   accent-color: var(--brand-blue);
+  background-color: var(--background-main);
   cursor: pointer;
 }
 
 .checkbox-agree {
   align-items: flex-start;
   font-size: 0.97em;
-  color: #444;
+  color: var(--gray-300);
   flex-wrap: wrap;
 }
 .checkbox-agree span {
@@ -150,7 +156,8 @@ html, body {
   font-size: 1em;
   border: 1.5px solid var(--gray-100);
   border-radius: 8px;
-  background: #f9f9fb;
+  background: var(--background-alt);
+  color: var(--brand-black);
   transition: border-color 0.18s, background 0.18s;
   margin-top: 0.1em;
   font-family: var(--font);
@@ -161,7 +168,8 @@ html, body {
 .auth-form input[type="password"]:focus,
 .auth-form input[type="text"]:focus {
   border-color: var(--brand-blue);
-  background: #fff;
+  background: #232a33;
+  color: var(--brand-black);
 }
 
 .forgot-link {
@@ -180,7 +188,7 @@ html, body {
   width: 100%;
   padding: 0.95em 0;
   background: var(--brand-blue);
-  color: #fff;
+  color: var(--brand-white);
   font-weight: 600;
   font-size: 1.09em;
   border: none;
@@ -194,19 +202,19 @@ html, body {
   gap: 0.7em;
 }
 .auth-btn:hover {
-  background: #1746be;
+  background: var(--brand-blue-hover);
 }
 
 .auth-btn-google {
-  background: #fff;
+  background: var(--background-main);
   color: var(--brand-black);
   border: 1.5px solid var(--gray-100);
-  box-shadow: 0 2px 12px #e3e6ee27;
+  box-shadow: 0 2px 12px #0005;
   gap: 0.7em;
   margin-top: 0.1em;
 }
 .auth-btn-google:hover {
-  background: #f0f4fa;
+  background: var(--background-alt);
   color: var(--brand-blue);
   border-color: var(--brand-blue);
 }
