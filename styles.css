@@ -386,7 +386,7 @@ input, textarea, select {
 #pdf-canvas,
 #modal-pdf-container {
   scrollbar-width: thin;
-  scrollbar-color: #d0d4de #f5f7fa;
+  scrollbar-color: #7a8597 #222a33;
 }
 
 /* For Webkit browsers (Chrome, Edge, Safari) */
@@ -1098,8 +1098,8 @@ input::placeholder {
 }
 #pdf-preview-container {
   position: relative;
-  background: var(--previewer-bg);
-  border: 2.5px solid var(--previewer-border);
+  background: #1c232b;
+  border: 2.5px solid #1c232b;
   border-radius: 12px;
   padding: 2.7rem 3.2rem 2.4rem 3.2rem;
   width: 99vw;
@@ -1143,8 +1143,9 @@ input::placeholder {
   box-shadow: 0 4px 22px #b6c5f45c;
 }
 #pdf-previewer-close svg {
-  width: 20px; height: 20px;
-  stroke: #1a1a1a;
+  width: 20px;
+  height: 20px;
+  stroke: #7a8597;
   stroke-width: 2.3;
 }
 #pdf-previewer-docswitch {
@@ -1154,7 +1155,7 @@ input::placeholder {
   gap: 0.36rem;
   font-weight: 700;
   font-size: 1.68rem;
-  color: #1a1a1a;
+  color: #fff;
   letter-spacing: 0.01em;
   margin: 0 auto 0.48rem auto;
   user-select: text;
@@ -1169,7 +1170,7 @@ input::placeholder {
   width: 1.32em;
   height: 1.32em;
   margin-left: 0.13em;
-  stroke: #1a1a1a;
+  stroke: #7a8597;
   transition: stroke 0.18s, transform 0.19s;
 }
 #pdf-previewer-docswitch.open svg.caret {
@@ -1210,7 +1211,7 @@ input::placeholder {
   width: 100%;
   text-align: center;
   font-weight: 500;
-  color: #334155;
+  color: #7a8597;
   font-size: 1.15rem;
   margin: 0 0 1.18rem 0;
   user-select: none;
@@ -1220,7 +1221,7 @@ input::placeholder {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(244,245,250,0.93);
+  background: #1c232b;
   border-radius: 50%;
   border: none;
   width: 48px;
@@ -1228,20 +1229,21 @@ input::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 14px #b6c5f43d;
+  /* box-shadow: 0 2px 14px #b6c5f43d; */
   opacity: 0.93;
   cursor: pointer;
   z-index: 9999;
   transition: background 0.15s, box-shadow 0.14s;
 }
 .pdf-arrow-btn svg {
-  width: 26px; height: 26px;
-  stroke: #1a1a1a;
+  width: 26px;
+  height: 26px;
+  stroke: #7a8597;
   stroke-width: 2.3;
 }
 .pdf-arrow-btn:hover {
-  background: #e8eefe;
-  box-shadow: 0 4px 22px #b6c5f45c;
+  background: #4b556378;
+  box-shadow: 0 4px 12px #b6c5f45c;
 }
 #pdf-arrow-prev {
   left: -64px;
@@ -1290,7 +1292,7 @@ input::placeholder {
   margin-right: 36px;
 }
 #pdf-canvas {
-  border: 1.6px solid #ced5e6;
+  /* border: 1.6px solid #ced5e6; */
   background: #fff;
   border-radius: 0px;
   box-shadow: none;
@@ -1302,7 +1304,7 @@ input::placeholder {
 #pdf-previewer-actions-bar {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 1.15rem;
   margin-top: 2.4rem;
@@ -1314,7 +1316,7 @@ input::placeholder {
   gap: 0.55em;
   font-size: 1.08rem;
   font-weight: 500;
-  color: var(--previewer-accent);
+  color: #fff;
   background: none;
   border: none;
   cursor: pointer;
@@ -1329,12 +1331,13 @@ input::placeholder {
   color: #1a1a1a;
 }
 #pdf-previewer-startnew svg {
-  width: 1.25em; height: 1.25em;
-  stroke: var(--previewer-accent);
+  width: 1.25em;
+  height: 1.25em;
+  stroke: #ffd33d;
 }
 #download-final-btn {
-  background: #2563eb;
-  color: #fff;
+  background: #ffd33d;
+  color: #1c232b;
   border: none;
   border-radius: 9px;
   font-weight: 600;
@@ -1428,9 +1431,9 @@ input::placeholder {
   margin: 0 auto 1.2rem auto;
 }
 .zoom-btn {
-  background: none;
+  background: #1c232b;
   border: none;
-  color: #1a1a1a;
+  color: #7a8597;
   padding: 0.29em 0.29em;
   border-radius: 6px;
   transition: background 0.17s, color 0.19s, transform 0.16s;
