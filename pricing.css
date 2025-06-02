@@ -87,9 +87,7 @@
   border-radius: 50%;
   transition: background 0.23s, left 0.23s cubic-bezier(.4,0,.2,1);
 }
-.toggle-switch.yearly {
-  background: var(--toggle-yellow-bg);
-}
+
 .toggle-switch.yearly .toggle-slider {
   background: var(--accent-yellow);
   left: 31px;
