@@ -73,7 +73,7 @@ function createRow(tfValue = '', buValue = '') {
 function updateDeleteButtons() {
   const rows = Array.from(rowsContainer.querySelectorAll('.field-row'));
   rows.forEach((row, idx) => {
-    let delBtn = row.querySelector('.delete-row-btn');
+    let delBtn = row.querySelector('.delete-tab');
     if (delBtn) delBtn.remove();
     let placeholder = row.querySelector('.delete-row-placeholder');
     if (placeholder) placeholder.remove();
@@ -81,7 +81,7 @@ function updateDeleteButtons() {
     if (idx > 0) {
       delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'delete-row-btn';
+      delBtn.className = 'delete-tab'; // Use the same class as tab delete
       delBtn.innerHTML = '&times;';
       delBtn.title = 'Remove row';
       delBtn.onclick = function() {
@@ -92,9 +92,10 @@ function updateDeleteButtons() {
       };
       row.appendChild(delBtn);
     } else {
+      // Placeholder to keep alignment, looks invisible/disabled
       placeholder = document.createElement('button');
       placeholder.type = 'button';
-      placeholder.className = 'delete-row-btn delete-row-placeholder';
+      placeholder.className = 'delete-tab delete-row-placeholder';
       placeholder.innerHTML = '&times;';
       placeholder.disabled = true;
       row.appendChild(placeholder);
