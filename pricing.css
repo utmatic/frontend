@@ -306,7 +306,7 @@ html, body {
   margin-right: 0.33em;
 }
 .plan-features .checkmark {
-  color: #1cb651; /* keep for checkmark, or use --accent-yellow for a yellow accent */
+  color: var(--gray-400);
   font-size: 1.24em;
   font-weight: 700;
   margin-right: 0.18em;
