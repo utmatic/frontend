@@ -411,27 +411,30 @@ function renderFormFields(form, tabId, docName, fileObj) {
   filenameGroup.appendChild(filenameInput);
   form.appendChild(filenameGroup);
 
-  // Custom checkbox for underline option
-  const underlineWrapper = document.createElement("div");
-  underlineWrapper.className = "checkbox-wrapper hidden";
-  underlineWrapper.style.marginBottom = "0.75rem";
-  underlineWrapper.style.marginTop = "-0.5rem";
+  // Toggle switch for underline option
+  const underlineToggleWrapper = document.createElement("div");
+  underlineToggleWrapper.className = "toggle-wrapper hidden";
+  underlineToggleWrapper.style.marginBottom = "0.75rem";
+  underlineToggleWrapper.style.marginTop = "-0.5rem";
 
-  // Add custom-checkbox class for styling
   const underlineInput = document.createElement("input");
   underlineInput.type = "checkbox";
   underlineInput.name = "underline";
   underlineInput.id = "underline";
-  underlineInput.className = "custom-checkbox"; // Important: for custom styling
+  underlineInput.className = "custom-toggle"; // For custom toggle styling
 
   const underlineLabel = document.createElement("label");
   underlineLabel.htmlFor = "underline";
-  underlineLabel.className = "custom-checkbox-label"; // Important: for custom styling
-  underlineLabel.textContent = "Add underline to links?";
+  underlineLabel.className = "custom-toggle-label"; // For toggle track styling
 
-  underlineWrapper.appendChild(underlineInput);
-  underlineWrapper.appendChild(underlineLabel);
-  form.appendChild(underlineWrapper);
+  const underlineText = document.createElement("span");
+  underlineText.className = "toggle-label-text";
+  underlineText.textContent = "Add underline to links?";
+
+  underlineToggleWrapper.appendChild(underlineInput);
+  underlineToggleWrapper.appendChild(underlineLabel);
+  underlineToggleWrapper.appendChild(underlineText);
+  form.appendChild(underlineToggleWrapper);
 
   const actionsDiv = document.createElement("div");
   actionsDiv.className = "form-actions";
