@@ -16,8 +16,8 @@ let yearly = false;
 
 function flashPrices() {
   const priceEls = [
-    document.getElementById('starter-price'),
     document.getElementById('essential-price'),
+    document.getElementById('pro-price'),
     document.getElementById('business-price')
   ];
   const flashClass = yearly ? 'flash-yellow' : 'flash-blue';
@@ -33,14 +33,14 @@ function flashPrices() {
 function updatePricing(options = { animate: false }) {
   const prices = yearly ? pricingData.yearly : pricingData.monthly;
   const billedEls = [
-    document.getElementById('starter-billed'),
     document.getElementById('essential-billed'),
+    document.getElementById('pro-billed'),
     document.getElementById('business-billed')
   ];
-  document.getElementById('starter-price').textContent = prices[0].price;
-  document.getElementById('starter-billed').textContent = prices[0].billed;
-  document.getElementById('essential-price').textContent = prices[1].price;
-  document.getElementById('essential-billed').textContent = prices[1].billed;
+  document.getElementById('essential-price').textContent = prices[0].price;
+  document.getElementById('essential-billed').textContent = prices[0].billed;
+  document.getElementById('pro-price').textContent = prices[1].price;
+  document.getElementById('pro-billed').textContent = prices[1].billed;
   document.getElementById('business-price').textContent = prices[2].price;
   document.getElementById('business-billed').textContent = prices[2].billed;
 
