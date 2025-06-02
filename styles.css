@@ -1523,5 +1523,7 @@ input.custom-toggle:checked + .custom-toggle-label:after {
   user-select: none;
   cursor: pointer;
 }
-
+select option:disabled {
+  color: #94a3b891!important;   /* Or any color you want */
+}
 /* --- End of new CSS --- */
