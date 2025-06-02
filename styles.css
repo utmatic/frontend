@@ -1,9 +1,9 @@
 :root {
   /* Dark mode color variables */
-  --brand-blue: #4d89f9;
-  --brand-white: #232a33;
+  --primary: #4d89f9;
+  --primary-dark: #232a33;
   --success: #22c55e;
-  --background-main: #1c232b;
+  --gray-bg: #1c232b;
   --gray-100: #232a33;
   --gray-200: #29313a;
   --gray-300: #7a8597;
