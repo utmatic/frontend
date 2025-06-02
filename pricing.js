@@ -1,4 +1,5 @@
-// Pricing data for monthly and yearly billing
+// Your updated JavaScript
+
 const pricingData = {
   monthly: [
     { price: "$79", billed: "billed monthly" },
@@ -17,12 +18,26 @@ let yearly = false;
 
 function updatePricing() {
   const prices = yearly ? pricingData.yearly : pricingData.monthly;
+  const billedEls = [
+    document.getElementById('starter-billed'),
+    document.getElementById('builder-billed'),
+    document.getElementById('enterprise-billed')
+  ];
   document.getElementById('starter-price').textContent = prices[0].price;
   document.getElementById('starter-billed').textContent = prices[0].billed;
   document.getElementById('builder-price').textContent = prices[1].price;
   document.getElementById('builder-billed').textContent = prices[1].billed;
   document.getElementById('enterprise-price').textContent = prices[2].price;
   document.getElementById('enterprise-billed').textContent = prices[2].billed;
+
+  // Update billed text color
+  billedEls.forEach(el => {
+    if (yearly) {
+      el.classList.add('yearly');
+    } else {
+      el.classList.remove('yearly');
+    }
+  });
 }
 
 // Toggle switch logic
