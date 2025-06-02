@@ -613,7 +613,7 @@ body {
   margin-bottom: 0.5rem;
   color: var(--gray-400);
   font-size: 1.01rem;
-  background: none;
+  background: #1c232b91;
   padding: 0.25rem 0.7rem;
   border-radius: 6px;
   transition: background var(--transition);
@@ -657,13 +657,13 @@ body {
 }
 .file-list li.saved {
   color: #fff;
-  background: #1c232b;
+  background: #1c232b91;
   font-weight: 600;
 }
 .checkmark__circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  stroke-width: 4;
+  stroke-width: 6;
   stroke-miterlimit: 10;
   stroke: #ffd731;
   fill: none;
@@ -674,7 +674,7 @@ body {
   height: 24px;
   border-radius: 50%;
   display: inline-block;
-  stroke-width: 2;
+  stroke-width: 4;
   stroke: #ffd731;
   stroke-miterlimit: 10;
   box-shadow: none;
