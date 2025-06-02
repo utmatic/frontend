@@ -15,6 +15,50 @@
   --radius: 18px;
 }
 
+/* Price flash animation for yearly */
+.plan-price.flash-yellow {
+  animation: price-flash-yellow 0.6s;
+}
+@keyframes price-flash-yellow {
+  0% {
+    color: var(--accent-yellow);
+    text-shadow: 0 0 12px var(--accent-yellow), 0 0 6px var(--accent-yellow);
+    transform: scale(1.12);
+  }
+  60% {
+    color: var(--accent-yellow);
+    text-shadow: 0 0 30px var(--accent-yellow), 0 0 8px var(--accent-yellow);
+    transform: scale(1.17);
+  }
+  100% {
+    color: var(--brand-black);
+    text-shadow: none;
+    transform: scale(1);
+  }
+}
+
+/* Price flash animation for monthly */
+.plan-price.flash-blue {
+  animation: price-flash-blue 0.6s;
+}
+@keyframes price-flash-blue {
+  0% {
+    color: var(--brand-blue);
+    text-shadow: 0 0 12px var(--brand-blue), 0 0 6px var(--brand-blue);
+    transform: scale(1.12);
+  }
+  60% {
+    color: var(--brand-blue);
+    text-shadow: 0 0 30px var(--brand-blue), 0 0 8px var(--brand-blue);
+    transform: scale(1.17);
+  }
+  100% {
+    color: var(--brand-black);
+    text-shadow: none;
+    transform: scale(1);
+  }
+}
+
 /* Add or update these rules in your pricing.css */
 
 .toggle-slider {
