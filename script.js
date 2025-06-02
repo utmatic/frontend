@@ -387,7 +387,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
   utmContentInput.name = "utm_content";
   utmContentInput.placeholder = "Content (automatic)";
   utmContentInput.readOnly = true;
-  utmContentInput.style.backgroundColor = "#f9f9f9";
+  utmContentInput.style.backgroundColor = "#1c232b";
   utmContentInput.style.cursor = "not-allowed";
   utmContentGroup.appendChild(utmContentInput);
   utmGroup.appendChild(utmContentGroup);
