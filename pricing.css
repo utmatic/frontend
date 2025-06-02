@@ -12,23 +12,25 @@
   --background-main: #1c232b;
   --background-alt: #222a33;
   --accent-yellow: #ffd33d;
+  --toggle-blue-bg: #22325a;
+  --toggle-yellow-bg: #c4a900;
   --radius: 18px;
 }
 
-/* Price flash animation for yearly */
+/* More subtle price flash animation for yearly */
 .plan-price.flash-yellow {
-  animation: price-flash-yellow 0.6s;
+  animation: price-flash-yellow 0.4s;
 }
 @keyframes price-flash-yellow {
   0% {
     color: var(--accent-yellow);
-    text-shadow: 0 0 12px var(--accent-yellow), 0 0 6px var(--accent-yellow);
-    transform: scale(1.12);
+    text-shadow: 0 0 4px var(--accent-yellow);
+    transform: scale(1.04);
   }
   60% {
     color: var(--accent-yellow);
-    text-shadow: 0 0 30px var(--accent-yellow), 0 0 8px var(--accent-yellow);
-    transform: scale(1.17);
+    text-shadow: 0 0 0 var(--accent-yellow);
+    transform: scale(1.07);
   }
   100% {
     color: var(--brand-black);
@@ -36,21 +38,21 @@
     transform: scale(1);
   }
 }
-  
-/* Price flash animation for monthly */
+
+/* More subtle price flash animation for monthly */
 .plan-price.flash-blue {
-  animation: price-flash-blue 0.6s;
+  animation: price-flash-blue 0.4s;
 }
 @keyframes price-flash-blue {
   0% {
     color: var(--brand-blue);
-    text-shadow: 0 0 12px var(--brand-blue), 0 0 6px var(--brand-blue);
-    transform: scale(1.12);
+    text-shadow: 0 0 4px var(--brand-blue);
+    transform: scale(1.04);
   }
   60% {
     color: var(--brand-blue);
-    text-shadow: 0 0 30px var(--brand-blue), 0 0 8px var(--brand-blue);
-    transform: scale(1.17);
+    text-shadow: 0 0 0 var(--brand-blue);
+    transform: scale(1.07);
   }
   100% {
     color: var(--brand-black);
@@ -59,16 +61,41 @@
   }
 }
 
-/* Add or update these rules in your pricing.css */
-
-.toggle-slider {
+/* Toggle switch and slider: inner color and background color update */
+.toggle-switch {
+  background: var(--toggle-blue-bg);
+  border: none;
+  border-radius: 22px;
+  width: 56px;
+  height: 28px;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  display: flex;
+  align-items: center;
+  transition: background 0.18s;
+}
+.toggle-switch .toggle-slider {
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
   background: var(--brand-blue);
-  /* ...existing props... */
+  border-radius: 50%;
+  transition: background 0.23s, left 0.23s cubic-bezier(.4,0,.2,1);
+}
+.toggle-switch.yearly {
+  background: var(--toggle-yellow-bg);
 }
 .toggle-switch.yearly .toggle-slider {
   background: var(--accent-yellow);
+  left: 31px;
 }
 
+/* Plan billed text coloring */
 .plan-billed {
   color: var(--brand-blue);
   transition: color 0.18s;
@@ -123,35 +150,6 @@ html, body {
   color: var(--brand-black);
   font-weight: 600;
   letter-spacing: -0.01em;
-}
-
-.toggle-switch {
-  background: var(--background-alt);
-  border: none;
-  border-radius: 22px;
-  width: 56px;
-  height: 28px;
-  position: relative;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-  display: flex;
-  align-items: center;
-  transition: background .18s;
-}
-.toggle-slider {
-  position: absolute;
-  left: 7px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  background: var(--brand-blue);
-  border-radius: 50%;
-  transition: left 0.23s cubic-bezier(.4,0,.2,1);
-}
-.toggle-switch.yearly .toggle-slider {
-  left: 31px;
 }
 
 .pricing-tiers {
