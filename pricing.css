@@ -15,6 +15,24 @@
   --radius: 18px;
 }
 
+/* Add or update these rules in your pricing.css */
+
+.toggle-slider {
+  background: var(--brand-blue);
+  /* ...existing props... */
+}
+.toggle-switch.yearly .toggle-slider {
+  background: var(--accent-yellow);
+}
+
+.plan-billed {
+  color: var(--brand-blue);
+  transition: color 0.18s;
+}
+.plan-billed.yearly {
+  color: var(--accent-yellow);
+}
+
 html, body {
   height: 100%;
   margin: 0;
