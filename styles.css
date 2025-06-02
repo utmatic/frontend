@@ -1044,7 +1044,7 @@ input::placeholder {
   text-decoration: none;
 }
 .custom-file-input-label:hover, .custom-file-input-label:focus {
-  background: #262626;
+  background: #161616;
   color: #fff !important;
   cursor: pointer;
 }
@@ -1488,26 +1488,24 @@ input.custom-checkbox {
   height: 18px;
   background: #1c232b;
   border-radius: 4px;
-  border: none;
-  box-shadow: 0 1px 2px #0001;
+  border: 1.5px solid #2a323c; /* subtle border for visibility */
   box-sizing: border-box;
 }
 
-/* Checkmark (shown when checked) */
+/* Checkmark: draw a real check (✓) using CSS */
 .custom-checkbox-label:after {
   content: "";
   position: absolute;
-  left: -24px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 10px;
-  height: 6px;
-  border-left: 3px solid #7a8597;
-  border-bottom: 3px solid #7a8597;
+  left: -22px;
+  top: 48%;
+  width: 9px;
+  height: 15px;
+  border: solid #7a8597;
+  border-width: 0 3px 3px 0;
   opacity: 0;
   pointer-events: none;
-  border-radius: 1px;
-  /* No transition, instant */
+  border-radius: 0.5px;
+  transform: translateY(-50%) rotate(45deg) scale(1);
 }
 
 /* Show checkmark when checked */
@@ -1515,7 +1513,7 @@ input.custom-checkbox:checked + .custom-checkbox-label:after {
   opacity: 1;
 }
 
-/* Optional: for keyboard accessibility */
+/* Optional: focus style for accessibility */
 input.custom-checkbox:focus + .custom-checkbox-label:before {
   outline: 2px solid #7a8597;
   outline-offset: 2px;
