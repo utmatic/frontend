@@ -1454,4 +1454,45 @@ input::placeholder {
   stroke: currentColor;
   pointer-events: none;
 }
+
+/* Hide the native checkbox */
+input[type="checkbox"] {
+  accent-color: #448aff; /* Modern browsers: changes color easily */
+}
+
+/* For full custom look (works everywhere): */
+input[type="checkbox"].custom-checkbox {
+  display: none;
+}
+.custom-checkbox-label {
+  position: relative;
+  padding-left: 25px;
+  cursor: pointer;
+  user-select: none;
+  color: #a3a3a3;
+}
+.custom-checkbox-label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #448aff; /* Your color */
+  background: #232935;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.custom-checkbox:checked + .custom-checkbox-label:after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 7px;
+  width: 8px;
+  height: 3px;
+  border-left: 3px solid #448aff;
+  border-bottom: 3px solid #448aff;
+  transform: rotate(-45deg);
+}
 /* --- End of new CSS --- */
