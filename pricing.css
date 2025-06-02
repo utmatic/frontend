@@ -101,7 +101,7 @@
   transition: color 0.18s;
 }
 .plan-billed.yearly {
-  color: var(--accent-yellow);
+  color: var(--gray-400);
 }
 
 html, body {
