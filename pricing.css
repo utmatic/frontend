@@ -12,12 +12,13 @@
   --background-main: #1c232b;
   --background-alt: #222a33;
   --accent-yellow: #ffd33d;
+  --radius: 18px;
 }
 
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--gray-bg);
+  background: var(--background-main);
   font-family: var(--font);
   color: var(--brand-black);
 }
@@ -37,10 +38,11 @@ html, body {
   font-weight: 800;
   margin: 0 0 0.4em 0;
   letter-spacing: -0.01em;
+  color: var(--brand-black);
 }
 .pricing-blurb {
   font-size: 1.15em;
-  color: #565c67;
+  color: var(--gray-300);
   margin: 0;
   font-weight: 400;
 }
@@ -62,7 +64,7 @@ html, body {
 }
 
 .toggle-switch {
-  background: #e5e8ef;
+  background: var(--background-alt);
   border: none;
   border-radius: 22px;
   width: 56px;
@@ -115,7 +117,7 @@ html, body {
 }
 
 .pricing-card:hover {
-  box-shadow: 0 12px 32px #23232320;
+  box-shadow: 0 12px 32px #0008;
 }
 
 .plan-name {
@@ -143,13 +145,13 @@ html, body {
 }
 .plan-per {
   font-size: 1.12em;
-  color: #888;
+  color: var(--gray-300);
   margin-left: 0.18em;
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 .plan-billed {
-  color: #888;
+  color: var(--gray-400);
   font-size: 1.02em;
   margin-bottom: 1.1em;
   margin-top: 0.02em;
@@ -160,7 +162,7 @@ html, body {
 .plan-desc {
   margin-bottom: 1.55em;
   margin-top: 0.10em;
-  color: #323232;
+  color: var(--gray-300);
   font-size: 1.13em;
   text-align: center;
   min-height: 2.2em;
@@ -173,7 +175,7 @@ html, body {
 .plan-btn {
   width: 100%;
   background: var(--brand-blue);
-  color: #fff;
+  color: var(--brand-white);
   border-radius: 8px;
   padding: 1em 0;
   font-size: 1.17em;
@@ -183,11 +185,11 @@ html, body {
   margin-top: 0.1em;
   cursor: pointer;
   transition: background .18s;
-  box-shadow: 0 1px 8px #2960f71a;
+  box-shadow: 0 1px 8px #0003;
   letter-spacing: -0.01em;
 }
 .plan-btn:hover {
-  background: #1746be;
+  background: var(--brand-blue-hover);
 }
 
 .plan-divider {
@@ -204,7 +206,7 @@ html, body {
   margin-bottom: 0.8em;
   width: 100%;
   text-align: center;
-  color: #232323;
+  color: var(--brand-black);
   font-size: 1.09em;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -215,7 +217,7 @@ html, body {
 
 /* Subtle style for additional user pricing */
 .plan-meta .additional-user {
-  color: #888;
+  color: var(--gray-400);
   font-size: 0.98em;
   font-weight: 400;
   margin-top: 0.2em;
@@ -228,7 +230,7 @@ html, body {
   margin: 0;
   width: 100%;
   text-align: left;
-  color: #232323;
+  color: var(--brand-black);
   font-size: 1.07em;
   font-weight: 400;
 }
@@ -244,7 +246,7 @@ html, body {
   margin-right: 0.33em;
 }
 .plan-features .checkmark {
-  color: #1cb651;
+  color: #1cb651; /* keep for checkmark, or use --accent-yellow for a yellow accent */
   font-size: 1.24em;
   font-weight: 700;
   margin-right: 0.18em;
