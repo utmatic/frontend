@@ -322,18 +322,18 @@ function renderFormFields(form, tabId, docName, fileObj) {
     if (wrapper.querySelectorAll(".field-row").length > 0) {
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
-      removeBtn.textContent = "✕";
-      removeBtn.style.background = "none";
-      removeBtn.style.border = "none";
-      removeBtn.style.color = "#f43f5e";
-      removeBtn.style.fontSize = "1.25rem";
-      removeBtn.style.cursor = "pointer";
+      removeBtn.className = "delete-tab"; // Use the same class as tab delete
+      removeBtn.innerHTML = "&times;";
       removeBtn.title = "Remove row";
       removeBtn.addEventListener("click", function() {
         fieldRow.remove();
         updateAddNewRowBtn();
         validateForm(form);
       });
+      delCol.appendChild(removeBtn);
+    } else {
+      delCol.innerHTML = "&nbsp;";
+    }
       delCol.appendChild(removeBtn);
     } else {
       delCol.innerHTML = "&nbsp;";
