@@ -14,7 +14,6 @@ const pricingData = {
 const billingToggle = document.getElementById('billing-toggle');
 let yearly = false;
 
-// Utility for price flash
 function flashPrices() {
   const priceEls = [
     document.getElementById('starter-price'),
@@ -27,7 +26,7 @@ function flashPrices() {
     el.classList.remove('flash-yellow', 'flash-blue');
     void el.offsetWidth; // Force reflow for animation restart
     el.classList.add(flashClass);
-    setTimeout(() => el.classList.remove(flashClass), 500);
+    setTimeout(() => el.classList.remove(flashClass), 400);
   });
 }
 
