@@ -241,8 +241,7 @@ body {
 
 .startnew-link:hover,
 .startnew-link:focus {
-  color: #2537b8;
-  background: #f5faff;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -1318,7 +1317,7 @@ input::placeholder {
   gap: 0.55em;
   font-size: 1.08rem;
   font-weight: 500;
-  color: #fff;
+  color: #cce1ff;
   background: none;
   border: none;
   cursor: pointer;
