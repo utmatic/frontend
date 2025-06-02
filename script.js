@@ -504,7 +504,7 @@ function renderFormFields(form, tabId, docName, fileObj) {
 
     // Toggle rows and underline
     targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
-    underlineWrapper.classList.toggle("hidden", !needsFormats);
+    underlineToggleWrapper.classList.toggle("hidden", !needsFormats); // <-- FIXED: use underlineToggleWrapper
 
     // Set required for target/base
     targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
