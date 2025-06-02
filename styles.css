@@ -1462,7 +1462,7 @@ input.custom-checkbox {
 
 .checkbox-wrapper {
   position: relative;
-  padding-left: 26px; /* Space for the custom box */
+  padding-left: 26px;
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -1470,7 +1470,7 @@ input.custom-checkbox {
   min-height: 24px;
 }
 
-/* Custom box */
+/* Custom checkbox box */
 .custom-checkbox-label {
   position: relative;
   cursor: pointer;
@@ -1488,37 +1488,43 @@ input.custom-checkbox {
   height: 18px;
   border-radius: 4px;
   background: #1c232b;
-  border: 2px solid #4d89f9;
+  border: 2px solid #232935; /* subtle border, matches background, can set to transparent if you want none */
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition: background 0.2s;
   box-shadow: 0 1px 3px #0002;
 }
 
-/* Animate checkmark using scale and stroke-dasharray */
-.custom-checkbox-label:after {
-  content: "";
+/* SVG checkmark for smooth animation */
+.custom-checkbox-label svg {
   position: absolute;
-  left: -21px;
-  top: 52%;
-  transform: translateY(-50%) scale(0);
-  width: 10px;
-  height: 6px;
-  border-left: 3px solid #4d89f9;
-  border-bottom: 3px solid #4d89f9;
-  border-radius: 1px;
-  opacity: 0;
-  transition: 
-    transform 0.22s cubic-bezier(.4,2,.6,1),
-    opacity 0.1s;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  display: block;
 }
 
-/* Show the checkmark when checked, animate in */
-input.custom-checkbox:checked + .custom-checkbox-label:after {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
+/* Hide checkmark by default */
+.custom-checkbox-label svg path {
+  stroke: #4d89f9;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  transition: stroke-dashoffset 0.25s cubic-bezier(.7,0,.3,1);
+  /* You can tweak the duration for a snappier or slower effect */
 }
 
-/* Optional: focus style for accessibility */
+/* Animate checkmark when checked */
+input.custom-checkbox:checked + .custom-checkbox-label svg path {
+  stroke-dashoffset: 0;
+}
+
+/* Optional: focus style for accessibility (remove if not desired) */
 input.custom-checkbox:focus + .custom-checkbox-label:before {
   outline: 2px solid #4d89f9;
   outline-offset: 2px;
