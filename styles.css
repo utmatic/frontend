@@ -989,7 +989,7 @@ select {
   font-size: 1.03rem;
   border: 1.5px solid var(--input-border);
   border-radius: 7px;
-  background: var(--input-bg);
+  background: #1c232b;
   color: #fff;
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
