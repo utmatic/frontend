@@ -467,7 +467,6 @@ input, textarea, select {
   transition: background 0.18s, color 0.18s, transform 0.11s;
 }
 .pdf-modal-close:hover {
-  background: rgba(80,120,200,0.09);
   color: #0d59c4;
   transform: scale(1.09);
 }
@@ -1366,7 +1365,7 @@ input::placeholder {
   border-radius: 9px;
 }
 #download-final-btn:hover:enabled::after {
-  opacity: 1;
+  background: #f4c540;
 }
 /* Loader/Spinner Overlay Style */
 #loader {
