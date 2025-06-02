@@ -206,7 +206,7 @@ html, body {
 }
 
 .auth-btn-google {
-  background: var(--background-main);
+  background: var(--brand-white);
   color: var(--brand-black);
   border: 1.5px solid var(--gray-100);
   box-shadow: 0 2px 12px #0005;
