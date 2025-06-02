@@ -1167,18 +1167,18 @@ input::placeholder {
   transition: color 0.14s;
 }
 #pdf-previewer-docswitch:hover {
-  color: var(--previewer-accent);
+  color: #4d89f9;
 }
 #pdf-previewer-docswitch svg.caret {
   width: 1.32em;
   height: 1.32em;
   margin-left: 0.13em;
-  stroke: #7a8597;
+  stroke: #cce1ff;
   transition: stroke 0.18s, transform 0.19s;
 }
 #pdf-previewer-docswitch.open svg.caret {
   transform: rotate(-180deg);
-  stroke: var(--previewer-accent);
+  stroke: #cce1ff;
 }
 #pdf-previewer-doclist {
   display: none;
@@ -1214,7 +1214,7 @@ input::placeholder {
   width: 100%;
   text-align: center;
   font-weight: 500;
-  color: #7a8597;
+  color: #cce1ff;
   font-size: 1.15rem;
   margin: 0 0 1.18rem 0;
   user-select: none;
