@@ -1081,7 +1081,7 @@ input::placeholder {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #1c232b59;
+  background: #1c232bf0;
   display: none;
   align-items: center;
   justify-content: center;
@@ -1116,6 +1116,7 @@ input::placeholder {
   box-sizing: border-box;
   transition: box-shadow 0.26s, border 0.2s;
   animation: popIn 0.33s cubic-bezier(.39,.58,.57,1.53);
+  box-shadow: 0 4px 92px 0 #1a1a1a40;
 }
 @keyframes popIn {
   0% { transform: scale(0.98) translateY(24px); opacity: 0;}
