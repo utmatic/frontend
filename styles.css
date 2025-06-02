@@ -755,7 +755,7 @@ body {
   text-overflow: ellipsis;
   min-width: 0;
 }
-.tab .delete-tab {
+.delete-tab {
   background: none;
   border: none;
   color: #cce1ff;
@@ -772,11 +772,11 @@ body {
   opacity: 0.7;
   position: relative;
 }
-.tab .delete-tab:hover {
+.delete-tab:hover {
   color: #fff;
   opacity: 1;
 }
-.tab .delete-tab[disabled] {
+.delete-tab[disabled] {
   display: none;
 }
 #add-tab.tab {
