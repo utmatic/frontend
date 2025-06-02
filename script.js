@@ -550,10 +550,13 @@ function createTab(fileObj, doNotAutoSelect = false) {
   tabBtn.setAttribute("type", "button");
   tabBtn.setAttribute("title", `Switch to ${tabId}`);
   tabBtn.dataset.tab = tabId;
+
+  // Always name new tabs "New document"
   const tabLabel = document.createElement("span");
   tabLabel.className = "tab-label";
-  tabLabel.textContent = `Document ${docCount}`;
+  tabLabel.textContent = "New document";
   tabBtn.appendChild(tabLabel);
+
   const delBtn = document.createElement("button");
   delBtn.setAttribute("type", "button");
   delBtn.className = "delete-tab";
@@ -561,20 +564,28 @@ function createTab(fileObj, doNotAutoSelect = false) {
   delBtn.dataset.tab = tabId;
   delBtn.innerHTML = "&times;";
   tabBtn.appendChild(delBtn);
+
   tabBtn.addEventListener("click", function(e) {
     if (e.target.classList.contains("delete-tab")) return;
     setActiveTab(tabId);
   });
+
   tabBar.insertBefore(tabBtn, document.getElementById("add-tab"));
+
   const tabContent = document.createElement("div");
   tabContent.className = "tab-content";
   tabContent.id = tabId;
+
+  // Always give "New document" as docName
   const form = document.createElement("form");
   form.setAttribute("autocomplete", "off");
-  renderFormFields(form, tabId, `Document ${docCount}`, fileObj);
+  renderFormFields(form, tabId, "New document", fileObj);
+
   tabContent.appendChild(form);
   tabContents.appendChild(tabContent);
+
   if (!doNotAutoSelect) setActiveTab(tabId); // Only activate new tab if not in batch add
+
   docCount++;
   updateAddTabButton();
   updateTabBarCount();
