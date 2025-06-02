@@ -70,12 +70,11 @@ body {
       cursor: not-allowed;
     }
     .side-by-side-fields input[type="text"] {
-      border: 1px solid #d0d6e1;
       border-radius: 6px;
       padding: 0.5em 1em;
       font-size: 1em;
       font-family: inherit;
-      background: #fff;
+      background: #1c232b;
       color: #222;
       outline: none;
       margin-bottom: 0;
@@ -814,7 +813,7 @@ body {
   padding-top: 0;
 }
 .add-new-row-btn {
-  color: var(--primary);
+  color: #4d89f9;
   cursor: pointer;
   background: none;
   border: none;
