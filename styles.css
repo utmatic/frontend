@@ -1480,22 +1480,26 @@ input.custom-toggle {
 .custom-toggle-label:before {
   content: "";
   position: absolute;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: #1c232b;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  /* background: #1c232b; */
   border-radius: 12px;
   transition: background 0.18s;
   box-shadow: 0 1px 2px #0001;
-  border: 1.5px solid #364051;
+  border: 1.5px solid #1c232b;
 }
 
 /* Toggle knob */
 .custom-toggle-label:after {
   content: "";
   position: absolute;
-  left: 2px; top: 2px;
-  width: 14px; height: 14px;
-  background: #232935;
+  left: 2px;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background: #818a971c;
   border-radius: 50%;
   transition: left 0.18s, background 0.18s;
   box-shadow: 0 1px 2px #0002;
@@ -1508,7 +1512,7 @@ input.custom-toggle:checked + .custom-toggle-label:before {
 }
 input.custom-toggle:checked + .custom-toggle-label:after {
   left: 18px;
-  background: #fff;
+  background: #cce1ff;
 }
 
 /* Label text */
