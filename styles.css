@@ -241,7 +241,8 @@ body {
 
 .startnew-link:hover,
 .startnew-link:focus {
-  color: #fff;
+  color: #2537b8;
+  background: #f5faff;
   text-decoration: none;
 }
 
@@ -467,6 +468,7 @@ input, textarea, select {
   transition: background 0.18s, color 0.18s, transform 0.11s;
 }
 .pdf-modal-close:hover {
+  background: rgba(80,120,200,0.09);
   color: #0d59c4;
   transform: scale(1.09);
 }
@@ -663,7 +665,7 @@ body {
 .checkmark__circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  stroke-width: 6;
+  stroke-width: 4;
   stroke-miterlimit: 10;
   stroke: #cce1ff;
   fill: none;
@@ -720,7 +722,7 @@ body {
 }
 .tab {
   background: transparent;
-  color: #fff;
+  color: #94a3b891;
   border: none;
   border-radius: 7px 7px 0 0;
   padding: 0.2em 1.1em;
@@ -742,7 +744,7 @@ body {
 }
 .tab.active {
   background: #222a33;
-  color: #4d89f9;
+  color: #fff;
   font-weight: 600;
   z-index: 2;
 }
@@ -779,14 +781,14 @@ body {
 }
 #add-tab.tab {
   background: #4d89f9;
-  color: #fff !important;
+  color: #222a33;
   min-width: 36px !important;
   max-width: 36px !important;
   width: 36px !important;
   height: 36px !important;
   padding: 0 !important;
   font-size: 1.5rem !important;
-  font-weight: 900 !important;
+  font-weight: 600 !important;
   border-radius: 7px 7px 0 0 !important;
   display: flex !important;
   align-items: center;
@@ -967,7 +969,7 @@ body {
 }
 .save-btn:hover:enabled::after,
 .process-btn:hover:enabled::after {
-  filter: brightness(0.9);
+  opacity: 1;
 }
 .save-btn:disabled,
 .process-btn:disabled {
@@ -1165,18 +1167,18 @@ input::placeholder {
   transition: color 0.14s;
 }
 #pdf-previewer-docswitch:hover {
-  color: #4d89f9;
+  color: var(--previewer-accent);
 }
 #pdf-previewer-docswitch svg.caret {
   width: 1.32em;
   height: 1.32em;
   margin-left: 0.13em;
-  stroke: #cce1ff;
+  stroke: #7a8597;
   transition: stroke 0.18s, transform 0.19s;
 }
 #pdf-previewer-docswitch.open svg.caret {
   transform: rotate(-180deg);
-  stroke: #cce1ff;
+  stroke: var(--previewer-accent);
 }
 #pdf-previewer-doclist {
   display: none;
@@ -1212,7 +1214,7 @@ input::placeholder {
   width: 100%;
   text-align: center;
   font-weight: 500;
-  color: #cce1ff;
+  color: #7a8597;
   font-size: 1.15rem;
   margin: 0 0 1.18rem 0;
   user-select: none;
@@ -1316,7 +1318,7 @@ input::placeholder {
   gap: 0.55em;
   font-size: 1.08rem;
   font-weight: 500;
-  color: #cce1ff;
+  color: #fff;
   background: none;
   border: none;
   cursor: pointer;
@@ -1365,7 +1367,7 @@ input::placeholder {
   border-radius: 9px;
 }
 #download-final-btn:hover:enabled::after {
-  filter: brightness(0.9);
+  opacity: 1;
 }
 /* Loader/Spinner Overlay Style */
 #loader {
