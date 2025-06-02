@@ -410,20 +410,29 @@ function renderFormFields(form, tabId, docName, fileObj) {
   filenameGroup.appendChild(filenameLabel);
   filenameGroup.appendChild(filenameInput);
   form.appendChild(filenameGroup);
+
+  // Custom checkbox for underline option
   const underlineWrapper = document.createElement("div");
   underlineWrapper.className = "checkbox-wrapper hidden";
   underlineWrapper.style.marginBottom = "0.75rem";
   underlineWrapper.style.marginTop = "-0.5rem";
+
+  // Add custom-checkbox class for styling
   const underlineInput = document.createElement("input");
   underlineInput.type = "checkbox";
   underlineInput.name = "underline";
   underlineInput.id = "underline";
+  underlineInput.className = "custom-checkbox"; // Important: for custom styling
+
   const underlineLabel = document.createElement("label");
   underlineLabel.htmlFor = "underline";
+  underlineLabel.className = "custom-checkbox-label"; // Important: for custom styling
   underlineLabel.textContent = "Add underline to links?";
+
   underlineWrapper.appendChild(underlineInput);
   underlineWrapper.appendChild(underlineLabel);
   form.appendChild(underlineWrapper);
+
   const actionsDiv = document.createElement("div");
   actionsDiv.className = "form-actions";
   const saveBtn = document.createElement("button");
