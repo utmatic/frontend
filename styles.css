@@ -1456,43 +1456,72 @@ input::placeholder {
 }
 
 /* Hide the native checkbox */
-input[type="checkbox"] {
-  accent-color: #448aff; /* Modern browsers: changes color easily */
-}
-
-/* For full custom look (works everywhere): */
-input[type="checkbox"].custom-checkbox {
+input.custom-checkbox {
   display: none;
 }
-.custom-checkbox-label {
+
+.checkbox-wrapper {
   position: relative;
-  padding-left: 25px;
+  padding-left: 26px; /* Space for the custom box */
   cursor: pointer;
   user-select: none;
-  color: #a3a3a3;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
 }
+
+/* Custom box */
+.custom-checkbox-label {
+  position: relative;
+  cursor: pointer;
+  color: #a3a3a3;
+  font-size: 1em;
+}
+
 .custom-checkbox-label:before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #448aff; /* Your color */
-  background: #232935;
-  border-radius: 3px;
+  left: -26px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #1c232b;
+  border: 2px solid #4d89f9;
   box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+  box-shadow: 0 1px 3px #0002;
 }
 
-.custom-checkbox:checked + .custom-checkbox-label:after {
+/* Animate checkmark using scale and stroke-dasharray */
+.custom-checkbox-label:after {
   content: "";
   position: absolute;
-  left: 4px;
-  top: 7px;
-  width: 8px;
-  height: 3px;
-  border-left: 3px solid #448aff;
-  border-bottom: 3px solid #448aff;
-  transform: rotate(-45deg);
+  left: -21px;
+  top: 52%;
+  transform: translateY(-50%) scale(0);
+  width: 10px;
+  height: 6px;
+  border-left: 3px solid #4d89f9;
+  border-bottom: 3px solid #4d89f9;
+  border-radius: 1px;
+  opacity: 0;
+  transition: 
+    transform 0.22s cubic-bezier(.4,2,.6,1),
+    opacity 0.1s;
 }
+
+/* Show the checkmark when checked, animate in */
+input.custom-checkbox:checked + .custom-checkbox-label:after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+/* Optional: focus style for accessibility */
+input.custom-checkbox:focus + .custom-checkbox-label:before {
+  outline: 2px solid #4d89f9;
+  outline-offset: 2px;
+}
+
 /* --- End of new CSS --- */
