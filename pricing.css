@@ -35,6 +35,7 @@
     text-shadow: none;
     transform: scale(1);
   }
+}
   
 /* Price flash animation for monthly */
 .plan-price.flash-blue {
@@ -56,6 +57,7 @@
     text-shadow: none;
     transform: scale(1);
   }
+}
 
 /* Add or update these rules in your pricing.css */
 
