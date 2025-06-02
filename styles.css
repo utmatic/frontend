@@ -28,7 +28,7 @@
     }
     .add-new-row-btn:hover:not(:disabled) {
       text-decoration: underline;
-      color: #2537b8;
+      color: var(--brand-blue-hover);
     }
     .add-new-row-btn:disabled {
       opacity: 0.45;
@@ -240,7 +240,7 @@
 
 .startnew-link:hover,
 .startnew-link:focus {
-  color: #2537b8;
+  color: var(--brand-blue-hover);
   background: #f5faff;
   text-decoration: none;
 }
@@ -385,7 +385,7 @@ input, textarea, select {
 #pdf-canvas,
 #modal-pdf-container {
   scrollbar-width: thin;
-  scrollbar-color: #d0d4de #f5f7fa;
+  scrollbar-color: #d0d4de var(--background-alt);
 }
 
 /* For Webkit browsers (Chrome, Edge, Safari) */
@@ -394,7 +394,7 @@ input, textarea, select {
 #modal-pdf-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-  background: #f5f7fa;
+  background: var(--background-alt);
   border-radius: 8px;
 }
 
@@ -481,7 +481,7 @@ input, textarea, select {
   --primary-dark: var(--brand-black);
   --success: #22c55e;
   --gray-bg: var(--brand-white);
-  --gray-100: #f5f7fa;
+  --gray-100: var(--background-alt);
   --gray-200: #e5e7eb;
   --gray-300: #cbd5e1;
   --gray-400: #94a3b8;
