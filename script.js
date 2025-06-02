@@ -334,10 +334,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     } else {
       delCol.innerHTML = "&nbsp;";
     }
-      delCol.appendChild(removeBtn);
-    } else {
-      delCol.innerHTML = "&nbsp;";
-    }
     fieldRow.appendChild(tfGroup);
     fieldRow.appendChild(buGroup);
     fieldRow.appendChild(delCol);
