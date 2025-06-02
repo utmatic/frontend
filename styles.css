@@ -1245,7 +1245,6 @@ input::placeholder {
 }
 .pdf-arrow-btn:hover {
   background: #e8eefe;
-  box-shadow: 0 4px 22px #b6c5f45c;
 }
 #pdf-arrow-prev {
   left: -64px;
