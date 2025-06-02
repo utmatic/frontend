@@ -988,7 +988,7 @@ select {
   font-size: 1.03rem;
   border: 1.5px solid var(--input-border);
   border-radius: 7px;
-  background: #1c232b;
+  background: #1c232b91;
   color: #fff;
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
