@@ -1,20 +1,23 @@
-// Your updated JavaScript
+// ...existing code above...
 
-const pricingData = {
-  monthly: [
-    { price: "$79", billed: "billed monthly" },
-    { price: "$399", billed: "billed monthly" },
-    { price: "$799", billed: "billed monthly" }
-  ],
-  yearly: [
-    { price: "$65", billed: "billed yearly" },
-    { price: "$329", billed: "billed yearly" },
-    { price: "$659", billed: "billed yearly" }
-  ]
-};
+function flashPrices() {
+  const priceEls = [
+    document.getElementById('starter-price'),
+    document.getElementById('builder-price'),
+    document.getElementById('enterprise-price')
+  ];
+  const flashClass = yearly ? 'flash-yellow' : 'flash-blue';
 
-const billingToggle = document.getElementById('billing-toggle');
-let yearly = false;
+  priceEls.forEach(el => {
+    // Remove both flash classes if present
+    el.classList.remove('flash-yellow', 'flash-blue');
+    // Force reflow to restart animation
+    void el.offsetWidth;
+    el.classList.add(flashClass);
+    // Remove the class after animation duration
+    setTimeout(() => el.classList.remove(flashClass), 600);
+  });
+}
 
 function updatePricing() {
   const prices = yearly ? pricingData.yearly : pricingData.monthly;
@@ -38,6 +41,9 @@ function updatePricing() {
       el.classList.remove('yearly');
     }
   });
+
+  // Flash animation!
+  flashPrices();
 }
 
 // Toggle switch logic
