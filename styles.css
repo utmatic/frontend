@@ -758,7 +758,7 @@ body {
 .tab .delete-tab {
   background: none;
   border: none;
-  color: var(--danger);
+  color: #cce1ff;
   font-size: 1.15em;
   margin-left: 7px;
   cursor: pointer;
@@ -773,7 +773,6 @@ body {
   position: relative;
 }
 .tab .delete-tab:hover {
-  background: var(--danger);
   color: #fff;
   opacity: 1;
 }
