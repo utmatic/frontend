@@ -1,14 +1,17 @@
 :root {
-  --brand-blue: #2960f7;
-  --brand-black: #232323;
-  --brand-white: #fff;
-  --gray-100: #ececec;
-  --gray-300: #dde3ee;
-  --gray-400: #aaa;
-  --gray-bg: #f4f7fa;
-  --shadow: 0 6px 32px #23232312;
+  /* Updated color variables for dark mode */
+  --brand-blue: #4d89f9;
+  --brand-blue-hover: #3474e0;
+  --brand-black: #e4e8ef;    /* Main text color on dark */
+  --brand-white: #232a33;    /* Card surface, not true white */
+  --gray-100: #29313a;       /* Input borders, dividers */
+  --gray-300: #b3b9c5;       /* Muted text */
+  --gray-400: #7a8597;       /* More muted text */
+  --shadow: 0 8px 32px #000a;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
-  --radius: 14px;
+  --background-main: #1c232b;
+  --background-alt: #222a33;
+  --accent-yellow: #ffd33d;
 }
 
 html, body {
