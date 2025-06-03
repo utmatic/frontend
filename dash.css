@@ -1,75 +1,182 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f6f8fa;
+:root {
+  --brand-blue: #4d89f9;
+  --brand-blue-hover: #3474e0;
+  --brand-black: #e4e8ef;
+  --brand-white: #232a33;
+  --gray-100: #29313a;
+  --gray-300: #b3b9c5;
+  --gray-400: #7a8597;
+  --shadow: 0 8px 32px #000a;
+  --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
+  --background-main: #1c232b;
+  --background-alt: #222a33;
+  --accent-yellow: #ffd33d;
 }
 
-.app-root {
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font);
+  background: var(--background-main);
+  color: var(--brand-black);
+  height: 100%;
+}
+
+.dash-root {
   display: flex;
   min-height: 100vh;
+  background: var(--background-main);
 }
 
-.sidebar {
-  background: #23272f;
-  color: #fff;
-  width: 180px;
+.dash-sidebar {
+  background: var(--brand-white);
+  width: 220px;
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
+  align-items: start;
+  padding: 32px 0 16px 0;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  z-index: 2;
 }
 
-.sidebar-btn {
+.dash-logo {
+  width: 180px;
+  margin: 0 0 32px 24px;
+}
+
+.dash-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dash-sidebar-btn {
   background: none;
   border: none;
-  color: inherit;
-  padding: 15px 30px;
-  text-align: left;
+  padding: 12px 40px 12px 28px;
+  color: var(--brand-black);
   font-size: 1rem;
+  font-family: var(--font);
+  border-radius: 12px 0 0 12px;
+  text-align: left;
   cursor: pointer;
-  outline: none;
-  transition: background 0.2s;
+  letter-spacing: 0.02em;
+  transition: background 0.16s, color 0.16s;
+  width: 100%;
+  position: relative;
 }
 
-.sidebar-btn.active,
-.sidebar-btn:hover {
-  background: #39404e;
+.dash-sidebar-btn.active,
+.dash-sidebar-btn:hover {
+  background: var(--brand-blue);
+  color: #fff;
 }
 
-.main-content {
+.dash-sidebar-btn.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 6px;
+  background: var(--accent-yellow);
+  border-radius: 4px 0 0 4px;
+}
+
+.dash-main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: var(--background-main);
+  min-width: 0;
 }
 
-.header {
-  background: #fff;
-  border-bottom: 1px solid #e1e4e8;
-  padding: 24px 32px;
+.dash-header {
+  background: var(--background-alt);
+  border-bottom: 1px solid var(--gray-100);
+  padding: 28px 36px 20px 36px;
+  box-shadow: 0 2px 8px #0002;
 }
 
-.header h1 {
+.dash-header h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--brand-black);
+  letter-spacing: 0.01em;
+}
+
+#dash-main-view {
+  padding: 36px;
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+  color: var(--brand-blue);
+}
+
+.history-list {
+  border-radius: 14px;
+  background: var(--background-alt);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th, .history-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.history-table th {
+  color: var(--gray-300);
   font-weight: 600;
 }
 
-#main-view {
-  padding: 32px;
-  flex: 1;
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 800px) {
+  .dash-root {
+    flex-direction: column;
+  }
+  .dash-sidebar {
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    padding: 12px 0;
+    align-items: center;
+    box-shadow: none;
+  }
+  .dash-logo {
+    margin: 0 24px 0 0;
+    width: 120px;
+  }
+  .dash-sidebar-btn {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.97rem;
+  }
 }
 
 @media (max-width: 600px) {
-  .app-root {
-    flex-direction: column;
+  #dash-main-view {
+    padding: 16px;
   }
-  .sidebar {
-    flex-direction: row;
-    width: 100%;
-    padding: 0;
-  }
-  .sidebar-btn {
-    flex: 1;
-    text-align: center;
-    padding: 15px 0;
+  .dash-header {
+    padding: 16px 16px 10px 16px;
   }
 }
