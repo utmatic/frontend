@@ -951,6 +951,7 @@ body {
   position: relative;
   overflow: hidden;
   width: 100%;
+  min-width: 170px;
   font-size: 1.09rem;
   padding: 0.68rem 1rem;
   border: none;
