@@ -42,14 +42,6 @@ html, body {
   align-items: center;
 }
 
-.auth-logo img {
-  width: 150px;
-  height: 75px;
-  object-fit: contain;
-  margin-bottom: 1.6em;
-  margin-top: 0.3em;
-}
-
 /* SVG logo in .auth-logo */
 .auth-logo {
   display: flex;
@@ -67,6 +59,14 @@ html, body {
   .auth-logo svg {
     width: 110px;
   }
+}
+
+.auth-logo img {
+  width: 150px;
+  height: 75px;
+  object-fit: contain;
+  margin-bottom: 1.6em;
+  margin-top: 0.3em;
 }
 
 .auth-tabs {
@@ -121,6 +121,7 @@ html, body {
   align-items: center;
 }
 
+/* ---- CUSTOM CHECKBOX ---- */
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -133,12 +134,45 @@ html, body {
 }
 
 .checkbox-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--background-main);
+  border: 1.5px solid var(--gray-100);
+  border-radius: 5px;
   width: 18px;
   height: 18px;
-  margin: 0 0.25em 0 0;
-  accent-color: var(--brand-blue);
-  background-color: var(--background-main);
   cursor: pointer;
+  margin: 0 0.25em 0 0;
+  transition: border-color 0.18s, background 0.18s;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkbox-label input[type="checkbox"]:hover,
+.checkbox-label input[type="checkbox"]:focus,
+.checkbox-label input[type="checkbox"]:focus-visible {
+  border-color: var(--brand-blue);
+  outline: none;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  border-color: var(--brand-blue);
+  background: var(--background-main);
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 7px;
+  height: 13px;
+  border: solid var(--brand-blue);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 .checkbox-agree {
@@ -231,7 +265,7 @@ html, body {
   position: relative;
   background: var(--brand-white);
   color: var(--brand-black);
-  border: none;
+  border: 1.5px solid var(--brand-white);
   box-shadow: 0 8px 32px #0012;
   gap: 0.7em;
   margin-top: 0.1em;
@@ -244,7 +278,7 @@ html, body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.05); /* BLACK overlay */
+  background: rgba(0,0,0,0.16); /* BLACK overlay */
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s;
@@ -260,13 +294,19 @@ html, body {
   position: relative;
   z-index: 3;
 }
+
+/* Override .auth-btn:hover for Google button */
+.auth-btn-google:hover,
 .auth-btn-google:focus,
 .auth-btn-google:active {
+  background: var(--brand-white) !important;
+  color: var(--brand-black);
+  border-color: var(--brand-white);
   outline: none !important;
   box-shadow: none !important;
-  color: var(--brand-black) !important;
-  border-color: var(--brand-white);
 }
+
+/* Optional: if you want the text/icon to stay the same color on hover */
 .auth-btn-google:hover,
 .auth-btn-google:focus,
 .auth-btn-google:active {
@@ -311,14 +351,6 @@ html, body {
   left: 0; right: 0; top: 49%;
   border-top: 1px solid var(--gray-100);
   z-index: 0;
-}
-
-.auth-btn-google:hover,
-.auth-btn-google:focus,
-.auth-btn-google:active {
-  background: var(--brand-white) !important;
-  color: var(--brand-black);
-  /* border-color stays as you want */
 }
 
 @media (max-width: 500px) {
