@@ -23,7 +23,6 @@ function showSignin() {
   tabSignup.classList.remove('active');
   signinForm.style.display = '';
   signupForm.style.display = 'none';
-  // Clear status messages
   if (signinStatus) signinStatus.textContent = '';
   if (signupStatus) signupStatus.textContent = '';
 }
@@ -33,7 +32,6 @@ function showSignup() {
   tabSignup.classList.add('active');
   signinForm.style.display = 'none';
   signupForm.style.display = '';
-  // Clear status messages
   if (signinStatus) signinStatus.textContent = '';
   if (signupStatus) signupStatus.textContent = '';
 }
@@ -41,8 +39,8 @@ function showSignup() {
 tabSignin.addEventListener('click', showSignin);
 tabSignup.addEventListener('click', showSignup);
 
-// Sign up: Validate, store user info, and redirect to pricing
-signupForm.addEventListener('submit', function(e) {
+// --- Sign up: Validate, create user, then call backend for Stripe checkout ---
+signupForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   if (signupStatus) signupStatus.textContent = '';
   const email = document.getElementById('signup-email').value.trim();
@@ -64,18 +62,58 @@ signupForm.addEventListener('submit', function(e) {
     return;
   }
 
-  // Save data for pricing page/checkout
-  sessionStorage.setItem('utmatic_signup', JSON.stringify({
-    email,
-    company,
-    password
-  }));
+  // Get plan info from localStorage (set by pricing.js)
+  let planData;
+  try {
+    planData = JSON.parse(localStorage.getItem('utm_selected_plan') || '{}');
+  } catch(e) {
+    planData = {};
+  }
+  const { plan, interval, priceId } = planData;
 
-  // Redirect to pricing page
-  window.location.href = "/pricing.html";
+  if (!plan || !interval || !priceId) {
+    signupStatus.textContent = "Plan selection missing. Please go back and select a plan.";
+    return;
+  }
+
+  try {
+    // Create Firebase Auth user
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
+
+    // Call backend to create Stripe Checkout session
+    signupStatus.textContent = "Redirecting to checkout...";
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password, // Optionally hash or omit in production!
+        company,
+        plan,
+        interval,
+        price_id: priceId
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.checkout_url) {
+      // Optionally: clear the plan from storage so re-signup doesn't auto-retrigger
+      localStorage.removeItem('utm_selected_plan');
+      window.location.href = data.checkout_url;
+    } else {
+      signupStatus.textContent = data.error || 'Something went wrong creating checkout session.';
+    }
+  } catch (err) {
+    if (err && err.code === 'auth/email-already-in-use') {
+      signupStatus.textContent = "This email is already in use. Please sign in instead.";
+    } else if (err && err.message) {
+      signupStatus.textContent = err.message;
+    } else {
+      signupStatus.textContent = "Sign up failed. Please try again.";
+    }
+  }
 });
 
-// Sign in with Firebase Auth
+// --- Sign in with Firebase Auth ---
 signinForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   if (signinStatus) signinStatus.textContent = '';
@@ -91,14 +129,49 @@ signinForm.addEventListener('submit', async function(e) {
   }
 });
 
-// Google Sign In/Up (optional, only if enabled in Firebase console)
+// --- Google Sign In/Up ---
 function googleSignInHandler(isSignup) {
   const provider = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(provider)
-    .then(result => {
-      // You may want to check if this is a new user and/or redirect to pricing.
-      // For now, just send to dashboard.
-      window.location.href = "/dashboard";
+    .then(async result => {
+      if (isSignup) {
+        // Handle Google signup + Stripe checkout
+        let planData;
+        try {
+          planData = JSON.parse(localStorage.getItem('utm_selected_plan') || '{}');
+        } catch(e) {
+          planData = {};
+        }
+        const { plan, interval, priceId } = planData;
+        const email = result.user.email || "";
+        if (!plan || !interval || !priceId) {
+          signupStatus.textContent = "Plan selection missing. Please go back and select a plan.";
+          return;
+        }
+        signupStatus.textContent = "Redirecting to checkout...";
+        // Company can't be collected from Google, so use placeholder
+        const res = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            company: "", // Optionally prompt later
+            plan,
+            interval,
+            price_id: priceId
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.checkout_url) {
+          localStorage.removeItem('utm_selected_plan');
+          window.location.href = data.checkout_url;
+        } else {
+          signupStatus.textContent = data.error || 'Something went wrong creating checkout session.';
+        }
+      } else {
+        // Google sign-in: send to dashboard
+        window.location.href = "/dashboard";
+      }
     })
     .catch(error => {
       if (isSignup && signupStatus) {
@@ -123,7 +196,7 @@ if (googleSignupBtn) {
   });
 }
 
-// Forgot password link
+// --- Forgot password link ---
 const forgotLink = document.querySelector('.forgot-link');
 if (forgotLink) {
   forgotLink.addEventListener('click', function(e) {
