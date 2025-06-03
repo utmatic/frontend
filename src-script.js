@@ -57,13 +57,9 @@ async function ensureLoggedInAndProBusiness() {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
     const user = firebase.auth().currentUser;
     if (!user) {
-      // Handle not logged in, maybe redirect or block form
-      statusDiv.textContent = "You are not logged in.";
-      submitBtn.disabled = false;
-      hideLoader();
+      window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
       return;
     }
-    const idToken = await user.getIdToken();
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
     if (plan === "pro" || plan === "business") {
@@ -430,6 +426,7 @@ function showResultScreen(processedUrl, reportUrl) {
   }
 }
 
+// --- PATCHED SUBMIT HANDLER WITH AUTH TOKEN ---
 form.onsubmit = async (e) => {
   e.preventDefault();
   saveFormState();
@@ -469,6 +466,7 @@ form.onsubmit = async (e) => {
   showLoader();
   mainFormWrapper.style.pointerEvents = "none";
   try {
+    // --- IMPORTANT: SEND AUTHORIZATION HEADER WITH ID TOKEN ---
     const user = firebase.auth().currentUser;
     if (!user) {
       statusDiv.textContent = "You are not logged in.";
@@ -484,8 +482,6 @@ form.onsubmit = async (e) => {
         Authorization: "Bearer " + idToken
       }
     });
-    // ...rest of your code...
-  }
 
     const res = await resp.json();
     if (resp.ok && res.file_name) {
