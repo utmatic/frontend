@@ -1,3 +1,63 @@
+// --- Save and Restore Form State for "Return to your submission" functionality ---
+
+let previousSubmissionData = null;
+
+// Save the state of the form before hiding it
+function saveFormState() {
+  previousSubmissionData = {
+    file: lastValidFile,
+    job_type: form.job_type.value,
+    rows: [],
+    utm: {
+      utm_source: utmSource ? utmSource.value : '',
+      utm_medium: utmMedium ? utmMedium.value : '',
+      utm_campaign: utmCampaign ? utmCampaign.value : ''
+    }
+  };
+  // Save all link rows
+  const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
+  const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
+  for (let i = 0; i < tfInputs.length; i++) {
+    previousSubmissionData.rows.push({
+      tf: tfInputs[i].value,
+      bu: buInputs[i].value
+    });
+  }
+}
+
+// Restore the form state when returning from the results screen
+function restoreFormState() {
+  if (!previousSubmissionData) return;
+  form.reset();
+  // File (cannot restore file input for security reasons, but show filename)
+  lastValidFile = previousSubmissionData.file;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = lastValidFile ? lastValidFile.name : "No file chosen";
+  // Job type
+  form.job_type.value = previousSubmissionData.job_type;
+  updateJobTypeFields();
+
+  // Rows
+  rowsContainer.innerHTML = '';
+  if (previousSubmissionData.rows.length > 0) {
+    previousSubmissionData.rows.forEach(row => {
+      rowsContainer.appendChild(createRow(row.tf, row.bu));
+    });
+  }
+  updateDeleteButtons();
+
+  // UTM
+  if (utmSource) utmSource.value = previousSubmissionData.utm.utm_source;
+  if (utmMedium) utmMedium.value = previousSubmissionData.utm.utm_medium;
+  if (utmCampaign) utmCampaign.value = previousSubmissionData.utm.utm_campaign;
+
+  // Show/hide correct fields
+  updateJobTypeFields();
+  validateForm();
+}
+
+// --- Main script continues as before ---
+
 const form = document.getElementById('iddForm');
 const statusDiv = document.getElementById('status');
 const submitBtn = document.getElementById('submitBtn');
@@ -221,6 +281,7 @@ function resetForm() {
   validateForm();
 }
 
+// --- Show Result Screen with "Return to your submission" link ---
 function showResultScreen(processedUrl, reportUrl) {
   mainFormWrapper.style.display = 'none';
   resultScreen.style.display = 'flex';
@@ -235,16 +296,22 @@ function showResultScreen(processedUrl, reportUrl) {
     <div class="result-heading">
       <div class="result-title-text">Your processed file is ready!</div>
     </div>
-    <div class="result-btns"></div>
+    <div class="result-btns" id="result-btns"></div>
+    <a href="#" class="result-return-link" id="result-return-link">
+      <span>Return to your submission</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" width="21" height="21" style="margin-left:7px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+      </svg>
+    </a>
     <a href="https://app.utmatic.com/source-form.html" class="startnew-link" id="start-new-link">
-      <span>New submission</span>
+      <span>Start new submission</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" width="21" height="21" style="margin-left:7px;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
       </svg>
     </a>
   `;
 
-  const resultBtns = resultContent.querySelector('.result-btns');
+  const resultBtns = resultContent.querySelector('#result-btns');
   resultBtns.innerHTML = '';
   if (processedUrl) {
     const btn = document.createElement('a');
@@ -266,9 +333,22 @@ function showResultScreen(processedUrl, reportUrl) {
     `;
     resultBtns.appendChild(reportLink);
   }
+
+  // --- Return to submission link logic ---
+  const returnLink = resultContent.querySelector('#result-return-link');
+  if (returnLink) {
+    returnLink.onclick = function(e) {
+      e.preventDefault();
+      resultScreen.style.display = 'none';
+      mainFormWrapper.style.display = '';
+      restoreFormState();
+    };
+  }
+
   const startNewLink = resultContent.querySelector('#start-new-link');
   if (startNewLink) {
     startNewLink.onclick = function(e) {
+      // Optional: you can keep this as a normal link, or do a JS reset
       e.preventDefault();
       resetForm();
       window.location.href = "https://app.utmatic.com/source-form.html";
@@ -276,8 +356,10 @@ function showResultScreen(processedUrl, reportUrl) {
   }
 }
 
+// --- SUBMIT HANDLER: Save state before submit ---
 form.onsubmit = async (e) => {
   e.preventDefault();
+  saveFormState();
   statusDiv.textContent = "";
   submitBtn.disabled = true;
 
