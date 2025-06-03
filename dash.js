@@ -9,11 +9,6 @@ const firebaseConfig = {
   measurementId: "G-7JD0EVYF7M"
 };
 
-// Ensure Firebase SDK is loaded before this script!
-// <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-// <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-// These lines should be in your HTML before this script!
-
 if (typeof firebase === 'undefined') {
   throw new Error('Firebase SDK not loaded! Add the Firebase script before dash.js.');
 }
@@ -98,17 +93,15 @@ const views = {
   dashboard: () => `
     <section>
       <div class="section-title">Welcome to your Dashboard</div>
-      <div class="dashboard-cards">
-        <div class="dashboard-card" onclick="alert('Go to PDF Processor!')">
-          <div class="card-title">PDF Processor</div>
-          <div class="card-desc">Process your PDFs for extraction, conversion, or batch actions.</div>
-          <div>→</div>
-        </div>
-        <div class="dashboard-card" onclick="alert('Go to Source Filer Processor!')">
-          <div class="card-title">Source Filer Processor</div>
-          <div class="card-desc">Automate tasks for INDD (InDesign) source files.</div>
-          <div>→</div>
-        </div>
+      <div class="dashboard-tiles">
+        <a class="dashboard-tile dashboard-tile-pdf" href="https://app.utmatic.com/pdf-form.html">
+          <div class="tile-title">PDF Processor</div>
+          <div class="tile-desc">Process your PDFs for extraction, conversion, or batch actions.</div>
+        </a>
+        <a class="dashboard-tile dashboard-tile-indd" href="https://app.utmatic.com/source-form.html">
+          <div class="tile-title">Indd Processor</div>
+          <div class="tile-desc">Automate tasks for INDD (InDesign) source files.</div>
+        </a>
       </div>
       <div class="section-title" style="margin-top:40px;">Recent History</div>
       ${renderHistorySnapshot(jobs)}
@@ -130,14 +123,15 @@ const views = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  const nav = document.querySelector('.dash-nav');
+  const sidebar = document.querySelector('.dash-sidebar');
   const mainHeader = document.getElementById('dash-main-header');
   const mainView = document.getElementById('dash-main-view');
+  const profileIcon = document.getElementById('profile-icon');
 
-  // Nav button listeners
-  function bindNavBtnListeners() {
-    const navBtns = document.querySelectorAll('.dash-nav-btn');
-    navBtns.forEach(btn => {
+  // Sidebar button listeners
+  function bindSidebarBtnListeners() {
+    const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
+    sidebarBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         window.setView(btn.dataset.view);
       });
@@ -149,15 +143,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mainHeader) {
       mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
     }
-    // Update nav button active state
-    document.querySelectorAll('.dash-nav-btn').forEach(btn => {
+    document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
+    bindSidebarBtnListeners();
 
-    // Re-bind nav button listeners after every view render
-    bindNavBtnListeners();
-
-    // Dashboard "View full history" link
     if (view === "dashboard") {
       const link = document.getElementById("view-full-history");
       if (link) {
@@ -173,10 +163,15 @@ document.addEventListener('DOMContentLoaded', function() {
   function fetchJobsAndRender(view = "dashboard") {
     firebase.auth().onAuthStateChanged(async function(user) {
       if (!user) {
-        window.location.href = "/login"; // Or your login page
+        window.location.href = "/login";
         return;
       }
-      // Optionally display user's name/email somewhere here: user.displayName, user.email
+      // Optionally show profile icon
+      if (profileIcon && user.photoURL) {
+        profileIcon.innerHTML = `<img src="${user.photoURL}" alt="user" style="width:100%;height:100%;border-radius:50%;">`;
+      } else if(profileIcon) {
+        profileIcon.innerHTML = `<svg fill="#4d89f9" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-2.2 3.6-4 8-4s8 1.8 8 4" /></svg>`;
+      }
       const idToken = await user.getIdToken();
       fetch('https://backend-idd.onrender.com/jobs', {
         headers: { Authorization: "Bearer " + idToken }
@@ -194,10 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initial render + listeners
   fetchJobsAndRender();
 
-  // When switching to dashboard or history, always refresh jobs
   window.setView = function(view) {
     if (view === "dashboard" || view === "history") {
       fetchJobsAndRender(view);
@@ -206,6 +199,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
 
-  // Also bind nav buttons on initial load
-  bindNavBtnListeners();
+  bindSidebarBtnListeners();
 });
