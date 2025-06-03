@@ -26,9 +26,9 @@ html, body {
 input:-webkit-autofill,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:hover {
-  background-color: var(--gray-100) !important;
-  color: var(--brand-black) !important;
-  -webkit-text-fill-color: var(--brand-black) !important;
+  background-color: #1c232b91;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
   transition: background-color 9999s ease-in-out 0s;
 }
 
