@@ -665,9 +665,9 @@ body {
 .checkmark__circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  stroke-width: 6;
+  stroke-width: 4;
   stroke-miterlimit: 10;
-  stroke: #ffd731;
+  stroke: #cce1ff;
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
@@ -677,7 +677,7 @@ body {
   border-radius: 50%;
   display: inline-block;
   stroke-width: 4;
-  stroke: #ffd731;
+  stroke: #cce1ff;
   stroke-miterlimit: 10;
   box-shadow: none;
   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
@@ -722,7 +722,7 @@ body {
 }
 .tab {
   background: transparent;
-  color: #fff;
+  color: #94a3b891;
   border: none;
   border-radius: 7px 7px 0 0;
   padding: 0.2em 1.1em;
@@ -744,7 +744,7 @@ body {
 }
 .tab.active {
   background: #222a33;
-  color: #4d89f9;
+  color: #fff;
   font-weight: 600;
   z-index: 2;
 }
@@ -781,14 +781,14 @@ body {
 }
 #add-tab.tab {
   background: #4d89f9;
-  color: #fff !important;
+  color: #222a33;
   min-width: 36px !important;
   max-width: 36px !important;
   width: 36px !important;
   height: 36px !important;
   padding: 0 !important;
   font-size: 1.5rem !important;
-  font-weight: 900 !important;
+  font-weight: 600 !important;
   border-radius: 7px 7px 0 0 !important;
   display: flex !important;
   align-items: center;
