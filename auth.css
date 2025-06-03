@@ -23,20 +23,6 @@ html, body {
   font-size: 18px;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:hover {
-  background-color: #1c232b91 !important; /* Match your input background */
-  -webkit-box-shadow: 0 0 0 1000px #1c232b91 inset !important;
-  color: var(--brand-black) !important;
-  -webkit-text-fill-color: var(--brand-black) !important;
-  font-size: 1em !important;
-  font-family: 'Work Sans', 'Segoe UI', Arial, sans-serif !important;
-  border: 1.5px solid #1c232b91 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
 .auth-container {
   min-height: 100vh;
   display: flex;
