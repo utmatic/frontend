@@ -8,10 +8,25 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
+// --- LOADING OVERLAY HANDLING ---
+const loadingOverlay = document.getElementById("loading-overlay");
+const loaderGreeting = document.getElementById("loader-greeting");
+const loaderBlurb = document.getElementById("loader-blurb");
+
+function personalizeOverlay(firstName) {
+  if (loaderGreeting) loaderGreeting.textContent = `Hi ${firstName}!`;
+}
+
+function hideLoadingOverlay() {
+  if (loadingOverlay) {
+    loadingOverlay.classList.add("hidden");
+    setTimeout(() => {
+      loadingOverlay.style.display = "none";
+    }, 700);
+  }
+}
+
 async function ensureLoggedInAndProBusiness() {
-  // Show loading spinner or block UI until check is complete
-  document.body.style.pointerEvents = "none";
-  document.body.style.opacity = "";
   let formBlockedMsg = null;
 
   function blockForm(msg) {
@@ -34,23 +49,30 @@ async function ensureLoggedInAndProBusiness() {
     // Hide the form
     const form = document.getElementById('iddForm');
     if (form) form.style.display = 'none';
+    // Hide overlay so error is visible
+    hideLoadingOverlay();
   }
 
   try {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
     const user = firebase.auth().currentUser;
     if (!user) {
-      // Not logged in: redirect to login with redirect param
       window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
       return;
     }
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
-    // Allowed plans: "pro" or "business"
     if (plan === "pro" || plan === "business") {
-      // Unblock UI, show form
-      document.body.style.pointerEvents = "";
-      document.body.style.opacity = "";
+      // Personalize and fade out overlay
+      let firstName = "there";
+      if (user.displayName) {
+        firstName = user.displayName.split(" ")[0];
+      } else if (user.email) {
+        firstName = user.email.split("@")[0];
+      }
+      personalizeOverlay(firstName);
+      setTimeout(hideLoadingOverlay, 900);
+
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
       if (form) form.style.display = '';
@@ -74,7 +96,6 @@ window.addEventListener('DOMContentLoaded', ensureLoggedInAndProBusiness);
 
 let previousSubmissionData = null;
 
-// Save the state of the form before hiding it
 function saveFormState() {
   previousSubmissionData = {
     file: lastValidFile,
@@ -86,7 +107,6 @@ function saveFormState() {
       utm_campaign: utmCampaign ? utmCampaign.value : ''
     }
   };
-  // Save all link rows
   const tfInputs = rowsContainer.querySelectorAll('input[name="target_formats[]"]');
   const buInputs = rowsContainer.querySelectorAll('input[name="base_urls[]"]');
   for (let i = 0; i < tfInputs.length; i++) {
@@ -97,19 +117,14 @@ function saveFormState() {
   }
 }
 
-// Restore the form state when returning from the results screen
 function restoreFormState() {
   if (!previousSubmissionData) return;
   form.reset();
-  // File (cannot restore file input for security reasons, but show filename)
   lastValidFile = previousSubmissionData.file;
   const span = document.getElementById('file-filename');
   if (span) span.textContent = lastValidFile ? lastValidFile.name : "No file chosen";
-  // Job type
   form.job_type.value = previousSubmissionData.job_type;
   updateJobTypeFields();
-
-  // Rows
   rowsContainer.innerHTML = '';
   if (previousSubmissionData.rows.length > 0) {
     previousSubmissionData.rows.forEach(row => {
@@ -117,13 +132,9 @@ function restoreFormState() {
     });
   }
   updateDeleteButtons();
-
-  // UTM
   if (utmSource) utmSource.value = previousSubmissionData.utm.utm_source;
   if (utmMedium) utmMedium.value = previousSubmissionData.utm.utm_medium;
   if (utmCampaign) utmCampaign.value = previousSubmissionData.utm.utm_campaign;
-
-  // Show/hide correct fields
   updateJobTypeFields();
   validateForm();
 }
@@ -142,7 +153,6 @@ const rowsContainer = document.getElementById('target-base-rows');
 const addRowBtn = document.getElementById('add-row-btn');
 const MAX_ROWS = 5;
 
-// --- UTM Parameters Section ---
 const utmSection = document.getElementById('utm-section');
 const utmSource = document.getElementById('utm_source');
 const utmMedium = document.getElementById('utm_medium');
@@ -150,7 +160,6 @@ const utmCampaign = document.getElementById('utm_campaign');
 
 let lastValidFile = null;
 
-// Improved file input handler
 const fileInput = document.getElementById('file');
 fileInput.addEventListener('change', function() {
   const span = document.getElementById('file-filename');
@@ -158,14 +167,12 @@ fileInput.addEventListener('change', function() {
     lastValidFile = this.files[0];
     span.textContent = lastValidFile.name;
   } else {
-    // File removed or cleared
     lastValidFile = null;
     span.textContent = "No file chosen";
   }
   validateForm();
 });
 
-// Defensive: If user clicks submit with no file, block submission even if UI state is weird
 form.addEventListener('submit', function(e) {
   if (!lastValidFile) {
     e.preventDefault();
@@ -365,13 +372,13 @@ function showResultScreen(processedUrl, reportUrl) {
     <a href="#" class="result-return-link" id="result-return-link">
       <span>Return to your submission</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" width="21" height="21" style="margin-left:7px;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0-3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
       </svg>
     </a>
     <a href="https://app.utmatic.com/source-form.html" class="startnew-link" id="start-new-link">
       <span>Start new submission</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="startnew-icon" width="21" height="21" style="margin-left:7px;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0-3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
       </svg>
     </a>
   `;
@@ -500,7 +507,6 @@ async function pollStatus(fileName) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // --- Always hide UTM section on load ---
   if (utmSection) utmSection.style.display = "none";
   lastValidFile = null;
   const span = document.getElementById('file-filename');
