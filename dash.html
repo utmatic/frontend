@@ -6,6 +6,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
+  <style>
+    /* --- FIX FOR DASH HEADER AND PROFILE ICON --- */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      min-height: 72px;
+      max-height: 72px;
+      padding: 0 36px;
+      background: var(--background-main, #1c232b);
+      border-bottom: 1px solid var(--gray-100, #29313a);
+      box-sizing: border-box;
+    }
+    .profile-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .profile-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--background-alt, #222a33);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .profile-icon svg {
+      width: 22px !important;
+      height: 22px !important;
+      display: block;
+      fill: var(--brand-blue, #4d89f9) !important;
+    }
+  </style>
 </head>
 <body>
   <div class="dash-root">
@@ -75,7 +111,6 @@
         <div class="profile-area">
           <span class="profile-name" id="profile-name">{{user.firstName}}</span>
           <span class="profile-icon">
-            <!-- Profile Icon -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
             </svg>
