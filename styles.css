@@ -961,7 +961,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.16);   /* <-- BLACK instead of white */
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s;
@@ -971,7 +971,6 @@ body {
 .save-btn:hover:enabled::after,
 .process-btn:hover:enabled::after {
   opacity: 1;
-  filter: brightness(0.85);
 }
 .save-btn:disabled,
 .process-btn:disabled {
@@ -1360,7 +1359,7 @@ input::placeholder {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.18);
+  background: rgba(0, 0, 0, 0.16);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.18s;
@@ -1369,7 +1368,6 @@ input::placeholder {
 }
 #download-final-btn:hover:enabled::after {
   opacity: 1;
-  filter: brightness(0.85);
 }
 /* Loader/Spinner Overlay Style */
 #loader {
