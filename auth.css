@@ -149,6 +149,7 @@ html, body {
   margin-bottom: 0.1em;
 }
 
+/* ---- INPUT FIELD STYLES ---- */
 .auth-form input[type="email"],
 .auth-form input[type="password"],
 .auth-form input[type="text"] {
@@ -168,22 +169,19 @@ html, body {
 .auth-form input[type="password"]:focus,
 .auth-form input[type="text"]:focus {
   border-color: var(--brand-blue);
-  background: #232a33;
+  background: #1c232b; /* Solid background when focused */
   color: var(--brand-black);
+  /* Remove blue outline from Chrome/Edge/FF */
+  box-shadow: none;
 }
 
-.forgot-link {
-  color: var(--brand-blue);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.96em;
-  margin-left: 1em;
-  margin-right: 0.1em;
-}
-.forgot-link:hover {
-  text-decoration: underline;
+.auth-form input[type="email"]:active,
+.auth-form input[type="password"]:active,
+.auth-form input[type="text"]:active {
+  background: #1c232b; /* Also apply on active */
 }
 
+/* ---- GOOGLE BUTTON FIXES ---- */
 .auth-btn {
   width: 100%;
   padding: 0.95em 0;
@@ -212,17 +210,42 @@ html, body {
   box-shadow: 0 8px 32px #0012;
   gap: 0.7em;
   margin-top: 0.1em;
+  outline: none;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
+
+/* Remove blue outline and blue text on focus/active/hover, darken background instead */
+.auth-btn-google:focus,
+.auth-btn-google:active {
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--brand-black) !important;
+  border-color: var(--brand-white);
+  background: #1c232b;
+}
+
 .auth-btn-google:hover {
-  background: var(--background-alt);
-  color: var(--brand-blue);
-  border-color: var(--brand-blue);
+  background: #1c232b;
+  color: var(--brand-black);
+  border-color: var(--brand-white);
 }
 
 .google-svg {
   display: flex;
   align-items: center;
   margin-right: 0.2em;
+}
+
+.forgot-link {
+  color: var(--brand-blue);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.96em;
+  margin-left: 1em;
+  margin-right: 0.1em;
+}
+.forgot-link:hover {
+  text-decoration: underline;
 }
 
 .auth-or {
