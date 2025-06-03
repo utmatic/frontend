@@ -214,7 +214,7 @@ html, body {
   font-size: 1.4rem;
   font-weight: 500;
   margin-bottom: 18px;
-  color: var(--brand-blue);
+  color: #cce1ff;
 }
 
 .dashboard-cards {
@@ -255,12 +255,12 @@ html, body {
 
 .history-list {
   border-radius: 14px;
-  background: var(--background-alt);
+  background: none;
   /* No shadow */
   padding: 24px;
   margin-bottom: 32px;
   overflow-x: auto;
-  border: 1px solid var(--gray-100);
+  border: none;
 }
 .history-table {
   width: 100%;
