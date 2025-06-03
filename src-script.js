@@ -11,10 +11,12 @@ function getRedirectUrl() {
 // --- LOADING OVERLAY HANDLING ---
 const loadingOverlay = document.getElementById("loading-overlay");
 const loaderGreeting = document.getElementById("loader-greeting");
+const hiName = document.querySelector(".hi-name");
 const loaderBlurb = document.getElementById("loader-blurb");
 
+// When you have the user's name:
 function personalizeOverlay(firstName) {
-  if (loaderGreeting) loaderGreeting.textContent = `Hi ${firstName}!`;
+  if (hiName) hiName.textContent = firstName ? ` ${firstName}` : "";
 }
 
 function hideLoadingOverlay() {
@@ -22,9 +24,14 @@ function hideLoadingOverlay() {
     loadingOverlay.classList.add("hidden");
     setTimeout(() => {
       loadingOverlay.style.display = "none";
-    }, 700);
+    }, 700); // matches CSS transition
   }
 }
+
+// In your auth logic, after you get the name:
+personalizeOverlay(firstName);
+// Wait a bit longer before hiding, e.g. 1800ms
+setTimeout(hideLoadingOverlay, 1800);
 
 async function ensureLoggedInAndProBusiness() {
   let formBlockedMsg = null;
