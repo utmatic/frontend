@@ -346,7 +346,7 @@ body *:not(input):not(textarea):not(select):not(button) {
   caret-color: transparent !important;
 }
 
-/* Hide the caret everywhere except real form fields oh yeah */
+/* Hide the caret everywhere except real form fields */
 body :not(input):not(textarea):not(select) {
   caret-color: transparent !important;
 }
@@ -514,7 +514,7 @@ html, body {
 }
 body {
   font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
-  color: #7a8597;
+  color: ##7a8597;
   min-height: 100vh;
   letter-spacing: 0.01em;
   font-size: 16px;
@@ -1413,7 +1413,7 @@ input::placeholder {
   margin-top: 0.2rem;
   text-align: center;
   max-width: 370px;
-  line-height: 1.4;
+  line-height: 1.4;#4b556378
   text-shadow: 0 2px 18px #fff7;
 }
 @keyframes spin {
