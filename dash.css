@@ -378,40 +378,42 @@ html, body {
     color: var(--brand-black);
     letter-spacing: 0.01em;
   }
-  .profile-area {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .profile-name {
-    color: var(--brand-black);
-    font-weight: 500;
-    font-size: 1rem;
-  }
-  .profile-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--background-alt);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-width: 36px;
-    max-height: 36px;
-  }
-  .profile-icon svg {
-    width: 70%;
-    height: 70%;
-    display: block;
-    min-width: 0;
-    min-height: 0;
-    max-width: 100%;
-    max-height: 100%;
-    fill: var(--brand-blue);
-    color: var(--brand-blue);
-  }
+.profile-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-name {
+  color: var(--brand-black);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.profile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
+  border-radius: 50%;
+  background: var(--background-alt);
+  /* Optionally add a border for visibility: */
+  /* border: 1px solid var(--gray-100); */
+}
+
+.profile-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  margin: auto;
+  /* Use a color you want for the icon */
+  fill: var(--brand-blue);
+}
 
 @media (max-width: 600px) {
   #dash-main-view {
