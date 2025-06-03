@@ -26,10 +26,13 @@ html, body {
 input:-webkit-autofill,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:hover {
-  background-color: #1c232b91 !important;
-  color: var(--brand-black) !important;
-  -webkit-text-fill-color: var(--brand-black) !important;
-  transition: background-color 9999s ease-in-out 0s;
+  background-color: #29313a !important; /* or your preferred color */
+  -webkit-box-shadow: 0 0 0 1000px #29313a inset !important;  /* This covers the autofill background */
+  color: #e4e8ef !important;
+  -webkit-text-fill-color: #e4e8ef !important;
+  font-size: 1em !important;
+  font-family: 'Work Sans', 'Segoe UI', Arial, sans-serif !important;
+  /* Transition is optional */
 }
 
 .auth-container {
