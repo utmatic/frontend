@@ -82,7 +82,7 @@ signupForm.addEventListener('submit', async function(e) {
 
     // Call backend to create Stripe Checkout session
     signupStatus.textContent = "Redirecting to checkout...";
-    const res = await fetch('/api/create-checkout-session', {
+    const res = await fetch('https://utmatic-backend.onrender.com/api/create-checkout-session', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -150,7 +150,7 @@ function googleSignInHandler(isSignup) {
         }
         signupStatus.textContent = "Redirecting to checkout...";
         // Company can't be collected from Google, so use placeholder
-        const res = await fetch('/api/create-checkout-session', {
+        const res = await fetch('https://utmatic-backend.onrender.com/api/create-checkout-session', {
           method: 'POST',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
