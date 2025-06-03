@@ -191,7 +191,10 @@ body {
   width: 100%;
 }
 
-.result-report-link {
+/* Shared style for result actions: report, start new, return */
+.result-report-link,
+.startnew-link,
+.result-return-link {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
@@ -206,45 +209,44 @@ body {
   background: none;
 }
 
-.result-report-link svg {
+.result-report-link svg,
+.result-return-link svg {
   margin-left: 4px;
   vertical-align: middle;
   transition: color 0.18s;
 }
 
-.result-report-link:hover,
-.result-report-link:focus {
-  color: #214ad3;
-  background: #f5faff;
-  text-decoration: none;
-}
-
-.startnew-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
-  color: #cce1ff;
-  font-size: 1.08em;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.13s, background 0.13s;
-  border-radius: 4px;
-  padding: 0.16em 0.45em;
-  background: none;
-}
-
-.startnew-link .startnew-icon {
+.startnew-link .startnew-icon,
+.result-return-link .startnew-icon {
   margin-left: 0.4em;
   vertical-align: middle;
   transition: color 0.17s;
 }
 
+.result-report-link:hover,
+.result-report-link:focus,
 .startnew-link:hover,
-.startnew-link:focus {
-  color: #2537b8;
-  background: #f5faff;
+.startnew-link:focus,
+.result-return-link:hover,
+.result-return-link:focus {
+  color: #fff;
   text-decoration: none;
+}
+
+.result-return-link {
+  margin-bottom: 0.6em;
+  margin-top: 0;
+}
+
+/* Optional: adjust spacing for vertical stacking of links on small screens */
+@media (max-width: 600px) {
+  .result-report-link,
+  .startnew-link,
+  .result-return-link {
+    font-size: 0.99em;
+    gap: 0.25em;
+    padding: 0.14em 0.35em;
+  }
 }
 
 @media (max-width: 600px) {
