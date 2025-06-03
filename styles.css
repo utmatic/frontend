@@ -346,7 +346,7 @@ body *:not(input):not(textarea):not(select):not(button) {
   caret-color: transparent !important;
 }
 
-/* Hide the caret everywhere except real form fields */
+/* Hide the caret everywhere except real form fields oh yeah */
 body :not(input):not(textarea):not(select) {
   caret-color: transparent !important;
 }
