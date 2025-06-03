@@ -33,7 +33,7 @@ html, body {
 .auth-card {
   background: var(--brand-white);
   border-radius: 18px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 32px #0012;
   padding: 2.7em 2.3em 2.1em 2.3em;
   width: 100%;
   max-width: 410px;
@@ -208,8 +208,8 @@ html, body {
 .auth-btn-google {
   background: var(--brand-white);
   color: var(--brand-black);
-  border: 1.5px solid var(--gray-100);
-  box-shadow: 0 2px 12px #0005;
+  border: 1.5px solid var(--brand-white);
+  box-shadow: 0 8px 32px #0012;
   gap: 0.7em;
   margin-top: 0.1em;
 }
