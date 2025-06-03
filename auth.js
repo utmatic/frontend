@@ -83,9 +83,8 @@ signupForm.addEventListener('submit', async function(e) {
   }
 
   try {
-    // Create Firebase Auth user
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
-
+    // DO NOT create Firebase Auth user here!
+  
     // Call backend to create Stripe Checkout session
     signupStatus.textContent = "Redirecting to checkout...";
     const res = await fetch('https://utmatic-backend.onrender.com/api/create-checkout-session', {
@@ -93,7 +92,7 @@ signupForm.addEventListener('submit', async function(e) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
-        password, // Optionally hash or omit in production!
+        password,
         company,
         plan,
         interval,
