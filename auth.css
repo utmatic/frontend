@@ -23,16 +23,14 @@ html, body {
   font-size: 18px;
 }
 
-.auth-form input[type="email"],
-.auth-form input[type="password"],
-.auth-form input[type="text"] {
-  padding: 0.72em 0.95em;
-  font-size: 1em;
-  border: 1.5px solid #1c232b91;
-  border-radius: 8px;
-  background: #1c232b91;
-  color: var(--brand-black);
-  /* ... */
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover {
+  background-color: #1c232b91 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1c232b91 inset !important;
+  color: var(--brand-black) !important;
+  -webkit-text-fill-color: var(--brand-black) !important;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .auth-container {
