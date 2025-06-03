@@ -396,15 +396,22 @@ html, body {
     border-radius: 50%;
     width: 36px;
     height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
   }
   .profile-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 70%;
+    height: 70%;
+    display: block;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
     fill: var(--brand-blue);
     color: var(--brand-blue);
-    display: block;
   }
-}
 
 @media (max-width: 600px) {
   #dash-main-view {
