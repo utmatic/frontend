@@ -28,7 +28,7 @@ body {
       transition: color 0.13s;
       display: inline-block;
     }
-    .add-new-row-btn:hover:not(:disabled) {
+    .add-new-row-btn:hover {
       opacity: 1
     }
     .add-new-row-btn:disabled {
