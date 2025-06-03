@@ -121,6 +121,22 @@ html, body {
   align-items: center;
 }
 
+/* ---- NAME FIELDS SIDE BY SIDE ---- */
+.form-row.two-cols {
+  display: flex;
+  gap: 1em;
+}
+.form-row.two-cols .form-group {
+  flex: 1 1 0;
+  margin-bottom: 0;
+}
+@media (max-width: 500px) {
+  .form-row.two-cols {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+}
+
 /* ---- CUSTOM CHECKBOX ---- */
 .checkbox-label {
   display: flex;
