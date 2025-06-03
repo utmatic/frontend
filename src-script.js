@@ -9,34 +9,48 @@ function getRedirectUrl() {
 }
 
 // --- LOADING OVERLAY HANDLING ---
-const loadingOverlay = document.getElementById("loading-overlay");
 const loaderGreeting = document.getElementById("loader-greeting");
-const hiTypewriter = loaderGreeting.querySelector(".hi-typewriter");
-const loaderBlurb = document.getElementById("loader-blurb");
 
-// Typewriter effect for the full greeting line
-function showGreetingTypewriter(text, cb) {
-  if (!hiTypewriter) return;
-  hiTypewriter.textContent = "";
-  let i = 0;
-  function typeNext() {
-    if (i <= text.length) {
-      hiTypewriter.textContent = text.slice(0, i);
-      i++;
-      setTimeout(typeNext, 38); // adjust speed as needed
-    } else if (typeof cb === "function") {
-      cb();
+function showGreetingFadeIn(firstName, cb) {
+  loaderGreeting.innerHTML = "";
+  const greeting = `Hi ${firstName}!`;
+
+  // Find the range for the name to colorize it
+  const nameStart = greeting.indexOf(firstName);
+  const nameEnd = nameStart + firstName.length;
+
+  let delay = 0;
+  [...greeting].forEach((char, i) => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    span.className = "fade-in-letter";
+    if (i >= nameStart && i < nameEnd) {
+      span.classList.add("greeting-name");
     }
+    span.style.animationDelay = `${delay}s`;
+    delay += 0.045; // subtle stagger
+    loaderGreeting.appendChild(span);
+  });
+
+  // Optionally call cb after animation completes
+  if (typeof cb === "function") {
+    setTimeout(cb, delay * 1000 + 300);
   }
-  typeNext();
 }
 
+// Example usage after login:
+let firstName = "Taylor"; // replace with your login logic!
+showGreetingFadeIn(firstName, () => {
+  setTimeout(hideLoadingOverlay, 1200); // then fade out overlay
+});
+
 function hideLoadingOverlay() {
+  const loadingOverlay = document.getElementById("loading-overlay");
   if (loadingOverlay) {
     loadingOverlay.classList.add("hidden");
     setTimeout(() => {
       loadingOverlay.style.display = "none";
-    }, 700); // matches CSS transition
+    }, 700); // matches your CSS transition
   }
 }
 
