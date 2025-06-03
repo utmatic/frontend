@@ -16,7 +16,7 @@ body {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  background: #1c232b; /* your main dark color */
+  background: #fff; /* or another color */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,31 +31,11 @@ body {
 }
 .loader-content {
   text-align: center;
+  animation: fadeInUp 0.8s ease;
 }
-
-#loader-greeting {
-  font-size: 2.6rem;
-  font-weight: 800;
-  margin-bottom: 0.2em;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-
-/* Fade in each character for the greeting */
-.fade-in-letter {
-  opacity: 0;
-  display: inline-block;
-  animation: fadeInLetter 0.45s forwards;
-}
-
-@keyframes fadeInLetter {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Style for the name within the greeting */
-.greeting-name {
-  color: #cce1ff;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
 }
 
     .add-new-row-btn {
