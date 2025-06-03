@@ -17,11 +17,11 @@ const pricingData = {
 const planPriceIds = {
   essential: {
     monthly: "price_1RVlcBA1uqHbiiTSf4HB0twq",
-    yearly:  "price_1RVlcBA1uqHbiiTSqksqTkzZ"
+    yearly:  "price_1RVlboA1uqHbiiTSQksqTkzZ"
   },
   pro: {
     monthly: "price_1RVlaQA1uqHbiiTSB3acZJah",
-    yearly:  "price_1RVlaQA1uqHbiiTSe7KTn6YD"
+    yearly:  "price_1RVlaiA1uqHbiiTSe7KTn6YD"
   },
   business: {
     monthly: "price_1RVm0iA1uqHbiiTSBnAQv09f",
