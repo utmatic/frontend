@@ -1399,23 +1399,21 @@ input::placeholder {
   box-shadow: 0 3px 18px 0 rgba(37,99,235,.06);
 }
 #loader .loader-text {
-  color: #244;
+  color: #fff;
   font-size: 1.45rem;
   font-weight: 700;
   margin-bottom: 0.3rem;
   letter-spacing: 0.03em;
   text-align: center;
-  text-shadow: 0 2px 18px #fff7;
 }
 #loader .loader-subtext {
-  color: #4b556378;
+  color: ##7a8597;
   font-size: 1.06rem;
   font-weight: 400;
   margin-top: 0.2rem;
   text-align: center;
   max-width: 370px;
   line-height: 1.4;
-  text-shadow: 0 2px 18px #fff7;
 }
 @keyframes spin {
   to {
