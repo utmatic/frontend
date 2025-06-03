@@ -405,12 +405,7 @@ html, body {
   justify-content: center;
   overflow: hidden;
 }
-.profile-icon svg {
-  width: 22px !important;
-  height: 22px !important;
-  display: block;
-  fill: var(--brand-blue);
-}
+
 
 @media (max-width: 600px) {
   #dash-main-view {
@@ -423,4 +418,11 @@ html, body {
     padding: 18px 14px 14px 14px;
     min-width: 0;
   }
+}
+
+.profile-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block;
+  fill: var(--brand-blue);
 }
