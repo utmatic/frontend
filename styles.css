@@ -12,7 +12,7 @@ body {
   display: block;
 }
     .add-new-row-btn {
-      background: none;
+      background: rgba(0, 0, 0, 0.16);
       border: none;
       color: #2563eb;
       font-size: 1em;
@@ -29,8 +29,7 @@ body {
       display: inline-block;
     }
     .add-new-row-btn:hover:not(:disabled) {
-      text-decoration: underline;
-      color: #2537b8;
+      opacity: 1
     }
     .add-new-row-btn:disabled {
       opacity: 0.45;
