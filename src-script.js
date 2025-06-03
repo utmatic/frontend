@@ -8,6 +8,30 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
+// --- Gating ---
+async function ensureLoggedInAndProBusiness() {
+  let formBlockedMsg = null;
+  function blockForm(msg) {
+    if (!formBlockedMsg) {
+      formBlockedMsg = document.createElement('div');
+      formBlockedMsg.id = "blocked-msg";
+      formBlockedMsg.style.position = "fixed";
+      formBlockedMsg.style.top = "0";
+      formBlockedMsg.style.left = "0";
+      formBlockedMsg.style.width = "100vw";
+      formBlockedMsg.style.background = "#fff7f7";
+      formBlockedMsg.style.color = "#c00";
+      formBlockedMsg.style.zIndex = "10000";
+      formBlockedMsg.style.padding = "18px";
+      formBlockedMsg.style.fontWeight = "bold";
+      formBlockedMsg.style.textAlign = "center";
+      formBlockedMsg.innerHTML = msg;
+      document.body.appendChild(formBlockedMsg);
+    }
+    // Hide the form
+    const form = document.getElementById('iddForm');
+    if (form) form.style.display = 'none';
+  }
   try {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
     const user = firebase.auth().currentUser;
@@ -18,16 +42,6 @@ function getRedirectUrl() {
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
     if (plan === "pro" || plan === "business") {
-      // Personalize and fade out overlay
-      let firstName = "there";
-      if (user.displayName) {
-        firstName = user.displayName.split(" ")[0];
-      } else if (user.email) {
-        firstName = user.email.split("@")[0];
-      }
-      personalizeOverlay(firstName);
-      setTimeout(hideLoadingOverlay, 900);
-
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
       if (form) form.style.display = '';
@@ -45,10 +59,21 @@ function getRedirectUrl() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', ensureLoggedInAndProBusiness);
+window.addEventListener('DOMContentLoaded', () => {
+  ensureLoggedInAndProBusiness();
+
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+});
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
-
 let previousSubmissionData = null;
 
 function saveFormState() {
@@ -95,7 +120,6 @@ function restoreFormState() {
 }
 
 // --- Main script continues as before ---
-
 const form = document.getElementById('iddForm');
 const statusDiv = document.getElementById('status');
 const submitBtn = document.getElementById('submitBtn');
@@ -305,6 +329,7 @@ function resetForm() {
   if (span) span.textContent = "No file chosen";
   rowsContainer.innerHTML = '';
   if (utmSection) utmSection.style.display = "none";
+  if (linkFields) linkFields.style.display = "none";
   statusDiv.textContent = "";
   validateForm();
 }
@@ -381,7 +406,6 @@ function showResultScreen(processedUrl, reportUrl) {
   }
 }
 
-// --- PATCHED SUBMIT HANDLER WITH AUTH TOKEN ---
 form.onsubmit = async (e) => {
   e.preventDefault();
   saveFormState();
@@ -473,13 +497,3 @@ async function pollStatus(fileName) {
   }
   check();
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-  if (utmSection) utmSection.style.display = "none";
-  lastValidFile = null;
-  const span = document.getElementById('file-filename');
-  if (span) span.textContent = "No file chosen";
-  bindValidationListeners();
-  updateJobTypeFields();
-  validateForm();
-});
