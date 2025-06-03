@@ -8,6 +8,11 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
+function getRedirectUrl() {
+  // Always redirect back to this page after login
+  return window.location.pathname;
+}
+
 // --- LOADING OVERLAY HANDLING ---
 const loaderGreeting = document.getElementById("loader-greeting");
 
@@ -38,12 +43,6 @@ function showGreetingFadeIn(firstName, cb) {
   }
 }
 
-// Example usage after login:
-let firstName = "Taylor"; // replace with your login logic!
-showGreetingFadeIn(firstName, () => {
-  setTimeout(hideLoadingOverlay, 1200); // then fade out overlay
-});
-
 function hideLoadingOverlay() {
   const loadingOverlay = document.getElementById("loading-overlay");
   if (loadingOverlay) {
@@ -53,6 +52,29 @@ function hideLoadingOverlay() {
     }, 700); // matches your CSS transition
   }
 }
+
+// Example usage after authentication is confirmed:
+function personalizeGreetingAfterAuth(user) {
+  let firstName = "there";
+  if (user && user.displayName) {
+    firstName = user.displayName.split(" ")[0];
+  } else if (user && user.email) {
+    firstName = user.email.split("@")[0];
+  }
+  showGreetingFadeIn(firstName, () => {
+    setTimeout(hideLoadingOverlay, 1200);
+  });
+}
+
+// Usage: Call personalizeGreetingAfterAuth(user) after you have the user object from your auth logic.
+// Example (replace this with your real auth logic):
+// firebase.auth().onAuthStateChanged((user) => {
+//   if (user) {
+//     personalizeGreetingAfterAuth(user);
+//   } else {
+//     // redirect to login or show error
+//   }
+// });
 
 async function ensureLoggedInAndProBusiness() {
   let formBlockedMsg = null;
