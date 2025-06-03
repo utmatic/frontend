@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-root">
+    <nav class="sidebar">
+      <button data-view="dashboard" class="sidebar-btn active">Dashboard</button>
+      <button data-view="history" class="sidebar-btn">History</button>
+      <button data-view="settings" class="sidebar-btn">Settings</button>
+    </nav>
+    <div class="main-content">
+      <header class="header">
+        <h1 id="main-header">Dashboard</h1>
+      </header>
+      <main id="main-view">
+        <!-- Main content will be injected here -->
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
