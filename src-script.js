@@ -16,7 +16,15 @@ const loaderBlurb = document.getElementById("loader-blurb");
 
 // When you have the user's name:
 function personalizeOverlay(firstName) {
-  if (hiName) hiName.textContent = firstName ? ` ${firstName}` : "";
+  if (hiName) {
+    hiName.textContent = firstName ? ` ${firstName}` : "";
+    // Remove the animation class if it's already there (for repeated logins, etc.)
+    hiName.classList.remove("animate-in");
+    // Force reflow so animation will always trigger
+    void hiName.offsetWidth;
+    // Add the animation class to animate in the name
+    hiName.classList.add("animate-in");
+  }
 }
 
 function hideLoadingOverlay() {
