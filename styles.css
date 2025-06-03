@@ -12,11 +12,6 @@ body {
   display: block;
 }
 
-#link-fields,
-#utm-section {
-  display: none;
-}
-
     .add-new-row-btn {
       background: none;
       border: none;
