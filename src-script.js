@@ -31,9 +31,9 @@ async function ensureLoggedInAndProBusiness() {
       formBlockedMsg.innerHTML = msg;
       document.body.appendChild(formBlockedMsg);
     }
-    // Hide the form
-    const form = document.getElementById('iddForm');
-    if (form) form.style.display = 'none';
+      // Hide the form (with fade-out, optional)
+      const form = document.getElementById('iddForm');
+      if (form) form.classList.remove('visible');
   }
 
   try {
