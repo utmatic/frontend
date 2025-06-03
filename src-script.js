@@ -11,7 +11,7 @@ function getRedirectUrl() {
 async function ensureLoggedInAndProBusiness() {
   // Show loading spinner or block UI until check is complete
   document.body.style.pointerEvents = "none";
-  document.body.style.opacity = "0.5";
+  document.body.style.opacity = "";
   let formBlockedMsg = null;
 
   function blockForm(msg) {
