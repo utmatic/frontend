@@ -13,14 +13,15 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
-// --- LOADING OVERLAY HANDLING ---
+function getRedirectUrl() {
+  return window.location.pathname;
+}
+
 const loaderGreeting = document.getElementById("loader-greeting");
 
 function showGreetingFadeIn(firstName, cb) {
   loaderGreeting.innerHTML = "";
   const greeting = `Hi ${firstName}!`;
-
-  // Find the range for the name to colorize it
   const nameStart = greeting.indexOf(firstName);
   const nameEnd = nameStart + firstName.length;
 
@@ -29,15 +30,12 @@ function showGreetingFadeIn(firstName, cb) {
     const span = document.createElement("span");
     span.textContent = char;
     span.className = "fade-in-letter";
-    if (i >= nameStart && i < nameEnd) {
-      span.classList.add("greeting-name");
-    }
+    if (i >= nameStart && i < nameEnd) span.classList.add("greeting-name");
     span.style.animationDelay = `${delay}s`;
-    delay += 0.045; // subtle stagger
+    delay += 0.045;
     loaderGreeting.appendChild(span);
   });
 
-  // Optionally call cb after animation completes
   if (typeof cb === "function") {
     setTimeout(cb, delay * 1000 + 300);
   }
@@ -49,11 +47,10 @@ function hideLoadingOverlay() {
     loadingOverlay.classList.add("hidden");
     setTimeout(() => {
       loadingOverlay.style.display = "none";
-    }, 700); // matches your CSS transition
+    }, 700);
   }
 }
 
-// Example usage after authentication is confirmed:
 function personalizeGreetingAfterAuth(user) {
   let firstName = "there";
   if (user && user.displayName) {
@@ -65,6 +62,15 @@ function personalizeGreetingAfterAuth(user) {
     setTimeout(hideLoadingOverlay, 1200);
   });
 }
+
+// --- Main Auth Gating Logic ---
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    personalizeGreetingAfterAuth(user);
+  } else {
+    window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+  }
+});
 
 // Usage: Call personalizeGreetingAfterAuth(user) after you have the user object from your auth logic.
 // Example (replace this with your real auth logic):
