@@ -10,8 +10,6 @@ function getRedirectUrl() {
 
 async function ensureLoggedInAndProBusiness() {
   // Show loading spinner or block UI until check is complete
-  document.body.style.pointerEvents = "none";
-  document.body.style.opacity = "";
   let formBlockedMsg = null;
 
   function blockForm(msg) {
@@ -31,10 +29,6 @@ async function ensureLoggedInAndProBusiness() {
       formBlockedMsg.innerHTML = msg;
       document.body.appendChild(formBlockedMsg);
     }
-      // Hide the form (with fade-out, optional)
-      const form = document.getElementById('iddForm');
-      if (form) form.classList.remove('visible');
-  }
 
   try {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
