@@ -9,7 +9,8 @@
 </head>
 <body>
   <div class="dash-root">
-    <nav class="dash-sidebar">
+    <nav class="dash-sidebar expanded">
+      <div class="dash-sidebar-toggle" id="sidebar-toggle" title="Collapse sidebar">&lt;</div>
       <div class="dash-logo">
         <!-- Inline SVG logo -->
         <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184.86 37.84" aria-label="Utmatic Logo">
@@ -32,9 +33,9 @@
           <path class="cls-1" d="M175.88,12.21c-6.24,0-9.97,3.8-9.97,10.16s3.71,10.17,10.17,10.17c4.6,0,7.87-2.15,8.79-5.75l-4.63-1.49c-.46,2.28-1.92,3.49-4.24,3.49-3.19,0-4.94-2.26-4.94-6.37s1.77-6.45,4.98-6.45c2.1,0,3.43,1.2,3.95,3.56l4.79-1.72c-1.14-3.71-4.14-5.59-8.9-5.59Z"/>
         </svg>
       </div>
-      <button data-view="dashboard" class="dash-sidebar-btn active">Dashboard</button>
-      <button data-view="history" class="dash-sidebar-btn">History</button>
-      <button data-view="settings" class="dash-sidebar-btn">Settings</button>
+      <button data-view="dashboard" class="dash-sidebar-btn active"><span class="btn-label">Dashboard</span><span class="btn-icon">🏠</span></button>
+      <button data-view="history" class="dash-sidebar-btn"><span class="btn-label">History</span><span class="btn-icon">📜</span></button>
+      <button data-view="settings" class="dash-sidebar-btn"><span class="btn-label">Settings</span><span class="btn-icon">⚙️</span></button>
     </nav>
     <div class="dash-main-content">
       <header class="dash-header">
