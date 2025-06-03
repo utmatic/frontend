@@ -50,12 +50,17 @@ const jobs = [
   }
 ];
 
+// --- Profile info simulation ---
+const profile = {
+  firstName: "Alex"
+};
+
 // Render five most recent jobs for dashboard
 function renderHistorySnapshot(jobs) {
   const rows = jobs.slice(0, 5).map(job => `
     <tr>
       <td>${job.date}</td>
-      <td><span class="file-type-chip">${job.filetype}</span></td>
+      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype}</span></td>
       <td>${job.document}</td>
       <td>${job.jobtype}</td>
       <td>
@@ -89,7 +94,7 @@ function renderHistory(jobs) {
   const rows = jobs.map(job => `
     <tr>
       <td>${job.date}</td>
-      <td><span class="file-type-chip">${job.filetype}</span></td>
+      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype}</span></td>
       <td>${job.document}</td>
       <td>${job.jobtype}</td>
       <td>
@@ -206,5 +211,14 @@ sidebarToggle.addEventListener('click', () => {
   }
 });
 
+// Set profile name in header
+function setProfileName() {
+  const el = document.getElementById('profile-name');
+  if (el && profile.firstName) {
+    el.textContent = profile.firstName;
+  }
+}
+
 // Initial render + listeners
 setView('dashboard');
+setProfileName();
