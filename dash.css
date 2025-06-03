@@ -1,16 +1,16 @@
 :root {
   --brand-blue: #4d89f9;
   --brand-blue-hover: #3474e0;
-  --brand-black: #e4e8ef;
-  --brand-white: #232a33;
+  --brand-black: #1c232b;
+  --brand-white: #e4e8ef;
   --gray-100: #29313a;
   --gray-300: #b3b9c5;
   --gray-400: #7a8597;
-  --shadow: 0 8px 32px #000a;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
   --background-main: #1c232b;
   --background-alt: #222a33;
   --accent-yellow: #ffd33d;
+  --accent-yellow-hover: #e6bd09;
   --transition: 0.22s cubic-bezier(.6,.2,.3,1);
 }
 
@@ -30,60 +30,78 @@ html, body {
   background: var(--background-main);
 }
 
-/* --- Remove Sidebar --- */
-
-/* Instead, make a flat nav bar */
-.dash-nav {
-  width: 100%;
+/* Sidebar styles */
+.dash-sidebar {
   background: var(--brand-white);
+  width: 260px;
+  min-width: 180px;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
-  padding: 0 0 0 0;
-  height: 64px;
-  box-shadow: none; /* No shadow */
-  border-bottom: 1px solid var(--gray-100);
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px 0 16px 0;
+  gap: 10px;
+  border-right: 1.5px solid var(--gray-100);
+  box-shadow: none;
   z-index: 2;
   position: relative;
 }
 
-.dash-nav-btn {
+.dash-logo-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 54px;
+  margin-bottom: 54px;
+  padding-left: 36px;
+}
+
+.dash-logo {
+  max-width: 180px;
+  height: 44px;
+  display: block;
+}
+
+.dash-sidebar-btn {
   background: none;
   border: none;
-  padding: 0 36px;
+  padding: 14px 36px;
   color: var(--brand-black);
   font-size: 1.09rem;
   font-family: var(--font);
   border-radius: 0;
-  text-align: center;
+  text-align: left;
   cursor: pointer;
   letter-spacing: 0.02em;
-  transition: background 0.16s, color 0.16s;
-  height: 64px;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  min-width: 0;
+  gap: 18px;
   position: relative;
+  transition: background 0.16s, color 0.16s;
 }
-.dash-nav-btn.active,
-.dash-nav-btn:hover {
+.dash-sidebar-btn .btn-label {
+  flex: 1;
+  white-space: nowrap;
+}
+.dash-sidebar-btn.active,
+.dash-sidebar-btn:hover {
   background: var(--brand-blue);
   color: #fff;
 }
-.dash-nav-btn.active::before {
+.dash-sidebar-btn.active::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  width: 4px;
+  width: 6px;
   background: var(--accent-yellow);
   border-radius: 0;
 }
 
-/* Remove all sidebar, sidebar-toggle, and collapsed logic/styles */
-
+/* Main Content */
 .dash-main-content {
   flex: 1;
   display: flex;
@@ -96,19 +114,41 @@ html, body {
   background: var(--background-alt);
   border-bottom: 1px solid var(--gray-100);
   padding: 32px 36px 22px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dash-header h1 {
   margin: 0;
   font-size: 2.1rem;
   font-weight: 600;
-  color: var(--brand-black);
+  color: var(--brand-white);
   letter-spacing: 0.01em;
 }
 
 #dash-main-view {
   padding: 36px;
   flex: 1;
+}
+
+.profile-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+}
+.profile-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  background: var(--background-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .section-title {
@@ -118,39 +158,54 @@ html, body {
   color: #cce1ff;
 }
 
-.dashboard-cards {
+.dashboard-tiles {
   display: flex;
   gap: 28px;
   margin-bottom: 48px;
 }
-.dashboard-card {
-  background: var(--background-alt);
-  color: var(--brand-black);
-  border-radius: 18px;
-  /* No drop shadow */
-  padding: 36px 30px 26px 30px;
-  min-width: 210px;
-  flex: 1;
+.dashboard-tile {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: flex-start;
+  text-decoration: none;
+  border-radius: 18px;
+  min-width: 210px;
+  min-height: 210px;
+  width: 210px;
+  height: 210px;
+  padding: 32px 26px 24px 26px;
+  box-sizing: border-box;
   cursor: pointer;
   transition: background 0.16s, color 0.16s;
-  border: 2px solid transparent;
-  text-decoration: none;
+  color: var(--brand-black) !important;
+  font-family: var(--font);
+  font-size: 1.08rem;
+  box-shadow: none;
+  border: none;
 }
-.dashboard-card:hover {
+
+.dashboard-tile-pdf {
   background: var(--brand-blue);
-  color: #fff;
-  border-color: var(--accent-yellow);
 }
-.dashboard-card .card-title {
+.dashboard-tile-pdf:hover {
+  background: var(--brand-blue-hover);
+}
+.dashboard-tile-indd {
+  background: var(--accent-yellow);
+}
+.dashboard-tile-indd:hover {
+  background: var(--accent-yellow-hover);
+}
+
+.tile-title {
   font-weight: 600;
   font-size: 1.15rem;
   margin-bottom: 14px;
+  color: var(--brand-black);
 }
-.dashboard-card .card-desc {
-  color: var(--gray-400);
+.tile-desc {
+  color: var(--brand-black);
   font-size: 1em;
   margin-bottom: 18px;
 }
@@ -158,7 +213,6 @@ html, body {
 .history-list {
   border-radius: 14px;
   background: none;
-  /* No shadow */
   padding: 24px;
   margin-bottom: 32px;
   overflow-x: auto;
@@ -192,17 +246,6 @@ html, body {
   font-weight: 500;
   letter-spacing: 0.01em;
 }
-.status-chip {
-  display: inline-block;
-  border-radius: 8px;
-  padding: 2px 12px;
-  font-size: 0.93em;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-.status-success { background: #2ecc40; color: #fff; }
-.status-failed { background: #ff4d4d; color: #fff; }
-.status-pending { background: #ffd33d; color: #222; }
 .download-link {
   color: var(--brand-blue);
   text-decoration: none;
@@ -215,96 +258,75 @@ html, body {
   color: var(--brand-blue-hover);
 }
 
+/* Responsive tweaks */
 @media (max-width: 1200px) {
-  .dash-nav {
-    font-size: 0.97rem;
+  .dash-sidebar {
+    width: 160px;
+    min-width: 90px;
+    padding-left: 0;
+    padding-right: 0;
   }
-}
-
-@media (max-width: 1000px) {
-  .dashboard-cards {
-    flex-direction: column;
+  .dash-logo {
+    max-width: 100px;
+  }
+  .dashboard-tiles {
     gap: 18px;
   }
+  .dashboard-tile {
+    width: 140px;
+    height: 140px;
+    min-width: 120px;
+    min-height: 120px;
+    font-size: 0.98rem;
+    padding: 20px 14px 14px 14px;
+  }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .dash-root {
     flex-direction: column;
   }
-  .dash-nav {
-    flex-direction: column;
-    height: auto;
-    border-bottom: none;
-    border-right: 1px solid var(--gray-100);
+  .dash-sidebar {
+    flex-direction: row;
     width: 100vw;
-  }
-  .dash-nav-btn {
-    height: 48px;
-    justify-content: flex-start;
-    padding: 0 24px;
-    width: 100%;
-  }
-  .dash-main-content {
-    display: flex;
-    flex-direction: column;
     min-width: 0;
-    height: 100vh; /* or 100% if body/html are 100% */
-  }
-  .dash-header {
-    display: flex;
+    height: auto;
+    border-right: none;
+    border-bottom: 1.5px solid var(--gray-100);
+    padding: 0 0 0 0;
     align-items: center;
-    justify-content: space-between;
-    height: 72px;        /* Fixed height */
-    min-height: 72px;
-    max-height: 72px;
-    background: var(--background-main);
-    padding: 0 36px;
-    border-bottom: 1px solid var(--gray-100);
+    gap: 0;
   }
-  #dash-main-view {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 36px;
+  .dash-logo-container {
+    margin-bottom: 0;
+    padding-left: 18px;
+    height: 44px;
   }
-  .profile-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 36px;
-  }
-  .profile-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-width: 36px;
-    max-height: 36px;
-    border-radius: 50%;
-    background: var(--background-alt);
-    display: flex;
-    align-items: center;
+  .dash-sidebar-btn {
+    padding: 12px 18px;
+    font-size: 1rem;
+    width: auto;
     justify-content: center;
-    overflow: hidden;
+  }
+  .dash-sidebar-btn .btn-label {
+    display: block;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   #dash-main-view {
-    padding: 12px;
+    padding: 10px;
   }
-  .dash-header {
+  .dashboard-tile {
+    width: 100%;
+    min-width: 0;
+    height: 100px;
+    min-height: 100px;
+    font-size: 0.95rem;
     padding: 12px 10px 10px 10px;
   }
-  .dashboard-card {
-    padding: 18px 14px 14px 14px;
-    min-width: 0;
+  .dashboard-tiles {
+    flex-direction: column;
+    gap: 10px;
   }
-}
-
-.profile-icon svg {
-  width: 22px !important;
-  height: 22px !important;
-  display: block;
-  fill: var(--brand-blue);
 }
