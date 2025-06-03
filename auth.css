@@ -23,6 +23,18 @@ html, body {
   font-size: 18px;
 }
 
+.auth-form input[type="email"],
+.auth-form input[type="password"],
+.auth-form input[type="text"] {
+  padding: 0.72em 0.95em;
+  font-size: 1em;
+  border: 1.5px solid #1c232b91;
+  border-radius: 8px;
+  background: #1c232b91;
+  color: var(--brand-black);
+  /* ... */
+}
+
 .auth-container {
   min-height: 100vh;
   display: flex;
