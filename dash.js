@@ -1,15 +1,17 @@
+// --- Firebase config (replace with your real config if needed) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
+  authDomain: "utmatic.firebaseapp.com",
+  projectId: "utmatic",
+  storageBucket: "utmatic.firebasestorage.app",
+  messagingSenderId: "106080752806",
+  appId: "1:106080752806:web:217a463a446a850cf71067",
+  measurementId: "G-7JD0EVYF7M"
+};
+firebase.initializeApp(firebaseConfig);
+
 // Demo job data with placeholder fields for templating
-let jobs = [
-  // Example job, but in production, you would fill these with real job objects
-  // {
-  //   date: "{{job.date}}",
-  //   filetype: "{{job.filetype}}",
-  //   document: "{{job.document}}",
-  //   jobtype: "{{job.jobtype}}",
-  //   processedUrl: "{{job.processedUrl}}",
-  //   changelogUrl: "{{job.changelogUrl}}"
-  // }
-];
+let jobs = [];
 
 function renderHistorySnapshot(jobs) {
   if (!jobs || jobs.length === 0) {
@@ -128,7 +130,7 @@ function bindSidebarBtnListeners() {
   const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
   sidebarBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      setView(btn.dataset.view);
+      window.setView(btn.dataset.view);
     });
   });
 }
@@ -150,25 +152,35 @@ function setView(view) {
     if (link) {
       link.addEventListener("click", function(e) {
         e.preventDefault();
-        setView("history");
+        window.setView("history");
       });
     }
   }
 }
 
-// Fetch jobs from backend and update the dashboard
+// Fetch jobs for the logged-in user and render dashboard/history
 function fetchJobsAndRender(view = "dashboard") {
-  fetch('/jobs')
-    .then(res => res.json())
-    .then(data => {
-      jobs = data;
-      setView(view);
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login"; // Or your login page
+      return;
+    }
+    // Optionally display user's name/email somewhere here: user.displayName, user.email
+    const idToken = await user.getIdToken();
+    fetch('/jobs', {
+      headers: { Authorization: "Bearer " + idToken }
     })
-    .catch(err => {
-      console.error('Error loading jobs:', err);
-      jobs = [];
-      setView(view);
-    });
+      .then(res => res.json())
+      .then(data => {
+        jobs = data;
+        setView(view);
+      })
+      .catch(err => {
+        console.error('Error loading jobs:', err);
+        jobs = [];
+        setView(view);
+      });
+  });
 }
 
 // Sidebar toggle
