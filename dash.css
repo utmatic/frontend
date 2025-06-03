@@ -11,7 +11,7 @@
   --background-main: #1c232b;
   --background-alt: #222a33;
   --accent-yellow: #ffd33d;
-  --transition: 0.18s cubic-bezier(.6,.2,.3,1);
+  --transition: 0.22s cubic-bezier(.6,.2,.3,1);
 }
 
 html, body {
@@ -51,17 +51,32 @@ html, body {
   padding-left: 0;
   padding-right: 0;
 }
-.dash-sidebar .dash-logo {
+
+.dash-logo-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 44px;
+  margin-bottom: 44px;
+}
+
+.dash-logo {
   width: 210px;
-  margin: 0 0 44px 34px;
-  transition: opacity var(--transition), margin var(--transition), width var(--transition);
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  opacity: 1;
+  transition: width var(--transition), min-width var(--transition), opacity var(--transition), margin var(--transition);
+  overflow: hidden;
 }
 .dash-sidebar.collapsed .dash-logo {
+  width: 0;
+  min-width: 0;
   opacity: 0;
   margin: 0;
-  width: 0;
   pointer-events: none;
-  height: 0;
 }
 .dash-sidebar-btn {
   background: none;
@@ -85,8 +100,15 @@ html, body {
 .dash-sidebar-btn .btn-icon {
   display: flex;
   align-items: center;
-  margin-right: 0;
-  transition: opacity var(--transition), margin var(--transition);
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+  min-width: 24px;
+}
+.dash-sidebar-btn .btn-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 .dash-sidebar-btn .btn-label {
   flex: 1;
@@ -292,7 +314,7 @@ html, body {
   .dash-sidebar {
     width: 210px;
   }
-  .dash-sidebar .dash-logo {
+  .dash-logo {
     width: 130px;
   }
 }
@@ -316,8 +338,11 @@ html, body {
     align-items: center;
     box-shadow: none;
   }
+  .dash-logo-container {
+    justify-content: center;
+  }
   .dash-logo {
-    margin: 0 24px 0 0;
+    margin: 0;
     width: 120px;
   }
   .dash-sidebar-btn {
