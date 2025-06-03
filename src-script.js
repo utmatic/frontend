@@ -8,41 +8,16 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
-function getRedirectUrl() {
-  // Always redirect back to this page after login
-  return window.location.pathname;
-}
-
-function getRedirectUrl() {
-  return window.location.pathname;
-}
-
+// --- LOADING OVERLAY HANDLING ---
+const loadingOverlay = document.getElementById("loading-overlay");
 const loaderGreeting = document.getElementById("loader-greeting");
+const loaderBlurb = document.getElementById("loader-blurb");
 
-function showGreetingFadeIn(firstName, cb) {
-  loaderGreeting.innerHTML = "";
-  const greeting = `Hi ${firstName}!`;
-  const nameStart = greeting.indexOf(firstName);
-  const nameEnd = nameStart + firstName.length;
-
-  let delay = 0;
-  [...greeting].forEach((char, i) => {
-    const span = document.createElement("span");
-    span.textContent = char;
-    span.className = "fade-in-letter";
-    if (i >= nameStart && i < nameEnd) span.classList.add("greeting-name");
-    span.style.animationDelay = `${delay}s`;
-    delay += 0.045;
-    loaderGreeting.appendChild(span);
-  });
-
-  if (typeof cb === "function") {
-    setTimeout(cb, delay * 1000 + 300);
-  }
+function personalizeOverlay(firstName) {
+  if (loaderGreeting) loaderGreeting.textContent = `Hi ${firstName}!`;
 }
 
 function hideLoadingOverlay() {
-  const loadingOverlay = document.getElementById("loading-overlay");
   if (loadingOverlay) {
     loadingOverlay.classList.add("hidden");
     setTimeout(() => {
@@ -50,37 +25,6 @@ function hideLoadingOverlay() {
     }, 700);
   }
 }
-
-function personalizeGreetingAfterAuth(user) {
-  let firstName = "there";
-  if (user && user.displayName) {
-    firstName = user.displayName.split(" ")[0];
-  } else if (user && user.email) {
-    firstName = user.email.split("@")[0];
-  }
-  showGreetingFadeIn(firstName, () => {
-    setTimeout(hideLoadingOverlay, 1200);
-  });
-}
-
-// --- Main Auth Gating Logic ---
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    personalizeGreetingAfterAuth(user);
-  } else {
-    window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
-  }
-});
-
-// Usage: Call personalizeGreetingAfterAuth(user) after you have the user object from your auth logic.
-// Example (replace this with your real auth logic):
-// firebase.auth().onAuthStateChanged((user) => {
-//   if (user) {
-//     personalizeGreetingAfterAuth(user);
-//   } else {
-//     // redirect to login or show error
-//   }
-// });
 
 async function ensureLoggedInAndProBusiness() {
   let formBlockedMsg = null;
@@ -119,17 +63,15 @@ async function ensureLoggedInAndProBusiness() {
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
     if (plan === "pro" || plan === "business") {
-      // Typewriter greeting and fade out overlay
+      // Personalize and fade out overlay
       let firstName = "there";
       if (user.displayName) {
         firstName = user.displayName.split(" ")[0];
       } else if (user.email) {
         firstName = user.email.split("@")[0];
       }
-      let greeting = `Hi ${firstName}!`;
-      showGreetingTypewriter(greeting, () => {
-        setTimeout(hideLoadingOverlay, 1200); // stays a bit longer after typing finishes
-      });
+      personalizeOverlay(firstName);
+      setTimeout(hideLoadingOverlay, 900);
 
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
