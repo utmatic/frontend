@@ -27,7 +27,6 @@ input:-webkit-autofill,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:hover {
   background-color: #1c232b91 !important;
-  -webkit-box-shadow: 0 0 0px 1000px #1c232b91 inset !important;
   color: var(--brand-black) !important;
   -webkit-text-fill-color: var(--brand-black) !important;
   transition: background-color 9999s ease-in-out 0s;
