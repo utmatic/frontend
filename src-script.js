@@ -1,3 +1,75 @@
+// --- Firebase Auth gating for Source Form ---
+// ASSUMES:
+// - Firebase SDK scripts are loaded in your HTML _before_ this file!
+// - This page is /source-form or similar
+
+function getRedirectUrl() {
+  // Always redirect back to this page after login
+  return window.location.pathname;
+}
+
+async function ensureLoggedInAndProBusiness() {
+  // Show loading spinner or block UI until check is complete
+  document.body.style.pointerEvents = "none";
+  document.body.style.opacity = "0.5";
+  let formBlockedMsg = null;
+
+  function blockForm(msg) {
+    if (!formBlockedMsg) {
+      formBlockedMsg = document.createElement('div');
+      formBlockedMsg.id = "blocked-msg";
+      formBlockedMsg.style.position = "fixed";
+      formBlockedMsg.style.top = "0";
+      formBlockedMsg.style.left = "0";
+      formBlockedMsg.style.width = "100vw";
+      formBlockedMsg.style.background = "#fff7f7";
+      formBlockedMsg.style.color = "#c00";
+      formBlockedMsg.style.zIndex = "10000";
+      formBlockedMsg.style.padding = "18px";
+      formBlockedMsg.style.fontWeight = "bold";
+      formBlockedMsg.style.textAlign = "center";
+      formBlockedMsg.innerHTML = msg;
+      document.body.appendChild(formBlockedMsg);
+    }
+    // Hide the form
+    const form = document.getElementById('iddForm');
+    if (form) form.style.display = 'none';
+  }
+
+  try {
+    await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      // Not logged in: redirect to login with redirect param
+      window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+      return;
+    }
+    const idTokenResult = await user.getIdTokenResult();
+    const plan = idTokenResult.claims.plan;
+    // Allowed plans: "pro" or "business"
+    if (plan === "pro" || plan === "business") {
+      // Unblock UI, show form
+      document.body.style.pointerEvents = "";
+      document.body.style.opacity = "";
+      if (formBlockedMsg) formBlockedMsg.remove();
+      const form = document.getElementById('iddForm');
+      if (form) form.style.display = '';
+    } else {
+      let upgradeLink = '/pricing';
+      blockForm(`
+        <span>This tool is only available to <b>Pro</b> or <b>Business</b> plan users.</span>
+        <br>
+        <a href="${upgradeLink}" style="color:#0070f3;text-decoration:underline;">Upgrade your plan</a> 
+        or <a href="/dashboard" style="color:#0070f3;text-decoration:underline;">return to dashboard</a>.
+      `);
+    }
+  } catch (e) {
+    blockForm("Error checking your account. Please refresh or contact support.");
+  }
+}
+
+window.addEventListener('DOMContentLoaded', ensureLoggedInAndProBusiness);
+
 // --- Save and Restore Form State for "Return to your submission" functionality ---
 
 let previousSubmissionData = null;
@@ -141,7 +213,7 @@ function updateDeleteButtons() {
     if (idx > 0) {
       delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'delete-tab'; // Use the same class as tab delete
+      delBtn.className = 'delete-tab';
       delBtn.innerHTML = '&times;';
       delBtn.title = 'Remove row';
       delBtn.onclick = function() {
@@ -152,7 +224,6 @@ function updateDeleteButtons() {
       };
       row.appendChild(delBtn);
     } else {
-      // Placeholder to keep alignment, looks invisible/disabled
       placeholder = document.createElement('button');
       placeholder.type = 'button';
       placeholder.className = 'delete-tab delete-row-placeholder';
@@ -180,11 +251,9 @@ function showLinkFields(show) {
   validateForm();
 }
 
-// --- UTM show/hide utility for form shrink/grow ---
 function showUtmFields(show) {
   if (!utmSection) return;
   utmSection.style.display = show ? "block" : "none";
-  // Required attributes
   if (utmSource) utmSource.required = show;
   if (utmMedium) utmMedium.required = show;
   if (utmCampaign) utmCampaign.required = show;
@@ -201,14 +270,12 @@ addRowBtn.onclick = function() {
 
 function updateJobTypeFields() {
   const jobType = document.getElementById('job_type').value;
-  // Show link fields for jobs that need them:
   if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
     showLinkFields(true);
   } else {
     showLinkFields(false);
     rowsContainer.innerHTML = '';
   }
-  // Show UTM only for jobs that include it
   if (jobType === "add_links_with_utm" || jobType === "add_utm") {
     showUtmFields(true);
   } else {
@@ -242,7 +309,6 @@ function validateForm() {
     }
   }
 
-  // Only validate UTM fields if UTM section is visible
   if (utmSection && utmSection.style.display !== 'none') {
     if (!utmSource.value.trim() || !utmMedium.value.trim() || !utmCampaign.value.trim()) {
       isValid = false;
@@ -281,7 +347,6 @@ function resetForm() {
   validateForm();
 }
 
-// --- Show Result Screen with "Return to your submission" link ---
 function showResultScreen(processedUrl, reportUrl) {
   mainFormWrapper.style.display = 'none';
   resultScreen.style.display = 'flex';
@@ -334,7 +399,6 @@ function showResultScreen(processedUrl, reportUrl) {
     resultBtns.appendChild(reportLink);
   }
 
-  // --- Return to submission link logic ---
   const returnLink = resultContent.querySelector('#result-return-link');
   if (returnLink) {
     returnLink.onclick = function(e) {
@@ -348,7 +412,6 @@ function showResultScreen(processedUrl, reportUrl) {
   const startNewLink = resultContent.querySelector('#start-new-link');
   if (startNewLink) {
     startNewLink.onclick = function(e) {
-      // Optional: you can keep this as a normal link, or do a JS reset
       e.preventDefault();
       resetForm();
       window.location.href = "https://app.utmatic.com/source-form.html";
@@ -356,7 +419,6 @@ function showResultScreen(processedUrl, reportUrl) {
   }
 }
 
-// --- SUBMIT HANDLER: Save state before submit ---
 form.onsubmit = async (e) => {
   e.preventDefault();
   saveFormState();
@@ -387,7 +449,6 @@ form.onsubmit = async (e) => {
     formData.append("base_url", buValues[0] || "");
   }
 
-  // Only submit UTM fields if visible
   if (utmSection && utmSection.style.display !== 'none') {
     formData.append("utm_source", form.utm_source.value);
     formData.append("utm_medium", form.utm_medium.value);
