@@ -130,15 +130,14 @@ const views = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  const sidebar = document.querySelector('.dash-sidebar');
-  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const nav = document.querySelector('.dash-nav');
   const mainHeader = document.getElementById('dash-main-header');
   const mainView = document.getElementById('dash-main-view');
 
-  // Sidebar button listeners
-  function bindSidebarBtnListeners() {
-    const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
-    sidebarBtns.forEach(btn => {
+  // Nav button listeners
+  function bindNavBtnListeners() {
+    const navBtns = document.querySelectorAll('.dash-nav-btn');
+    navBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         window.setView(btn.dataset.view);
       });
@@ -147,14 +146,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function setView(view) {
     mainView.innerHTML = views[view]();
-    mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
-    // Update sidebar button active state
-    document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
+    if (mainHeader) {
+      mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
+    }
+    // Update nav button active state
+    document.querySelectorAll('.dash-nav-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
 
-    // Re-bind sidebar button listeners after every view render
-    bindSidebarBtnListeners();
+    // Re-bind nav button listeners after every view render
+    bindNavBtnListeners();
 
     // Dashboard "View full history" link
     if (view === "dashboard") {
@@ -193,26 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Sidebar toggle
-  let collapsed = false;
-  if (sidebarToggle) {
-    sidebarToggle.addEventListener('click', () => {
-      collapsed = !collapsed;
-      sidebar.classList.toggle('collapsed', collapsed);
-      // Rotate arrow for direction
-      const arrow = document.getElementById('toggle-arrow');
-      if (arrow) {
-        if (collapsed) {
-          arrow.style.transform = "rotate(180deg)";
-          sidebarToggle.title = "Expand sidebar";
-        } else {
-          arrow.style.transform = "rotate(0deg)";
-          sidebarToggle.title = "Collapse sidebar";
-        }
-      }
-    });
-  }
-
   // Initial render + listeners
   fetchJobsAndRender();
 
@@ -225,6 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
 
-  // Also bind sidebar buttons on initial load
-  bindSidebarBtnListeners();
+  // Also bind nav buttons on initial load
+  bindNavBtnListeners();
 });
