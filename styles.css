@@ -970,7 +970,8 @@ body {
 }
 .save-btn:hover:enabled::after,
 .process-btn:hover:enabled::after {
-  filter: brightness(0.85); /* Reduce brightness to 85% */
+  opacity: 1;
+  filter: brightness(0.85);
 }
 .save-btn:disabled,
 .process-btn:disabled {
