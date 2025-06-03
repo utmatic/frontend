@@ -3,157 +3,314 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Sign In · Utmatic</title>
-  <link rel="stylesheet" href="auth.css"/>
+  <title>Choose Your Plan · Utmatic</title>
+  <link rel="stylesheet" href="pricing.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    /* Add/adjust if not already present in auth.css */
-    .auth-logo {
-      display: flex;
+    /* --- Modal Styles --- */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.4);
       justify-content: center;
       align-items: center;
-      margin-bottom: 2.2em;
     }
-    .auth-logo svg {
-      width: 164px;
-      max-width: 92vw;
-      height: auto;
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      width: 100%;
+      max-width: 370px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.13);
+      font-family: 'Work Sans', sans-serif;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      right: 18px; top: 16px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+    .modal label {
       display: block;
+      margin-top: 1rem;
+      font-size: 0.98rem;
+      font-weight: 500;
     }
-    @media (max-width: 500px) {
-      .auth-logo svg {
-        width: 110px;
-      }
+    .modal input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 4px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .modal button[type="submit"] {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.7rem 0;
+      border: none;
+      background: #0254fa;
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal button[type="submit"]:hover {
+      background: #003eab;
+    }
+    .modal .modal-error {
+      color: #c00;
+      margin-top: 1rem;
+      font-size: 0.96rem;
+      text-align: center;
+      min-height: 1.5em;
+    }
+    .modal .modal-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .modal .modal-desc {
+      font-size: 0.98rem;
+      color: #444;
+      text-align: center;
+      margin-bottom: 0.8rem;
     }
   </style>
-  <!-- Firebase SDKs: add BEFORE your own JS, as required for Firebase Auth -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="auth-card">
+  <div class="pricing-wrapper">
+    <header class="pricing-header">
+      <h1>Choose your plan</h1>
+      <p class="pricing-blurb">
+        Select the plan that best fits your workflow. All plans include a free trial and you can upgrade or downgrade anytime.
+      </p>
+    </header>
+    <div class="pricing-toggle-row">
+      <span class="toggle-label">Monthly</span>
+      <button class="toggle-switch" id="billing-toggle" aria-label="Switch billing period" type="button">
+        <span class="toggle-slider"></span>
+      </button>
+      <span class="toggle-label">Yearly</span>
+    </div>
 
-      <div class="auth-logo">
-        <!-- Updated Inline SVG logo -->
-        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184.86 37.84" aria-label="Utmatic Logo">
-          <defs>
-            <style>
-              .cls-1 { fill: #fff; }
-              .cls-2 { fill: #cce1ff; }
-            </style>
-          </defs>
-          <path class="cls-2" d="M30.34,0H5.11C2.29,0,0,2.29,0,5.11v15.58c0,9.46,7.69,17.15,17.15,17.15h1.14c9.46,0,17.15-7.69,17.15-17.15V5.11c0-2.82-2.29-5.11-5.11-5.11ZM31.51,20.69c0,7.29-5.93,13.22-13.22,13.22h-1.14c-7.29,0-13.22-5.93-13.22-13.22v-8.17h6.78v8.81c0,3.86,3.14,7.01,7.01,7.01s7.01-3.14,7.01-7.01v-8.81h6.78v8.17ZM31.51,8.58h-10.72v12.74c0,1.69-1.38,3.07-3.07,3.07s-3.07-1.38-3.07-3.07v-12.74H3.93v-3.47c0-.65.53-1.18,1.18-1.18h25.23c.65,0,1.18.53,1.18,1.18v3.47Z"/>
-          <path class="cls-1" d="M56.36,32.54c3.28,0,5.57-1.25,6.81-3.73l.24-.48.22,3.82h4.56V12.61h-5.14v10.48c0,3.42-1.79,5.46-4.78,5.46-2.49,0-3.59-1.34-3.59-4.35v-11.59h-5.14v12.98c0,4.48,2.43,6.95,6.83,6.95Z"/>
-          <path class="cls-1" d="M80.23,32.54c2.08,0,4.04-.57,5.27-1.54l-.76-3.29c-.87.69-1.79.99-2.96.99-1.88,0-2.88-1-2.88-2.88v-9.46h6.42v-3.76h-6.42v-6.02l-5.14,1.43v4.59h-3.61v3.76h3.61v10.34c0,3.88,2.18,5.84,6.48,5.84Z"/>
-          <path class="cls-1" d="M110.13,16.21c1.62,0,3.56.72,3.56,4.15v11.79h5.1l.04-12.86c.02-2.14-.62-3.92-1.85-5.16-1.22-1.23-3.02-1.91-5.06-1.91-2.95,0-5.42,1.47-6.61,3.92l-.14.3-.12-.31c-.97-2.45-3.34-3.91-6.33-3.91s-5.2,1.39-6.41,3.81l-.24.49-.22-3.9h-4.6v19.54h5.14v-10.36c0-4.12,2.43-5.58,4.51-5.58,1.64,0,3.59.72,3.59,4.15v11.79h5.14v-10.52c0-3.29,1.77-5.42,4.51-5.42Z"/>
-          <path class="cls-1" d="M134.57,29.35l.09.33c.5,1.93,1.95,2.87,4.42,2.87.92,0,1.74-.17,2.44-.51l.36-3c-.33.07-.72.11-1.18.11-1.1,0-1.61-.52-1.61-1.65v-8.13c0-4.61-3.15-7.15-8.86-7.15-4.5,0-7.58,1.92-8.47,5.28l4.05,1.71c.59-2.23,2.12-3.32,4.66-3.32,2.17,0,3.52,1.38,3.52,3.59v1.07l-4.88.93c-5.05.94-7.61,3-7.61,6.12s2.19,4.93,6,4.93c3.3,0,5.75-1.03,6.9-2.9l.18-.29ZM133.99,25.83c0,2.29-2.8,3.32-4.78,3.32-1.53,0-2.41-.76-2.41-2.09s.83-2.04,2.77-2.48l4.42-.99v2.24Z"/>
-          <path class="cls-1" d="M150.74,32.54c2.08,0,4.04-.57,5.27-1.54l-.76-3.29c-.87.69-1.79.99-2.96.99-1.88,0-2.88-1-2.88-2.88v-9.46h6.42v-3.76h-6.42v-6.02l-5.14,1.43v4.59h-3.61v3.76h3.61v10.34c0,3.88,2.18,5.84,6.48,5.84Z"/>
-          <g>
-            <rect class="cls-1" x="157.74" y="12.61" width="5.14" height="19.54"/>
-            <path class="cls-1" d="M160.33,3.93c-2.17,0-3.23.91-3.23,2.79s1.06,2.75,3.23,2.75,3.23-.9,3.23-2.75-1.06-2.79-3.23-2.79Z"/>
-          </g>
-          <path class="cls-1" d="M175.88,12.21c-6.24,0-9.97,3.8-9.97,10.16s3.71,10.17,10.17,10.17c4.6,0,7.87-2.15,8.79-5.75l-4.63-1.49c-.46,2.28-1.92,3.49-4.24,3.49-3.19,0-4.94-2.26-4.94-6.37s1.77-6.45,4.98-6.45c2.1,0,3.43,1.2,3.95,3.56l4.79-1.72c-1.14-3.71-4.14-5.59-8.9-5.59Z"/>
-        </svg>
-      </div>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-signin" type="button">Sign in</button>
-        <button class="auth-tab" id="tab-signup" type="button">Sign up</button>
-      </div>
-
-      <form class="auth-form" id="signin-form" autocomplete="on">
-        <div class="form-group">
-          <label for="signin-email">Email</label>
-          <input type="email" id="signin-email" name="email" autocomplete="email" required/>
+    <div class="pricing-tiers">
+      <!-- Essential Plan -->
+      <div class="pricing-card" data-plan="essential">
+        <div class="plan-name">Essential</div>
+        <div class="plan-price-row">
+          <span class="plan-price" id="essential-price">$79</span>
+          <span class="plan-per">/mo</span>
         </div>
-        <div class="form-group">
-          <label for="signin-password">Password</label>
-          <input type="password" id="signin-password" name="password" autocomplete="current-password" required/>
+        <div class="plan-billed" id="essential-billed">billed monthly</div>
+        <div class="plan-desc">
+          For users who need a simple way to add links and tracking.
         </div>
-        <div class="form-row align-center">
-          <label class="checkbox-label">
-            <input type="checkbox" name="remember"/>
-            <span>Remember me</span>
-          </label>
-          <a href="#" class="forgot-link">Forgot password?</a>
-        </div>
-        <button type="submit" class="auth-btn">Sign in</button>
-        <div id="signin-status" class="signup-status"></div>
-        <div class="auth-or"><span>or</span></div>
-        <button type="button" class="auth-btn auth-btn-google" id="google-signin-btn">
-          <span class="google-svg">
-            <!-- (Google SVG code unchanged) -->
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_95:967)">
-                <path d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216" fill="#4285F4"></path>
-                <path d="M10.2042 20.0001C12.9592 20.0001 15.2721 19.1111 16.9616 17.5778L13.7416 15.1332C12.88 15.7223 11.7235 16.1334 10.2042 16.1334C8.91385 16.126 7.65863 15.7206 6.61663 14.9747C5.57464 14.2287 4.79879 13.1802 4.39915 11.9778L4.27957 11.9878L1.12973 14.3766L1.08856 14.4888C1.93689 16.1457 3.23879 17.5387 4.84869 18.512C6.45859 19.4852 8.31301 20.0005 10.2046 20.0001" fill="#34A853"></path>
-                <path d="M4.39911 11.9777C4.17592 11.3411 4.06075 10.673 4.05819 9.99996C4.0623 9.32799 4.17322 8.66075 4.38696 8.02225L4.38127 7.88968L1.19282 5.4624L1.08852 5.51101C0.372885 6.90343 0.00012207 8.4408 0.00012207 9.99987C0.00012207 11.5589 0.372885 13.0963 1.08852 14.4887L4.39911 11.9777Z" fill="#FBBC05"></path>
-                <path d="M10.2042 3.86663C11.6663 3.84438 13.0804 4.37803 14.1498 5.35558L17.0296 2.59996C15.1826 0.901848 12.7366 -0.0298855 10.2042 -3.6784e-05C8.3126 -0.000477834 6.45819 0.514732 4.8483 1.48798C3.2384 2.46124 1.93649 3.85416 1.08813 5.51101L4.38775 8.02225C4.79132 6.82005 5.56974 5.77231 6.61327 5.02675C7.6568 4.28118 8.91279 3.87541 10.2042 3.86663Z" fill="#EB4335"></path>
-              </g>
-              <defs>
-                <clipPath id="clip0_95:967">
-                  <rect width="20" height="20" fill="white"></rect>
-                </clipPath>
-              </defs>
-            </svg>
-          </span>
-          Sign in with Google
-        </button>
-      </form>
-
-      <form class="auth-form" id="signup-form" style="display:none;" autocomplete="on">
-        <div class="form-group">
-          <label for="signup-email">Email</label>
-          <input type="email" id="signup-email" name="email" autocomplete="email" required/>
-        </div>
-        <div class="form-group">
-          <label for="signup-company">Company or Organization</label>
-          <input type="text" id="signup-company" name="company" autocomplete="organization" required/>
-        </div>
-        <div class="form-group">
-          <label for="signup-password">Password</label>
-          <input type="password" id="signup-password" name="password" autocomplete="new-password" required minlength="8"/>
-        </div>
-        <div class="form-group">
-          <label for="signup-confirm">Confirm password</label>
-          <input type="password" id="signup-confirm" name="confirm" autocomplete="new-password" required minlength="8"/>
-        </div>
-        <div class="form-row">
-          <label class="checkbox-label checkbox-agree">
-            <input type="checkbox" name="tos" required/>
-            <span>
-              I agree to the
-              <a href="#" target="_blank">Terms</a>
-              and
-              <a href="#" target="_blank">Privacy Policy</a>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>1 user</li>
+          <li class="additional-user">+$59/mo per additional user</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li>
+            <span class="checkmark">
+              <!-- ... SVG ... -->
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
             </span>
-          </label>
+            Access to PDF Processor
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Detailed change log for every file
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Standard processing speed
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            25 MB file limit per run
+          </li>
+        </ul>
+      </div>
+      <!-- Pro Plan -->
+      <div class="pricing-card" data-plan="pro">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price-row">
+          <span class="plan-price" id="pro-price">$399</span>
+          <span class="plan-per">/mo</span>
         </div>
-        <button type="submit" class="auth-btn">Sign up</button>
-        <div id="signup-status" class="signup-status"></div>
-        <div class="auth-or"><span>or</span></div>
-        <button type="button" class="auth-btn auth-btn-google" id="google-signup-btn">
-          <span class="google-svg">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_95:967)">
-                <path d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216" fill="#4285F4"></path>
-                <path d="M10.2042 20.0001C12.9592 20.0001 15.2721 19.1111 16.9616 17.5778L13.7416 15.1332C12.88 15.7223 11.7235 16.1334 10.2042 16.1334C8.91385 16.126 7.65863 15.7206 6.61663 14.9747C5.57464 14.2287 4.79879 13.1802 4.39915 11.9778L4.27957 11.9878L1.12973 14.3766L1.08856 14.4888C1.93689 16.1457 3.23879 17.5387 4.84869 18.512C6.45859 19.4852 8.31301 20.0005 10.2046 20.0001" fill="#34A853"></path>
-                <path d="M4.39911 11.9777C4.17592 11.3411 4.06075 10.673 4.05819 9.99996C4.0623 9.32799 4.17322 8.66075 4.38696 8.02225L4.38127 7.88968L1.19282 5.4624L1.08852 5.51101C0.372885 6.90343 0.00012207 8.4408 0.00012207 9.99987C0.00012207 11.5589 0.372885 13.0963 1.08852 14.4887L4.39911 11.9777Z" fill="#FBBC05"></path>
-                <path d="M10.2042 3.86663C11.6663 3.84438 13.0804 4.37803 14.1498 5.35558L17.0296 2.59996C15.1826 0.901848 12.7366 -0.0298855 10.2042 -3.6784e-05C8.3126 -0.000477834 6.45819 0.514732 4.8483 1.48798C3.2384 2.46124 1.93649 3.85416 1.08813 5.51101L4.38775 8.02225C4.79132 6.82005 5.56974 5.77231 6.61327 5.02675C7.6568 4.28118 8.91279 3.87541 10.2042 3.86663Z" fill="#EB4335"></path>
-              </g>
-              <defs>
-                <clipPath id="clip0_95:967">
-                  <rect width="20" height="20" fill="white"></rect>
-                </clipPath>
-              </defs>
-            </svg>
-          </span>
-          Sign up with Google
-        </button>
-      </form>
+        <div class="plan-billed" id="pro-billed">billed monthly</div>
+        <div class="plan-desc">
+          For small to mid-sized teams creating campaign materials.
+        </div>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>3 users included</li>
+          <li class="additional-user">+$49/mo per additional user</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Access to PDF Processor
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Access to InDesign Processor
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Detailed change log for every file
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Accelerated processing speed
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            100 MB file limit per run
+          </li>
+        </ul>
+      </div>
+      <!-- Business Plan -->
+      <div class="pricing-card" data-plan="business">
+        <div class="plan-name">Business</div>
+        <div class="plan-price-row">
+          <span class="plan-price" id="business-price">$699</span>
+          <span class="plan-per">/mo</span>
+        </div>
+        <div class="plan-billed" id="business-billed">billed monthly</div>
+        <div class="plan-desc">
+          For large teams handling high volumes of content.
+        </div>
+        <button class="plan-btn">Start Free Trial</button>
+        <hr class="plan-divider"/>
+        <ul class="plan-meta">
+          <li>10 users included</li>
+          <li class="additional-user">+$39/mo per additional user</li>
+        </ul>
+        <hr class="plan-divider"/>
+        <ul class="plan-features">
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Access to PDF Processor
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Access to InDesign Processor
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Detailed change log for every file
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Highest processing speed
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            Create and save custom presets for repeated workflows
+          </li>
+          <li>
+            <span class="checkmark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+              </svg>
+            </span>
+            No file size limitations
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-  <script src="auth.js"></script>
+
+  <!-- Signup Modal (hidden by default) -->
+  <div class="modal-backdrop" id="signup-modal-backdrop">
+    <form class="modal" id="signup-modal-form" autocomplete="on">
+      <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
+      <div class="modal-title">Start Free Trial</div>
+      <div class="modal-desc" id="modal-plan-desc">Sign up to continue with your selected plan.</div>
+      <label for="modal-email">Email</label>
+      <input type="email" id="modal-email" name="email" required autocomplete="email" />
+      <label for="modal-company">Company</label>
+      <input type="text" id="modal-company" name="company" required autocomplete="organization" />
+      <label for="modal-password">Password</label>
+      <input type="password" id="modal-password" name="password" required autocomplete="new-password" minlength="6" />
+      <div class="modal-error" id="modal-error"></div>
+      <button type="submit" id="modal-submit-btn">Continue to Checkout</button>
+    </form>
+  </div>
+
+  <script src="pricing.js"></script>
 </body>
 </html>
