@@ -44,6 +44,8 @@ signupForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   if (signupStatus) signupStatus.textContent = '';
   const email = document.getElementById('signup-email').value.trim();
+  const first_name = document.getElementById('signup-first').value.trim();
+  const last_name = document.getElementById('signup-last').value.trim();
   const company = document.getElementById('signup-company').value.trim();
   const password = document.getElementById('signup-password').value;
   const confirm = document.getElementById('signup-confirm').value;
@@ -59,6 +61,10 @@ signupForm.addEventListener('submit', async function(e) {
   }
   if (password !== confirm) {
     if (signupStatus) signupStatus.textContent = "Passwords do not match.";
+    return;
+  }
+  if (!first_name || !last_name) {
+    signupStatus.textContent = "Please enter your first and last name.";
     return;
   }
 
@@ -91,7 +97,9 @@ signupForm.addEventListener('submit', async function(e) {
         company,
         plan,
         interval,
-        price_id: priceId
+        price_id: priceId,
+        first_name,
+        last_name
       })
     });
     const data = await res.json();
@@ -159,6 +167,7 @@ function googleSignInHandler(isSignup) {
             plan,
             interval,
             price_id: priceId
+            // No first_name/last_name from Google by default
           })
         });
         const data = await res.json();
