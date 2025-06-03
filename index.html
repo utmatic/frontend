@@ -26,6 +26,9 @@
       }
     }
   </style>
+  <!-- Firebase SDKs: add BEFORE your own JS, as required for Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 </head>
 <body>
   <div class="auth-container">
@@ -76,9 +79,11 @@
           <a href="#" class="forgot-link">Forgot password?</a>
         </div>
         <button type="submit" class="auth-btn">Sign in</button>
+        <div id="signin-status" class="signup-status"></div>
         <div class="auth-or"><span>or</span></div>
-        <button type="button" class="auth-btn auth-btn-google">
+        <button type="button" class="auth-btn auth-btn-google" id="google-signin-btn">
           <span class="google-svg">
+            <!-- (Google SVG code unchanged) -->
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_95:967)">
                 <path d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216" fill="#4285F4"></path>
@@ -126,8 +131,9 @@
           </label>
         </div>
         <button type="submit" class="auth-btn">Sign up</button>
+        <div id="signup-status" class="signup-status"></div>
         <div class="auth-or"><span>or</span></div>
-        <button type="button" class="auth-btn auth-btn-google">
+        <button type="button" class="auth-btn auth-btn-google" id="google-signup-btn">
           <span class="google-svg">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_95:967)">
