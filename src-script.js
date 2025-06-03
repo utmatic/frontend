@@ -57,9 +57,13 @@ async function ensureLoggedInAndProBusiness() {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
     const user = firebase.auth().currentUser;
     if (!user) {
-      window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+      // Handle not logged in, maybe redirect or block form
+      statusDiv.textContent = "You are not logged in.";
+      submitBtn.disabled = false;
+      hideLoader();
       return;
     }
+    const idToken = await user.getIdToken();
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
     if (plan === "pro" || plan === "business") {
@@ -465,10 +469,23 @@ form.onsubmit = async (e) => {
   showLoader();
   mainFormWrapper.style.pointerEvents = "none";
   try {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      statusDiv.textContent = "You are not logged in.";
+      submitBtn.disabled = false;
+      hideLoader();
+      return;
+    }
+    const idToken = await user.getIdToken();
     const resp = await fetch("https://backend-idd.onrender.com/upload/", {
       method: "POST",
-      body: formData
+      body: formData,
+      headers: {
+        Authorization: "Bearer " + idToken
+      }
     });
+    // ...rest of your code...
+  }
 
     const res = await resp.json();
     if (resp.ok && res.file_name) {
