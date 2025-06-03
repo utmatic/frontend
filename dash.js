@@ -1,71 +1,29 @@
-// Demo job data (matching the new field order)
-const jobs = [
-  {
-    date: "2025-06-01",
-    filetype: "PDF",
-    document: "Client_Brochure.pdf",
-    jobtype: "PDF Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  },
-  {
-    date: "2025-05-30",
-    filetype: "INDD",
-    document: "Quarterly_Report.indd",
-    jobtype: "Source Filer Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  },
-  {
-    date: "2025-05-30",
-    filetype: "PDF",
-    document: "Invoice_4721.pdf",
-    jobtype: "PDF Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  },
-  {
-    date: "2025-05-29",
-    filetype: "INDD",
-    document: "Magazine_Layout.indd",
-    jobtype: "Source Filer Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  },
-  {
-    date: "2025-05-28",
-    filetype: "INDD",
-    document: "Flyer.indd",
-    jobtype: "Source Filer Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  },
-  {
-    date: "2025-05-27",
-    filetype: "PDF",
-    document: "Presentation.pdf",
-    jobtype: "PDF Processor",
-    processedUrl: "#",
-    changelogUrl: "#"
-  }
+// Demo job data with placeholder fields for templating
+let jobs = [
+  // Example job, but in production, you would fill these with real job objects
+  // {
+  //   date: "{{job.date}}",
+  //   filetype: "{{job.filetype}}",
+  //   document: "{{job.document}}",
+  //   jobtype: "{{job.jobtype}}",
+  //   processedUrl: "{{job.processedUrl}}",
+  //   changelogUrl: "{{job.changelogUrl}}"
+  // }
 ];
 
-// --- Profile info simulation ---
-const profile = {
-  firstName: "Alex"
-};
-
-// Render five most recent jobs for dashboard
 function renderHistorySnapshot(jobs) {
+  if (!jobs || jobs.length === 0) {
+    return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
+  }
   const rows = jobs.slice(0, 5).map(job => `
     <tr>
-      <td>${job.date}</td>
-      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype}</span></td>
-      <td>${job.document}</td>
-      <td>${job.jobtype}</td>
+      <td>${job.date ?? "{{job.date}}"}</td>
+      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype ?? "{{job.filetype}}"}</span></td>
+      <td>${job.document ?? "{{job.document}}"}</td>
+      <td>${job.jobtype ?? "{{job.jobtype}}"}</td>
       <td>
-        <a href="${job.processedUrl}" class="download-link" download>File</a>
-        <a href="${job.changelogUrl}" class="download-link" download>Log</a>
+        <a href="${job.processedUrl ?? '#'}" class="download-link" download>File</a>
+        <a href="${job.changelogUrl ?? '#'}" class="download-link" download>Log</a>
       </td>
     </tr>
   `).join("");
@@ -89,17 +47,19 @@ function renderHistorySnapshot(jobs) {
   `;
 }
 
-// Render all jobs for history
 function renderHistory(jobs) {
+  if (!jobs || jobs.length === 0) {
+    return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
+  }
   const rows = jobs.map(job => `
     <tr>
-      <td>${job.date}</td>
-      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype}</span></td>
-      <td>${job.document}</td>
-      <td>${job.jobtype}</td>
+      <td>${job.date ?? "{{job.date}}"}</td>
+      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype ?? "{{job.filetype}}"}</span></td>
+      <td>${job.document ?? "{{job.document}}"}</td>
+      <td>${job.jobtype ?? "{{job.jobtype}}"}</td>
       <td>
-        <a href="${job.processedUrl}" class="download-link" download>File</a>
-        <a href="${job.changelogUrl}" class="download-link" download>Log</a>
+        <a href="${job.processedUrl ?? '#'}" class="download-link" download>File</a>
+        <a href="${job.changelogUrl ?? '#'}" class="download-link" download>Log</a>
       </td>
     </tr>
   `).join("");
@@ -163,6 +123,7 @@ const sidebarToggle = document.getElementById('sidebar-toggle');
 const mainHeader = document.getElementById('dash-main-header');
 const mainView = document.getElementById('dash-main-view');
 
+// Sidebar button listeners
 function bindSidebarBtnListeners() {
   const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
   sidebarBtns.forEach(btn => {
@@ -180,10 +141,10 @@ function setView(view) {
     btn.classList.toggle('active', btn.dataset.view === view);
   });
 
-  // Re-bind sidebar button listeners after every view render (fixes bug)
+  // Re-bind sidebar button listeners after every view render
   bindSidebarBtnListeners();
 
-  // Special: dashboard "View full history" link
+  // Dashboard "View full history" link
   if (view === "dashboard") {
     const link = document.getElementById("view-full-history");
     if (link) {
@@ -211,14 +172,5 @@ sidebarToggle.addEventListener('click', () => {
   }
 });
 
-// Set profile name in header
-function setProfileName() {
-  const el = document.getElementById('profile-name');
-  if (el && profile.firstName) {
-    el.textContent = profile.firstName;
-  }
-}
-
 // Initial render + listeners
 setView('dashboard');
-setProfileName();
