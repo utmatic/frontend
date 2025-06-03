@@ -85,7 +85,7 @@ html, body {
   color: var(--brand-black);
   font-size: 1.09rem;
   font-family: var(--font);
-  border-radius: 18px 0 0 18px;
+  border-radius: 0;
   text-align: left;
   cursor: pointer;
   letter-spacing: 0.02em;
@@ -119,7 +119,7 @@ html, body {
 .dash-sidebar.collapsed .dash-sidebar-btn {
   padding: 18px 0;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 0;
   min-width: 0;
   gap: 0;
 }
@@ -139,7 +139,7 @@ html, body {
   height: 100%;
   width: 7px;
   background: var(--accent-yellow);
-  border-radius: 6px 0 0 6px;
+  border-radius: 0;
 }
 
 .dash-sidebar-toggle {
