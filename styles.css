@@ -741,6 +741,11 @@ body {
   height: 36px;
   z-index: 1;
   font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+
+  .tab:hover {
+    filter: brightness(0.85); /* Reduce brightness to 85% */
+  }
+  
 }
 .tab.active {
   background: #222a33;
