@@ -16,7 +16,7 @@ body {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  background: #fff; /* or another color */
+  background: #181C24; /* your main dark color */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,6 +36,26 @@ body {
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px);}
   to { opacity: 1; transform: translateY(0);}
+}
+#loader-greeting {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 0.2em;
+  letter-spacing: -0.02em;
+}
+.hi-text {
+  color: #fff;
+}
+.hi-name {
+  color: #cce1ff;
+  margin-left: 0.2em;
+}
+#loader-blurb {
+  color: #cce1ff;
+  font-size: 1.15em;
+  font-weight: 500;
+  margin-top: 0.8em;
+  letter-spacing: 0.01em;
 }
 
     .add-new-row-btn {
