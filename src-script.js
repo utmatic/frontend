@@ -36,11 +36,6 @@ function hideLoadingOverlay() {
   }
 }
 
-// In your auth logic, after you get the name:
-personalizeOverlay(firstName);
-// Wait a bit longer before hiding, e.g. 1800ms
-setTimeout(hideLoadingOverlay, 1800);
-
 async function ensureLoggedInAndProBusiness() {
   let formBlockedMsg = null;
 
@@ -86,7 +81,7 @@ async function ensureLoggedInAndProBusiness() {
         firstName = user.email.split("@")[0];
       }
       personalizeOverlay(firstName);
-      setTimeout(hideLoadingOverlay, 900);
+      setTimeout(hideLoadingOverlay, 1800);
 
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
