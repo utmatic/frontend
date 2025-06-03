@@ -154,9 +154,9 @@ html, body {
 .auth-form input[type="text"] {
   padding: 0.72em 0.95em;
   font-size: 1em;
-  border: 1.5px solid var(--gray-100);
+  border: 1.5px solid #1c232b91;
   border-radius: 8px;
-  background: var(--background-alt);
+  background: #1c232b91;
   color: var(--brand-black);
   transition: border-color 0.18s, background 0.18s;
   margin-top: 0.1em;
@@ -188,7 +188,7 @@ html, body {
   width: 100%;
   padding: 0.95em 0;
   background: var(--brand-blue);
-  color: var(--brand-white);
+  color: #1c232b;
   font-weight: 600;
   font-size: 1.09em;
   border: none;
