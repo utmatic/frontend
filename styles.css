@@ -12,6 +12,14 @@ body {
   display: block;
 }
 
+#iddForm {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#iddForm.visible {
+  opacity: 1;
+}
+
     .add-new-row-btn {
       background: none;
       border: none;
