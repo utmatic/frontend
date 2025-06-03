@@ -11,6 +11,9 @@ body {
   margin-bottom: 0.9em;
   display: block;
 }
+
+#iddForm { display: none; }
+
     .add-new-row-btn {
       background: none;
       border: none;
