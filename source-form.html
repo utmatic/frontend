@@ -11,23 +11,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script>
     // --- Firebase config (replace with your real config if needed) ---
-  const firebaseConfig = {
-    apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
-    authDomain: "utmatic.firebaseapp.com",
-    projectId: "utmatic",
-    storageBucket: "utmatic.appspot.com", <!-- FIXED HERE -->
-    messagingSenderId: "106080752806",
-    appId: "1:106080752806:web:217a463a446a850cf71067",
-    measurementId: "G-7JD0EVYF7M"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
+      authDomain: "utmatic.firebaseapp.com",
+      projectId: "utmatic",
+      storageBucket: "utmatic.firebasestorage.app",
+      messagingSenderId: "106080752806",
+      appId: "1:106080752806:web:217a463a446a850cf71067",
+      measurementId: "G-7JD0EVYF7M"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <!-- LOADING OVERLAY ADDED HERE -->
   <div id="loading-overlay">
     <div class="loader-content">
-      <h1 id="loader-greeting"></h1>
+      <h1 id="loader-greeting">Hi!</h1>
+      <p id="loader-blurb">Getting things ready for you…</p>
     </div>
   </div>
   <!-- END LOADING OVERLAY -->
