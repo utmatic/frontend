@@ -84,7 +84,7 @@ function renderHistory(jobs) {
 }
 
 const views = {
-  dashboard: `
+  dashboard: () => `
     <section>
       <div class="section-title">Welcome to your Dashboard</div>
       <div class="dashboard-cards">
@@ -104,13 +104,13 @@ const views = {
       <div style="margin-top: 16px;"><a href="#" id="view-full-history" class="download-link">View full history →</a></div>
     </section>
   `,
-  history: `
+  history: () => `
     <section>
       <div class="section-title">Processed Jobs History</div>
       ${renderHistory(jobs)}
     </section>
   `,
-  settings: `
+  settings: () => `
     <section>
       <div class="section-title">Settings</div>
       <div style="color:var(--gray-400);">Settings options will go here.</div>
@@ -134,7 +134,7 @@ function bindSidebarBtnListeners() {
 }
 
 function setView(view) {
-  mainView.innerHTML = views[view];
+  mainView.innerHTML = views[view]();
   mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
   // Update sidebar button active state
   document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
@@ -156,6 +156,21 @@ function setView(view) {
   }
 }
 
+// Fetch jobs from backend and update the dashboard
+function fetchJobsAndRender(view = "dashboard") {
+  fetch('/jobs')
+    .then(res => res.json())
+    .then(data => {
+      jobs = data;
+      setView(view);
+    })
+    .catch(err => {
+      console.error('Error loading jobs:', err);
+      jobs = [];
+      setView(view);
+    });
+}
+
 // Sidebar toggle
 let collapsed = false;
 sidebarToggle.addEventListener('click', () => {
@@ -173,4 +188,13 @@ sidebarToggle.addEventListener('click', () => {
 });
 
 // Initial render + listeners
-setView('dashboard');
+fetchJobsAndRender();
+
+// When switching to dashboard or history, always refresh jobs
+window.setView = function(view) {
+  if (view === "dashboard" || view === "history") {
+    fetchJobsAndRender(view);
+  } else {
+    setView(view);
+  }
+};
