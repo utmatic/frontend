@@ -23,15 +23,6 @@ html, body {
   font-size: 18px;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:hover {
-  background-color: #1c232b91;
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  transition: background-color 9999s ease-in-out 0s;
-}
-
 .auth-container {
   min-height: 100vh;
   display: flex;
