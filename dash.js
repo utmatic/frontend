@@ -1,30 +1,61 @@
 const views = {
   dashboard: `
     <section>
-      <h2>Welcome to your Dashboard</h2>
-      <p>This is your main dashboard view.</p>
-      <!-- Add dashboard widgets/stats here -->
+      <div class="section-title">Welcome to your Dashboard</div>
+      <div class="dashboard-widgets">
+        <div style="color:var(--gray-400);">Dashboard widgets or stats will go here.</div>
+      </div>
     </section>
   `,
   history: `
     <section>
-      <h2>History</h2>
-      <p>Here you can see your activity history.</p>
-      <!-- Add history content here -->
+      <div class="section-title">History Viewer</div>
+      <div class="history-list">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Event</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-06-01</td>
+              <td>Login</td>
+              <td>Success</td>
+              <td>IP: 123.45.67.89</td>
+            </tr>
+            <tr>
+              <td>2025-06-01</td>
+              <td>File Uploaded</td>
+              <td>Success</td>
+              <td>report.pdf (1.2MB)</td>
+            </tr>
+            <tr>
+              <td>2025-05-31</td>
+              <td>Password Change</td>
+              <td>Failed</td>
+              <td>Incorrect old password</td>
+            </tr>
+            <!-- More rows can be dynamically added here -->
+          </tbody>
+        </table>
+      </div>
     </section>
   `,
   settings: `
     <section>
-      <h2>Settings</h2>
-      <p>Manage your preferences here.</p>
-      <!-- Add settings form or options here -->
+      <div class="section-title">Settings</div>
+      <div style="color:var(--gray-400);">Settings options will go here.</div>
     </section>
   `
 };
 
-const sidebarBtns = document.querySelectorAll('.sidebar-btn');
-const mainHeader = document.getElementById('main-header');
-const mainView = document.getElementById('main-view');
+const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
+const mainHeader = document.getElementById('dash-main-header');
+const mainView = document.getElementById('dash-main-view');
 
 function setView(view) {
   // Update main content
