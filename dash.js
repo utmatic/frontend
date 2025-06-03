@@ -1,79 +1,63 @@
-// Demo job data (unchanged)
+// Demo job data (matching the new field order)
 const jobs = [
   {
     date: "2025-06-01",
-    filename: "Client_Brochure.pdf",
     filetype: "PDF",
-    processor: "PDF Processor",
-    status: "Success",
+    document: "Client_Brochure.pdf",
+    jobtype: "PDF Processor",
     processedUrl: "#",
     changelogUrl: "#"
   },
   {
     date: "2025-05-30",
-    filename: "Quarterly_Report.indd",
     filetype: "INDD",
-    processor: "Source Filer Processor",
-    status: "Success",
+    document: "Quarterly_Report.indd",
+    jobtype: "Source Filer Processor",
     processedUrl: "#",
     changelogUrl: "#"
   },
   {
     date: "2025-05-30",
-    filename: "Invoice_4721.pdf",
     filetype: "PDF",
-    processor: "PDF Processor",
-    status: "Success",
+    document: "Invoice_4721.pdf",
+    jobtype: "PDF Processor",
     processedUrl: "#",
     changelogUrl: "#"
   },
   {
     date: "2025-05-29",
-    filename: "Magazine_Layout.indd",
     filetype: "INDD",
-    processor: "Source Filer Processor",
-    status: "Failed",
+    document: "Magazine_Layout.indd",
+    jobtype: "Source Filer Processor",
     processedUrl: "#",
     changelogUrl: "#"
   },
   {
     date: "2025-05-28",
-    filename: "Flyer.indd",
     filetype: "INDD",
-    processor: "Source Filer Processor",
-    status: "Success",
+    document: "Flyer.indd",
+    jobtype: "Source Filer Processor",
     processedUrl: "#",
     changelogUrl: "#"
   },
   {
     date: "2025-05-27",
-    filename: "Presentation.pdf",
     filetype: "PDF",
-    processor: "PDF Processor",
-    status: "Pending",
+    document: "Presentation.pdf",
+    jobtype: "PDF Processor",
     processedUrl: "#",
     changelogUrl: "#"
   }
 ];
-
-// Util for status chip class
-function statusClass(status) {
-  if (status === "Success") return "status-chip status-success";
-  if (status === "Failed") return "status-chip status-failed";
-  if (status === "Pending") return "status-chip status-pending";
-  return "status-chip";
-}
 
 // Render five most recent jobs for dashboard
 function renderHistorySnapshot(jobs) {
   const rows = jobs.slice(0, 5).map(job => `
     <tr>
       <td>${job.date}</td>
-      <td>
-        <span class="file-type-chip">${job.filetype}</span>
-        ${job.filename}
-      </td>
-      <td><span class="${statusClass(job.status)}">${job.status}</span></td>
+      <td><span class="file-type-chip">${job.filetype}</span></td>
+      <td>${job.document}</td>
+      <td>${job.jobtype}</td>
       <td>
         <a href="${job.processedUrl}" class="download-link" download>File</a>
         <a href="${job.changelogUrl}" class="download-link" download>Log</a>
@@ -86,8 +70,9 @@ function renderHistorySnapshot(jobs) {
         <thead>
           <tr>
             <th>Date</th>
-            <th>File</th>
-            <th>Status</th>
+            <th>File Type</th>
+            <th>Document Name</th>
+            <th>Job Type</th>
             <th>Downloads</th>
           </tr>
         </thead>
@@ -104,12 +89,9 @@ function renderHistory(jobs) {
   const rows = jobs.map(job => `
     <tr>
       <td>${job.date}</td>
-      <td>
-        <span class="file-type-chip">${job.filetype}</span>
-        ${job.filename}
-      </td>
-      <td>${job.processor}</td>
-      <td><span class="${statusClass(job.status)}">${job.status}</span></td>
+      <td><span class="file-type-chip">${job.filetype}</span></td>
+      <td>${job.document}</td>
+      <td>${job.jobtype}</td>
       <td>
         <a href="${job.processedUrl}" class="download-link" download>File</a>
         <a href="${job.changelogUrl}" class="download-link" download>Log</a>
@@ -122,9 +104,9 @@ function renderHistory(jobs) {
         <thead>
           <tr>
             <th>Date</th>
-            <th>File</th>
-            <th>Processor</th>
-            <th>Status</th>
+            <th>File Type</th>
+            <th>Document Name</th>
+            <th>Job Type</th>
             <th>Downloads</th>
           </tr>
         </thead>
