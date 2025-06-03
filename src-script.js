@@ -8,51 +8,6 @@ function getRedirectUrl() {
   return window.location.pathname;
 }
 
-// --- LOADING OVERLAY HANDLING ---
-const loadingOverlay = document.getElementById("loading-overlay");
-const loaderGreeting = document.getElementById("loader-greeting");
-const loaderBlurb = document.getElementById("loader-blurb");
-
-function personalizeOverlay(firstName) {
-  if (loaderGreeting) loaderGreeting.textContent = `Hi ${firstName}!`;
-}
-
-function hideLoadingOverlay() {
-  if (loadingOverlay) {
-    loadingOverlay.classList.add("hidden");
-    setTimeout(() => {
-      loadingOverlay.style.display = "none";
-    }, 700);
-  }
-}
-
-async function ensureLoggedInAndProBusiness() {
-  let formBlockedMsg = null;
-
-  function blockForm(msg) {
-    if (!formBlockedMsg) {
-      formBlockedMsg = document.createElement('div');
-      formBlockedMsg.id = "blocked-msg";
-      formBlockedMsg.style.position = "fixed";
-      formBlockedMsg.style.top = "0";
-      formBlockedMsg.style.left = "0";
-      formBlockedMsg.style.width = "100vw";
-      formBlockedMsg.style.background = "#fff7f7";
-      formBlockedMsg.style.color = "#c00";
-      formBlockedMsg.style.zIndex = "10000";
-      formBlockedMsg.style.padding = "18px";
-      formBlockedMsg.style.fontWeight = "bold";
-      formBlockedMsg.style.textAlign = "center";
-      formBlockedMsg.innerHTML = msg;
-      document.body.appendChild(formBlockedMsg);
-    }
-    // Hide the form
-    const form = document.getElementById('iddForm');
-    if (form) form.style.display = 'none';
-    // Hide overlay so error is visible
-    hideLoadingOverlay();
-  }
-
   try {
     await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
     const user = firebase.auth().currentUser;
