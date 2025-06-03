@@ -10,6 +10,12 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
+// Utility: get redirect param from URL (if present)
+function getRedirectParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('redirect');
+}
+
 // Tab switching
 const tabSignin = document.getElementById('tab-signin');
 const tabSignup = document.getElementById('tab-signup');
@@ -84,7 +90,6 @@ signupForm.addEventListener('submit', async function(e) {
 
   try {
     // DO NOT create Firebase Auth user here!
-  
     // Call backend to create Stripe Checkout session
     signupStatus.textContent = "Redirecting to checkout...";
     const res = await fetch('https://utmatic-backend.onrender.com/api/create-checkout-session', {
@@ -130,7 +135,14 @@ signinForm.addEventListener('submit', async function(e) {
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password);
     if (signinStatus) signinStatus.textContent = "Login successful! Redirecting...";
-    setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
+    const redirect = getRedirectParam();
+    setTimeout(() => {
+      if (redirect) {
+        window.location.href = redirect;
+      } else {
+        window.location.href = "/dashboard";
+      }
+    }, 1000);
   } catch (err) {
     if (signinStatus) signinStatus.textContent = err.message || "Sign in failed.";
   }
@@ -177,8 +189,13 @@ function googleSignInHandler(isSignup) {
           signupStatus.textContent = data.error || 'Something went wrong creating checkout session.';
         }
       } else {
-        // Google sign-in: send to dashboard
-        window.location.href = "/dashboard";
+        // Google sign-in: send to dashboard or redirected page
+        const redirect = getRedirectParam();
+        if (redirect) {
+          window.location.href = redirect;
+        } else {
+          window.location.href = "/dashboard";
+        }
       }
     })
     .catch(error => {
