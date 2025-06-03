@@ -20,7 +20,7 @@ const planPriceIds = {
     yearly:  "price_1RVlcBA1uqHbiiTSqksqTkzZ"
   },
   pro: {
-    monthly: "price_1RVlaQA1uqHbiiTSB3aczJah",
+    monthly: "price_1RVlaQA1uqHbiiTSB3acZJah",
     yearly:  "price_1RVlaQA1uqHbiiTSe7KTn6YD"
   },
   business: {
