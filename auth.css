@@ -328,7 +328,7 @@ html, body {
   margin-right: 0.1em;
 }
 .forgot-link:hover {
-  text-decoration: underline;
+  color: #4173d1;
 }
 
 .auth-or {
