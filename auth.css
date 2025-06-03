@@ -231,7 +231,7 @@ html, body {
   position: relative;
   background: var(--brand-white);
   color: var(--brand-black);
-  border: 1.5px solid var(--brand-white);
+  border: none;
   box-shadow: 0 8px 32px #0012;
   gap: 0.7em;
   margin-top: 0.1em;
