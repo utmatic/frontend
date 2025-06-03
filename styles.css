@@ -12,7 +12,7 @@ body {
   display: block;
 }
     .add-new-row-btn {
-      background: rgba(0, 0, 0, 0.16);
+      background: none;
       border: none;
       color: #2563eb;
       font-size: 1em;
