@@ -969,7 +969,7 @@ body {
 }
 .save-btn:hover:enabled::after,
 .process-btn:hover:enabled::after {
-  opacity: 1;
+  filter: brightness(0.85); /* Reduce brightness to 85% */
 }
 .save-btn:disabled,
 .process-btn:disabled {
@@ -1367,7 +1367,7 @@ input::placeholder {
   border-radius: 9px;
 }
 #download-final-btn:hover:enabled::after {
-  opacity: 1;
+  filter: brightness(0.85); /* Reduce brightness to 85% */
 }
 /* Loader/Spinner Overlay Style */
 #loader {
