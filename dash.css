@@ -362,6 +362,48 @@ html, body {
     top: 50%;
     transform: translateY(-50%);
   }
+  .dash-header {
+    background: var(--background-main);
+    border-bottom: 1px solid var(--gray-100);
+    padding: 32px 36px 22px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+  .dash-header h1 {
+    margin: 0;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: var(--brand-black);
+    letter-spacing: 0.01em;
+  }
+  .profile-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .profile-name {
+    color: var(--brand-black);
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  .profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-alt);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+  }
+  .profile-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--brand-blue);
+    color: var(--brand-blue);
+    display: block;
+  }
 }
 
 @media (max-width: 600px) {
