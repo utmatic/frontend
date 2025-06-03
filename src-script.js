@@ -11,20 +11,24 @@ function getRedirectUrl() {
 // --- LOADING OVERLAY HANDLING ---
 const loadingOverlay = document.getElementById("loading-overlay");
 const loaderGreeting = document.getElementById("loader-greeting");
-const hiName = document.querySelector(".hi-name");
+const hiTypewriter = loaderGreeting.querySelector(".hi-typewriter");
 const loaderBlurb = document.getElementById("loader-blurb");
 
-// When you have the user's name:
-function personalizeOverlay(firstName) {
-  if (hiName) {
-    hiName.textContent = firstName ? ` ${firstName}` : "";
-    // Remove the animation class if it's already there (for repeated logins, etc.)
-    hiName.classList.remove("animate-in");
-    // Force reflow so animation will always trigger
-    void hiName.offsetWidth;
-    // Add the animation class to animate in the name
-    hiName.classList.add("animate-in");
+// Typewriter effect for the full greeting line
+function showGreetingTypewriter(text, cb) {
+  if (!hiTypewriter) return;
+  hiTypewriter.textContent = "";
+  let i = 0;
+  function typeNext() {
+    if (i <= text.length) {
+      hiTypewriter.textContent = text.slice(0, i);
+      i++;
+      setTimeout(typeNext, 38); // adjust speed as needed
+    } else if (typeof cb === "function") {
+      cb();
+    }
   }
+  typeNext();
 }
 
 function hideLoadingOverlay() {
@@ -73,15 +77,17 @@ async function ensureLoggedInAndProBusiness() {
     const idTokenResult = await user.getIdTokenResult();
     const plan = idTokenResult.claims.plan;
     if (plan === "pro" || plan === "business") {
-      // Personalize and fade out overlay
+      // Typewriter greeting and fade out overlay
       let firstName = "there";
       if (user.displayName) {
         firstName = user.displayName.split(" ")[0];
       } else if (user.email) {
         firstName = user.email.split("@")[0];
       }
-      personalizeOverlay(firstName);
-      setTimeout(hideLoadingOverlay, 1800);
+      let greeting = `Hi ${firstName}!`;
+      showGreetingTypewriter(greeting, () => {
+        setTimeout(hideLoadingOverlay, 1200); // stays a bit longer after typing finishes
+      });
 
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
