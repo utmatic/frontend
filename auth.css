@@ -50,6 +50,25 @@ html, body {
   margin-top: 0.3em;
 }
 
+/* SVG logo in .auth-logo */
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2.2em;
+}
+.auth-logo svg {
+  width: 164px;
+  max-width: 92vw;
+  height: auto;
+  display: block;
+}
+@media (max-width: 500px) {
+  .auth-logo svg {
+    width: 110px;
+  }
+}
+
 .auth-tabs {
   display: flex;
   width: 100%;
@@ -159,29 +178,31 @@ html, body {
   border-radius: 8px;
   background: #1c232b91;
   color: var(--brand-black);
-  transition: border-color 0.18s, background 0.18s;
+  transition: background 0.18s;
   margin-top: 0.1em;
   font-family: var(--font);
   outline: none;
-}
-
-.auth-form input[type="email"]:focus,
-.auth-form input[type="password"]:focus,
-.auth-form input[type="text"]:focus {
-  border-color: var(--brand-blue);
-  background: #1c232b; /* Solid background when focused */
-  color: var(--brand-black);
-  /* Remove blue outline from Chrome/Edge/FF */
   box-shadow: none;
 }
 
+/* Remove blue border/outline on focus/hover/active, background darkens */
+.auth-form input[type="email"]:focus,
+.auth-form input[type="password"]:focus,
+.auth-form input[type="text"]:focus,
 .auth-form input[type="email"]:active,
 .auth-form input[type="password"]:active,
-.auth-form input[type="text"]:active {
-  background: #1c232b; /* Also apply on active */
+.auth-form input[type="text"]:active,
+.auth-form input[type="email"]:hover,
+.auth-form input[type="password"]:hover,
+.auth-form input[type="text"]:hover {
+  border-color: #1c232b91;
+  background: #1c232b;
+  color: var(--brand-black);
+  outline: none;
+  box-shadow: none;
 }
 
-/* ---- GOOGLE BUTTON FIXES ---- */
+/* ---- BUTTONS ---- */
 .auth-btn {
   width: 100%;
   padding: 0.95em 0;
@@ -198,12 +219,16 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 0.7em;
+  position: relative;
+  overflow: hidden;
 }
 .auth-btn:hover {
   background: var(--brand-blue-hover);
 }
 
+/* ---- GOOGLE BUTTON DARKEN EFFECT ---- */
 .auth-btn-google {
+  position: relative;
   background: var(--brand-white);
   color: var(--brand-black);
   border: 1.5px solid var(--brand-white);
@@ -212,22 +237,40 @@ html, body {
   margin-top: 0.1em;
   outline: none;
   transition: background 0.18s, color 0.18s, border-color 0.18s;
+  overflow: hidden; /* Ensures overlay stays rounded */
+  z-index: 1;
 }
-
-/* Remove blue outline and blue text on focus/active/hover, darken background instead */
+.auth-btn-google::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.16); /* BLACK overlay */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 8px;
+}
+.auth-btn-google:hover::after,
+.auth-btn-google:focus::after,
+.auth-btn-google:active::after {
+  opacity: 1;
+}
+.auth-btn-google > * {
+  position: relative;
+  z-index: 3;
+}
 .auth-btn-google:focus,
 .auth-btn-google:active {
   outline: none !important;
   box-shadow: none !important;
   color: var(--brand-black) !important;
   border-color: var(--brand-white);
-  background: #1c232b;
 }
-
-.auth-btn-google:hover {
-  background: #1c232b;
+.auth-btn-google:hover,
+.auth-btn-google:focus,
+.auth-btn-google:active {
   color: var(--brand-black);
-  border-color: var(--brand-white);
 }
 
 .google-svg {
