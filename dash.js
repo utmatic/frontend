@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       // Optionally display user's name/email somewhere here: user.displayName, user.email
       const idToken = await user.getIdToken();
-      fetch('/jobs', {
+      fetch('https://backend-idd.onrender.com/jobs', {
         headers: { Authorization: "Bearer " + idToken }
       })
         .then(res => res.json())
