@@ -313,6 +313,14 @@ html, body {
   z-index: 0;
 }
 
+.auth-btn-google:hover,
+.auth-btn-google:focus,
+.auth-btn-google:active {
+  background: var(--brand-white) !important;
+  color: var(--brand-black);
+  /* border-color stays as you want */
+}
+
 @media (max-width: 500px) {
   .auth-card {
     padding: 1.1em 0.4em 1.1em 0.4em;
