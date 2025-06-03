@@ -53,7 +53,7 @@ async function ensureLoggedInAndProBusiness() {
       document.body.style.opacity = "";
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
-      if (form) form.style.display = '';
+      if (form) form.classList.add('visible');
     } else {
       let upgradeLink = '/pricing';
       blockForm(`
