@@ -8,9 +8,18 @@ const firebaseConfig = {
   appId: "1:106080752806:web:217a463a446a850cf71067",
   measurementId: "G-7JD0EVYF7M"
 };
+
+// Ensure Firebase SDK is loaded before this script!
+// <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+// <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+// These lines should be in your HTML before this script!
+
+if (typeof firebase === 'undefined') {
+  throw new Error('Firebase SDK not loaded! Add the Firebase script before dash.js.');
+}
+
 firebase.initializeApp(firebaseConfig);
 
-// Demo job data with placeholder fields for templating
 let jobs = [];
 
 function renderHistorySnapshot(jobs) {
@@ -120,93 +129,102 @@ const views = {
   `
 };
 
-const sidebar = document.querySelector('.dash-sidebar');
-const sidebarToggle = document.getElementById('sidebar-toggle');
-const mainHeader = document.getElementById('dash-main-header');
-const mainView = document.getElementById('dash-main-view');
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.querySelector('.dash-sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const mainHeader = document.getElementById('dash-main-header');
+  const mainView = document.getElementById('dash-main-view');
 
-// Sidebar button listeners
-function bindSidebarBtnListeners() {
-  const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
-  sidebarBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      window.setView(btn.dataset.view);
+  // Sidebar button listeners
+  function bindSidebarBtnListeners() {
+    const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
+    sidebarBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.setView(btn.dataset.view);
+      });
     });
-  });
-}
+  }
 
-function setView(view) {
-  mainView.innerHTML = views[view]();
-  mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
-  // Update sidebar button active state
-  document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === view);
-  });
+  function setView(view) {
+    mainView.innerHTML = views[view]();
+    mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
+    // Update sidebar button active state
+    document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === view);
+    });
 
-  // Re-bind sidebar button listeners after every view render
-  bindSidebarBtnListeners();
+    // Re-bind sidebar button listeners after every view render
+    bindSidebarBtnListeners();
 
-  // Dashboard "View full history" link
-  if (view === "dashboard") {
-    const link = document.getElementById("view-full-history");
-    if (link) {
-      link.addEventListener("click", function(e) {
-        e.preventDefault();
-        window.setView("history");
-      });
+    // Dashboard "View full history" link
+    if (view === "dashboard") {
+      const link = document.getElementById("view-full-history");
+      if (link) {
+        link.addEventListener("click", function(e) {
+          e.preventDefault();
+          window.setView("history");
+        });
+      }
     }
   }
-}
 
-// Fetch jobs for the logged-in user and render dashboard/history
-function fetchJobsAndRender(view = "dashboard") {
-  firebase.auth().onAuthStateChanged(async function(user) {
-    if (!user) {
-      window.location.href = "/login"; // Or your login page
-      return;
-    }
-    // Optionally display user's name/email somewhere here: user.displayName, user.email
-    const idToken = await user.getIdToken();
-    fetch('/jobs', {
-      headers: { Authorization: "Bearer " + idToken }
-    })
-      .then(res => res.json())
-      .then(data => {
-        jobs = data;
-        setView(view);
+  // Fetch jobs for the logged-in user and render dashboard/history
+  function fetchJobsAndRender(view = "dashboard") {
+    firebase.auth().onAuthStateChanged(async function(user) {
+      if (!user) {
+        window.location.href = "/login"; // Or your login page
+        return;
+      }
+      // Optionally display user's name/email somewhere here: user.displayName, user.email
+      const idToken = await user.getIdToken();
+      fetch('/jobs', {
+        headers: { Authorization: "Bearer " + idToken }
       })
-      .catch(err => {
-        console.error('Error loading jobs:', err);
-        jobs = [];
-        setView(view);
-      });
-  });
-}
-
-// Sidebar toggle
-let collapsed = false;
-sidebarToggle.addEventListener('click', () => {
-  collapsed = !collapsed;
-  sidebar.classList.toggle('collapsed', collapsed);
-  // Rotate arrow for direction
-  const arrow = document.getElementById('toggle-arrow');
-  if (collapsed) {
-    arrow.style.transform = "rotate(180deg)";
-    sidebarToggle.title = "Expand sidebar";
-  } else {
-    arrow.style.transform = "rotate(0deg)";
-    sidebarToggle.title = "Collapse sidebar";
+        .then(res => res.json())
+        .then(data => {
+          jobs = data;
+          setView(view);
+        })
+        .catch(err => {
+          console.error('Error loading jobs:', err);
+          jobs = [];
+          setView(view);
+        });
+    });
   }
+
+  // Sidebar toggle
+  let collapsed = false;
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      collapsed = !collapsed;
+      sidebar.classList.toggle('collapsed', collapsed);
+      // Rotate arrow for direction
+      const arrow = document.getElementById('toggle-arrow');
+      if (arrow) {
+        if (collapsed) {
+          arrow.style.transform = "rotate(180deg)";
+          sidebarToggle.title = "Expand sidebar";
+        } else {
+          arrow.style.transform = "rotate(0deg)";
+          sidebarToggle.title = "Collapse sidebar";
+        }
+      }
+    });
+  }
+
+  // Initial render + listeners
+  fetchJobsAndRender();
+
+  // When switching to dashboard or history, always refresh jobs
+  window.setView = function(view) {
+    if (view === "dashboard" || view === "history") {
+      fetchJobsAndRender(view);
+    } else {
+      setView(view);
+    }
+  };
+
+  // Also bind sidebar buttons on initial load
+  bindSidebarBtnListeners();
 });
-
-// Initial render + listeners
-fetchJobsAndRender();
-
-// When switching to dashboard or history, always refresh jobs
-window.setView = function(view) {
-  if (view === "dashboard" || view === "history") {
-    fetchJobsAndRender(view);
-  } else {
-    setView(view);
-  }
-};
