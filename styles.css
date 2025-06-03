@@ -31,48 +31,31 @@ body {
 }
 .loader-content {
   text-align: center;
-  /* Removed fadeInUp animation, not needed for typewriter effect */
 }
+
 #loader-greeting {
   font-size: 2.6rem;
   font-weight: 800;
   margin-bottom: 0.2em;
   letter-spacing: -0.02em;
-}
-
-.hi-typewriter {
   color: #fff;
-  font-weight: 800;
-  font-size: 2.6rem;
-  letter-spacing: -0.02em;
-  white-space: pre;
-  /* Optional: monospace font for a typewriter feel */
-  /* font-family: 'Work Sans', monospace, sans-serif; */
 }
 
-/* Fade in each character for typewriter effect */
-.hi-typewriter .fade-in {
+/* Fade in each character for the greeting */
+.fade-in-letter {
   opacity: 0;
   display: inline-block;
-  animation: fadeInChar 0.35s forwards;
+  animation: fadeInLetter 0.45s forwards;
 }
-@keyframes fadeInChar {
+
+@keyframes fadeInLetter {
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
 }
 
 /* Style for the name within the greeting */
-.hi-typewriter .name {
+.greeting-name {
   color: #cce1ff;
-}
-
-/* Loader blurb remains the same */
-#loader-blurb {
-  color: #7a8597;
-  font-size: 1.15em;
-  font-weight: 500;
-  margin-top: 0.8em;
-  letter-spacing: 0.01em;
 }
 
     .add-new-row-btn {
