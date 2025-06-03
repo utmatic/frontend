@@ -781,6 +781,7 @@ body {
   display: none;
 }
 #add-tab.tab {
+  position: relative; /* Needed for the overlay to position correctly */
   background: #4d89f9;
   color: #222a33;
   min-width: 36px !important;
@@ -802,12 +803,25 @@ body {
   flex: 0 0 36px;
   order: -1;
   font-family: 'Work Sans', 'Segoe UI', 'Inter', 'Roboto', Arial, sans-serif;
+  overflow: hidden; /* Ensures overlay doesn't spill outside rounded corners */
 }
-#add-tab:disabled {
-  background: var(--gray-300) !important;
-  color: #fff !important;
-  cursor: not-allowed;
-  opacity: 0.5;
+
+/* Overlay for the dimming effect */
+#add-tab.tab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.16); /* semi-transparent black */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s;
+  z-index: 2;
+  border-radius: 7px 7px 0 0;
+}
+
+/* Show overlay on hover, but not when disabled */
+#add-tab.tab:hover:enabled::after {
+  opacity: 1;
 }
 .field-row-wrapper {
   width: 100%;
