@@ -7,87 +7,9 @@
   <link rel="stylesheet" href="pricing.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    /* --- Modal Styles --- */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.4);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal {
-      background: #fff;
-      border-radius: 10px;
-      padding: 2rem 1.5rem;
-      width: 100%;
-      max-width: 370px;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.13);
-      font-family: 'Work Sans', sans-serif;
-      position: relative;
-    }
-    .modal-close {
-      position: absolute;
-      right: 18px; top: 16px;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #999;
-    }
-    .modal label {
-      display: block;
-      margin-top: 1rem;
-      font-size: 0.98rem;
-      font-weight: 500;
-    }
-    .modal input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 4px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      font-family: inherit;
-      box-sizing: border-box;
-    }
-    .modal button[type="submit"] {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 0.7rem 0;
-      border: none;
-      background: #0254fa;
-      color: #fff;
-      font-size: 1.08rem;
-      font-weight: 600;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .modal button[type="submit"]:hover {
-      background: #003eab;
-    }
-    .modal .modal-error {
-      color: #c00;
-      margin-top: 1rem;
-      font-size: 0.96rem;
-      text-align: center;
-      min-height: 1.5em;
-    }
-    .modal .modal-title {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      text-align: center;
-    }
-    .modal .modal-desc {
-      font-size: 0.98rem;
-      color: #444;
-      text-align: center;
-      margin-bottom: 0.8rem;
-    }
+    .flash-yellow { background: #fffbe6; transition: background 0.5s; }
+    .flash-blue { background: #e6f4ff; transition: background 0.5s; }
+    .pricing-tiers .plan-btn:disabled { opacity: 0.6; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -128,7 +50,6 @@
         <ul class="plan-features">
           <li>
             <span class="checkmark">
-              <!-- ... SVG ... -->
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
               </svg>
@@ -293,24 +214,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Signup Modal (hidden by default) -->
-  <div class="modal-backdrop" id="signup-modal-backdrop">
-    <form class="modal" id="signup-modal-form" autocomplete="on">
-      <button type="button" class="modal-close" id="modal-close-btn" aria-label="Close">&times;</button>
-      <div class="modal-title">Start Free Trial</div>
-      <div class="modal-desc" id="modal-plan-desc">Sign up to continue with your selected plan.</div>
-      <label for="modal-email">Email</label>
-      <input type="email" id="modal-email" name="email" required autocomplete="email" />
-      <label for="modal-company">Company</label>
-      <input type="text" id="modal-company" name="company" required autocomplete="organization" />
-      <label for="modal-password">Password</label>
-      <input type="password" id="modal-password" name="password" required autocomplete="new-password" minlength="6" />
-      <div class="modal-error" id="modal-error"></div>
-      <button type="submit" id="modal-submit-btn">Continue to Checkout</button>
-    </form>
-  </div>
-
   <script src="pricing.js"></script>
 </body>
 </html>
