@@ -35,19 +35,27 @@ function formatDate(dateInput) {
 
 function beautifyJobType(str) {
   if (!str) return "{{job.jobtype}}";
-  let s = str.replace(/_/g, ' ');
+  const s = str.toLowerCase();
 
-  // Special cases for full phrases
-  if (/^add links? and utm$/i.test(s)) return "Add Links and UTM";
-  if (/^links? and utm$/i.test(s)) return "Links and UTM";
-  if (/^add utm$/i.test(s)) return "Add UTM";
-  if (/^utm only$/i.test(s)) return "UTM Only";
+  if (s === "add_links_only" || s === "links_only" || s === "add links only" || s === "links only") {
+    return "Links only";
+  }
+  if (s === "add_utm" || s === "utm_only" || s === "utm only" || s === "add utm") {
+    return "UTM only";
+  }
+  if (
+    s === "add_links_and_utm" ||
+    s === "links_and_utm" ||
+    s === "add_links_and_utm" ||
+    s === "add links and utm" ||
+    s === "links and utm"
+  ) {
+    return "Links and UTM";
+  }
 
-  // Capitalize first letter of each word, but replace UTM
-  s = s.replace(/\b\w/g, l => l.toUpperCase());
-  // Replace any occurrence of "Utm" (or variants) with "UTM"
-  s = s.replace(/\bUtm\b/gi, "UTM");
-  return s;
+  // fallback: capitalize first word, lowercase the rest
+  const fallback = s.replace(/_/g, " ").replace(/\b\w/g, (l, i) => (i === 0 ? l.toUpperCase() : l));
+  return fallback;
 }
 
 function fileTypeChip(filetype) {
