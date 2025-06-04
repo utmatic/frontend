@@ -118,17 +118,16 @@ html, body {
   border-radius: 0;
 }
 
-/* Sidebar Profile Area at Bottom */
+/* Sidebar Profile Area placed after nav, not pinned to bottom */
 .sidebar-profile-area {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 28px 36px 0 36px;
-  margin-top: auto;
-  min-height: 54px;
+  padding: 18px 36px 18px 36px;
   font-size: 1.03rem;
   width: 100%;
   box-sizing: border-box;
+  min-height: 54px;
 }
 .sidebar-profile-area .profile-icon {
   width: 36px;
@@ -328,6 +327,19 @@ html, body {
   color: var(--brand-blue-hover);
 }
 
+.download-icon {
+  stroke: #cce1ff;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: middle;
+  margin-right: 3px;
+  margin-left: 3px;
+  transition: stroke 0.14s;
+}
+.download-link:hover .download-icon {
+  stroke: var(--brand-blue-hover, #3474e0);
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 1200px) {
   .dash-sidebar {
@@ -435,7 +447,7 @@ html, body {
     font-size: 0.92em;
   }
   .sidebar-profile-area {
-    padding: 12px 8px 0 8px;
+    padding: 12px 8px 12px 8px;
     font-size: 0.95rem;
   }
 }
@@ -471,7 +483,7 @@ html, body {
     padding: 2px;
   }
   .sidebar-profile-area {
-    padding: 6px 2px 0 2px;
+    padding: 6px 2px 6px 2px;
     font-size: 0.89rem;
   }
 }
