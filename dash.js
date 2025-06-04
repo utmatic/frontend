@@ -16,6 +16,7 @@ if (typeof firebase === 'undefined') {
 firebase.initializeApp(firebaseConfig);
 
 let jobs = [];
+let jobsLoaded = false; // Track if jobs are already loaded
 
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
@@ -205,8 +206,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Fetch jobs for the logged-in user and render dashboard/history
-  function fetchJobsAndRender(view = "dashboard") {
+  // Fetch jobs just once and store in memory
+  function fetchJobsOnceAndRender(view = "dashboard") {
+    if (jobsLoaded) {
+      setView(view);
+      return;
+    }
     firebase.auth().onAuthStateChanged(async function(user) {
       if (!user) {
         window.location.href = "/login";
@@ -225,11 +230,13 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(res => res.json())
         .then(data => {
           jobs = data;
+          jobsLoaded = true;
           setView(view);
         })
         .catch(err => {
           console.error('Error loading jobs:', err);
           jobs = [];
+          jobsLoaded = true;
           setView(view);
         });
     });
@@ -237,13 +244,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Debounced version for rapid clicks
   window.setView = debounce(function(view) {
-    if (view === "dashboard" || view === "history") {
-      fetchJobsAndRender(view);
+    // Only fetch on first load!
+    if (!jobsLoaded) {
+      fetchJobsOnceAndRender(view);
     } else {
       setView(view);
     }
   }, 200);
 
   // Initial load
-  fetchJobsAndRender();
+  fetchJobsOnceAndRender();
 });
