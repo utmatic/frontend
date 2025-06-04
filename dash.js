@@ -35,10 +35,19 @@ function formatDate(dateInput) {
 
 function beautifyJobType(str) {
   if (!str) return "{{job.jobtype}}";
-  return str
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase())
-    .replace(/\bOf\b|\bFor\b|\bAnd\b|\bTo\b|\bOr\b/g, (w) => w.toLowerCase());
+  let s = str.replace(/_/g, ' ');
+
+  // Special cases for full phrases
+  if (/^add links? and utm$/i.test(s)) return "Add Links and UTM";
+  if (/^links? and utm$/i.test(s)) return "Links and UTM";
+  if (/^add utm$/i.test(s)) return "Add UTM";
+  if (/^utm only$/i.test(s)) return "UTM Only";
+
+  // Capitalize first letter of each word, but replace UTM
+  s = s.replace(/\b\w/g, l => l.toUpperCase());
+  // Replace any occurrence of "Utm" (or variants) with "UTM"
+  s = s.replace(/\bUtm\b/gi, "UTM");
+  return s;
 }
 
 function fileTypeChip(filetype) {
