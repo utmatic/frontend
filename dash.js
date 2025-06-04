@@ -17,7 +17,6 @@ firebase.initializeApp(firebaseConfig);
 
 let jobs = [];
 
-// Format date as "Month D, YYYY h:mm AM/PM"
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
@@ -33,16 +32,14 @@ function formatDate(dateInput) {
   return date.toLocaleString('en-US', options);
 }
 
-// Convert "add_links_only" to "Add links only"
 function beautifyJobType(str) {
   if (!str) return "{{job.jobtype}}";
   return str
     .replace(/_/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase())
-    .replace(/\bOf\b|\bFor\b|\bAnd\b|\bTo\b|\bOr\b/g, (w) => w.toLowerCase()); // Lowercase common small words
+    .replace(/\bOf\b|\bFor\b|\bAnd\b|\bTo\b|\bOr\b/g, (w) => w.toLowerCase());
 }
 
-// Render PDF/INDD chip with correct color/text
 function fileTypeChip(filetype) {
   if (!filetype) return `<span class="file-type-chip">{{job.filetype}}</span>`;
   const type = filetype.trim().toUpperCase();
@@ -52,7 +49,6 @@ function fileTypeChip(filetype) {
   if (type === "INDD") {
     return `<span class="file-type-chip indd">${type}</span>`;
   }
-  // fallback
   return `<span class="file-type-chip">${filetype}</span>`;
 }
 
@@ -161,19 +157,31 @@ const views = {
   `
 };
 
+// Debounce function to avoid rapid repeated clicks causing issues
+function debounce(fn, ms = 300) {
+  let timer;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-  const sidebar = document.querySelector('.dash-sidebar');
   const mainHeader = document.getElementById('dash-main-header');
   const mainView = document.getElementById('dash-main-view');
   const profileIcon = document.getElementById('profile-icon');
 
-  // Sidebar button listeners
-  function bindSidebarBtnListeners() {
-    const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
-    sidebarBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.setView(btn.dataset.view);
-      });
+  // Only bind sidebar button listeners once using event delegation
+  const sidebar = document.querySelector('.dash-sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('click', function(e) {
+      const btn = e.target.closest('.dash-sidebar-btn');
+      if (btn) {
+        e.preventDefault();
+        if (!btn.classList.contains('active')) {
+          window.setView(btn.dataset.view);
+        }
+      }
     });
   }
 
@@ -185,15 +193,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
-    bindSidebarBtnListeners();
 
     if (view === "dashboard") {
       const link = document.getElementById("view-full-history");
       if (link) {
-        link.addEventListener("click", function(e) {
+        link.onclick = function(e) {
           e.preventDefault();
           window.setView("history");
-        });
+        };
       }
     }
   }
@@ -228,15 +235,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  fetchJobsAndRender();
-
-  window.setView = function(view) {
+  // Debounced version for rapid clicks
+  window.setView = debounce(function(view) {
     if (view === "dashboard" || view === "history") {
       fetchJobsAndRender(view);
     } else {
       setView(view);
     }
-  };
+  }, 200);
 
-  bindSidebarBtnListeners();
+  // Initial load
+  fetchJobsAndRender();
 });
