@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
   <style>
-    /* --- FIXES for alignment and logo size --- */
     .dash-header {
       display: flex;
       align-items: center;
@@ -19,34 +18,43 @@
       background: var(--background-main, #1c232b);
       box-sizing: border-box;
     }
-    .profile-area {
+    .sidebar-profile-area {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      padding: 18px 36px 18px 36px;
+      min-height: 54px;
+      font-size: 1.03rem;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .profile-icon {
+    .sidebar-profile-area .profile-icon {
       width: 36px;
       height: 36px;
+      min-width: 36px;
+      min-height: 36px;
       border-radius: 50%;
-      background: none;
+      background: var(--background-alt);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
-    .profile-icon svg {
+    .sidebar-profile-area .profile-icon svg {
       width: 32px !important;
       height: 32px !important;
       display: block;
       fill: #cce1ff !important;
     }
-    .dash-logo svg {
-      min-width: 120px;
-    }
-    @media (max-width: 900px) {
-      .dash-logo svg {
-        min-width: 65px;
-      }
+    .sidebar-profile-area .profile-name {
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.03rem;
+      word-break: break-word;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   </style>
   <!-- Firebase SDKs (must be loaded before dash.js) -->
@@ -113,7 +121,7 @@
         </span>
         <span class="btn-label">Settings</span>
       </button>
-      <!-- Sidebar Profile Area at bottom -->
+      <!-- Sidebar Profile Area at bottom, but NOT sticking to bottom, just after nav buttons -->
       <div class="sidebar-profile-area">
         <span class="profile-icon" id="profile-icon">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#cce1ff">
