@@ -670,6 +670,19 @@ processBtn.addEventListener("click", async function() {
   const previewDocsToShow = [];
   let encounteredError = null;
   const API_BASE = "https://utmatic-backend.onrender.com";
+
+  // --- Get Firebase ID token for the currently signed-in user ---
+  let idToken = null;
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error("Not signed in.");
+    idToken = await user.getIdToken();
+  } catch (err) {
+    hideSpinner();
+    alert("You are not signed in. Please sign in to process PDFs.");
+    return;
+  }
+
   for (let i = 0; i < tabData.length; ++i) {
     const { form, tabId } = tabData[i];
     let formData = new FormData(form);
@@ -683,7 +696,10 @@ processBtn.addEventListener("click", async function() {
     try {
       const res = await fetch(`${API_BASE}/preview`, {
         method: "POST",
-        body: formData
+        body: formData,
+        headers: {
+          Authorization: "Bearer " + idToken
+        }
       });
       if (!res.ok) {
         const errorText = await res.text();
@@ -693,7 +709,7 @@ processBtn.addEventListener("click", async function() {
       const blob = await res.blob();
       const name = formData.get("filename") || `Document ${i+1}`;
       const url = URL.createObjectURL(blob);
-      previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData });
+      previewDocsToShow.push({ name, blob, url, _tempUrl: url, formData, idToken });
     } catch (err) {
       encounteredError = `Document "${formData.get("filename") || `#${i+1}`}" failed: ${err}`;
       break;
@@ -923,9 +939,19 @@ async function downloadFinalPdf() {
     btn.textContent = "Downloading...";
     const API_BASE = "https://utmatic-backend.onrender.com";
     try {
+      // Send Firebase ID token with /process request for auth!
+      let idToken = doc.idToken;
+      if (!idToken) {
+        const user = firebase.auth().currentUser;
+        if (!user) throw new Error("Not signed in.");
+        idToken = await user.getIdToken();
+      }
       const res = await fetch(`${API_BASE}/process`, {
         method: "POST",
-        body: doc.formData
+        body: doc.formData,
+        headers: {
+          Authorization: "Bearer " + idToken
+        }
       });
       if (!res.ok) {
         const errorText = await res.text();
