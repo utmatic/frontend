@@ -29,7 +29,7 @@ let currentUnit = UNITS[0]; // default to minutes
 
 function computeTimeSaved(jobs, unitObj = currentUnit) {
   if (!Array.isArray(jobs)) return 0;
-  const totalLinks = jobs.reduce((sum, job) => sum + (parseInt(job.link_count) || 0), 0);
+  const totalLinks = jobs.reduce((sum, job) => sum + (parseInt(job.linkCount) || 0), 0);
   const secondsSaved = totalLinks * SECONDS_PER_LINK;
   return secondsSaved / unitObj.factor;
 }
