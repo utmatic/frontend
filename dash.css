@@ -117,7 +117,6 @@ html, body {
   border-radius: 0;
 }
 
-/* Main Content */
 .dash-main-content {
   flex: 1;
   display: flex;
@@ -128,7 +127,6 @@ html, body {
   box-sizing: border-box;
 }
 
-/* --- HEADER --- */
 .dash-header {
   background: var(--background-alt);
   padding: 0 36px;
@@ -176,17 +174,6 @@ html, body {
   white-space: nowrap;
 }
 
-/* Remove old sidebar profile area styles if present */
-.sidebar-profile-area {
-  display: none !important;
-}
-
-/* Remove old profile styles from header for any accidental double display */
-.profile-area,
-.profile-icon {
-  /* only enable in header */
-}
-
 /* --- MAIN VIEW --- */
 #dash-main-view {
   padding: 36px;
@@ -204,7 +191,6 @@ html, body {
   color: #cce1ff;
 }
 
-/* --- DASHBOARD TILES as BUTTONS --- */
 .dashboard-tiles {
   display: flex;
   gap: 28px;
@@ -262,7 +248,6 @@ html, body {
   display: none;
 }
 
-/* --- TABLES & HISTORY --- */
 .history-list {
   border-radius: 14px;
   background: none;
@@ -338,6 +323,44 @@ html, body {
   stroke: var(--brand-blue-hover, #3474e0);
 }
 
+/* Refresh overlay */
+.refresh-overlay {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1c232b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+.refresh-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+  visibility: visible;
+}
+.refresh-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+}
+.refresh-logo {
+  animation: pulse-grow 0.9s cubic-bezier(.61,.13,.63,.99) infinite alternate;
+  display: block;
+}
+@keyframes pulse-grow {
+  0%   { transform: scale(1);}
+  100% { transform: scale(1.18);}
+}
+
+/* --- RESPONSIVE --- */
 @media (max-width: 1200px) {
   .dash-sidebar {
     width: 140px;
