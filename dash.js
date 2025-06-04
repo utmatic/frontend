@@ -165,9 +165,7 @@ function debounce(fn, ms = 300) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  const mainHeader = document.getElementById('dash-main-header');
   const mainView = document.getElementById('dash-main-view');
-  const profileIcon = document.getElementById('profile-icon');
 
   // Only bind sidebar button listeners once using event delegation
   const sidebar = document.querySelector('.dash-sidebar');
@@ -185,9 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function setView(view) {
     mainView.innerHTML = views[view]();
-    if (mainHeader) {
-      mainHeader.textContent = view.charAt(0).toUpperCase() + view.slice(1);
-    }
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
@@ -224,11 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       // Optionally show profile icon
-      if (profileIcon && user.photoURL) {
-        profileIcon.innerHTML = `<img src="${user.photoURL}" alt="user" style="width:100%;height:100%;border-radius:50%;">`;
-      } else if(profileIcon) {
-        profileIcon.innerHTML = `<svg fill="#4d89f9" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-2.2 3.6-4 8-4s8 1.8 8 4" /></svg>`;
-      }
+      // (Handled in HTML and in the script in HTML file for sidebar)
       const idToken = await user.getIdToken();
       fetch('https://backend-idd.onrender.com/jobs', {
         headers: { Authorization: "Bearer " + idToken }
