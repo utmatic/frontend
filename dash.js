@@ -141,22 +141,17 @@ function renderHistory(jobs) {
   `;
 }
 
-// Placeholder container for dashboard
-function renderTimeSavedPlaceholder() {
-  return `
-    <div class="time-saved-placeholder">
-      <div class="placeholder-title">Time Saved</div>
-      <div class="placeholder-desc">
-        <span>This space will soon show you how much time you've saved using Utmatic!</span>
-      </div>
-    </div>
-  `;
-}
-
 const views = {
   dashboard: () => `
     <section>
-      ${renderTimeSavedPlaceholder()}
+      <div class="dashboard-tiles">
+        <button class="dashboard-tile dashboard-tile-pdf" type="button">
+          <span class="tile-title">PDF Processor</span>
+        </button>
+        <button class="dashboard-tile dashboard-tile-indd" type="button">
+          <span class="tile-title">Indd Processor</span>
+        </button>
+      </div>
       <div class="section-title" style="margin-top:40px;">Recent History</div>
       ${renderHistorySnapshot(jobs)}
       <div style="margin-top: 16px;"><a href="#" id="view-full-history" class="download-link">View full history →</a></div>
@@ -209,6 +204,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (view === "dashboard") {
+      // Add click handlers to the new button tiles
+      const pdfBtn = document.querySelector('.dashboard-tile-pdf');
+      const inddBtn = document.querySelector('.dashboard-tile-indd');
+      if (pdfBtn) {
+        pdfBtn.onclick = () => window.open("https://app.utmatic.com/pdf-form.html", "_self");
+      }
+      if (inddBtn) {
+        inddBtn.onclick = () => window.open("https://app.utmatic.com/source-form.html", "_self");
+      }
       const link = document.getElementById("view-full-history");
       if (link) {
         link.onclick = function(e) {
@@ -230,6 +234,8 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = "/login";
         return;
       }
+      // Optionally show profile icon
+      // (Handled in HTML and in the script in HTML file for sidebar)
       const idToken = await user.getIdToken();
       fetch('https://backend-idd.onrender.com/jobs', {
         headers: { Authorization: "Bearer " + idToken }
@@ -261,38 +267,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial load
   fetchJobsOnceAndRender();
-
-  // + New dropdown logic
-  const dropdownBtn = document.getElementById('new-dropdown-btn');
-  const dropdownList = document.getElementById('new-dropdown-list');
-  // Handle click and outside click for dropdown
-  if (dropdownBtn && dropdownList) {
-    // Show/hide on click
-    dropdownBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      dropdownList.classList.toggle('show');
-    });
-    // Optionally show on hover (uncomment if needed)
-    // dropdownBtn.addEventListener('mouseenter', function() {
-    //   dropdownList.classList.add('show');
-    // });
-    // dropdownBtn.addEventListener('mouseleave', function() {
-    //   setTimeout(() => dropdownList.classList.remove('show'), 150);
-    // });
-    document.addEventListener('click', function(e) {
-      if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
-        dropdownList.classList.remove('show');
-      }
-    });
-  }
-
-  // Sign out logic
-  const signoutBtn = document.getElementById('signout-btn');
-  if (signoutBtn) {
-    signoutBtn.addEventListener('click', function() {
-      firebase.auth().signOut().then(function() {
-        window.location.href = "/login";
-      });
-    });
-  }
 });
