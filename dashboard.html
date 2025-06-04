@@ -6,6 +6,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
+  <style>
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      min-height: 72px;
+      max-height: 72px;
+      padding: 0 36px;
+      background: var(--background-main, #1c232b);
+      box-sizing: border-box;
+    }
+    .profile-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .profile-icon {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 50%;
+      background: var(--background-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .profile-icon svg {
+      width: 32px !important;
+      height: 32px !important;
+      display: block;
+      fill: #cce1ff !important;
+    }
+    .profile-name {
+      color: #fff;
+      font-weight: 500;
+      font-size: 1.03rem;
+      max-width: 140px;
+      word-break: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -16,6 +62,7 @@
       <div class="dash-logo-container">
         <div class="dash-logo">
           <!-- Inline SVG logo (Utmatic) -->
+          <?xml version="1.0" encoding="UTF-8"?>
           <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 635 129.99">
             <defs>
               <style>
@@ -87,7 +134,6 @@
       </main>
     </div>
   </div>
-  
   <script src="dash.js"></script>
   <script>
     // Show user's name/email in profile area after login
