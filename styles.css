@@ -811,7 +811,7 @@ body {
 }
 #add-tab.tab {
   position: relative; /* Needed for the overlay to position correctly */
-  background: #4d89f9;
+  background: #cce1ff;
   color: #222a33;
   min-width: 36px !important;
   max-width: 36px !important;
