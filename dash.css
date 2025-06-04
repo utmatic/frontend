@@ -47,6 +47,41 @@ html, body {
   min-height: 100vh;
 }
 
+/* Prevent sidebar from moving into header at any screen size */
+@media (max-width: 1200px) {
+  .dash-sidebar {
+    width: 140px;
+    min-width: 70px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media (max-width: 900px) {
+  .dash-root {
+    flex-direction: row;
+  }
+  .dash-sidebar {
+    flex-direction: column;
+    width: 65px;
+    min-width: 65px;
+    height: 100vh;
+    border-bottom: none;
+    border-right: 1.5px solid var(--gray-100);
+    align-items: flex-start;
+    gap: 0;
+    min-height: 100vh;
+    position: relative;
+    z-index: 2;
+    padding: 8px 0 8px 0;
+  }
+  .dash-logo-container {
+    margin-bottom: 0;
+    padding-left: 4px;
+    height: 54px;
+    align-items: center;
+  }
+}
+
 .dash-logo-container {
   width: 100%;
   display: flex;
@@ -65,6 +100,7 @@ html, body {
 }
 @media (max-width: 900px) {
   .dash-logo svg {
+    width: 65px;
     min-width: 65px;
   }
 }
@@ -141,7 +177,99 @@ html, body {
   gap: 0;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 5;
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.new-dropdown {
+  position: relative;
+}
+.new-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #cce1ff;
+  font-size: 1rem;
+  font-family: var(--font);
+  cursor: pointer;
+  padding: 8px 16px 8px 4px;
+  border-radius: 8px;
+  transition: background 0.13s;
+}
+.new-dropdown-btn:hover,
+.new-dropdown-btn:focus {
+  background: #232a33;
+}
+.new-dropdown-label {
+  font-weight: 700;
+  color: #cce1ff;
+  font-size: 1.07rem;
+  margin-left: 2px;
+}
+.new-dropdown-list {
+  display: none;
+  position: absolute;
+  top: 120%;
+  left: 0;
+  width: 180px;
+  background: var(--background-alt);
+  border-radius: 10px;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.11);
+  padding: 8px 0;
+  z-index: 10;
+  border: 1px solid #222a33;
+}
+.new-dropdown-list.show {
+  display: block;
+}
+.new-dropdown-list .dropdown-item {
+  display: block;
+  padding: 10px 18px;
+  color: #cce1ff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.06rem;
+  line-height: 1.3;
+  border-radius: 7px;
+  transition: background 0.13s, color 0.13s;
+}
+.new-dropdown-list .dropdown-item:hover {
+  background: #29313a;
+  color: #fff;
+}
+
+.signout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #cce1ff;
+  font-size: 1rem;
+  font-family: var(--font);
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.13s;
+  margin-left: 8px;
+}
+.signout-btn:hover,
+.signout-btn:focus {
+  background: #232a33;
+}
+.signout-label {
+  font-weight: 700;
+  color: #cce1ff;
+  font-size: 1.04rem;
+  margin-left: 2px;
+}
+
 .profile-area {
   display: flex;
   align-items: center;
@@ -175,16 +303,28 @@ html, body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+@media (max-width: 1200px) {
+  .profile-name {
+    max-width: 80px;
+    font-size: 0.95rem;
+  }
+}
+@media (max-width: 900px) {
+  .profile-name {
+    max-width: 60px;
+    font-size: 0.93rem;
+  }
+}
+@media (max-width: 700px) {
+  .profile-name {
+    max-width: 40px;
+    font-size: 0.88rem;
+  }
+}
 
 /* Remove old sidebar profile area styles if present */
 .sidebar-profile-area {
   display: none !important;
-}
-
-/* Remove old profile styles from header for any accidental double display */
-.profile-area,
-.profile-icon {
-  /* only enable in header */
 }
 
 /* --- MAIN VIEW --- */
@@ -204,62 +344,31 @@ html, body {
   color: #cce1ff;
 }
 
-/* --- DASHBOARD TILES as BUTTONS --- */
-.dashboard-tiles {
-  display: flex;
-  gap: 28px;
-  margin-bottom: 48px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  max-width: 100%;
-}
-.dashboard-tile {
+/* --- TIME SAVED PLACEHOLDER --- */
+.time-saved-placeholder {
+  width: 100%;
+  min-height: 80px;
+  background: #232a33;
+  border: 2px dashed #4d89f9;
+  border-radius: 16px;
+  margin-bottom: 40px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  border-radius: 18px;
-  min-width: 210px;
-  min-height: 80px;
-  width: 210px;
-  height: 80px;
-  padding: 0;
+  padding: 28px 30px;
   box-sizing: border-box;
-  cursor: pointer;
-  color: var(--brand-white) !important;
-  font-family: var(--font);
-  font-size: 1.08rem;
-  box-shadow: none;
-  border: 2.5px solid transparent;
-  background: #1a1a1a;
-  margin-bottom: 16px;
-  transition: border-color 0.18s, background 0.18s;
-  max-width: 100%;
 }
-.dashboard-tile-pdf {
-  border-color: var(--brand-blue);
+.placeholder-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #4d89f9;
+  margin-bottom: 8px;
 }
-.dashboard-tile-pdf:hover {
-  border-color: var(--brand-blue-hover);
-  background: #232a33;
-}
-.dashboard-tile-indd {
-  border-color: var(--accent-yellow);
-}
-.dashboard-tile-indd:hover {
-  border-color: var(--accent-yellow-hover);
-  background: #232a33;
-}
-
-.tile-title {
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--brand-white);
-  text-align: center;
-}
-.tile-desc {
-  display: none;
+.placeholder-desc {
+  font-size: 1.03rem;
+  color: #cce1ff;
+  opacity: 0.82;
 }
 
 /* --- TABLES & HISTORY --- */
@@ -339,96 +448,15 @@ html, body {
 }
 
 @media (max-width: 1200px) {
-  .dash-sidebar {
-    width: 140px;
-    min-width: 70px;
-    padding-left: 0;
-    padding-right: 0;
-  }
-  .dash-logo svg {
-    width: 80px;
-    min-width: 65px;
-  }
   .dashboard-tiles {
     gap: 16px;
-  }
-  .dashboard-tile {
-    width: 130px;
-    height: 60px;
-    min-width: 100px;
-    min-height: 60px;
-    font-size: 0.95rem;
-    padding: 0;
   }
   .history-table {
     min-width: 470px;
   }
-  .profile-name {
-    max-width: 80px;
-    font-size: 0.95rem;
-  }
 }
 
 @media (max-width: 900px) {
-  .dash-root {
-    flex-direction: column;
-  }
-  .dash-sidebar {
-    flex-direction: row;
-    width: 100vw;
-    min-width: 0;
-    height: auto;
-    border-right: none;
-    border-bottom: 1.5px solid var(--gray-100);
-    padding: 0;
-    align-items: flex-end;
-    gap: 0;
-    min-height: 0;
-  }
-  .dash-logo-container {
-    margin-bottom: 0;
-    padding-left: 12px;
-    height: 54px;
-    align-items: center;
-  }
-  .dash-logo svg {
-    width: 65px;
-    min-width: 65px;
-  }
-  .dash-sidebar-btn {
-    padding: 8px 4px;
-    font-size: 0.97rem;
-    width: auto;
-    justify-content: center;
-    min-width: 54px;
-    min-height: 44px;
-  }
-  .dash-sidebar-btn .btn-label {
-    display: block;
-  }
-  .dashboard-tiles {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-  }
-  .dashboard-tile {
-    width: 100%;
-    min-width: 0;
-    height: 56px;
-    min-height: 56px;
-    font-size: 0.94rem;
-    padding: 0;
-  }
-  .dash-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    height: auto;
-    min-height: 44px;
-    max-height: none;
-    padding: 12px 8px 8px 8px;
-    gap: 0;
-  }
   #dash-main-view {
     padding: 12px 2px;
   }
@@ -439,30 +467,11 @@ html, body {
     min-width: 350px;
     font-size: 0.92em;
   }
-  .profile-name {
-    max-width: 60px;
-    font-size: 0.93rem;
-  }
 }
 
 @media (max-width: 700px) {
   #dash-main-view {
     padding: 5px 1px;
-  }
-  .dashboard-tile {
-    width: 100%;
-    min-width: 0;
-    height: 40px;
-    min-height: 40px;
-    font-size: 0.90rem;
-    padding: 0;
-  }
-  .dashboard-tiles {
-    flex-direction: column;
-    gap: 7px;
-  }
-  .dash-header {
-    padding: 6px 2px;
   }
   .section-title {
     font-size: 1rem;
@@ -475,15 +484,13 @@ html, body {
   .history-list {
     padding: 2px;
   }
-  .profile-name {
-    max-width: 40px;
-    font-size: 0.88rem;
-  }
 }
 
+/* Utility min-width fixes */
 .dash-sidebar,
 .dash-logo,
 .dash-header,
+.header-actions,
 .dashboard-tiles,
 .dashboard-tile,
 .history-list,
