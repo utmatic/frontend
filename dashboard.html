@@ -10,7 +10,7 @@
     .dash-header {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       height: 72px;
       min-height: 72px;
       max-height: 72px;
@@ -18,17 +18,12 @@
       background: var(--background-main, #1c232b);
       box-sizing: border-box;
     }
-    .sidebar-profile-area {
+    .profile-area {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 18px 36px 18px 36px;
-      min-height: 54px;
-      font-size: 1.03rem;
-      width: 100%;
-      box-sizing: border-box;
+      gap: 12px;
     }
-    .sidebar-profile-area .profile-icon {
+    .profile-icon {
       width: 36px;
       height: 36px;
       min-width: 36px;
@@ -40,18 +35,18 @@
       justify-content: center;
       overflow: hidden;
     }
-    .sidebar-profile-area .profile-icon svg {
+    .profile-icon svg {
       width: 32px !important;
       height: 32px !important;
       display: block;
       fill: #cce1ff !important;
     }
-    .sidebar-profile-area .profile-name {
+    .profile-name {
       color: #fff;
       font-weight: 500;
       font-size: 1.03rem;
+      max-width: 140px;
       word-break: break-word;
-      max-width: 120px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -121,19 +116,18 @@
         </span>
         <span class="btn-label">Settings</span>
       </button>
-      <!-- Sidebar Profile Area at bottom, but NOT sticking to bottom, just after nav buttons -->
-      <div class="sidebar-profile-area">
-        <span class="profile-icon" id="profile-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#cce1ff">
-            <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
-          </svg>
-        </span>
-        <span class="profile-name" id="profile-name"></span>
-      </div>
     </nav>
     <div class="dash-main-content">
       <header class="dash-header">
-        <!-- No header title -->
+        <div></div>
+        <div class="profile-area">
+          <span class="profile-name" id="profile-name"></span>
+          <span class="profile-icon" id="profile-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#cce1ff">
+              <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
+            </svg>
+          </span>
+        </div>
       </header>
       <main id="dash-main-view">
         <!-- Main content injected by JS -->
@@ -142,7 +136,7 @@
   </div>
   <script src="dash.js"></script>
   <script>
-    // Show user's name/email in sidebar profile area after login
+    // Show user's name/email in profile area after login
     document.addEventListener('DOMContentLoaded', function() {
       firebase.auth().onAuthStateChanged(function(user) {
         const nameEl = document.getElementById('profile-name');
