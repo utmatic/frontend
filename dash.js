@@ -18,6 +18,102 @@ firebase.initializeApp(firebaseConfig);
 let jobs = [];
 let jobsLoaded = false; // Track if jobs are already loaded
 
+// --- Time Save & Counter Logic ---
+const SECONDS_PER_LINK = 45;
+const UNITS = [
+  { name: "minutes", label: "Minutes", factor: 60 },
+  { name: "hours", label: "Hours", factor: 3600 },
+  { name: "days", label: "Days", factor: 86400 }
+];
+let currentUnit = UNITS[0]; // default to minutes
+
+function computeTimeSaved(jobs, unitObj = currentUnit) {
+  if (!Array.isArray(jobs)) return 0;
+  const totalLinks = jobs.reduce((sum, job) => sum + (parseInt(job.link_count) || 0), 0);
+  const secondsSaved = totalLinks * SECONDS_PER_LINK;
+  return secondsSaved / unitObj.factor;
+}
+
+function formatTimeSaved(val, unitObj = currentUnit) {
+  if (unitObj.name === "minutes") {
+    return Math.round(val).toLocaleString();
+  }
+  if (unitObj.name === "hours") {
+    return (Math.round(val * 10) / 10).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  }
+  if (unitObj.name === "days") {
+    return (Math.round(val * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  return val.toLocaleString();
+}
+
+function renderTimesaveWidget(jobs) {
+  const initialVal = formatTimeSaved(computeTimeSaved(jobs, currentUnit), currentUnit);
+  return `
+    <div class="timesave-widget">
+      <div class="timesave-label">Time Saved</div>
+      <div class="timesave-main">
+        <span class="timesave-value" id="timesave-value">${initialVal}</span>
+        <span class="timesave-unit-toggle">
+          ${UNITS.map(unit =>
+            `<button class="timesave-unit-btn${unit.name === currentUnit.name ? " active" : ""}" data-unit="${unit.name}">${unit.label}</button>`
+          ).join("")}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+// Animate number counter (from 0 to target over 1s)
+function animateCounter(elem, targetValue, unitObj) {
+  if (!elem) return;
+  let start = 0;
+  let end = targetValue;
+  let duration = 1100;
+  let startTimestamp = null;
+  let decimals = unitObj.name === "minutes" ? 0 : (unitObj.name === "hours" ? 1 : 2);
+
+  function step(timestamp) {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const value = start + (end - start) * progress;
+    elem.textContent = value.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  }
+  window.requestAnimationFrame(step);
+}
+
+function updateTimesaveWidget(jobs, unitName) {
+  const unitObj = UNITS.find(u => u.name === unitName) || UNITS[0];
+  const value = computeTimeSaved(jobs, unitObj);
+  const valElem = document.getElementById('timesave-value');
+  if (valElem) animateCounter(valElem, value, unitObj);
+
+  // Update active class on unit buttons
+  document.querySelectorAll('.timesave-unit-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.unit === unitObj.name);
+  });
+  currentUnit = unitObj;
+}
+
+function bindTimesaveWidgetEvents(jobs) {
+  document.querySelectorAll('.timesave-unit-btn').forEach(btn => {
+    btn.onclick = function(e) {
+      e.preventDefault();
+      const unitName = btn.dataset.unit;
+      updateTimesaveWidget(jobs, unitName);
+    };
+  });
+}
+
+// ---------------------
+
+// (No changes to formatting and history helper functions)
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
@@ -158,22 +254,10 @@ function renderHistory(jobs) {
   `;
 }
 
-// Placeholder container for dashboard
-function renderTimeSavedPlaceholder() {
-  return `
-    <div class="time-saved-placeholder">
-      <div class="placeholder-title">Time Saved</div>
-      <div class="placeholder-desc">
-        <span>This space will soon show you how much time you've saved using Utmatic!</span>
-      </div>
-    </div>
-  `;
-}
-
 const views = {
   dashboard: () => `
     <section>
-      ${renderTimeSavedPlaceholder()}
+      ${renderTimesaveWidget(jobs)}
       <div class="section-title" style="margin-top:40px;">Recent History</div>
       ${renderHistorySnapshot(jobs)}
       <div style="margin-top: 16px;"><a href="#" id="view-full-history" class="download-link">View full history →</a></div>
@@ -225,7 +309,11 @@ document.addEventListener('DOMContentLoaded', function() {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
 
-    if (view === "dashboard") {
+    // Bind timesave widget events after rendering dashboard
+    if (view === "dashboard" && jobsLoaded) {
+      bindTimesaveWidgetEvents(jobs);
+      // Animate on first display (with latest value)
+      updateTimesaveWidget(jobs, currentUnit.name);
       const link = document.getElementById("view-full-history");
       if (link) {
         link.onclick = function(e) {
@@ -289,13 +377,6 @@ document.addEventListener('DOMContentLoaded', function() {
       e.stopPropagation();
       dropdownList.classList.toggle('show');
     });
-    // Optionally show on hover (uncomment if needed)
-    // dropdownBtn.addEventListener('mouseenter', function() {
-    //   dropdownList.classList.add('show');
-    // });
-    // dropdownBtn.addEventListener('mouseleave', function() {
-    //   setTimeout(() => dropdownList.classList.remove('show'), 150);
-    // });
     document.addEventListener('click', function(e) {
       if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
         dropdownList.classList.remove('show');
