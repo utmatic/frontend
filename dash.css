@@ -416,14 +416,14 @@ html, body {
   margin-right: 2px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  min-width: 52px; /* ensures both PDF and INDD chips have the same width */
+  min-width: 75px; /* ensures both PDF and INDD chips have the same width */
   text-align: center;
   box-sizing: border-box;
 }
 .file-type-chip.indd {
   background: var(--accent-yellow);
   color: #1c232b !important;
-  min-width: 52px; /* match PDF chip width */
+  min-width: 75px; /* match PDF chip width */
 }
 
 .download-link {
