@@ -17,16 +17,55 @@ firebase.initializeApp(firebaseConfig);
 
 let jobs = [];
 
+// Format date as "Month D, YYYY h:mm AM/PM"
+function formatDate(dateInput) {
+  if (!dateInput) return "{{job.date}}";
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  if (isNaN(date.getTime())) return "{{job.date}}";
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  return date.toLocaleString('en-US', options);
+}
+
+// Convert "add_links_only" to "Add links only"
+function beautifyJobType(str) {
+  if (!str) return "{{job.jobtype}}";
+  return str
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase())
+    .replace(/\bOf\b|\bFor\b|\bAnd\b|\bTo\b|\bOr\b/g, (w) => w.toLowerCase()); // Lowercase common small words
+}
+
+// Render PDF/INDD chip with correct color/text
+function fileTypeChip(filetype) {
+  if (!filetype) return `<span class="file-type-chip">{{job.filetype}}</span>`;
+  const type = filetype.trim().toUpperCase();
+  if (type === "PDF") {
+    return `<span class="file-type-chip">${type}</span>`;
+  }
+  if (type === "INDD") {
+    return `<span class="file-type-chip indd">${type}</span>`;
+  }
+  // fallback
+  return `<span class="file-type-chip">${filetype}</span>`;
+}
+
 function renderHistorySnapshot(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
   }
   const rows = jobs.slice(0, 5).map(job => `
     <tr>
-      <td>${job.date ?? "{{job.date}}"}</td>
-      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype ?? "{{job.filetype}}"}</span></td>
+      <td>${formatDate(job.date)}</td>
+      <td>${fileTypeChip(job.filetype)}</td>
       <td>${job.document ?? "{{job.document}}"}</td>
-      <td>${job.jobtype ?? "{{job.jobtype}}"}</td>
+      <td>${beautifyJobType(job.jobtype)}</td>
       <td>
         <a href="${job.processedUrl ?? '#'}" class="download-link" download>File</a>
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download>Log</a>
@@ -59,10 +98,10 @@ function renderHistory(jobs) {
   }
   const rows = jobs.map(job => `
     <tr>
-      <td>${job.date ?? "{{job.date}}"}</td>
-      <td><span class="file-type-chip${job.filetype === "INDD" ? " indd" : ""}">${job.filetype ?? "{{job.filetype}}"}</span></td>
+      <td>${formatDate(job.date)}</td>
+      <td>${fileTypeChip(job.filetype)}</td>
       <td>${job.document ?? "{{job.document}}"}</td>
-      <td>${job.jobtype ?? "{{job.jobtype}}"}</td>
+      <td>${beautifyJobType(job.jobtype)}</td>
       <td>
         <a href="${job.processedUrl ?? '#'}" class="download-link" download>File</a>
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download>Log</a>
