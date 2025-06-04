@@ -53,6 +53,25 @@ function fileTypeChip(filetype) {
   return `<span class="file-type-chip">${filetype}</span>`;
 }
 
+// Refresh overlay control
+function showRefreshOverlay() {
+  const overlay = document.getElementById('refresh-overlay');
+  if (overlay) overlay.classList.add('active');
+}
+function hideRefreshOverlay() {
+  const overlay = document.getElementById('refresh-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// Expose a global function to trigger dashboard refresh with overlay
+window.refreshDashboard = function() {
+  showRefreshOverlay();
+  jobsLoaded = false;
+  setTimeout(() => {
+    fetchJobsOnceAndRender('dashboard');
+  }, 250);
+};
+
 function renderHistorySnapshot(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
@@ -154,7 +173,10 @@ const views = {
       </div>
       <div class="section-title" style="margin-top:40px;">Recent History</div>
       ${renderHistorySnapshot(jobs)}
-      <div style="margin-top: 16px;"><a href="#" id="view-full-history" class="download-link">View full history →</a></div>
+      <div style="margin-top: 16px;">
+        <a href="#" id="view-full-history" class="download-link">View full history →</a>
+        <button id="refresh-dashboard-btn" style="margin-left:10px;padding:5px 14px;border:1px solid #29313a;background:var(--background-alt);color:#cce1ff;border-radius:7px;font-size:1em;cursor:pointer;">Refresh</button>
+      </div>
     </section>
   `,
   history: () => `
@@ -178,6 +200,39 @@ function debounce(fn, ms = 300) {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), ms);
   };
+}
+
+// PATCHED: hide overlay after reload
+function fetchJobsOnceAndRender(view = "dashboard") {
+  if (jobsLoaded) {
+    setView(view);
+    hideRefreshOverlay();
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    const idToken = await user.getIdToken();
+    fetch('https://backend-idd.onrender.com/jobs', {
+      headers: { Authorization: "Bearer " + idToken }
+    })
+      .then(res => res.json())
+      .then(data => {
+        jobs = data;
+        jobsLoaded = true;
+        setView(view);
+        hideRefreshOverlay();
+      })
+      .catch(err => {
+        console.error('Error loading jobs:', err);
+        jobs = [];
+        jobsLoaded = true;
+        setView(view);
+        hideRefreshOverlay();
+      });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -220,44 +275,18 @@ document.addEventListener('DOMContentLoaded', function() {
           window.setView("history");
         };
       }
-    }
-  }
-
-  // Fetch jobs just once and store in memory
-  function fetchJobsOnceAndRender(view = "dashboard") {
-    if (jobsLoaded) {
-      setView(view);
-      return;
-    }
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        window.location.href = "/login";
-        return;
+      // Add refresh button handler
+      const refreshBtn = document.getElementById("refresh-dashboard-btn");
+      if (refreshBtn) {
+        refreshBtn.onclick = function() {
+          window.refreshDashboard();
+        };
       }
-      // Optionally show profile icon
-      // (Handled in HTML and in the script in HTML file for sidebar)
-      const idToken = await user.getIdToken();
-      fetch('https://backend-idd.onrender.com/jobs', {
-        headers: { Authorization: "Bearer " + idToken }
-      })
-        .then(res => res.json())
-        .then(data => {
-          jobs = data;
-          jobsLoaded = true;
-          setView(view);
-        })
-        .catch(err => {
-          console.error('Error loading jobs:', err);
-          jobs = [];
-          jobsLoaded = true;
-          setView(view);
-        });
-    });
+    }
   }
 
   // Debounced version for rapid clicks
   window.setView = debounce(function(view) {
-    // Only fetch on first load!
     if (!jobsLoaded) {
       fetchJobsOnceAndRender(view);
     } else {
@@ -267,4 +296,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initial load
   fetchJobsOnceAndRender();
+
+  // Optionally: allow double-click header to refresh
+  const header = document.querySelector('.dash-header');
+  if (header) {
+    header.addEventListener('dblclick', () => {
+      window.refreshDashboard();
+    });
+  }
 });
