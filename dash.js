@@ -128,16 +128,13 @@ function renderHistory(jobs) {
 const views = {
   dashboard: () => `
     <section>
-      <div class="section-title">Welcome to your Dashboard</div>
       <div class="dashboard-tiles">
-        <a class="dashboard-tile dashboard-tile-pdf" href="https://app.utmatic.com/pdf-form.html">
-          <div class="tile-title">PDF Processor</div>
-          <div class="tile-desc">Process your PDFs for extraction, conversion, or batch actions.</div>
-        </a>
-        <a class="dashboard-tile dashboard-tile-indd" href="https://app.utmatic.com/source-form.html">
-          <div class="tile-title">Indd Processor</div>
-          <div class="tile-desc">Automate tasks for INDD (InDesign) source files.</div>
-        </a>
+        <button class="dashboard-tile dashboard-tile-pdf" type="button">
+          <span class="tile-title">PDF Processor</span>
+        </button>
+        <button class="dashboard-tile dashboard-tile-indd" type="button">
+          <span class="tile-title">Indd Processor</span>
+        </button>
       </div>
       <div class="section-title" style="margin-top:40px;">Recent History</div>
       ${renderHistorySnapshot(jobs)}
@@ -196,6 +193,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (view === "dashboard") {
+      // Add click handlers to the new button tiles
+      const pdfBtn = document.querySelector('.dashboard-tile-pdf');
+      const inddBtn = document.querySelector('.dashboard-tile-indd');
+      if (pdfBtn) {
+        pdfBtn.onclick = () => window.open("https://app.utmatic.com/pdf-form.html", "_self");
+      }
+      if (inddBtn) {
+        inddBtn.onclick = () => window.open("https://app.utmatic.com/source-form.html", "_self");
+      }
       const link = document.getElementById("view-full-history");
       if (link) {
         link.onclick = function(e) {
