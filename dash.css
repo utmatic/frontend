@@ -22,6 +22,7 @@ html, body {
   background: var(--background-main);
   color: #fff;
   height: 100%;
+  overflow-x: hidden; /* Prevent unwanted horizontal scroll globally */
 }
 
 .dash-root {
@@ -44,14 +45,15 @@ html, body {
   box-shadow: none;
   z-index: 2;
   position: relative;
+  min-height: 100vh;
 }
 
 .dash-logo-container {
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  align-items: center; /* changed from flex-end for vertical alignment */
-  height: 72px; /* align logo with header height */
+  align-items: center;
+  height: 72px;
   margin-bottom: 0;
   padding-left: 36px;
 }
@@ -60,6 +62,7 @@ html, body {
   height: auto;
   display: block;
   min-width: 120px;
+  max-width: 100%;
 }
 @media (max-width: 900px) {
   .dash-logo svg {
@@ -85,11 +88,14 @@ html, body {
   gap: 18px;
   position: relative;
   transition: background 0.16s, color 0.16s;
+  box-sizing: border-box;
 }
 .dash-sidebar-btn .btn-label {
   flex: 1;
   white-space: nowrap;
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .dash-sidebar-btn .btn-icon {
   display: flex;
@@ -121,6 +127,8 @@ html, body {
   margin-top: auto;
   min-height: 54px;
   font-size: 1.03rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 .sidebar-profile-area .profile-icon {
   width: 36px;
@@ -158,6 +166,8 @@ html, body {
   flex-direction: column;
   background: var(--background-main);
   min-width: 0;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 /* --- HEADER --- */
@@ -171,9 +181,9 @@ html, body {
   height: 72px;
   max-height: 72px;
   gap: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
-
-/* REMOVE header title entirely; nothing to style */
 
 /* Remove old profile styles from header */
 .profile-area,
@@ -185,7 +195,9 @@ html, body {
   padding: 36px;
   flex: 1;
   min-width: 0;
-  overflow-x: auto;
+  max-width: 100vw;
+  overflow-x: visible;
+  box-sizing: border-box;
 }
 
 .section-title {
@@ -202,6 +214,7 @@ html, body {
   margin-bottom: 48px;
   flex-wrap: wrap;
   align-items: flex-start;
+  max-width: 100%;
 }
 .dashboard-tile {
   display: flex;
@@ -225,6 +238,7 @@ html, body {
   background: #1a1a1a;
   margin-bottom: 16px;
   transition: border-color 0.18s, background 0.18s;
+  max-width: 100%;
 }
 .dashboard-tile-pdf {
   border-color: var(--brand-blue);
@@ -257,15 +271,19 @@ html, body {
   background: none;
   padding: 24px;
   margin-bottom: 32px;
-  overflow-x: auto;
   border: none;
   width: 100%;
+  overflow-x: auto; /* Only the table scrolls horizontally */
+  box-sizing: border-box;
+  max-width: 100vw;
 }
 .history-table {
   width: 100%;
   min-width: 600px;
+  max-width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  box-sizing: border-box;
 }
 .history-table th, .history-table td {
   padding: 12px 16px;
@@ -311,8 +329,6 @@ html, body {
 }
 
 /* --- RESPONSIVE --- */
-
-/* Ensure nothing gets squished or overlapped on any screen size */
 @media (max-width: 1200px) {
   .dash-sidebar {
     width: 140px;
@@ -358,6 +374,7 @@ html, body {
     padding: 0;
     align-items: flex-end;
     gap: 0;
+    min-height: 0;
   }
   .dash-logo-container {
     margin-bottom: 0;
@@ -457,12 +474,6 @@ html, body {
     padding: 6px 2px 0 2px;
     font-size: 0.89rem;
   }
-}
-
-/* Table always scrolls, never squishes */
-.history-list {
-  overflow-x: auto;
-  width: 100%;
 }
 
 /* Prevent sidebar, tiles, table, or header content from shrinking below readable size */
