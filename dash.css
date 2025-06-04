@@ -59,6 +59,12 @@ html, body {
   width: 160px;
   height: auto;
   display: block;
+  min-width: 120px;
+}
+@media (max-width: 900px) {
+  .dash-logo svg {
+    min-width: 65px;
+  }
 }
 
 .dash-sidebar-btn {
@@ -83,6 +89,7 @@ html, body {
 .dash-sidebar-btn .btn-label {
   flex: 1;
   white-space: nowrap;
+  display: block;
 }
 .dash-sidebar-btn .btn-icon {
   display: flex;
@@ -105,9 +112,43 @@ html, body {
   border-radius: 0;
 }
 
-/* Hide sidebar descriptions (the text after icon) for all */
-.dash-sidebar-btn .btn-label {
-  display: none;
+/* Sidebar Profile Area at Bottom */
+.sidebar-profile-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 36px 0 36px;
+  margin-top: auto;
+  min-height: 54px;
+  font-size: 1.03rem;
+}
+.sidebar-profile-area .profile-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  background: var(--background-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.sidebar-profile-area .profile-icon svg {
+  width: 32px !important;
+  height: 32px !important;
+  display: block;
+  fill: #cce1ff !important;
+}
+.sidebar-profile-area .profile-name {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1.03rem;
+  word-break: break-word;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Main Content */
@@ -122,25 +163,22 @@ html, body {
 /* --- HEADER --- */
 .dash-header {
   background: var(--background-alt);
-  /* border-bottom: 1px solid var(--gray-100); removed */
   padding: 0 36px;
   display: flex;
-  align-items: center; /* center vertically */
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-end;
   min-height: 72px;
   height: 72px;
   max-height: 72px;
   gap: 0;
 }
 
-.dash-header h1 {
-  margin: 0;
-  font-size: 2.1rem;
-  font-weight: 600;
-  color: var(--brand-white);
-  letter-spacing: 0.01em;
-  line-height: 1;
-  align-self: center;
+/* REMOVE header title entirely; nothing to style */
+
+/* Remove old profile styles from header */
+.profile-area,
+.profile-icon {
+  display: none !important;
 }
 
 #dash-main-view {
@@ -148,25 +186,6 @@ html, body {
   flex: 1;
   min-width: 0;
   overflow-x: auto;
-}
-
-.profile-area {
-  display: flex;
-  align-items: center; /* center the profile vertically */
-  gap: 10px;
-  height: 36px;
-}
-.profile-icon {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  border-radius: 50%;
-  background: var(--background-alt);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
 }
 
 .section-title {
@@ -303,6 +322,7 @@ html, body {
   }
   .dash-logo svg {
     width: 80px;
+    min-width: 65px;
   }
   .dashboard-tiles {
     gap: 16px;
@@ -318,6 +338,10 @@ html, body {
   .history-table {
     min-width: 470px;
   }
+  .sidebar-profile-area .profile-name {
+    max-width: 80px;
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 900px) {
@@ -332,7 +356,7 @@ html, body {
     border-right: none;
     border-bottom: 1.5px solid var(--gray-100);
     padding: 0;
-    align-items: center;
+    align-items: flex-end;
     gap: 0;
   }
   .dash-logo-container {
@@ -343,6 +367,7 @@ html, body {
   }
   .dash-logo svg {
     width: 65px;
+    min-width: 65px;
   }
   .dash-sidebar-btn {
     padding: 8px 4px;
@@ -353,7 +378,7 @@ html, body {
     min-height: 44px;
   }
   .dash-sidebar-btn .btn-label {
-    display: none;
+    display: block;
   }
   .dashboard-tiles {
     flex-direction: column;
@@ -371,25 +396,16 @@ html, body {
   .dash-header {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     height: auto;
     min-height: 44px;
     max-height: none;
     padding: 12px 8px 8px 8px;
     gap: 0;
   }
-  .dash-header h1 {
-    font-size: 1.1rem;
-    align-self: center;
-  }
-  .profile-area {
-    gap: 4px;
-  }
+  .profile-area,
   .profile-icon {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
-    min-height: 24px;
+    display: none !important;
   }
   #dash-main-view {
     padding: 12px 2px;
@@ -400,6 +416,10 @@ html, body {
   .history-table {
     min-width: 350px;
     font-size: 0.92em;
+  }
+  .sidebar-profile-area {
+    padding: 12px 8px 0 8px;
+    font-size: 0.95rem;
   }
 }
 
@@ -422,10 +442,6 @@ html, body {
   .dash-header {
     padding: 6px 2px;
   }
-  .dash-header h1 {
-    font-size: 1.04rem;
-    padding-bottom: 0;
-  }
   .section-title {
     font-size: 1rem;
     margin-bottom: 8px;
@@ -437,8 +453,9 @@ html, body {
   .history-list {
     padding: 2px;
   }
-  .profile-area {
-    gap: 2px;
+  .sidebar-profile-area {
+    padding: 6px 2px 0 2px;
+    font-size: 0.89rem;
   }
 }
 
@@ -460,7 +477,6 @@ html, body {
 }
 
 .dash-header,
-.dash-logo-container,
-.profile-area {
+.dash-logo-container {
   align-items: center !important;
 }
