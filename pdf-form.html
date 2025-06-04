@@ -75,7 +75,65 @@
     .header-container, .header-text {
       display: none !important;
     }
+    /* Blocked message styling */
+    #blocked-msg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw;
+      background: #fff7f7;
+      color: #c00;
+      z-index: 10000;
+      padding: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
   </style>
+  <!-- Firebase SDKs: MUST be before main.js -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    // --- Firebase config (replace with your real config if needed) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
+      authDomain: "utmatic.firebaseapp.com",
+      projectId: "utmatic",
+      storageBucket: "utmatic.firebasestorage.app",
+      messagingSenderId: "106080752806",
+      appId: "1:106080752806:web:217a463a446a850cf71067",
+      measurementId: "G-7JD0EVYF7M"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Auth gating: block form if not signed in (all plans allowed)
+    function getRedirectUrl() {
+      // Always redirect back to this page after login
+      return window.location.pathname;
+    }
+    function blockForm(msg) {
+      if (!document.getElementById("blocked-msg")) {
+        const formBlockedMsg = document.createElement('div');
+        formBlockedMsg.id = "blocked-msg";
+        formBlockedMsg.innerHTML = msg;
+        document.body.appendChild(formBlockedMsg);
+      }
+      // Hide the main form wrapper
+      const mainForm = document.getElementById('main-form-wrapper');
+      if (mainForm) mainForm.style.display = 'none';
+    }
+    async function ensureLoggedIn() {
+      await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+        return;
+      }
+      // If we made it here, user is signed in. Show form if it was hidden.
+      const mainForm = document.getElementById('main-form-wrapper');
+      if (mainForm) mainForm.style.display = '';
+      const blocked = document.getElementById("blocked-msg");
+      if (blocked) blocked.remove();
+    }
+    document.addEventListener('DOMContentLoaded', ensureLoggedIn);
+  </script>
 </head>
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
@@ -185,6 +243,6 @@
     <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
