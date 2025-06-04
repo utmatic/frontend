@@ -50,7 +50,7 @@ html, body {
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  align-items: flex-end; /* bottom align logo */
+  align-items: flex-end;
   height: 54px;
   margin-bottom: 54px;
   padding-left: 36px;
@@ -115,9 +115,9 @@ html, body {
   /* border-bottom: 1px solid var(--gray-100); removed per request */
   padding: 32px 36px 22px 36px;
   display: flex;
-  align-items: flex-end; /* bottom align to logo */
+  align-items: flex-end; /* bottom align everything */
   justify-content: space-between;
-  min-height: 54px; /* match logo min height */
+  min-height: 54px;
   gap: 0;
 }
 
@@ -127,7 +127,7 @@ html, body {
   font-weight: 600;
   color: var(--brand-white);
   letter-spacing: 0.01em;
-  line-height: 1; /* bottom align with logo */
+  line-height: 1;
   align-self: flex-end;
 }
 
@@ -140,7 +140,7 @@ html, body {
 
 .profile-area {
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* bottom align profile with header */
   gap: 10px;
   height: 36px;
 }
@@ -169,6 +169,7 @@ html, body {
   gap: 28px;
   margin-bottom: 48px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 .dashboard-tile {
   display: flex;
@@ -279,34 +280,33 @@ html, body {
 
 /* --- RESPONSIVE --- */
 
-/* Tablets */
+/* Ensure nothing gets squished or overlapped on any screen size */
 @media (max-width: 1200px) {
   .dash-sidebar {
-    width: 160px;
-    min-width: 90px;
+    width: 140px;
+    min-width: 70px;
     padding-left: 0;
     padding-right: 0;
   }
   .dash-logo svg {
-    width: 100px;
+    width: 80px;
   }
   .dashboard-tiles {
-    gap: 18px;
+    gap: 16px;
   }
   .dashboard-tile {
-    width: 140px;
-    height: 140px;
-    min-width: 120px;
-    min-height: 120px;
-    font-size: 0.98rem;
-    padding: 20px 14px 14px 14px;
+    width: 130px;
+    height: 130px;
+    min-width: 100px;
+    min-height: 100px;
+    font-size: 0.95rem;
+    padding: 14px 10px 12px 10px;
   }
   .history-table {
-    min-width: 500px;
+    min-width: 470px;
   }
 }
 
-/* Sidebar switches to topbar, tiles stack, table scrolls */
 @media (max-width: 900px) {
   .dash-root {
     flex-direction: column;
@@ -319,7 +319,7 @@ html, body {
     border-right: none;
     border-bottom: 1.5px solid var(--gray-100);
     padding: 0;
-    align-items: center;
+    align-items: flex-end;
     gap: 0;
   }
   .dash-logo-container {
@@ -329,13 +329,15 @@ html, body {
     align-items: flex-end;
   }
   .dash-logo svg {
-    width: 90px;
+    width: 65px;
   }
   .dash-sidebar-btn {
-    padding: 10px 12px;
-    font-size: 1rem;
+    padding: 8px 4px;
+    font-size: 0.97rem;
     width: auto;
     justify-content: center;
+    min-width: 54px;
+    min-height: 44px;
   }
   .dash-sidebar-btn .btn-label {
     display: none;
@@ -343,92 +345,109 @@ html, body {
   .dashboard-tiles {
     flex-direction: column;
     align-items: stretch;
-    gap: 18px;
-  }
-  .dashboard-tile {
-    width: 100%;
-    min-width: 0;
-    height: 120px;
-    min-height: 100px;
-    font-size: 1rem;
-    padding: 18px 14px 14px 18px;
-  }
-  .dash-header {
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    min-height: 0;
-    max-height: none;
-    padding: 20px 12px 8px 12px;
-    gap: 8px;
-  }
-  .dash-header h1 {
-    font-size: 1.3rem;
-    align-self: flex-end;
-  }
-  .profile-area {
-    gap: 7px;
-  }
-  .profile-icon {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    min-height: 28px;
-  }
-  #dash-main-view {
-    padding: 16px 4px;
-  }
-  .history-list {
-    padding: 8px;
-  }
-  .history-table {
-    min-width: 400px;
-    font-size: 0.97em;
-  }
-}
-
-/* Phones: everything stacks, text shrinks, table scrolls, no overlap */
-@media (max-width: 700px) {
-  #dash-main-view {
-    padding: 8px 2px;
+    gap: 14px;
   }
   .dashboard-tile {
     width: 100%;
     min-width: 0;
     height: 100px;
     min-height: 80px;
-    font-size: 0.95rem;
-    padding: 8px 6px 8px 6px;
-  }
-  .dashboard-tiles {
-    flex-direction: column;
-    gap: 10px;
+    font-size: 0.94rem;
+    padding: 10px 8px 10px 12px;
   }
   .dash-header {
-    padding: 8px 4px;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: auto;
+    min-height: 44px;
+    max-height: none;
+    padding: 12px 8px 8px 8px;
+    gap: 0;
   }
   .dash-header h1 {
     font-size: 1.1rem;
-    padding-bottom: 2px;
-  }
-  .section-title {
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-  }
-  .history-table th, .history-table td {
-    padding: 6px 4px;
-    font-size: 0.92em;
-  }
-  .history-list {
-    padding: 4px;
+    align-self: flex-end;
   }
   .profile-area {
     gap: 4px;
   }
+  .profile-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+  #dash-main-view {
+    padding: 12px 2px;
+  }
+  .history-list {
+    padding: 4px;
+  }
+  .history-table {
+    min-width: 350px;
+    font-size: 0.92em;
+  }
 }
 
-/* If table is wider than screen, allow scrolling rather than squishing */
+@media (max-width: 700px) {
+  #dash-main-view {
+    padding: 5px 1px;
+  }
+  .dashboard-tile {
+    width: 100%;
+    min-width: 0;
+    height: 80px;
+    min-height: 50px;
+    font-size: 0.90rem;
+    padding: 6px 3px 6px 3px;
+  }
+  .dashboard-tiles {
+    flex-direction: column;
+    gap: 7px;
+  }
+  .dash-header {
+    padding: 6px 2px;
+  }
+  .dash-header h1 {
+    font-size: 1.04rem;
+    padding-bottom: 0;
+  }
+  .section-title {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .history-table th, .history-table td {
+    padding: 4px 2px;
+    font-size: 0.85em;
+  }
+  .history-list {
+    padding: 2px;
+  }
+  .profile-area {
+    gap: 2px;
+  }
+}
+
+/* Table always scrolls, never squishes */
 .history-list {
   overflow-x: auto;
   width: 100%;
+}
+
+/* Prevent sidebar, tiles, table, or header content from shrinking below readable size */
+.dash-sidebar,
+.dash-logo,
+.dash-header,
+.dashboard-tiles,
+.dashboard-tile,
+.history-list,
+.history-table {
+  min-width: 0;
+}
+
+.dash-header,
+.dash-logo-container,
+.profile-area {
+  align-items: flex-end !important;
 }
