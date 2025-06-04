@@ -34,6 +34,17 @@ const processBtn = document.getElementById("process-btn");
 // Track per-tab last saved state for Save/Dirty logic
 let tabLastSavedState = {};
 
+// PATCH: Wait for Firebase Auth before allowing process (fix race bug)
+let firebaseAuthReady = false;
+firebase.auth().onAuthStateChanged(function(user) {
+  firebaseAuthReady = true;
+  if (!user) {
+    // Already gated on the HTML, but just in case
+    window.location.href = "/auth.html?redirect=" + encodeURIComponent(window.location.pathname);
+  }
+  // else, user is signed in and .currentUser is set
+});
+
 // PDF Previewer Zoom Button Listeners
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("zoom-in-btn").addEventListener("click", () => {
@@ -48,13 +59,12 @@ window.addEventListener("DOMContentLoaded", () => {
       renderPage();
     }
   });
-  // No need to call updateZoomDisplay() anymore
 });
 
-function showSpinner() { 
+function showSpinner() {
   document.getElementById('loader').classList.add('active');
 }
-function hideSpinner() { 
+function hideSpinner() {
   document.getElementById('loader').classList.remove('active');
 }
 function getTabCount() { return tabBar.querySelectorAll(".tab[data-tab]").length; }
@@ -98,7 +108,6 @@ function setActiveTab(tabId) {
 
 // Helper to build a unique hash of form data (for Save/Dirty logic)
 function formToHash(form) {
-  // Custom serialization: input type, name, value, checked, selectedIndex, file name if any
   let arr = [];
   Array.from(form.elements).forEach(el => {
     if (el.name && !el.disabled && !el.closest('.hidden')) {
@@ -123,14 +132,13 @@ function updateFileListStatus(tabId, name, saved, jobType) {
     item.dataset.tab = tabId;
     fileList.appendChild(item);
   }
-  // 1. Remove ALL children except for the name span (reset item)
   let nameSpan = item.querySelector('.file-list-name');
   if (!nameSpan) {
     nameSpan = document.createElement('span');
     nameSpan.className = 'file-list-name';
   }
   nameSpan.textContent = name || "Untitled Document";
-  item.innerHTML = ""; // Remove all children
+  item.innerHTML = "";
   if (saved) {
     item.className = "saved";
     const checkSpan = document.createElement('span');
@@ -147,12 +155,9 @@ function updateFileListStatus(tabId, name, saved, jobType) {
   processBtn.disabled = ![...fileList.children].every(li => li.classList.contains("saved")) || fileList.childElementCount === 0;
 }
 
-// ---- MULTI-FILE UPLOAD ON CHOOSE FILE ----
 function renderFormFields(form, tabId, docName, fileObj) {
-  // --- Sticky file for this tab ---
   let lastValidFile = fileObj instanceof File ? fileObj : null;
 
-  // PDF Upload
   const pdfField = document.createElement("div");
   pdfField.className = "field-group";
   const pdfLabel = document.createElement("label");
@@ -194,14 +199,11 @@ function renderFormFields(form, tabId, docName, fileObj) {
     });
   }
 
-  // --- Sticky file change handler ---
   fileInput.addEventListener("change", function() {
     const files = Array.from(fileInput.files);
     if (files.length > 0) {
-      // User selected a new file
       lastValidFile = files[0];
       fileNameSpan.textContent = files[0].name;
-      // Update filename and tab label, etc.
       const filenameInput = form.querySelector("input[name='filename']");
       if (filenameInput) {
         let base = files[0].name.replace(/\.pdf$/i, "");
@@ -214,22 +216,16 @@ function renderFormFields(form, tabId, docName, fileObj) {
         tabLastSavedState[tabId] = "";
         form.querySelector('.save-btn').disabled = false;
       }
-      // Handle multi-file (tabs) as before
       let slots = MAX_DOCS - getTabCount();
       if (getTabCount() === 1 && docCount === 2 && !formToHash(form)) {
-        // do nothing, let user fill out the form
       } else {
         for (let i = 1; i < files.length && slots > 0; ++i, --slots) {
-          createTab(files[i], /*doNotAutoSelect*/true);
+          createTab(files[i], true);
         }
       }
     } else if (lastValidFile) {
-      // User canceled dialog; keep previous file name in UI and keep lastValidFile
       fileNameSpan.textContent = lastValidFile.name;
-      // No need to update fileInput.files: browsers block setting it programmatically
-      // lastValidFile is still valid, so formIsValid/form.getLastValidFile will work
     } else {
-      // No file ever selected
       fileNameSpan.textContent = "No file chosen";
       lastValidFile = null;
     }
@@ -242,7 +238,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   pdfField.appendChild(fileInputWrapper);
   form.appendChild(pdfField);
 
-  // --- Job Type ---
   const jobTypeField = document.createElement("div");
   jobTypeField.className = "field-group";
   const jobTypeLabel = document.createElement("label");
@@ -269,7 +264,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   jobTypeField.appendChild(jobTypeSelect);
   form.appendChild(jobTypeField);
 
-  // --- Target Format & Base URL dynamic rows ---
   const targetBaseRowsWrapper = document.createElement("div");
   targetBaseRowsWrapper.className = "field-row-wrapper hidden";
   form.appendChild(targetBaseRowsWrapper);
@@ -286,7 +280,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
   function addTargetBaseRow(wrapper, form) {
     const fieldRow = document.createElement("div");
     fieldRow.className = "field-row";
-    // Target Format
     const tfGroup = document.createElement("div");
     tfGroup.className = "field-group";
     tfGroup.style.flex = "1";
@@ -299,7 +292,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     tfInput.style.width = "100%";
     tfInput.style.boxSizing = "border-box";
     tfGroup.appendChild(tfInput);
-    // Base URL
     const buGroup = document.createElement("div");
     buGroup.className = "field-group";
     buGroup.style.flex = "1";
@@ -316,13 +308,12 @@ function renderFormFields(form, tabId, docName, fileObj) {
     buInput.addEventListener('change', () => {
       updateBaseUrlMemory(buInput.value.trim());
     });
-    // Remove Button (except for first row)
     const delCol = document.createElement("div");
     delCol.className = "delete-col";
     if (wrapper.querySelectorAll(".field-row").length > 0) {
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
-      removeBtn.className = "delete-tab"; // Use the same class as tab delete
+      removeBtn.className = "delete-tab";
       removeBtn.innerHTML = "&times;";
       removeBtn.title = "Remove row";
       removeBtn.addEventListener("click", function() {
@@ -350,20 +341,16 @@ function renderFormFields(form, tabId, docName, fileObj) {
     updateAddNewRowBtn();
   });
 
-  // --- UTM Parameters group ---
   const utmGroup = document.createElement("div");
-  utmGroup.className = "utm-group"; // Add this as a wrapper
-  utmGroup.id = "utm-group";        // Add an id for easy selection/hiding
-
+  utmGroup.className = "utm-group";
+  utmGroup.id = "utm-group";
   const utmLabel = document.createElement("span");
   utmLabel.className = "utm-label";
   utmLabel.textContent = "UTM Parameters";
   utmGroup.appendChild(utmLabel);
-
   const utmRow = document.createElement("div");
   utmRow.className = "utm-row";
   utmGroup.appendChild(utmRow);
-
   [
     { id: "source", placeholder: "Source", required: true },
     { id: "medium", placeholder: "Medium", required: true },
@@ -390,9 +377,8 @@ function renderFormFields(form, tabId, docName, fileObj) {
   utmContentInput.style.cursor = "not-allowed";
   utmContentGroup.appendChild(utmContentInput);
   utmGroup.appendChild(utmContentGroup);
-
   form.appendChild(utmGroup);
-  utmGroup.classList.add('hidden'); // or utmGroup.style.display = "none";
+  utmGroup.classList.add('hidden');
 
   const filenameGroup = document.createElement("div");
   filenameGroup.className = "field-group";
@@ -410,26 +396,21 @@ function renderFormFields(form, tabId, docName, fileObj) {
   filenameGroup.appendChild(filenameInput);
   form.appendChild(filenameGroup);
 
-  // Toggle switch for underline option
   const underlineToggleWrapper = document.createElement("div");
   underlineToggleWrapper.className = "toggle-wrapper hidden";
   underlineToggleWrapper.style.marginBottom = "0.75rem";
   underlineToggleWrapper.style.marginTop = "-0.5rem";
-
   const underlineInput = document.createElement("input");
   underlineInput.type = "checkbox";
   underlineInput.name = "underline";
   underlineInput.id = "underline";
-  underlineInput.className = "custom-toggle"; // For custom toggle styling
-
+  underlineInput.className = "custom-toggle";
   const underlineLabel = document.createElement("label");
   underlineLabel.htmlFor = "underline";
-  underlineLabel.className = "custom-toggle-label"; // For toggle track styling
-
+  underlineLabel.className = "custom-toggle-label";
   const underlineText = document.createElement("span");
   underlineText.className = "toggle-label-text";
   underlineText.textContent = "Add underline to links?";
-
   underlineToggleWrapper.appendChild(underlineInput);
   underlineToggleWrapper.appendChild(underlineLabel);
   underlineToggleWrapper.appendChild(underlineText);
@@ -445,13 +426,10 @@ function renderFormFields(form, tabId, docName, fileObj) {
   actionsDiv.appendChild(saveBtn);
   form.appendChild(actionsDiv);
 
-  // --- Save/Dirty logic ---
   tabLastSavedState[tabId] = "";
-
   function checkDirtyAndUpdateSaveBtn() {
     let current = formToHash(form);
     let dirty = current !== tabLastSavedState[tabId] && saveBtn.dataset.justSaved !== "1";
-    // Update file list dirty/saved status live
     const filenameInput = form.querySelector("input[name='filename']");
     updateFileListStatus(tabId, filenameInput.value, !dirty, jobTypeSelect.value);
     saveBtn.disabled = !formIsValid(form) || !dirty;
@@ -459,9 +437,8 @@ function renderFormFields(form, tabId, docName, fileObj) {
   function formIsValid(form) {
     let valid = true;
     form.querySelectorAll("input, select").forEach(input => {
-      // Only validate if the input is required and visible (not in a .hidden ancestor)
       if (
-        input.required && 
+        input.required &&
         !input.closest(".hidden") &&
         !input.disabled &&
         (
@@ -474,7 +451,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     });
     return valid;
   }
-  // Validate and update save button whenever form changes
   form.addEventListener("input", function() {
     checkDirtyAndUpdateSaveBtn();
   });
@@ -482,7 +458,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     checkDirtyAndUpdateSaveBtn();
   });
 
-  // Save handler
   form.addEventListener("submit", function(e) {
     e.preventDefault();
     const filenameInput = form.querySelector("input[name='filename']");
@@ -495,37 +470,28 @@ function renderFormFields(form, tabId, docName, fileObj) {
     setTimeout(()=>{ saveBtn.dataset.justSaved = ""; }, 500);
   });
 
-  // Job type select: update file list with correct icon
   jobTypeSelect.addEventListener("change", function() {
     const jobType = jobTypeSelect.value;
     const needsFormats = jobType === "links_and_utm" || jobType === "add_links_only";
     const needsUtm = jobType === "utm_only" || jobType === "links_and_utm";
-
-    // Toggle rows and underline
     targetBaseRowsWrapper.classList.toggle("hidden", !needsFormats);
-    underlineToggleWrapper.classList.toggle("hidden", !needsFormats); // <-- FIXED: use underlineToggleWrapper
-
-    // Set required for target/base
+    underlineToggleWrapper.classList.toggle("hidden", !needsFormats);
     targetBaseRowsWrapper.querySelectorAll("input[name='target_format'], input[name='base_url']").forEach(input => {
       input.required = needsFormats;
     });
-
-    // Toggle UTM group and set required for UTM
     const utmGroup = form.querySelector("#utm-group");
     if (utmGroup) {
       utmGroup.classList.toggle("hidden", !needsUtm);
       utmGroup.querySelectorAll("input").forEach(input => {
-        input.required = needsUtm && input.name !== "utm_content"; // utm_content is always readonly
+        input.required = needsUtm && input.name !== "utm_content";
       });
     }
-
     underlineInput.required = false;
     const filenameInput = form.querySelector("input[name='filename']");
     updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
     checkDirtyAndUpdateSaveBtn();
   });
 
-  // When filename is changed, update tab label and file list (don't mark as saved)
   filenameInput.addEventListener("input", () => {
     const tabLabel = document.querySelector(`.tab[data-tab="${tabId}"] .tab-label`);
     tabLabel.textContent = filenameInput.value || `Document ${tabId.replace(/doc-/, '')}`;
@@ -533,7 +499,6 @@ function renderFormFields(form, tabId, docName, fileObj) {
     checkDirtyAndUpdateSaveBtn();
   });
 
-  // File input change: update filename and clear saved state
   fileInput.addEventListener("change", function() {
     if (fileInput.files && fileInput.files.length > 0) {
       let base = fileInput.files[0].name.replace(/\.pdf$/i, "");
@@ -549,11 +514,9 @@ function renderFormFields(form, tabId, docName, fileObj) {
   updateFileListStatus(tabId, filenameInput.value, false, jobTypeSelect.value);
   checkDirtyAndUpdateSaveBtn();
 
-  // --- INTERCEPT FormData for preview/process to use lastValidFile if needed ---
   form.getLastValidFile = () => lastValidFile;
 }
 
-// Accepts doNotAutoSelect param: if true, do NOT activate the new tab (for multi-upload, etc)
 function createTab(fileObj, doNotAutoSelect = false) {
   const tabId = `doc-${docCount}`;
   const tabBtn = document.createElement("button");
@@ -562,7 +525,6 @@ function createTab(fileObj, doNotAutoSelect = false) {
   tabBtn.setAttribute("title", `Switch to ${tabId}`);
   tabBtn.dataset.tab = tabId;
 
-  // Always name new tabs "New document"
   const tabLabel = document.createElement("span");
   tabLabel.className = "tab-label";
   tabLabel.textContent = "New document";
@@ -587,7 +549,6 @@ function createTab(fileObj, doNotAutoSelect = false) {
   tabContent.className = "tab-content";
   tabContent.id = tabId;
 
-  // Always give "New document" as docName
   const form = document.createElement("form");
   form.setAttribute("autocomplete", "off");
   renderFormFields(form, tabId, "New document", fileObj);
@@ -595,7 +556,7 @@ function createTab(fileObj, doNotAutoSelect = false) {
   tabContent.appendChild(form);
   tabContents.appendChild(tabContent);
 
-  if (!doNotAutoSelect) setActiveTab(tabId); // Only activate new tab if not in batch add
+  if (!doNotAutoSelect) setActiveTab(tabId);
 
   docCount++;
   updateAddTabButton();
@@ -617,7 +578,6 @@ document.addEventListener("click", function (e) {
     const remainingTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
     let newActive = null;
     if (remainingTabs.length) {
-      // Always activate the leftmost (first) tab after a delete
       newActive = remainingTabs[0];
     }
     if (newActive) setActiveTab(newActive.dataset.tab);
@@ -631,6 +591,10 @@ updateTabBarCount();
 let lastProcessedForms = [];
 processBtn.addEventListener("click", async function() {
   if (processBtn.disabled) return;
+  if (!firebaseAuthReady) {
+    alert("Please wait, still signing in...");
+    return;
+  }
   showSpinner();
 
   const docTabs = Array.from(tabBar.querySelectorAll(".tab[data-tab]"));
@@ -671,7 +635,6 @@ processBtn.addEventListener("click", async function() {
   let encounteredError = null;
   const API_BASE = "https://utmatic-backend.onrender.com";
 
-  // --- Get Firebase ID token for the currently signed-in user ---
   let idToken = null;
   try {
     const user = firebase.auth().currentUser;
@@ -686,7 +649,6 @@ processBtn.addEventListener("click", async function() {
   for (let i = 0; i < tabData.length; ++i) {
     const { form, tabId } = tabData[i];
     let formData = new FormData(form);
-    // --- Patch FormData to use sticky file if file input is empty but we have a lastValidFile ---
     const fileInput = form.querySelector('input[type="file"][name="file"]');
     const lastValidFile = form.getLastValidFile ? form.getLastValidFile() : null;
     if (fileInput && (!fileInput.files || fileInput.files.length === 0) && lastValidFile) {
@@ -729,7 +691,7 @@ processBtn.addEventListener("click", async function() {
 
 document.getElementById("add-tab").addEventListener("click", function(e) {
   if (getTabCount() < MAX_DOCS) {
-    createTab(undefined, /*doNotAutoSelect*/true);
+    createTab(undefined, true);
   }
   updateAddTabButton();
   updateTabBarCount();
@@ -785,7 +747,6 @@ window.openPdfPreviewer = function(docs, index=0) {
     docList.appendChild(div);
   });
 
-    // Hide caret if only one doc
   if (pdfDocs.length <= 1) {
     docSwitch.classList.add("single-doc");
   } else {
@@ -939,9 +900,14 @@ async function downloadFinalPdf() {
     btn.textContent = "Downloading...";
     const API_BASE = "https://utmatic-backend.onrender.com";
     try {
-      // Send Firebase ID token with /process request for auth!
       let idToken = doc.idToken;
       if (!idToken) {
+        if (!firebaseAuthReady) {
+          alert("Please wait, still signing in...");
+          btn.disabled = false;
+          btn.textContent = "Download PDF";
+          return;
+        }
         const user = firebase.auth().currentUser;
         if (!user) throw new Error("Not signed in.");
         idToken = await user.getIdToken();
