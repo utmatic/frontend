@@ -6,52 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
-  <style>
-    .dash-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-      min-height: 72px;
-      max-height: 72px;
-      padding: 0 36px;
-      background: var(--background-main, #1c232b);
-      box-sizing: border-box;
-    }
-    .profile-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .profile-icon {
-      width: 36px;
-      height: 36px;
-      min-width: 36px;
-      min-height: 36px;
-      border-radius: 50%;
-      background: var(--background-alt);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .profile-icon svg {
-      width: 32px !important;
-      height: 32px !important;
-      display: block;
-      fill: #cce1ff !important;
-    }
-    .profile-name {
-      color: #fff;
-      font-weight: 500;
-      font-size: 1.03rem;
-      max-width: 140px;
-      word-break: break-word;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  </style>
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -62,7 +16,6 @@
       <div class="dash-logo-container">
         <div class="dash-logo">
           <!-- Inline SVG logo (Utmatic) -->
-          <?xml version="1.0" encoding="UTF-8"?>
           <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 635 129.99">
             <defs>
               <style>
@@ -132,6 +85,20 @@
       <main id="dash-main-view">
         <!-- Main content injected by JS -->
       </main>
+    </div>
+  </div>
+  <!-- Dashboard refresh overlay -->
+  <div id="refresh-overlay" class="refresh-overlay">
+    <div class="refresh-logo-container">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 69.64 74.34"
+        width="40"
+        height="60"
+        class="refresh-logo"
+      >
+        <path fill="#cce1ff" d="M59.6,0H10.04C4.5,0,0,4.5,0,10.04v30.61c0,18.58,15.12,33.7,33.7,33.7h2.25c18.58,0,33.7-15.12,33.7-33.7V10.04c0-5.53-4.5-10.04-10.04-10.04ZM61.91,40.65c0,14.32-11.65,25.97-25.97,25.97h-2.25c-14.32,0-25.97-11.65-25.97-25.97v-16.05h13.33v17.31c0,7.59,6.17,13.76,13.76,13.76s13.76-6.17,13.76-13.76v-17.31h13.33v16.05ZM61.91,16.86h-21.06v25.03c0,3.33-2.71,6.03-6.03,6.03s-6.03-2.71-6.03-6.03v-25.03H7.73v-6.83c0-1.27,1.04-2.31,2.31-2.31h49.56c1.27,0,2.31,1.04,2.31,2.31v6.83Z"/>
+      </svg>
     </div>
   </div>
   <script src="dash.js"></script>
