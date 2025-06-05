@@ -59,7 +59,28 @@ async function ensureLoggedInAndProBusiness() {
   }
 }
 
+// --- Loading Overlay Logic ---
+function showPageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
+}
+function hidePageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  showPageLoadingOverlay();
+
+  // Always ensure auth and gating happens first
   ensureLoggedInAndProBusiness();
 
   // --- Make sure conditional fields are hidden on load ---
@@ -74,6 +95,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // --- PRESETS (NEW) ---
   initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600); // or call once your async setup is done
 });
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
