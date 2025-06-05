@@ -18,6 +18,10 @@ firebase.initializeApp(firebaseConfig);
 let jobs = [];
 let jobsLoaded = false; // Track if jobs are already loaded
 
+// --- Preset Management ---
+let presets = [];
+let presetsLoaded = false;
+
 // --- Time Save & Counter Logic ---
 const SECONDS_PER_LINK = 45;
 const UNITS = [
@@ -254,6 +258,52 @@ function renderHistory(jobs) {
   `;
 }
 
+function renderPresetsSection(presets) {
+  return `
+    <section>
+      <div class="section-title">Presets</div>
+      <div id="presets-list">
+        ${presets.length === 0 ? `<div style="color:var(--gray-400);margin-bottom:16px;">No presets yet. Create one below!</div>` : ""}
+        ${presets.map((preset, idx) => `
+          <div class="preset-item" data-preset-id="${preset.id}">
+            <div class="preset-summary">
+              <span class="preset-title">${preset.name}</span>
+              <span class="preset-formats">${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}</span>
+              <span class="preset-baseurl">${preset.base_url}</span>
+            </div>
+            <div class="preset-actions">
+              <button class="edit-preset-btn" data-preset-id="${preset.id}">Edit</button>
+              <button class="delete-preset-btn" data-preset-id="${preset.id}">Delete</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="preset-form-wrapper">
+        <form id="preset-form">
+          <div class="field-group">
+            <label for="preset-name">Preset Name</label>
+            <input type="text" id="preset-name" name="preset-name" required>
+          </div>
+          <div class="field-group">
+            <label for="preset-target-formats">Target Formats<br><span style="font-weight:400;font-size:12px;">(comma-separated)</span></label>
+            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. AANNNNN, DNNNNNN, SKU-####">
+          </div>
+          <div class="field-group">
+            <label for="preset-base-url">Base URL</label>
+            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.agilent.com/parts/">
+          </div>
+          <input type="hidden" id="preset-id" name="preset-id">
+          <div class="form-actions">
+            <button type="submit" id="save-preset-btn" class="process-btn">Save Preset</button>
+            <button type="button" id="cancel-edit-preset-btn" style="display:none;margin-left:10px;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  `;
+}
+
+// Views
 const views = {
   dashboard: () => `
     <section>
@@ -274,7 +324,8 @@ const views = {
       <div class="section-title">Settings</div>
       <div style="color:var(--gray-400);">Settings options will go here.</div>
     </section>
-  `
+  `,
+  presets: () => renderPresetsSection(presets)
 };
 
 // Debounce function to avoid rapid repeated clicks causing issues
@@ -297,6 +348,130 @@ function hideLoadingOverlay() {
   }
 }
 
+// --- Preset CRUD ---
+function getCurrentUserUid() {
+  const user = firebase.auth().currentUser;
+  return user ? user.uid : null;
+}
+
+async function fetchPresetsOnceAndRender(view = "presets") {
+  if (presetsLoaded) {
+    setView(view);
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const uid = user.uid;
+      const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+      const snapshot = await presetsRef.get();
+      presets = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      presetsLoaded = true;
+      setView(view);
+    } catch (e) {
+      console.error('Error loading presets:', e);
+      presets = [];
+      presetsLoaded = true;
+      setView(view);
+    }
+  });
+}
+
+async function savePreset({ id, name, target_formats, base_url }) {
+  const uid = getCurrentUserUid();
+  if (!uid) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  if (id) {
+    // Edit existing
+    await presetsRef.doc(id).set({
+      name,
+      target_formats,
+      base_url,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } else {
+    // Create new
+    await presetsRef.add({
+      name,
+      target_formats,
+      base_url,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+
+async function deletePreset(presetId) {
+  const uid = getCurrentUserUid();
+  if (!uid || !presetId) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  await presetsRef.doc(presetId).delete();
+}
+
+// --- Preset Form UI Logic ---
+function bindPresetsUI() {
+  // Handle edit, delete, and form submission
+  document.querySelectorAll('.edit-preset-btn').forEach(btn => {
+    btn.onclick = function() {
+      const presetId = btn.dataset.presetId;
+      const preset = presets.find(p => p.id === presetId);
+      if (preset) {
+        document.getElementById('preset-name').value = preset.name;
+        document.getElementById('preset-target-formats').value = preset.target_formats.join(', ');
+        document.getElementById('preset-base-url').value = preset.base_url;
+        document.getElementById('preset-id').value = preset.id;
+        document.getElementById('cancel-edit-preset-btn').style.display = '';
+        document.getElementById('save-preset-btn').textContent = "Update Preset";
+      }
+    };
+  });
+  document.querySelectorAll('.delete-preset-btn').forEach(btn => {
+    btn.onclick = async function() {
+      const presetId = btn.dataset.presetId;
+      if (window.confirm("Delete this preset?")) {
+        await deletePreset(presetId);
+        presetsLoaded = false;
+        await fetchPresetsOnceAndRender("presets");
+      }
+    };
+  });
+  const presetForm = document.getElementById('preset-form');
+  if (presetForm) {
+    presetForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('preset-name').value.trim();
+      const targetFormatsStr = document.getElementById('preset-target-formats').value.trim();
+      const target_formats = targetFormatsStr.split(',').map(s => s.trim()).filter(Boolean);
+      const base_url = document.getElementById('preset-base-url').value.trim();
+      const id = document.getElementById('preset-id').value;
+      if (!name || !target_formats.length || !base_url) {
+        alert("Please provide all fields.");
+        return;
+      }
+      await savePreset({ id, name, target_formats, base_url });
+      presetsLoaded = false;
+      await fetchPresetsOnceAndRender("presets");
+      presetForm.reset();
+      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+    };
+  }
+  const cancelBtn = document.getElementById('cancel-edit-preset-btn');
+  if (cancelBtn) {
+    cancelBtn.onclick = function() {
+      document.getElementById('preset-form').reset();
+      cancelBtn.style.display = 'none';
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+    };
+  }
+}
+
+// ---- Main app ----
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
 
@@ -332,6 +507,9 @@ document.addEventListener('DOMContentLoaded', function() {
           window.setView("history");
         };
       }
+    }
+    if (view === "presets" && presetsLoaded) {
+      bindPresetsUI();
     }
   }
 
@@ -371,7 +549,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Debounced version for rapid clicks
   window.setView = debounce(function(view) {
     // Only fetch on first load!
-    if (!jobsLoaded) {
+    if (view === "presets" && !presetsLoaded) {
+      fetchPresetsOnceAndRender(view);
+    } else if (view === "dashboard" && !jobsLoaded) {
       fetchJobsOnceAndRender(view);
     } else {
       setView(view);
