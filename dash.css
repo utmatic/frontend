@@ -988,29 +988,18 @@ html, body {
 
 .preset-list-row {
   display: flex;
-  align-items: center !important;    /* Center name+icons in row */
+  align-items: center;
   min-height: 46px;
-}
-
-.preset-list-content-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start !important; /* Name stays at top of group */
-  padding-left: 15px;
-}
-
-.preset-list-name {
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1.4;
+  /* no stretch, no flex-start */
 }
 
 .preset-list-details {
-  margin-top: 6px !important;
+  display: none;
+  width: 100%;
+  padding: 0 0 16px 0;
+  margin: 0;
 }
-
-.preset-list-actions {
-  display: flex;
-  align-items: center !important;
-  height: 46px; /* Or 100% if you want it to match row */
+.preset-list-row.expanded + .preset-list-details {
+  display: block;
+  animation: fadein 0.13s;
 }
