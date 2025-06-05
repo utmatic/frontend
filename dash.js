@@ -285,12 +285,11 @@ function renderPresetsSection(presets) {
             <input type="text" id="preset-name" name="preset-name" required>
           </div>
           <div class="field-group">
-            <label for="preset-target-formats">Target Formats<br><span style="font-weight:400;font-size:12px;">(comma-separated)</span></label>
-            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. AANNNNN, DNNNNNN, SKU-####">
+            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN">
           </div>
           <div class="field-group">
             <label for="preset-base-url">Base URL</label>
-            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.agilent.com/parts/">
+            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.example.com/store/">
           </div>
           <input type="hidden" id="preset-id" name="preset-id">
           <div class="form-actions">
