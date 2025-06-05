@@ -618,6 +618,7 @@ html, body {
 /* --- PATCH: Presets List Styles (mockup, full width, sticky actions) --- */
 
 .preset-list-row:hover {
+.preset-list-details:hover {
   background: #222a33;
 }
 
