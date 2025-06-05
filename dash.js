@@ -210,7 +210,7 @@ function renderPresetsSection(presets) {
       <div class="section-title" style="margin-bottom: 18px;">Presets</div>
       <div class="presets-list-container">
         <div class="add-preset-link-row">
-          <button class="add-preset-link" id="add-preset-link" type="button">+ Add new</button>
+          <a class="add-preset-link" id="add-preset-link" href="#">+ Add new</a>
         </div>
         <div class="presets-list">
           ${
