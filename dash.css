@@ -977,8 +977,8 @@ html, body {
 }
 .add-preset-link:hover,
 .add-preset-link:focus {
-  color: var(--brand-blue-hover);
-  text-decoration: underline;
+  color: #fff;
+  text-decoration: none;
 }
 
 .preset-list-row {
