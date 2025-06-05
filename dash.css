@@ -617,6 +617,12 @@ html, body {
 
 /* --- PATCH: Presets List Styles (mockup, full width, sticky actions) --- */
 
+.add-preset-link:hover,
+.add-preset-link:focus {
+  color: #fff;
+  transition: color 0.15s;
+}
+
 .preset-list-row:hover {
   background: #232c39;
 }
