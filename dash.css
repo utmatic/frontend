@@ -56,8 +56,6 @@
   100% { fill: #cce1ff; }
 }
 
-/* --- REST OF YOUR DASHBOARD CSS BELOW (UNCHANGED) --- */
-
 html, body {
   margin: 0;
   padding: 0;
@@ -90,8 +88,6 @@ html, body {
   position: relative;
   min-height: 100vh;
 }
-
-/* Prevent sidebar from moving into header at any screen size */
 @media (max-width: 1200px) {
   .dash-sidebar {
     width: 140px;
@@ -524,18 +520,18 @@ html, body {
   color: #1c232b !important;
   font-size: 0.93em;
   border-radius: 8px;
-  padding: 2px 18px; /* increased horizontal padding for fixed width */
+  padding: 2px 18px;
   margin-right: 2px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  min-width: 75px; /* ensures both PDF and INDD chips have the same width */
+  min-width: 75px;
   text-align: center;
   box-sizing: border-box;
 }
 .file-type-chip.indd {
   background: var(--accent-yellow);
   color: #1c232b !important;
-  min-width: 75px; /* match PDF chip width */
+  min-width: 75px;
 }
 
 .download-link {
@@ -619,7 +615,202 @@ html, body {
   align-items: center !important;
 }
 
-/* Presets Builder Section Styles */
+/* --- PATCH: Presets Table Styles --- */
+.presets-table-container {
+  margin-bottom: 28px;
+  border-radius: 12px;
+  background: none;
+  overflow-x: auto;
+  box-sizing: border-box;
+  max-width: 100vw;
+}
+
+.presets-table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #232c3a;
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+.presets-table th, .presets-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  text-align: left;
+  font-size: 1em;
+  vertical-align: middle;
+  background: none;
+}
+.presets-table th {
+  color: var(--gray-300);
+  font-weight: 600;
+  background: #212837;
+  border-bottom: 2px solid #273141;
+}
+.presets-table tr:last-child td {
+  border-bottom: none;
+}
+.presets-table .collapsible-arrow-cell,
+.presets-table .preset-edit-cell,
+.presets-table .preset-delete-cell {
+  text-align: center;
+  width: 2.5rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.preset-row {
+  background: #232c3a;
+  transition: background 0.16s;
+}
+.preset-row:hover {
+  background: #273141;
+}
+.preset-row .preset-title-cell {
+  font-weight: 600;
+  color: #cce1ff;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.preset-details-row {
+  background: #1d2330;
+  animation: fadein 0.18s;
+  transition: background 0.15s;
+}
+.preset-details-cell {
+  padding: 14px 22px 14px 44px !important;
+  font-size: 0.98rem;
+  color: #b5d6ff;
+  border-bottom: 1px solid #202735;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Collapsible Arrow */
+.preset-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0 0 0 8px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.12s;
+  min-width: 32px;
+  height: 34px;
+}
+.preset-collapse-btn:focus {
+  outline: 2px solid #4d89f9;
+  border-radius: 5px;
+  background: #232a33;
+}
+.collapsible-arrow {
+  display: inline-block;
+  font-size: 1.35em;
+  color: #cce1ff;
+  transition: transform 0.18s cubic-bezier(.47,1.64,.41,.8);
+}
+.preset-collapse-btn[aria-expanded="true"] .collapsible-arrow {
+  transform: rotate(90deg);
+}
+
+/* Edit/Delete SVG Icon Buttons */
+.edit-preset-btn,
+.delete-preset-btn {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  color: #cce1ff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+}
+.edit-preset-btn svg,
+.delete-preset-btn svg {
+  width: 21px;
+  height: 21px;
+  display: block;
+  pointer-events: none;
+}
+.edit-preset-btn:hover,
+.edit-preset-btn:focus {
+  background: #314262;
+  color: #fff;
+}
+.delete-preset-btn:hover,
+.delete-preset-btn:focus {
+  background: #4d2336;
+  color: #ffd33d;
+}
+.edit-preset-btn:focus,
+.delete-preset-btn:focus {
+  outline: 2px solid #4d89f9;
+  outline-offset: 1px;
+}
+
+/* Formats and details in details row */
+.preset-details-row .preset-formats {
+  font-size: 0.98rem;
+  color: #6b8bb7;
+  margin-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.preset-details-row .preset-formats code {
+  background: #181c22;
+  color: #b5d6ff;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.93em;
+  font-family: 'Work Sans', monospace;
+}
+
+.preset-details-row .preset-baseurl {
+  font-size: 0.97rem;
+  color: #a0b4d4;
+  word-break: break-all;
+  margin-bottom: 1px;
+}
+
+/* Responsive for mobile presets section */
+@media (max-width: 650px) {
+  .presets-table {
+    min-width: 320px;
+    font-size: 0.85em;
+  }
+  .preset-details-cell {
+    padding: 8px 8px 8px 25px !important;
+    font-size: 0.93em;
+  }
+  .presets-table th, .presets-table td {
+    padding: 8px 6px;
+    font-size: 0.88em;
+  }
+  .preset-row .preset-title-cell {
+    max-width: 100px;
+    font-size: 0.95em;
+  }
+}
+
+/* --- End PATCH: Presets Table Styles --- */
+
 .section-title {
   font-size: 1.3rem;
   font-weight: 600;
@@ -633,7 +824,7 @@ html, body {
   margin-bottom: 28px;
 }
 
-/* Collapsible Preset Styles */
+/* Collapsible Preset Styles (legacy, safe to keep hidden or for fallback) */
 .collapsible-preset {
   flex-direction: column;
   align-items: stretch;
@@ -645,6 +836,7 @@ html, body {
   box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
   transition: box-shadow 0.15s;
   overflow: hidden;
+  display: none;
 }
 
 .preset-summary-row {
@@ -658,7 +850,9 @@ html, body {
   user-select: none;
   border: none;
   transition: background 0.13s;
+  display: none;
 }
+
 .preset-summary-row:focus {
   outline: 2px solid #4d89f9;
   background: #1c2437;
@@ -688,6 +882,7 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+  display: none;
 }
 
 /* Preset details area (collapsible content) */
@@ -699,10 +894,7 @@ html, body {
   background: #232c3a;
   border-top: 1px solid #202735;
   animation: fadein 0.18s;
-}
-@keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  display: none;
 }
 
 .preset-summary {
@@ -710,6 +902,7 @@ html, body {
   flex-direction: column;
   gap: 5px;
   min-width: 0;
+  display: none;
 }
 
 .preset-formats {
@@ -720,6 +913,7 @@ html, body {
   flex-wrap: wrap;
   gap: 4px;
 }
+
 .preset-formats code {
   background: #181c22;
   color: #b5d6ff;
@@ -851,5 +1045,3 @@ html, body {
     padding: 0 8px 14px 8px;
   }
 }
-
-/* End Presets Builder Styles */
