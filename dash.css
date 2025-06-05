@@ -617,6 +617,10 @@ html, body {
 
 /* --- PATCH: Presets List Styles (mockup, full width, sticky actions) --- */
 
+.preset-list-row:hover {
+  background: #232c39;
+}
+
 .preset-list-detail-value code {
   word-break: keep-all;
   overflow-wrap: normal;
