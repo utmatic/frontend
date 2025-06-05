@@ -497,6 +497,66 @@ async function deletePreset(presetId) {
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
   const sidebar = document.querySelector('.dash-sidebar');
+  // --- NEW LOADING COORDINATOR ---
+  let jobsDone = false, presetsDone = false;
+  function tryHideOverlayAndShowDashboard() {
+    if (jobsDone && presetsDone) {
+      setView("dashboard");
+      hideLoadingOverlay();
+    }
+  }
+  function fetchAllDataOnLoad() {
+    firebase.auth().onAuthStateChanged(async function(user) {
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+      // --- Fetch jobs ---
+      const idToken = await user.getIdToken();
+      fetch('https://backend-idd.onrender.com/jobs', {
+        headers: { Authorization: "Bearer " + idToken }
+      })
+        .then(res => res.json())
+        .then(data => {
+          jobs = data;
+          jobsLoaded = true;
+          jobsDone = true;
+          tryHideOverlayAndShowDashboard();
+        })
+        .catch(err => {
+          console.error('Error loading jobs:', err);
+          jobs = [];
+          jobsLoaded = true;
+          jobsDone = true;
+          tryHideOverlayAndShowDashboard();
+        });
+
+      // --- Fetch presets ---
+      try {
+        const uid = user.uid;
+        const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+        const snapshot = await presetsRef.get();
+        presets = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        presetsLoaded = true;
+        presetsDone = true;
+        tryHideOverlayAndShowDashboard();
+      } catch (e) {
+        console.error('Error loading presets:', e);
+        presets = [];
+        presetsLoaded = true;
+        presetsDone = true;
+        tryHideOverlayAndShowDashboard();
+      }
+    });
+  }
+
+  // --- Call both at page load ---
+  fetchAllDataOnLoad();
+
+  // --- Sidebar and setView logic ---
   if (sidebar) {
     sidebar.addEventListener('click', function(e) {
       const btn = e.target.closest('.dash-sidebar-btn');
@@ -528,47 +588,15 @@ document.addEventListener('DOMContentLoaded', function() {
       bindPresetsUI();
     }
   }
-  function fetchJobsOnceAndRender(view = "dashboard") {
-    if (jobsLoaded) {
-      setView(view);
-      hideLoadingOverlay();
-      return;
-    }
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        window.location.href = "/login";
-        return;
-      }
-      const idToken = await user.getIdToken();
-      fetch('https://backend-idd.onrender.com/jobs', {
-        headers: { Authorization: "Bearer " + idToken }
-      })
-        .then(res => res.json())
-        .then(data => {
-          jobs = data;
-          jobsLoaded = true;
-          setView(view);
-          hideLoadingOverlay();
-        })
-        .catch(err => {
-          console.error('Error loading jobs:', err);
-          jobs = [];
-          jobsLoaded = true;
-          setView(view);
-          hideLoadingOverlay();
-        });
-    });
-  }
   window.setView = debounce(function(view) {
     if (view === "presets" && !presetsLoaded) {
       fetchPresetsOnceAndRender(view);
     } else if (view === "dashboard" && !jobsLoaded) {
-      fetchJobsOnceAndRender(view);
+      // fetchJobsOnceAndRender(view); // Now loaded on page load
     } else {
       setView(view);
     }
   }, 200);
-  fetchJobsOnceAndRender();
 
   const dropdownBtn = document.getElementById('new-dropdown-btn');
   const dropdownList = document.getElementById('new-dropdown-list');
