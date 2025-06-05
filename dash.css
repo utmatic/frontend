@@ -522,14 +522,14 @@ html, body {
   border-radius: 8px;
   padding: 2px 18px;
   margin-right: 2px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.01em;
   min-width: 75px;
   text-align: center;
   box-sizing: border-box;
 }
 .file-type-chip.indd {
-  background: var(--accent-yellow);
+  background: #d3597c;
   color: #1c232b !important;
   min-width: 75px;
 }
