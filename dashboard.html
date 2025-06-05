@@ -51,6 +51,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    /* --- Timesave Counter Styles --- */
     .timesave-widget {
       display: flex;
       flex-direction: column;
@@ -115,132 +117,33 @@
         min-width: 56px;
       }
     }
-    /* --- PATCH: Presets Row Dropdown Pattern --- */
-    .presets-section {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0;
-    }
-    .presets-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      border-radius: 12px;
-      background: none;
-    }
+
+    /* --- PATCH: Presets Row Alignment Fix --- */
     .preset-list-row {
       display: flex;
-      align-items: center;
+      align-items: center !important;    /* Center name+icons in row */
       min-height: 46px;
-      width: 100%;
-      background: none;
-      border-bottom: 1px solid var(--gray-divider, #29313a);
-      cursor: pointer;
-      padding: 0;
-      transition: background 0.13s;
-      position: relative;
-    }
-    .preset-list-row:hover {
-      background: #232c39;
     }
     .preset-list-content-group {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      flex: 1;
-      min-width: 0;
+      justify-content: center !important; /* Center name/details vertically in row */
       padding-left: 15px;
     }
     .preset-list-name {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       line-height: 1.4;
-      font-weight: 600;
-      color: #e5edfa;
-      font-size: 1.08em;
-      letter-spacing: 0.01em;
-      user-select: none;
+    }
+    .preset-list-details {
+      margin-top: 6px !important;
     }
     .preset-list-actions {
       display: flex;
-      align-items: center;
-      gap: 18px;
-      min-width: 85px;
-      padding-right: 30px;
-      margin-left: auto;
+      align-items: center !important;
       height: 46px;
     }
-    .preset-list-action-btn {
-      background: var(--gray-600, #384356);
-      border: none;
-      border-radius: 4px;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b3b9c5;
-      cursor: pointer;
-      transition: background 0.14s, color 0.14s;
-      padding: 0;
-      outline: none;
-    }
-    .preset-list-action-btn svg {
-      width: 16px;
-      height: 16px;
-      display: block;
-      pointer-events: none;
-    }
-    .preset-list-action-btn:hover,
-    .preset-list-action-btn:focus {
-      background: #314262;
-      color: #fff;
-    }
-    .preset-list-action-btn.delete:hover,
-    .preset-list-action-btn.delete:focus {
-      background: #4d2336;
-      color: #ffd33d;
-    }
-    .preset-list-details-row {
-      display: none;
-      background: #232c39;
-      animation: fadein 0.13s;
-      border-bottom: 1px solid var(--gray-divider, #29313a);
-    }
-    .preset-list-details-row.expanded {
-      display: block;
-    }
-    .preset-list-details {
-      padding: 16px 26px 16px 32px;
-      color: #cce1ff;
-      font-size: 1em;
-    }
-    .preset-list-detail-label {
-      color: #b3b9c5;
-      font-size: 1em;
-      font-weight: 500;
-      margin-bottom: 2px;
-      margin-top: 6px;
-      margin-left: 0;
-      text-align: left;
-    }
-    .preset-list-detail-value code {
-      white-space: nowrap;
-      background: none;
-      color: inherit;
-      border-radius: 0;
-      padding: 0;
-      font-size: 1em;
-      font-family: inherit;
-      margin-right: 0;
-      hyphens: none;
-      word-break: normal;
-    }
-    @keyframes fadein {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    /* --- END PATCH --- */
   </style>
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -258,7 +161,6 @@
   </div>
   <div class="dash-root">
     <nav class="dash-sidebar expanded">
-      <!-- ...sidebar code unchanged... -->
       <div class="dash-logo-container">
         <div class="dash-logo">
           <!-- Inline SVG logo (Utmatic) -->
@@ -287,7 +189,6 @@
           </svg>
         </div>
       </div>
-      <!-- ...sidebar buttons unchanged... -->
       <button data-view="dashboard" class="dash-sidebar-btn active">
         <span class="btn-icon">
           <!-- Dashboard Icon -->
@@ -352,85 +253,14 @@
         </div>
       </header>
       <main id="dash-main-view">
-        <section class="presets-section">
-          <h2 style="color:#cce1ff;font-size:1.2em;margin:18px 0 16px 15px;font-weight:700;">Presets</h2>
-          <div class="presets-list" id="presets-list">
-            <!-- Preset rows and details will be injected here -->
-          </div>
-        </section>
+        <!-- Main content injected by JS (including timesave widget and presets screen) -->
       </main>
     </div>
   </div>
   <script src="dash.js"></script>
   <script>
-    // Example dynamic presets data:
-    const presets = [
-      { name: "CSV Orders", targetFormat: "CSV", baseUrl: "https://api.example.com/orders" },
-      { name: "PDF Invoices", targetFormat: "PDF", baseUrl: "https://api.example.com/invoices" },
-      { name: "Indd Source", targetFormat: "INDD", baseUrl: "https://api.example.com/indd" }
-    ];
-
-    // Render the preset list using the dropdown pattern
-    function renderPresets(presets) {
-      const container = document.getElementById('presets-list');
-      container.innerHTML = '';
-      presets.forEach((preset, i) => {
-        // Main clickable row
-        const row = document.createElement('div');
-        row.className = 'preset-list-row';
-        row.innerHTML = `
-          <div class="preset-list-content-group">
-            <span class="preset-list-name">${preset.name}</span>
-          </div>
-          <div class="preset-list-actions">
-            <button class="preset-list-action-btn" title="Edit">
-              <svg viewBox="0 0 20 20" fill="none"><path d="M4 13.586V16h2.414l8.293-8.293-2.414-2.414L4 13.586z" stroke="currentColor" stroke-width="1.5"/></svg>
-            </button>
-            <button class="preset-list-action-btn delete" title="Delete">
-              <svg viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M6 14L14 6" stroke="currentColor" stroke-width="1.5"/></svg>
-            </button>
-          </div>
-        `;
-        // Details row (dropdown)
-        const detailsRow = document.createElement('div');
-        detailsRow.className = 'preset-list-details-row';
-        detailsRow.innerHTML = `
-          <div class="preset-list-details">
-            <div class="preset-list-detail-label">Target Format:</div>
-            <div class="preset-list-detail-value"><code>${preset.targetFormat}</code></div>
-            <div class="preset-list-detail-label">Base URL:</div>
-            <div class="preset-list-detail-value"><code>${preset.baseUrl}</code></div>
-          </div>
-        `;
-
-        // Click to expand/collapse
-        row.addEventListener('click', function(e) {
-          // Only expand/collapse if not clicking an action button
-          if (e.target.closest('.preset-list-action-btn')) return;
-          // Collapse any other open
-          document.querySelectorAll('.preset-list-row.expanded').forEach(r => r.classList.remove('expanded'));
-          document.querySelectorAll('.preset-list-details-row.expanded').forEach(r => r.classList.remove('expanded'));
-          // Toggle this one
-          const isOpen = row.classList.contains('expanded');
-          if (!isOpen) {
-            row.classList.add('expanded');
-            detailsRow.classList.add('expanded');
-          }
-        });
-        // Clicking details collapses
-        detailsRow.addEventListener('click', function() {
-          row.classList.remove('expanded');
-          detailsRow.classList.remove('expanded');
-        });
-
-        container.appendChild(row);
-        container.appendChild(detailsRow);
-      });
-    }
+    // Show user's name/email in profile area after login
     document.addEventListener('DOMContentLoaded', function() {
-      renderPresets(presets);
-
-      // Show user's name/email in profile area after login
       firebase.auth().onAuthStateChanged(function(user) {
         const nameEl = document.getElementById('profile-name');
         if (!nameEl) return;
