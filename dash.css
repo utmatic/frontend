@@ -616,6 +616,14 @@ html, body {
 }
 
 /* --- PATCH: Presets List Styles (mockup, full width, sticky actions) --- */
+
+.preset-list-detail-value code {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: normal;
+  hyphens: none;
+}
+
 .presets-section {
   display: flex;
   flex-direction: column;
