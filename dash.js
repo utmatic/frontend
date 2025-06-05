@@ -115,7 +115,6 @@ function bindTimesaveWidgetEvents(jobs) {
   });
 }
 
-// (No changes to formatting and history helper functions)
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
@@ -256,11 +255,11 @@ function renderHistory(jobs) {
   `;
 }
 
-// --- PATCH: Presets as Collapsible Table ---
+// --- PATCH: Presets as Collapsible Table w/ Add New ---
 function renderPresetsSection(presets) {
   return `
-    <section>
-      <div class="section-title">Presets</div>
+    <section class="presets-section">
+      <div class="section-title" style="margin-bottom: 20px;">Presets</div>
       <div class="presets-table-container">
         <table class="presets-table">
           <thead>
@@ -310,20 +309,24 @@ function renderPresetsSection(presets) {
             `).join('')}
           </tbody>
         </table>
+        <button id="show-add-preset-btn" class="add-preset-btn">
+          + Add new
+        </button>
       </div>
-      <div class="preset-form-wrapper">
+      <div class="preset-form-wrapper" id="preset-form-wrapper" style="display:none;">
+        <div class="section-title new-preset-title">New Preset</div>
         <form id="preset-form">
           <div class="field-group">
             <label for="preset-name">Preset Name</label>
-            <input type="text" id="preset-name" name="preset-name" required>
+            <input type="text" id="preset-name" name="preset-name" required autocomplete="off">
           </div>
           <div class="field-group">
             <label for="preset-target-formats">Target Formats</label>
-            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN">
+            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN" autocomplete="off">
           </div>
           <div class="field-group">
             <label for="preset-base-url">Base URL</label>
-            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.example.com/store/">
+            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.example.com/store/" autocomplete="off">
           </div>
           <input type="hidden" id="preset-id" name="preset-id">
           <div class="form-actions">
@@ -494,12 +497,14 @@ function bindPresetsUI() {
       const presetId = btn.dataset.presetId;
       const preset = presets.find(p => p.id === presetId);
       if (preset) {
+        document.getElementById('preset-form-wrapper').style.display = '';
         document.getElementById('preset-name').value = preset.name;
         document.getElementById('preset-target-formats').value = preset.target_formats.join(', ');
         document.getElementById('preset-base-url').value = preset.base_url;
         document.getElementById('preset-id').value = preset.id;
         document.getElementById('cancel-edit-preset-btn').style.display = '';
         document.getElementById('save-preset-btn').textContent = "Update Preset";
+        document.getElementById('preset-name').focus();
       }
     };
   });
@@ -532,6 +537,7 @@ function bindPresetsUI() {
       presetForm.reset();
       document.getElementById('cancel-edit-preset-btn').style.display = 'none';
       document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('preset-form-wrapper').style.display = 'none';
     };
   }
   const cancelBtn = document.getElementById('cancel-edit-preset-btn');
@@ -540,7 +546,27 @@ function bindPresetsUI() {
       document.getElementById('preset-form').reset();
       cancelBtn.style.display = 'none';
       document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('preset-form-wrapper').style.display = 'none';
     };
+  }
+
+  // Add new preset show/hide logic
+  const showAddBtn = document.getElementById('show-add-preset-btn');
+  const formWrapper = document.getElementById('preset-form-wrapper');
+  if (showAddBtn && formWrapper) {
+    showAddBtn.onclick = function() {
+      formWrapper.style.display = '';
+      document.getElementById('preset-form').reset();
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
+      document.getElementById('preset-id').value = '';
+      // Focus first field
+      setTimeout(() => document.getElementById('preset-name').focus(), 50);
+    };
+  }
+  // Hide form on page load
+  if (formWrapper) {
+    formWrapper.style.display = 'none';
   }
 }
 
