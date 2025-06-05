@@ -247,7 +247,7 @@ html, body {
   background: #232a33;
 }
 .new-dropdown-label {
-  font-weight: 400;
+  font-weight: 700;
   color: #cce1ff;
   font-size: 1.07rem;
   margin-left: 2px;
@@ -304,7 +304,7 @@ html, body {
   background: #232a33;
 }
 .signout-label {
-  font-weight: 400;
+  font-weight: 700;
   color: #cce1ff;
   font-size: 1.04rem;
   margin-left: 2px;
@@ -648,7 +648,7 @@ html, body {
   margin-bottom: 28px;
   width: 100%;
   max-width: none;
-  min-width: 0;
+  min-width: 1000px;
   box-sizing: border-box;
   position: relative;
 }
@@ -737,7 +737,7 @@ html, body {
   font-size: 1em;
   font-weight: 500;
   margin-bottom: 10px;
-  margin-top: 6px;
+  margin-top: 18px;
   margin-left: 0;
   text-align: left;
 }
