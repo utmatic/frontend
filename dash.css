@@ -621,7 +621,7 @@ html, body {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  max-width: none;
+  max-width: 1000px;
   margin: 0;
   padding: 0;
 }
