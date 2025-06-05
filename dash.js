@@ -278,13 +278,21 @@ function bindPresetsUI() {
   const addPresetLink = document.getElementById('add-preset-link');
   const formWrapper = document.getElementById('preset-form-wrapper');
   if (addPresetLink && formWrapper) {
-    addPresetLink.onclick = function() {
+    addPresetLink.onclick = function(e) {
+      e.preventDefault(); // Prevent default link action if <a> tag is used
       formWrapper.style.display = '';
-      document.getElementById('preset-form').reset();
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('preset-id').value = '';
-      setTimeout(() => document.getElementById('preset-name').focus(), 50);
+      const presetForm = document.getElementById('preset-form');
+      if (presetForm) presetForm.reset();
+      const saveBtn = document.getElementById('save-preset-btn');
+      if (saveBtn) saveBtn.textContent = "Save Preset";
+      const cancelBtn = document.getElementById('cancel-edit-preset-btn');
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      const presetIdInput = document.getElementById('preset-id');
+      if (presetIdInput) presetIdInput.value = '';
+      setTimeout(() => {
+        const nameInput = document.getElementById('preset-name');
+        if (nameInput) nameInput.focus();
+      }, 50);
     };
   }
 
