@@ -115,8 +115,6 @@ function bindTimesaveWidgetEvents(jobs) {
   });
 }
 
-// ---------------------
-
 // (No changes to formatting and history helper functions)
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
@@ -258,31 +256,60 @@ function renderHistory(jobs) {
   `;
 }
 
-// PATCH: Collapsible Presets Section (Accordion)
+// --- PATCH: Presets as Collapsible Table ---
 function renderPresetsSection(presets) {
   return `
     <section>
       <div class="section-title">Presets</div>
-      <div id="presets-list">
-        ${presets.length === 0 ? `<div style="color:var(--gray-400);margin-bottom:16px;">No presets yet. Create one below!</div>` : ""}
-        ${presets.map((preset, idx) => `
-          <div class="preset-item collapsible-preset" data-preset-id="${preset.id}">
-            <div class="preset-summary-row" tabindex="0" aria-expanded="false">
-              <span class="preset-title">${preset.name}</span>
-              <span class="collapsible-arrow" aria-hidden="true">&#9654;</span>
-            </div>
-            <div class="preset-details" style="display:none;">
-              <div class="preset-formats">
-                <strong>Target Formats:</strong> ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
-              </div>
-              <div class="preset-baseurl"><strong>Base URL:</strong> ${preset.base_url}</div>
-              <div class="preset-actions">
-                <button class="edit-preset-btn" data-preset-id="${preset.id}">Edit</button>
-                <button class="delete-preset-btn" data-preset-id="${preset.id}">Delete</button>
-              </div>
-            </div>
-          </div>
-        `).join('')}
+      <div class="presets-table-container">
+        <table class="presets-table">
+          <thead>
+            <tr>
+              <th style="width:1.5rem"></th>
+              <th>Name</th>
+              <th style="width:5rem;text-align:center;">Edit</th>
+              <th style="width:5rem;text-align:center;">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${presets.length === 0 ? `
+              <tr><td colspan="4" style="color:var(--gray-400);text-align:center;font-style:italic;">No presets yet. Create one below!</td></tr>
+            ` : presets.map((preset, idx) => `
+              <tr class="preset-row" data-preset-id="${preset.id}">
+                <td class="collapsible-arrow-cell">
+                  <button class="preset-collapse-btn" tabindex="0" aria-expanded="false" aria-controls="preset-details-${preset.id}" title="Show preset details">
+                    <span class="collapsible-arrow">&#9654;</span>
+                  </button>
+                </td>
+                <td class="preset-title-cell">${preset.name}</td>
+                <td class="preset-edit-cell" style="text-align:center;">
+                  <button class="edit-preset-btn" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="21" height="21">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </td>
+                <td class="preset-delete-cell" style="text-align:center;">
+                  <button class="delete-preset-btn" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="21" height="21">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              <tr class="preset-details-row" id="preset-details-${preset.id}" style="display: none;">
+                <td colspan="4" class="preset-details-cell">
+                  <div>
+                    <div class="preset-formats">
+                      <strong>Target Formats:</strong> ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+                    </div>
+                    <div class="preset-baseurl"><strong>Base URL:</strong> ${preset.base_url}</div>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
       </div>
       <div class="preset-form-wrapper">
         <form id="preset-form">
@@ -291,7 +318,7 @@ function renderPresetsSection(presets) {
             <input type="text" id="preset-name" name="preset-name" required>
           </div>
           <div class="field-group">
-          <label for="preset-target-formats">Target Formats</label>
+            <label for="preset-target-formats">Target Formats</label>
             <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN">
           </div>
           <div class="field-group">
@@ -394,7 +421,6 @@ async function savePreset({ id, name, target_formats, base_url }) {
   if (!uid) return;
   const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
   if (id) {
-    // Edit existing
     await presetsRef.doc(id).set({
       name,
       target_formats,
@@ -402,7 +428,6 @@ async function savePreset({ id, name, target_formats, base_url }) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
   } else {
-    // Create new
     await presetsRef.add({
       name,
       target_formats,
@@ -421,45 +446,44 @@ async function deletePreset(presetId) {
 
 // --- Preset Form UI Logic ---
 function bindPresetsUI() {
-  // PATCH: Collapsible logic for presets
-  document.querySelectorAll('.preset-summary-row').forEach(summary => {
-    summary.onclick = function (e) {
-      // Only toggle if clicked on summary, not on a child button
-      if (e.target.closest('.preset-actions')) return;
-
-      const item = summary.closest('.collapsible-preset');
-      const details = item.querySelector('.preset-details');
-      const arrow = summary.querySelector('.collapsible-arrow');
-      const expanded = summary.getAttribute('aria-expanded') === 'true';
+  // Collapsible table logic for presets
+  document.querySelectorAll('.preset-collapse-btn').forEach(btn => {
+    btn.onclick = function(e) {
+      e.preventDefault();
+      const arrow = btn.querySelector('.collapsible-arrow');
+      const tr = btn.closest('.preset-row');
+      const presetId = tr.getAttribute('data-preset-id');
+      const detailsRow = document.getElementById('preset-details-' + presetId);
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
 
       // Collapse all others
-      document.querySelectorAll('.preset-summary-row').forEach(otherSummary => {
-        if (otherSummary !== summary) {
-          otherSummary.setAttribute('aria-expanded', 'false');
-          const otherArrow = otherSummary.querySelector('.collapsible-arrow');
-          if (otherArrow) otherArrow.innerHTML = '&#9654;'; // right
-          const otherDetails = otherSummary.parentElement.querySelector('.preset-details');
-          if (otherDetails) otherDetails.style.display = 'none';
+      document.querySelectorAll('.preset-collapse-btn').forEach(otherBtn => {
+        if (otherBtn !== btn) {
+          otherBtn.setAttribute('aria-expanded', 'false');
+          const otherArrow = otherBtn.querySelector('.collapsible-arrow');
+          if (otherArrow) otherArrow.innerHTML = '&#9654;';
+          const otherTr = otherBtn.closest('.preset-row');
+          const otherId = otherTr.getAttribute('data-preset-id');
+          const otherDetailsRow = document.getElementById('preset-details-' + otherId);
+          if (otherDetailsRow) otherDetailsRow.style.display = 'none';
         }
       });
 
-      // Toggle this one
       if (!expanded) {
-        summary.setAttribute('aria-expanded', 'true');
-        if (arrow) arrow.innerHTML = '&#9660;'; // down
-        if (details) details.style.display = '';
+        btn.setAttribute('aria-expanded', 'true');
+        if (arrow) arrow.innerHTML = '&#9660;';
+        if (detailsRow) detailsRow.style.display = '';
       } else {
-        summary.setAttribute('aria-expanded', 'false');
-        if (arrow) arrow.innerHTML = '&#9654;'; // right
-        if (details) details.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        if (arrow) arrow.innerHTML = '&#9654;';
+        if (detailsRow) detailsRow.style.display = 'none';
       }
     };
-
-    // Also allow keyboard toggle (optional accessibility)
-    summary.onkeydown = function(e) {
+    // Keyboard accessibility
+    btn.onkeydown = function(e) {
       if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
-        summary.onclick(e);
+        btn.onclick(e);
       }
     };
   });
