@@ -29,6 +29,7 @@ let currentUnit = UNITS[0]; // default to minutes
 
 function computeTimeSaved(jobs, unitObj = currentUnit) {
   if (!Array.isArray(jobs)) return 0;
+  // Use 'linkCount' (camelCase) as per your backend API
   const totalLinks = jobs.reduce((sum, job) => sum + (parseInt(job.linkCount) || 0), 0);
   const secondsSaved = totalLinks * SECONDS_PER_LINK;
   return secondsSaved / unitObj.factor;
@@ -193,6 +194,13 @@ function renderHistorySnapshot(jobs) {
   return `
     <div class="history-list">
       <table class="history-table">
+        <colgroup>
+          <col style="width:170px;">
+          <col style="width:75px;">
+          <col>
+          <col style="width:140px;">
+          <col style="width:120px;">
+        </colgroup>
         <thead>
           <tr>
             <th>Date</th>
@@ -237,6 +245,13 @@ function renderHistory(jobs) {
   return `
     <div class="history-list">
       <table class="history-table">
+        <colgroup>
+          <col style="width:170px;">
+          <col style="width:75px;">
+          <col>
+          <col style="width:140px;">
+          <col style="width:120px;">
+        </colgroup>
         <thead>
           <tr>
             <th>Date</th>
