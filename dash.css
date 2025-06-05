@@ -618,3 +618,184 @@ html, body {
 .dash-logo-container {
   align-items: center !important;
 }
+
+/* Presets Builder Section Styles */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #cce1ff;
+  margin-bottom: 20px;
+  margin-top: 18px;
+}
+
+/* Presets main container */
+#presets-list {
+  margin-bottom: 28px;
+}
+
+.preset-item {
+  background: #232c3a;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: box-shadow 0.15s;
+  box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
+}
+
+.preset-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.preset-title {
+  font-size: 1.07rem;
+  font-weight: 600;
+  color: #cce1ff;
+  margin-bottom: 2px;
+  letter-spacing: 0.01rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.preset-formats {
+  font-size: 0.97rem;
+  color: #6b8bb7;
+  margin-bottom: 1px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.preset-formats code {
+  background: #181c22;
+  color: #b5d6ff;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.92em;
+  font-family: 'Work Sans', monospace;
+}
+
+.preset-baseurl {
+  font-size: 0.93rem;
+  color: #a0b4d4;
+  word-break: break-all;
+}
+
+.preset-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 9px;
+}
+
+.preset-actions button {
+  background: #23304a;
+  color: #cce1ff;
+  border: none;
+  padding: 5px 17px;
+  border-radius: 6px;
+  font-size: 0.97rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+}
+
+.preset-actions button:hover {
+  background: #314262;
+  color: #fff;
+}
+
+.preset-form-wrapper {
+  background: #232c3a;
+  border-radius: 12px;
+  padding: 28px 24px 18px 24px;
+  box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.08);
+  margin-bottom: 10px;
+}
+
+#preset-form .field-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+#preset-form label {
+  color: #b5d6ff;
+  font-size: 1.03rem;
+  font-weight: 500;
+  margin-bottom: 7px;
+}
+
+#preset-form input[type="text"] {
+  background: #181c22;
+  border: 1px solid #2d384b;
+  color: #eaf3ff;
+  border-radius: 7px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+  transition: border 0.14s;
+}
+
+#preset-form input[type="text"]:focus {
+  border-color: #5d8fff;
+}
+
+#preset-form .form-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+#save-preset-btn {
+  background: #3870e0;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 24px;
+  font-size: 1.07rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+
+#save-preset-btn:hover {
+  background: #2351a6;
+}
+
+#cancel-edit-preset-btn {
+  background: #27313e;
+  color: #cce1ff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+#cancel-edit-preset-btn:hover {
+  background: #384356;
+  color: #fff;
+}
+
+/* Responsive for mobile presets section */
+@media (max-width: 650px) {
+  .preset-item, .preset-form-wrapper {
+    padding: 14px 8px;
+  }
+  .preset-title {
+    max-width: 120px;
+  }
+}
+
+/* End Presets Builder Styles */
