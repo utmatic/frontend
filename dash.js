@@ -548,6 +548,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+function debounce(fn, ms = 300) {
+  let timer;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
   // Debounced version for rapid clicks
   window.setView = debounce(function(view) {
     // Only fetch on first load!
