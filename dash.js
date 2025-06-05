@@ -286,6 +286,17 @@ function debounce(fn, ms = 300) {
   };
 }
 
+// Hide loading overlay utility
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450); // slightly more than CSS transition
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
 
@@ -328,6 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function fetchJobsOnceAndRender(view = "dashboard") {
     if (jobsLoaded) {
       setView(view);
+      hideLoadingOverlay();
       return;
     }
     firebase.auth().onAuthStateChanged(async function(user) {
@@ -344,12 +356,14 @@ document.addEventListener('DOMContentLoaded', function() {
           jobs = data;
           jobsLoaded = true;
           setView(view);
+          hideLoadingOverlay();
         })
         .catch(err => {
           console.error('Error loading jobs:', err);
           jobs = [];
           jobsLoaded = true;
           setView(view);
+          hideLoadingOverlay();
         });
     });
   }
