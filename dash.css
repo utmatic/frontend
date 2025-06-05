@@ -1027,3 +1027,6 @@ html, body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+.preset-list-details {
+  background: none !important; /* or any color you want */
+}
