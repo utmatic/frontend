@@ -71,6 +71,9 @@ window.addEventListener('DOMContentLoaded', () => {
   bindValidationListeners();
   updateJobTypeFields();
   validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
 });
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
@@ -258,9 +261,12 @@ function updateJobTypeFields() {
   const jobType = document.getElementById('job_type').value;
   if (jobType === "add_links_only" || jobType === "add_links_with_utm") {
     showLinkFields(true);
+    // Show Presets dropdown on these job types
+    showPresetsDropdown(true);
   } else {
     showLinkFields(false);
     rowsContainer.innerHTML = '';
+    showPresetsDropdown(false);
   }
   if (jobType === "add_links_with_utm" || jobType === "add_utm") {
     showUtmFields(true);
@@ -269,6 +275,10 @@ function updateJobTypeFields() {
     if (utmSource) utmSource.value = '';
     if (utmMedium) utmMedium.value = '';
     if (utmCampaign) utmCampaign.value = '';
+  }
+  // If hiding presets, also reset selection
+  if (jobType !== "add_links_only" && jobType !== "add_links_with_utm") {
+    resetPresetDropdown();
   }
   validateForm();
 }
@@ -314,6 +324,85 @@ function bindValidationListeners() {
   document.getElementById('job_type').addEventListener('change', validateForm);
   document.getElementById('file').addEventListener('change', validateForm);
 }
+
+// ----- PRESETS LOGIC -----
+
+let userPresetsCache = [];
+
+function showPresetsDropdown(show) {
+  const group = document.getElementById('presets-dropdown-group');
+  if (group) group.style.display = show ? '' : 'none';
+}
+
+function resetPresetDropdown() {
+  const select = document.getElementById('preset_select');
+  if (select) {
+    select.value = '';
+  }
+}
+
+function clearRowsAndFill(tf, bu) {
+  rowsContainer.innerHTML = '';
+  rowsContainer.appendChild(createRow(tf, bu));
+  updateDeleteButtons();
+}
+
+async function initPresetDropdown() {
+  // Wait for user to be logged in and Firebase to be ready
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (!user) return;
+    // Also need Firestore compat SDK loaded!
+    if (typeof firebase.firestore !== "function") {
+      // Not loaded, skip
+      return;
+    }
+    try {
+      const db = firebase.firestore();
+      const presetsRef = db.collection('userPresets').doc(user.uid).collection('presets');
+      const snapshot = await presetsRef.orderBy('createdAt', 'desc').get();
+      userPresetsCache = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        userPresetsCache.push({
+          id: doc.id,
+          name: data.name,
+          target_formats: data.target_formats,
+          base_url: data.base_url
+        });
+      });
+      const select = document.getElementById('preset_select');
+      if (select) {
+        // Remove all except first option
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+        userPresetsCache.forEach((preset, i) => {
+          const opt = document.createElement('option');
+          opt.value = preset.id;
+          opt.textContent = preset.name;
+          select.appendChild(opt);
+        });
+        // When user selects a preset:
+        select.onchange = function () {
+          const selectedId = this.value;
+          const preset = userPresetsCache.find(p => p.id === selectedId);
+          if (preset) {
+            // Fill the first row with preset data (Target Format, Base URL)
+            clearRowsAndFill(
+              Array.isArray(preset.target_formats) ? preset.target_formats[0] || '' : (preset.target_formats || ''),
+              preset.base_url || ''
+            );
+            validateForm();
+          }
+        };
+      }
+    } catch (e) {
+      // Could not load presets; fail silently for now
+    }
+  });
+}
+
+// ----- END PRESETS LOGIC -----
 
 function showLoader() {
   loader.classList.add('active');
