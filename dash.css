@@ -633,23 +633,49 @@ html, body {
   margin-bottom: 28px;
 }
 
-.preset-item {
+/* Collapsible Preset Styles */
+.collapsible-preset {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  margin-bottom: 17px;
   background: #232c3a;
   border-radius: 10px;
-  margin-bottom: 15px;
-  padding: 18px 20px;
+  box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
+  transition: box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.preset-summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: box-shadow 0.15s;
-  box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
+  cursor: pointer;
+  padding: 18px 20px;
+  outline: none;
+  background: transparent;
+  user-select: none;
+  border: none;
+  transition: background 0.13s;
 }
-
-.preset-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
+.preset-summary-row:focus {
+  outline: 2px solid #4d89f9;
+  background: #1c2437;
+}
+.preset-summary-row[aria-expanded="true"],
+.collapsible-preset.open .preset-summary-row {
+  background: #253043;
+}
+.collapsible-arrow {
+  display: inline-block;
+  margin-left: 12px;
+  font-size: 1.3em;
+  color: #cce1ff;
+  transition: transform 0.17s cubic-bezier(.47,1.64,.41,.8);
+}
+.preset-summary-row[aria-expanded="true"] .collapsible-arrow {
+  transform: rotate(90deg);
 }
 
 .preset-title {
@@ -664,6 +690,28 @@ html, body {
   max-width: 200px;
 }
 
+/* Preset details area (collapsible content) */
+.preset-details {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 22px 18px 22px;
+  background: #232c3a;
+  border-top: 1px solid #202735;
+  animation: fadein 0.18s;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.preset-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
 .preset-formats {
   font-size: 0.97rem;
   color: #6b8bb7;
@@ -672,7 +720,6 @@ html, body {
   flex-wrap: wrap;
   gap: 4px;
 }
-
 .preset-formats code {
   background: #181c22;
   color: #b5d6ff;
@@ -692,6 +739,7 @@ html, body {
   display: flex;
   flex-direction: row;
   gap: 9px;
+  margin-top: 6px;
 }
 
 .preset-actions button {
@@ -790,11 +838,17 @@ html, body {
 
 /* Responsive for mobile presets section */
 @media (max-width: 650px) {
-  .preset-item, .preset-form-wrapper {
+  .preset-item, .preset-form-wrapper, .collapsible-preset {
+    padding: 0;
+  }
+  .preset-summary-row {
     padding: 14px 8px;
   }
   .preset-title {
     max-width: 120px;
+  }
+  .preset-details {
+    padding: 0 8px 14px 8px;
   }
 }
 
