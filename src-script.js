@@ -344,19 +344,16 @@ function resetPresetDropdown() {
 // Updated: fill all rows for all target formats in the preset array
 function clearRowsAndFill(targetFormats, baseUrl) {
   rowsContainer.innerHTML = '';
+
+  // Convert array to comma-separated string if needed
+  let tfString = '';
   if (Array.isArray(targetFormats)) {
-    targetFormats.forEach(tf => {
-      rowsContainer.appendChild(createRow(tf, baseUrl));
-    });
+    tfString = targetFormats.join(', ');
   } else if (targetFormats && typeof targetFormats === "string") {
-    // Support comma-separated fallback
-    targetFormats.split(',').forEach(tf => {
-      rowsContainer.appendChild(createRow(tf.trim(), baseUrl));
-    });
-  } else {
-    // If empty, add a blank row
-    rowsContainer.appendChild(createRow('', baseUrl));
+    tfString = targetFormats;
   }
+
+  rowsContainer.appendChild(createRow(tfString, baseUrl));
   updateDeleteButtons();
 }
 
