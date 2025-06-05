@@ -1662,7 +1662,7 @@ select option:disabled {
   background: #232a33;
 }
 .signout-label {
-  font-weight: 700;
+  font-weight: 400;
   color: #cce1ff;
   font-size: 1.04rem;
   margin-left: 2px;
@@ -1750,7 +1750,7 @@ select option:disabled {
 }
 
 .new-dropdown-label {
-  font-weight: 700;
+  font-weight: 400;
   color: #cce1ff;
   font-size: 1.07rem;
   margin-left: 2px;
