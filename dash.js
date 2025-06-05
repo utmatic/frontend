@@ -205,8 +205,6 @@ function renderHistory(jobs) {
 }
 
 // --- PATCH: Presets List (mockup style) ---
-// ... (unchanged imports and firebase config) ...
-
 function renderPresetsSection(presets) {
   return `
     <section class="presets-section">
@@ -218,18 +216,10 @@ function renderPresetsSection(presets) {
               ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one below!</div>`
               : presets
                   .map(
-                    (preset) => `
+                    (preset, idx) => `
             <div class="preset-list-row collapsed" data-preset-id="${preset.id}" tabindex="0">
-              <div class="preset-list-content-group">
-                <div class="preset-list-name">${preset.name}</div>
-                <div class="preset-list-details" style="display:none;">
-                  <div class="preset-list-detail-label">Target Formats</div>
-                  <div class="preset-list-detail-value">
-                    ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
-                  </div>
-                  <div class="preset-list-detail-label">Base URL</div>
-                  <div class="preset-list-detail-value">${preset.base_url}</div>
-                </div>
+              <div class="preset-list-main">
+                <span class="preset-list-name">${preset.name}</span>
               </div>
               <div class="preset-list-actions">
                 <button class="preset-list-action-btn edit" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
@@ -238,6 +228,14 @@ function renderPresetsSection(presets) {
                 <button class="preset-list-action-btn delete" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
                 </button>
+              </div>
+              <div class="preset-list-details" style="display:none;">
+                <div class="preset-list-detail-label">Target Formats</div>
+                <div class="preset-list-detail-value">
+                  ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+                </div>
+                <div class="preset-list-detail-label">Base URL</div>
+                <div class="preset-list-detail-value">${preset.base_url}</div>
               </div>
             </div>
             `
@@ -276,15 +274,115 @@ function renderPresetsSection(presets) {
   `;
 }
 
-// ...rest of dash.js unchanged...
+const views = {
+  dashboard: () => `
+    <section>
+      ${renderTimesaveWidget(jobs)}
+      <div class="section-title" style="margin-top:40px;">Recent History</div>
+      ${renderHistorySnapshot(jobs)}
+      <div style="margin-top: 16px;"><a href="#" id="view-full-history" class="download-link">View full history →</a></div>
+    </section>
+  `,
+  history: () => `
+    <section>
+      <div class="section-title">Processed Jobs History</div>
+      ${renderHistory(jobs)}
+    </section>
+  `,
+  settings: () => `
+    <section>
+      <div class="section-title">Settings</div>
+      <div style="color:var(--gray-400);">Settings options will go here.</div>
+    </section>
+  `,
+  presets: () => renderPresetsSection(presets)
+};
 
-// PATCH: updated bindPresetsUI for new structure
+function debounce(fn, ms = 300) {
+  let timer;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450);
+  }
+}
+function getCurrentUserUid() {
+  const user = firebase.auth().currentUser;
+  return user ? user.uid : null;
+}
+async function fetchPresetsOnceAndRender(view = "presets") {
+  if (presetsLoaded) {
+    setView(view);
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const uid = user.uid;
+      const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+      const snapshot = await presetsRef.get();
+      presets = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      presetsLoaded = true;
+      setView(view);
+    } catch (e) {
+      console.error('Error loading presets:', e);
+      presets = [];
+      presetsLoaded = true;
+      setView(view);
+    }
+  });
+}
+async function savePreset({ id, name, target_formats, base_url }) {
+  const uid = getCurrentUserUid();
+  if (!uid) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  if (id) {
+    await presetsRef.doc(id).set({
+      name,
+      target_formats,
+      base_url,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } else {
+    await presetsRef.add({
+      name,
+      target_formats,
+      base_url,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+async function deletePreset(presetId) {
+  const uid = getCurrentUserUid();
+  if (!uid || !presetId) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  await presetsRef.doc(presetId).delete();
+}
 function bindPresetsUI() {
+  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
   document.querySelectorAll('.preset-list-row').forEach(row => {
     row.addEventListener('click', function(e) {
-      if (e.target.closest('.preset-list-action-btn')) return;
+      if (
+        e.target.closest('.preset-list-action-btn')
+      ) return;
+      const presetId = row.getAttribute('data-preset-id');
       const details = row.querySelector('.preset-list-details');
       const expanded = row.classList.contains('expanded');
+      // Collapse all others
       document.querySelectorAll('.preset-list-row').forEach(r => {
         r.classList.remove('expanded');
         r.classList.add('collapsed');
