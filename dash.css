@@ -615,7 +615,6 @@ html, body {
   align-items: center !important;
 }
 
-/* --- PATCH: Presets Table Styles --- */
 .presets-section {
   display: flex;
   flex-direction: column;
@@ -650,7 +649,6 @@ html, body {
 
 .presets-table th, .presets-table td {
   padding: 18px 24px;
-  text-align: left;
   font-size: 1.07em;
   font-weight: 500;
   border-bottom: 1px solid #232c39;
@@ -663,6 +661,7 @@ html, body {
   background: #232c39;
   border-bottom: 2px solid #283043;
   letter-spacing: 0.01em;
+  text-align: left;
 }
 
 .presets-table th.centered,
@@ -678,6 +677,7 @@ html, body {
 .preset-row {
   background: #232b39;
   transition: background 0.16s;
+  cursor: pointer;
 }
 .preset-row:hover {
   background: #262f3f;
@@ -693,13 +693,51 @@ html, body {
   max-width: 320px;
 }
 
-.preset-row .preset-formats-cell,
-.preset-row .preset-baseurl-cell {
-  color: #b5d6ff;
-  font-size: 1.01em;
-  font-family: inherit;
+.preset-details-row {
+  background: #1d2330;
+  transition: background 0.15s;
+  display: none;
 }
-.preset-row .preset-formats-cell code {
+.preset-details-row.expanded {
+  display: table-row;
+  animation: fadein 0.18s;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.preset-details-cell {
+  padding: 14px 32px 14px 32px !important;
+  font-size: 1.04rem;
+  color: #cce1ff;
+  border-bottom: 1px solid #273141;
+  background: #1d2330;
+}
+
+.preset-details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.preset-details-table td,
+.preset-details-table th {
+  padding: 8px 10px 8px 0;
+  border: none;
+  background: none;
+  color: #b5d6ff;
+  font-size: 1.04em;
+  vertical-align: top;
+}
+.preset-details-table th {
+  font-weight: 600;
+  color: #b5d6ff;
+  text-align: left;
+  min-width: 120px;
+  padding-right: 12px;
+}
+.preset-details-table td.formats-value {
+  color: #b5d6ff;
+}
+.preset-details-table td.formats-value code {
   background: #181c22;
   color: #b5d6ff;
   border-radius: 6px;
@@ -708,7 +746,8 @@ html, body {
   font-family: 'Work Sans', monospace;
   margin-right: 2px;
 }
-.preset-row .preset-baseurl-cell {
+.preset-details-table td.baseurl-value {
+  color: #a0b4d4;
   word-break: break-all;
 }
 
@@ -932,4 +971,3 @@ html, body {
     width: 100%;
   }
 }
-/* --- END PATCH: Presets Table Styles --- */
