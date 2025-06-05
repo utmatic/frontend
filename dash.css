@@ -980,3 +980,23 @@ html, body {
   color: var(--brand-blue-hover);
   text-decoration: underline;
 }
+
+.preset-list-row {
+  display: flex;
+  align-items: center;      /* Ensures vertical centering */
+  min-height: 46px;
+}
+
+.preset-list-content-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.preset-list-name {
+  padding: 0;
+  margin: 0;
+  line-height: 1.4;
+}
+.preset-list-details {
+  margin-top: 6px;
+}
