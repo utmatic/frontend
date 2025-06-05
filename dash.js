@@ -16,20 +16,17 @@ if (typeof firebase === 'undefined') {
 firebase.initializeApp(firebaseConfig);
 
 let jobs = [];
-let jobsLoaded = false; // Track if jobs are already loaded
-
-// --- Preset Management ---
+let jobsLoaded = false;
 let presets = [];
 let presetsLoaded = false;
 
-// --- Time Save & Counter Logic ---
 const SECONDS_PER_LINK = 45;
 const UNITS = [
   { name: "minutes", label: "Minutes", factor: 60 },
   { name: "hours", label: "Hours", factor: 3600 },
   { name: "days", label: "Days", factor: 86400 }
 ];
-let currentUnit = UNITS[0]; // default to minutes
+let currentUnit = UNITS[0];
 
 function computeTimeSaved(jobs, unitObj = currentUnit) {
   if (!Array.isArray(jobs)) return 0;
@@ -37,20 +34,14 @@ function computeTimeSaved(jobs, unitObj = currentUnit) {
   const secondsSaved = totalLinks * SECONDS_PER_LINK;
   return secondsSaved / unitObj.factor;
 }
-
 function formatTimeSaved(val, unitObj = currentUnit) {
-  if (unitObj.name === "minutes") {
-    return Math.round(val).toLocaleString();
-  }
-  if (unitObj.name === "hours") {
+  if (unitObj.name === "minutes") return Math.round(val).toLocaleString();
+  if (unitObj.name === "hours")
     return (Math.round(val * 10) / 10).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  }
-  if (unitObj.name === "days") {
+  if (unitObj.name === "days")
     return (Math.round(val * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
   return val.toLocaleString();
 }
-
 function renderTimesaveWidget(jobs) {
   const initialVal = formatTimeSaved(computeTimeSaved(jobs, currentUnit), currentUnit);
   return `
@@ -67,16 +58,13 @@ function renderTimesaveWidget(jobs) {
     </div>
   `;
 }
-
-// Animate number counter (from 0 to target over 1s)
 function animateCounter(elem, targetValue, unitObj) {
   if (!elem) return;
   let start = 0;
   let end = targetValue;
-  let duration = 1100;
+  let duration = 900;
   let startTimestamp = null;
   let decimals = unitObj.name === "minutes" ? 0 : (unitObj.name === "hours" ? 1 : 2);
-
   function step(timestamp) {
     if (!startTimestamp) startTimestamp = timestamp;
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
@@ -85,26 +73,20 @@ function animateCounter(elem, targetValue, unitObj) {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals
     });
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    }
+    if (progress < 1) window.requestAnimationFrame(step);
   }
   window.requestAnimationFrame(step);
 }
-
 function updateTimesaveWidget(jobs, unitName) {
   const unitObj = UNITS.find(u => u.name === unitName) || UNITS[0];
   const value = computeTimeSaved(jobs, unitObj);
   const valElem = document.getElementById('timesave-value');
   if (valElem) animateCounter(valElem, value, unitObj);
-
-  // Update active class on unit buttons
   document.querySelectorAll('.timesave-unit-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.unit === unitObj.name);
   });
   currentUnit = unitObj;
 }
-
 function bindTimesaveWidgetEvents(jobs) {
   document.querySelectorAll('.timesave-unit-btn').forEach(btn => {
     btn.onclick = function(e) {
@@ -114,59 +96,35 @@ function bindTimesaveWidgetEvents(jobs) {
     };
   });
 }
-
 function formatDate(dateInput) {
   if (!dateInput) return "{{job.date}}";
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
   if (isNaN(date.getTime())) return "{{job.date}}";
   const options = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true
   };
   return date.toLocaleString('en-US', options);
 }
-
 function beautifyJobType(str) {
   if (!str) return "{{job.jobtype}}";
   const s = str.toLowerCase();
-
-  if (s === "add_links_only" || s === "links_only" || s === "add links only" || s === "links only") {
-    return "Links only";
-  }
-  if (s === "add_utm" || s === "utm_only" || s === "utm only" || s === "add utm") {
-    return "UTM only";
-  }
+  if (s === "add_links_only" || s === "links_only" || s === "add links only" || s === "links only") return "Links only";
+  if (s === "add_utm" || s === "utm_only" || s === "utm only" || s === "add utm") return "UTM only";
   if (
-    s === "add_links_and_utm" ||
-    s === "links_and_utm" ||
-    s === "add_links_and_utm" ||
-    s === "add links and utm" ||
-    s === "links and utm"
-  ) {
-    return "Links and UTM";
-  }
-
-  // fallback: capitalize first word, lowercase the rest
+    s === "add_links_and_utm" || s === "links_and_utm" ||
+    s === "add_links_and_utm" || s === "add links and utm" || s === "links and utm"
+  ) return "Links and UTM";
   const fallback = s.replace(/_/g, " ").replace(/\b\w/g, (l, i) => (i === 0 ? l.toUpperCase() : l));
   return fallback;
 }
-
 function fileTypeChip(filetype) {
   if (!filetype) return `<span class="file-type-chip">{{job.filetype}}</span>`;
   const type = filetype.trim().toUpperCase();
-  if (type === "PDF") {
-    return `<span class="file-type-chip">${type}</span>`;
-  }
-  if (type === "INDD") {
-    return `<span class="file-type-chip indd">${type}</span>`;
-  }
+  if (type === "PDF") return `<span class="file-type-chip">${type}</span>`;
+  if (type === "INDD") return `<span class="file-type-chip indd">${type}</span>`;
   return `<span class="file-type-chip">${filetype}</span>`;
 }
-
 function renderHistorySnapshot(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
@@ -179,14 +137,10 @@ function renderHistorySnapshot(jobs) {
       <td>${beautifyJobType(job.jobtype)}</td>
       <td>
         <a href="${job.processedUrl ?? '#'}" class="download-link" download title="Download file">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"/></svg>
         </a>
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download title="Download report">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
         </a>
       </td>
     </tr>
@@ -210,7 +164,6 @@ function renderHistorySnapshot(jobs) {
     </div>
   `;
 }
-
 function renderHistory(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
@@ -223,14 +176,10 @@ function renderHistory(jobs) {
       <td>${beautifyJobType(job.jobtype)}</td>
       <td>
         <a href="${job.processedUrl ?? '#'}" class="download-link" download title="Download file">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"/></svg>
         </a>
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download title="Download report">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
         </a>
       </td>
     </tr>
@@ -255,66 +204,45 @@ function renderHistory(jobs) {
   `;
 }
 
-// --- PATCH: Presets as Table, collapsible detail row, no caret ---
+// --- PATCH: Presets List (mockup style) ---
 function renderPresetsSection(presets) {
   return `
     <section class="presets-section">
-      <div class="section-title" style="margin-bottom: 20px;">Presets</div>
-      <div class="presets-table-container">
-        <table class="presets-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th class="centered">Edit</th>
-              <th class="centered">Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              presets.length === 0
-                ? `<tr><td colspan="3" style="color:var(--gray-400);text-align:center;font-style:italic;">No presets yet. Create one below!</td></tr>`
-                : presets
-                    .map(
-                      (preset) => `
-              <tr class="preset-row" data-preset-id="${preset.id}" tabindex="0">
-                <td class="preset-title-cell">${preset.name}</td>
-                <td class="preset-edit-cell centered">
-                  <button class="edit-preset-btn" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                    </svg>
-                  </button>
-                </td>
-                <td class="preset-delete-cell centered">
-                  <button class="delete-preset-btn" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              <tr class="preset-details-row" id="preset-details-${preset.id}" style="display:none;">
-                <td class="preset-details-cell" colspan="3">
-                  <table class="preset-details-table">
-                    <tr>
-                      <th>Target Formats</th>
-                      <td class="formats-value">
-                        ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Base URL</th>
-                      <td class="baseurl-value">${preset.base_url}</td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              `
-                    )
-                    .join('')
-            }
-          </tbody>
-        </table>
+      <div class="section-title" style="margin-bottom: 18px;">Presets</div>
+      <div class="presets-list-container">
+        <div class="presets-list">
+          ${
+            presets.length === 0
+              ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one below!</div>`
+              : presets
+                  .map(
+                    (preset, idx) => `
+            <div class="preset-list-row collapsed" data-preset-id="${preset.id}" tabindex="0">
+              <div class="preset-list-main">
+                <span class="preset-list-name">${preset.name}</span>
+              </div>
+              <div class="preset-list-actions">
+                <button class="preset-list-action-btn edit" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
+                </button>
+                <button class="preset-list-action-btn delete" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                </button>
+              </div>
+              <div class="preset-list-details" style="display:none;">
+                <div class="preset-list-detail-label">Target Formats</div>
+                <div class="preset-list-detail-value">
+                  ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+                </div>
+                <div class="preset-list-detail-label">Base URL</div>
+                <div class="preset-list-detail-value">${preset.base_url}</div>
+              </div>
+            </div>
+            `
+                  )
+                  .join('')
+          }
+        </div>
         <button id="show-add-preset-btn" class="add-preset-btn">
           + Add new
         </button>
@@ -346,7 +274,6 @@ function renderPresetsSection(presets) {
   `;
 }
 
-// Views
 const views = {
   dashboard: () => `
     <section>
@@ -371,7 +298,6 @@ const views = {
   presets: () => renderPresetsSection(presets)
 };
 
-// Debounce function to avoid rapid repeated clicks causing issues
 function debounce(fn, ms = 300) {
   let timer;
   return function (...args) {
@@ -379,24 +305,19 @@ function debounce(fn, ms = 300) {
     timer = setTimeout(() => fn.apply(this, args), ms);
   };
 }
-
-// Hide loading overlay utility
 function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
     overlay.classList.add('hidden');
     setTimeout(() => {
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    }, 450); // slightly more than CSS transition
+    }, 450);
   }
 }
-
-// --- Preset CRUD ---
 function getCurrentUserUid() {
   const user = firebase.auth().currentUser;
   return user ? user.uid : null;
 }
-
 async function fetchPresetsOnceAndRender(view = "presets") {
   if (presetsLoaded) {
     setView(view);
@@ -425,7 +346,6 @@ async function fetchPresetsOnceAndRender(view = "presets") {
     }
   });
 }
-
 async function savePreset({ id, name, target_formats, base_url }) {
   const uid = getCurrentUserUid();
   if (!uid) return;
@@ -446,33 +366,33 @@ async function savePreset({ id, name, target_formats, base_url }) {
     });
   }
 }
-
 async function deletePreset(presetId) {
   const uid = getCurrentUserUid();
   if (!uid || !presetId) return;
   const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
   await presetsRef.doc(presetId).delete();
 }
-
-// --- Preset Form UI Logic ---
 function bindPresetsUI() {
   // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
-  document.querySelectorAll('.preset-row').forEach(row => {
+  document.querySelectorAll('.preset-list-row').forEach(row => {
     row.addEventListener('click', function(e) {
-      // Ignore if edit or delete was clicked
       if (
-        e.target.closest('.edit-preset-btn') ||
-        e.target.closest('.delete-preset-btn')
+        e.target.closest('.preset-list-action-btn')
       ) return;
       const presetId = row.getAttribute('data-preset-id');
-      const detailsRow = document.getElementById('preset-details-' + presetId);
-      const expanded = detailsRow.classList.contains('expanded');
-
-      // Collapse all
-      document.querySelectorAll('.preset-details-row').forEach(dr => dr.classList.remove('expanded'));
+      const details = row.querySelector('.preset-list-details');
+      const expanded = row.classList.contains('expanded');
+      // Collapse all others
+      document.querySelectorAll('.preset-list-row').forEach(r => {
+        r.classList.remove('expanded');
+        r.classList.add('collapsed');
+        const d = r.querySelector('.preset-list-details');
+        if (d) d.style.display = 'none';
+      });
       if (!expanded) {
-        detailsRow.classList.add('expanded');
-        detailsRow.style.display = '';
+        row.classList.add('expanded');
+        row.classList.remove('collapsed');
+        if (details) details.style.display = 'block';
       }
     });
     row.addEventListener('keydown', function(e) {
@@ -483,8 +403,7 @@ function bindPresetsUI() {
     });
   });
 
-  // Handle edit, delete, and form submission
-  document.querySelectorAll('.edit-preset-btn').forEach(btn => {
+  document.querySelectorAll('.preset-list-action-btn.edit').forEach(btn => {
     btn.onclick = function(e) {
       e.stopPropagation();
       const presetId = btn.dataset.presetId;
@@ -501,7 +420,7 @@ function bindPresetsUI() {
       }
     };
   });
-  document.querySelectorAll('.delete-preset-btn').forEach(btn => {
+  document.querySelectorAll('.preset-list-action-btn.delete').forEach(btn => {
     btn.onclick = async function(e) {
       e.stopPropagation();
       const presetId = btn.dataset.presetId;
@@ -543,8 +462,6 @@ function bindPresetsUI() {
       document.getElementById('preset-form-wrapper').style.display = 'none';
     };
   }
-
-  // Add new preset show/hide logic
   const showAddBtn = document.getElementById('show-add-preset-btn');
   const formWrapper = document.getElementById('preset-form-wrapper');
   if (showAddBtn && formWrapper) {
@@ -557,7 +474,6 @@ function bindPresetsUI() {
       setTimeout(() => document.getElementById('preset-name').focus(), 50);
     };
   }
-  // Close button logic for add/edit preset form
   const closeBtn = document.getElementById('preset-form-close-btn');
   if (closeBtn && formWrapper) {
     closeBtn.onclick = function() {
@@ -567,17 +483,13 @@ function bindPresetsUI() {
       document.getElementById('save-preset-btn').textContent = "Save Preset";
     };
   }
-  // Hide form on page load
   if (formWrapper) {
     formWrapper.style.display = 'none';
   }
 }
 
-// ---- Main app ----
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
-
-  // Only bind sidebar button listeners once using event delegation
   const sidebar = document.querySelector('.dash-sidebar');
   if (sidebar) {
     sidebar.addEventListener('click', function(e) {
@@ -590,17 +502,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
   function setView(view) {
     mainView.innerHTML = views[view]();
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
     });
-
-    // Bind timesave widget events after rendering dashboard
     if (view === "dashboard" && jobsLoaded) {
       bindTimesaveWidgetEvents(jobs);
-      // Animate on first display (with latest value)
       updateTimesaveWidget(jobs, currentUnit.name);
       const link = document.getElementById("view-full-history");
       if (link) {
@@ -614,8 +522,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bindPresetsUI();
     }
   }
-
-  // Fetch jobs just once and store in memory
   function fetchJobsOnceAndRender(view = "dashboard") {
     if (jobsLoaded) {
       setView(view);
@@ -647,10 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   }
-
-  // Debounced version for rapid clicks
   window.setView = debounce(function(view) {
-    // Only fetch on first load!
     if (view === "presets" && !presetsLoaded) {
       fetchPresetsOnceAndRender(view);
     } else if (view === "dashboard" && !jobsLoaded) {
@@ -659,16 +562,11 @@ document.addEventListener('DOMContentLoaded', function() {
       setView(view);
     }
   }, 200);
-
-  // Initial load
   fetchJobsOnceAndRender();
 
-  // + New dropdown logic
   const dropdownBtn = document.getElementById('new-dropdown-btn');
   const dropdownList = document.getElementById('new-dropdown-list');
-  // Handle click and outside click for dropdown
   if (dropdownBtn && dropdownList) {
-    // Show/hide on click
     dropdownBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       dropdownList.classList.toggle('show');
@@ -679,8 +577,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
-  // Sign out logic
   const signoutBtn = document.getElementById('signout-btn');
   if (signoutBtn) {
     signoutBtn.addEventListener('click', function() {
