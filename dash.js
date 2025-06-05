@@ -450,7 +450,20 @@ async function deletePreset(presetId) {
 
 // --- Preset Form UI Logic ---
 function bindPresetsUI() {
-  // Collapsible table logic for presets
+  // Make entire row clickable for collapse/expand except edit/delete
+  document.querySelectorAll('.preset-row').forEach(row => {
+    row.addEventListener('click', function (e) {
+      // Ignore if edit or delete was clicked
+      if (
+        e.target.closest('.edit-preset-btn') ||
+        e.target.closest('.delete-preset-btn')
+      ) return;
+      const btn = row.querySelector('.preset-collapse-btn');
+      if (btn) btn.click();
+    });
+  });
+
+  // Collapsible table logic for presets (keep caret keyboard accessible)
   document.querySelectorAll('.preset-collapse-btn').forEach(btn => {
     btn.onclick = function(e) {
       e.preventDefault();
@@ -494,7 +507,8 @@ function bindPresetsUI() {
 
   // Handle edit, delete, and form submission
   document.querySelectorAll('.edit-preset-btn').forEach(btn => {
-    btn.onclick = function() {
+    btn.onclick = function(e) {
+      e.stopPropagation();
       const presetId = btn.dataset.presetId;
       const preset = presets.find(p => p.id === presetId);
       if (preset) {
@@ -510,7 +524,8 @@ function bindPresetsUI() {
     };
   });
   document.querySelectorAll('.delete-preset-btn').forEach(btn => {
-    btn.onclick = async function() {
+    btn.onclick = async function(e) {
+      e.stopPropagation();
       const presetId = btn.dataset.presetId;
       if (window.confirm("Delete this preset?")) {
         await deletePreset(presetId);
