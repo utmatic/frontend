@@ -134,7 +134,6 @@ signinForm.addEventListener('submit', async function(e) {
 
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password);
-    if (signinStatus) signinStatus.textContent = "Login successful! Redirecting...";
     const redirect = getRedirectParam();
     setTimeout(() => {
       if (redirect) {
