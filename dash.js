@@ -285,6 +285,7 @@ function renderPresetsSection(presets) {
             <input type="text" id="preset-name" name="preset-name" required>
           </div>
           <div class="field-group">
+          <label for="preset-target-formats">Target Formats</label>
             <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN">
           </div>
           <div class="field-group">
