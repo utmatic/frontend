@@ -18,6 +18,29 @@ firebase.initializeApp(firebaseConfig);
 let jobs = [];
 let jobsLoaded = false; // Track if jobs are already loaded
 
+// loader.js
+
+// Show loader overlay until dashboard is fully loaded
+window.showLoader = function() {
+  const loader = document.getElementById('loader-overlay');
+  if (loader) {
+    loader.classList.remove('hide');
+    loader.style.display = 'flex';
+  }
+};
+window.hideLoader = function() {
+  const loader = document.getElementById('loader-overlay');
+  if (loader) {
+    loader.classList.add('hide');
+    setTimeout(() => {
+      loader.style.display = 'none';
+    }, 350); // matches transition duration
+  }
+};
+
+// Show loader immediately on DOM ready
+document.addEventListener('DOMContentLoaded', window.showLoader);
+
 // --- Time Save & Counter Logic ---
 const SECONDS_PER_LINK = 45;
 const UNITS = [
