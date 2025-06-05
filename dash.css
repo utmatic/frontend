@@ -987,22 +987,30 @@ html, body {
 }
 
 .preset-list-row {
-  align-items: flex-start !important; /* top-align all row content */
+  display: flex;
+  align-items: center; /* Center everything vertically */
   min-height: 46px;
 }
 
 .preset-list-content-group {
-  justify-content: flex-start !important; /* top-align name/details */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center name/details vertically in row */
   padding-left: 15px;
 }
 
 .preset-list-name {
-  padding: 0 !important;
-  margin: 0 !important;
+  margin: 0;
+  padding: 0;
   line-height: 1.4;
-  /* Add top/bottom margin if you want extra spacing, but not padding */
 }
 
 .preset-list-details {
-  margin-top: 6px !important;
+  margin-top: 6px;
+}
+
+.preset-list-actions {
+  display: flex;
+  align-items: center;
+  height: 46px; /* or 100% to match the row */
 }
