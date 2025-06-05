@@ -990,9 +990,6 @@ html, body {
   margin-bottom: 0; /* We'll create space with the expanded state */
   background: none;
 }
-.preset-list-row.expanded {
-  margin-bottom: 65px; /* Make space for dropdown below */
-}
 
 .preset-list-content-group {
   display: flex;
