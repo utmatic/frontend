@@ -607,7 +607,7 @@ html, body {
 .dashboard-tile,
 .history-list,
 .history-table {
-  min-width: 0;
+  min-width: 300px;
 }
 
 .dash-header,
@@ -882,17 +882,18 @@ html, body {
   flex-direction: column;
 }
 #preset-form label {
+  margin-left: 2p;
   color: #b5d6ff;
   font-size: 1.01rem;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 }
 #preset-form input[type="text"] {
   background: #181c22;
   border: 1.2px solid #2d384b;
   color: #eaf3ff;
   border-radius: 7px;
-  padding: 7px 10px;
+  padding: 10px 10px;
   font-size: 0.98rem;
   outline: none;
   font-family: inherit;
@@ -917,6 +918,7 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.14s;
+  margin-top: 25px;
 }
 #save-preset-btn:hover {
   background: #2351a6;
@@ -959,21 +961,24 @@ html, body {
 }
 
 .add-preset-link {
-  background: none;
+  background: #1a1a1a;
   border: none;
-  color: var(--brand-blue);
-  font-weight: 600;
+  color: #b3b9c5;
+  font-weight: 400;
   font-size: 1.06em;
   letter-spacing: 0.01em;
   cursor: pointer;
   margin: 0 0 8px 0;
-  padding: 0;
+  padding: 8px 16px;
   outline: none;
   text-align: left;
   transition: color 0.18s;
   text-decoration: none;
   box-shadow: none;
   display: inline-block;
+  margin-bottom: 25px;
+  margin-top: 14px;
+  border-radius: 6px;
 }
 .add-preset-link:hover,
 .add-preset-link:focus {
@@ -991,6 +996,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-left: 15px;
 }
 .preset-list-name {
   padding: 0;
