@@ -665,17 +665,14 @@ html, body {
   letter-spacing: 0.01em;
 }
 
-.presets-table tr:last-child td {
-  border-bottom: none;
+.presets-table th.centered,
+.presets-table td.centered {
+  text-align: center;
+  vertical-align: middle;
 }
 
-.presets-table .collapsible-arrow-cell,
-.presets-table .preset-edit-cell,
-.presets-table .preset-delete-cell {
-  text-align: center;
-  width: 2.5rem;
-  padding-left: 0;
-  padding-right: 0;
+.presets-table tr:last-child td {
+  border-bottom: none;
 }
 
 .preset-row {
@@ -696,57 +693,25 @@ html, body {
   max-width: 320px;
 }
 
-/* Collapsible details row styling */
-.preset-details-row {
-  background: #1d2330;
-  animation: fadein 0.18s;
-  transition: background 0.15s;
+.preset-row .preset-formats-cell,
+.preset-row .preset-baseurl-cell {
+  color: #b5d6ff;
+  font-size: 1.01em;
+  font-family: inherit;
 }
-.preset-details-cell {
-  padding: 18px 40px 18px 56px !important;
-  font-size: 1.04rem;
-  color: #cce1ff;
-  border-bottom: 1px solid #273141;
-  background: #1d2330;
-}
-@keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Collapsible caret button */
-.preset-collapse-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  padding: 0 0 0 8px;
-  cursor: pointer;
-  outline: none;
-  transition: background 0.12s;
-  min-width: 28px;
-  height: 36px;
-}
-.preset-collapse-btn:focus {
-  outline: 2px solid #4d89f9;
+.preset-row .preset-formats-cell code {
+  background: #181c22;
+  color: #b5d6ff;
   border-radius: 6px;
-  background: #232a33;
-}
-.collapsible-arrow {
-  display: inline-block;
-  font-size: 0.85em;
-  color: #cce1ff;
-  transition: transform 0.14s cubic-bezier(.47,1.64,.41,.8);
-  transform: rotate(0deg);
+  padding: 2px 7px;
+  font-size: 0.93em;
+  font-family: 'Work Sans', monospace;
   margin-right: 2px;
-  margin-top: 2px;
 }
-.preset-collapse-btn[aria-expanded="true"] .collapsible-arrow {
-  transform: rotate(90deg);
+.preset-row .preset-baseurl-cell {
+  word-break: break-all;
 }
 
-/* Edit/Delete SVG Icon Buttons */
 .edit-preset-btn,
 .delete-preset-btn {
   background: none;
@@ -783,29 +748,6 @@ html, body {
 .delete-preset-btn:focus {
   outline: 2px solid #4d89f9;
   outline-offset: 1px;
-}
-
-.preset-details-row .preset-formats {
-  font-size: 0.98rem;
-  color: #6b8bb7;
-  margin-bottom: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.preset-details-row .preset-formats code {
-  background: #181c22;
-  color: #b5d6ff;
-  border-radius: 6px;
-  padding: 2px 7px;
-  font-size: 0.93em;
-  font-family: 'Work Sans', monospace;
-}
-.preset-details-row .preset-baseurl {
-  font-size: 0.97rem;
-  color: #a0b4d4;
-  word-break: break-all;
-  margin-bottom: 1px;
 }
 
 /* Add new button below table, visually separate */
@@ -976,10 +918,6 @@ html, body {
   .presets-table {
     min-width: 320px;
     font-size: 0.85em;
-  }
-  .preset-details-cell {
-    padding: 8px 8px 8px 25px !important;
-    font-size: 0.93em;
   }
   .presets-table th, .presets-table td {
     padding: 8px 6px;
