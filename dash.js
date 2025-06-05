@@ -255,7 +255,7 @@ function renderHistory(jobs) {
   `;
 }
 
-// --- PATCH: Presets as Table, no caret, more fields, icons centered ---
+// --- PATCH: Presets as Table, collapsible detail row, no caret ---
 function renderPresetsSection(presets) {
   return `
     <section class="presets-section">
@@ -265,26 +265,19 @@ function renderPresetsSection(presets) {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Target Formats</th>
-              <th></th>
-              <th>Base URL</th>
-              <th></th>
               <th class="centered">Edit</th>
               <th class="centered">Delete</th>
             </tr>
           </thead>
           <tbody>
-            ${presets.length === 0 ? `
-              <tr><td colspan="7" style="color:var(--gray-400);text-align:center;font-style:italic;">No presets yet. Create one below!</td></tr>
-            ` : presets.map((preset) => `
-              <tr class="preset-row" data-preset-id="${preset.id}">
+            ${
+              presets.length === 0
+                ? `<tr><td colspan="3" style="color:var(--gray-400);text-align:center;font-style:italic;">No presets yet. Create one below!</td></tr>`
+                : presets
+                    .map(
+                      (preset) => `
+              <tr class="preset-row" data-preset-id="${preset.id}" tabindex="0">
                 <td class="preset-title-cell">${preset.name}</td>
-                <td class="preset-formats-cell"><strong>Target Formats:</strong></td>
-                <td class="preset-formats-cell">
-                  ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
-                </td>
-                <td class="preset-baseurl-label-cell"><strong>Base URL:</strong></td>
-                <td class="preset-baseurl-cell">${preset.base_url}</td>
                 <td class="preset-edit-cell centered">
                   <button class="edit-preset-btn" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
@@ -300,7 +293,26 @@ function renderPresetsSection(presets) {
                   </button>
                 </td>
               </tr>
-            `).join('')}
+              <tr class="preset-details-row" id="preset-details-${preset.id}" style="display:none;">
+                <td class="preset-details-cell" colspan="3">
+                  <table class="preset-details-table">
+                    <tr>
+                      <th>Target Formats</th>
+                      <td class="formats-value">
+                        ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Base URL</th>
+                      <td class="baseurl-value">${preset.base_url}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              `
+                    )
+                    .join('')
+            }
           </tbody>
         </table>
         <button id="show-add-preset-btn" class="add-preset-btn">
@@ -444,6 +456,33 @@ async function deletePreset(presetId) {
 
 // --- Preset Form UI Logic ---
 function bindPresetsUI() {
+  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
+  document.querySelectorAll('.preset-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+      // Ignore if edit or delete was clicked
+      if (
+        e.target.closest('.edit-preset-btn') ||
+        e.target.closest('.delete-preset-btn')
+      ) return;
+      const presetId = row.getAttribute('data-preset-id');
+      const detailsRow = document.getElementById('preset-details-' + presetId);
+      const expanded = detailsRow.classList.contains('expanded');
+
+      // Collapse all
+      document.querySelectorAll('.preset-details-row').forEach(dr => dr.classList.remove('expanded'));
+      if (!expanded) {
+        detailsRow.classList.add('expanded');
+        detailsRow.style.display = '';
+      }
+    });
+    row.addEventListener('keydown', function(e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        row.click();
+      }
+    });
+  });
+
   // Handle edit, delete, and form submission
   document.querySelectorAll('.edit-preset-btn').forEach(btn => {
     btn.onclick = function(e) {
