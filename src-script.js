@@ -341,9 +341,22 @@ function resetPresetDropdown() {
   }
 }
 
-function clearRowsAndFill(tf, bu) {
+// Updated: fill all rows for all target formats in the preset array
+function clearRowsAndFill(targetFormats, baseUrl) {
   rowsContainer.innerHTML = '';
-  rowsContainer.appendChild(createRow(tf, bu));
+  if (Array.isArray(targetFormats)) {
+    targetFormats.forEach(tf => {
+      rowsContainer.appendChild(createRow(tf, baseUrl));
+    });
+  } else if (targetFormats && typeof targetFormats === "string") {
+    // Support comma-separated fallback
+    targetFormats.split(',').forEach(tf => {
+      rowsContainer.appendChild(createRow(tf.trim(), baseUrl));
+    });
+  } else {
+    // If empty, add a blank row
+    rowsContainer.appendChild(createRow('', baseUrl));
+  }
   updateDeleteButtons();
 }
 
@@ -387,9 +400,8 @@ async function initPresetDropdown() {
           const selectedId = this.value;
           const preset = userPresetsCache.find(p => p.id === selectedId);
           if (preset) {
-            // Fill the first row with preset data (Target Format, Base URL)
             clearRowsAndFill(
-              Array.isArray(preset.target_formats) ? preset.target_formats[0] || '' : (preset.target_formats || ''),
+              preset.target_formats,
               preset.base_url || ''
             );
             validateForm();
