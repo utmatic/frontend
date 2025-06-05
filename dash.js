@@ -41,6 +41,61 @@ window.hideLoader = function() {
 // Show loader immediately on DOM ready
 document.addEventListener('DOMContentLoaded', window.showLoader);
 
+  // (Keep loader visible on initial load)
+  window.showLoader();
+
+  function setView(view) {
+    mainView.innerHTML = views[view]();
+    document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === view);
+    });
+
+    // Bind timesave widget events after rendering dashboard
+    if (view === "dashboard" && jobsLoaded) {
+      bindTimesaveWidgetEvents(jobs);
+      updateTimesaveWidget(jobs, currentUnit.name);
+      const link = document.getElementById("view-full-history");
+      if (link) {
+        link.onclick = function(e) {
+          e.preventDefault();
+          window.setView("history");
+        };
+      }
+    }
+  }
+
+  function fetchJobsOnceAndRender(view = "dashboard") {
+    if (jobsLoaded) {
+      setView(view);
+      window.hideLoader(); // HIDE LOADER once initial jobs are loaded
+      return;
+    }
+    firebase.auth().onAuthStateChanged(async function(user) {
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+      const idToken = await user.getIdToken();
+      fetch('https://backend-idd.onrender.com/jobs', {
+        headers: { Authorization: "Bearer " + idToken }
+      })
+        .then(res => res.json())
+        .then(data => {
+          jobs = data;
+          jobsLoaded = true;
+          setView(view);
+          window.hideLoader(); // HIDE LOADER here after first dashboard render
+        })
+        .catch(err => {
+          console.error('Error loading jobs:', err);
+          jobs = [];
+          jobsLoaded = true;
+          setView(view);
+          window.hideLoader(); // HIDE LOADER even on failure
+        });
+    });
+  }
+
 // --- Time Save & Counter Logic ---
 const SECONDS_PER_LINK = 45;
 const UNITS = [
