@@ -204,16 +204,18 @@ function renderHistory(jobs) {
   `;
 }
 
-// --- PATCH: Presets List (full width, sticky actions, left-aligned details) ---
 function renderPresetsSection(presets) {
   return `
     <section class="presets-section">
       <div class="section-title" style="margin-bottom: 18px;">Presets</div>
       <div class="presets-list-container">
+        <div class="add-preset-link-row">
+          <button class="add-preset-link" id="add-preset-link" type="button">+ Add new</button>
+        </div>
         <div class="presets-list">
           ${
             presets.length === 0
-              ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one below!</div>`
+              ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one above!</div>`
               : presets
                   .map(
                     (preset) => `
@@ -243,9 +245,6 @@ function renderPresetsSection(presets) {
                   .join('')
           }
         </div>
-        <button id="show-add-preset-btn" class="add-preset-btn">
-          + Add new
-        </button>
       </div>
       <div class="preset-form-wrapper" id="preset-form-wrapper" style="display:none;">
         <button type="button" class="preset-form-close" id="preset-form-close-btn" title="Close">&times;</button>
@@ -274,83 +273,22 @@ function renderPresetsSection(presets) {
   `;
 }
 
-// ...rest of dash.js unchanged...
-
-function debounce(fn, ms = 300) {
-  let timer;
-  return function (...args) {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), ms);
-  };
-}
-function hideLoadingOverlay() {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) {
-    overlay.classList.add('hidden');
-    setTimeout(() => {
-      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    }, 450);
-  }
-}
-function getCurrentUserUid() {
-  const user = firebase.auth().currentUser;
-  return user ? user.uid : null;
-}
-async function fetchPresetsOnceAndRender(view = "presets") {
-  if (presetsLoaded) {
-    setView(view);
-    return;
-  }
-  firebase.auth().onAuthStateChanged(async function(user) {
-    if (!user) {
-      window.location.href = "/login";
-      return;
-    }
-    try {
-      const uid = user.uid;
-      const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
-      const snapshot = await presetsRef.get();
-      presets = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      presetsLoaded = true;
-      setView(view);
-    } catch (e) {
-      console.error('Error loading presets:', e);
-      presets = [];
-      presetsLoaded = true;
-      setView(view);
-    }
-  });
-}
-async function savePreset({ id, name, target_formats, base_url }) {
-  const uid = getCurrentUserUid();
-  if (!uid) return;
-  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
-  if (id) {
-    await presetsRef.doc(id).set({
-      name,
-      target_formats,
-      base_url,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } else {
-    await presetsRef.add({
-      name,
-      target_formats,
-      base_url,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
-}
-async function deletePreset(presetId) {
-  const uid = getCurrentUserUid();
-  if (!uid || !presetId) return;
-  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
-  await presetsRef.doc(presetId).delete();
-}
 function bindPresetsUI() {
+  // Add new link logic (top of list)
+  const addPresetLink = document.getElementById('add-preset-link');
+  const formWrapper = document.getElementById('preset-form-wrapper');
+  if (addPresetLink && formWrapper) {
+    addPresetLink.onclick = function() {
+      formWrapper.style.display = '';
+      document.getElementById('preset-form').reset();
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
+      document.getElementById('preset-id').value = '';
+      setTimeout(() => document.getElementById('preset-name').focus(), 50);
+    };
+  }
+
+  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
   document.querySelectorAll('.preset-list-row').forEach(row => {
     row.addEventListener('click', function(e) {
       if (e.target.closest('.preset-list-action-btn')) return;
@@ -435,18 +373,6 @@ function bindPresetsUI() {
       document.getElementById('preset-form-wrapper').style.display = 'none';
     };
   }
-  const showAddBtn = document.getElementById('show-add-preset-btn');
-  const formWrapper = document.getElementById('preset-form-wrapper');
-  if (showAddBtn && formWrapper) {
-    showAddBtn.onclick = function() {
-      formWrapper.style.display = '';
-      document.getElementById('preset-form').reset();
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('preset-id').value = '';
-      setTimeout(() => document.getElementById('preset-name').focus(), 50);
-    };
-  }
   const closeBtn = document.getElementById('preset-form-close-btn');
   if (closeBtn && formWrapper) {
     closeBtn.onclick = function() {
@@ -484,6 +410,81 @@ const views = {
   `,
   presets: () => renderPresetsSection(presets)
 };
+
+function debounce(fn, ms = 300) {
+  let timer;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450);
+  }
+}
+function getCurrentUserUid() {
+  const user = firebase.auth().currentUser;
+  return user ? user.uid : null;
+}
+async function fetchPresetsOnceAndRender(view = "presets") {
+  if (presetsLoaded) {
+    setView(view);
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const uid = user.uid;
+      const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+      const snapshot = await presetsRef.get();
+      presets = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      presetsLoaded = true;
+      setView(view);
+    } catch (e) {
+      console.error('Error loading presets:', e);
+      presets = [];
+      presetsLoaded = true;
+      setView(view);
+    }
+  });
+}
+async function savePreset({ id, name, target_formats, base_url }) {
+  const uid = getCurrentUserUid();
+  if (!uid) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  if (id) {
+    await presetsRef.doc(id).set({
+      name,
+      target_formats,
+      base_url,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } else {
+    await presetsRef.add({
+      name,
+      target_formats,
+      base_url,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+async function deletePreset(presetId) {
+  const uid = getCurrentUserUid();
+  if (!uid || !presetId) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  await presetsRef.doc(presetId).delete();
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
