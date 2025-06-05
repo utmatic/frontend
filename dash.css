@@ -14,6 +14,50 @@
   --transition: 0.22s cubic-bezier(.6,.2,.3,1);
 }
 
+/* --- LOADING OVERLAY --- */
+#loading-overlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #1c232b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s;
+}
+#loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.loader-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  /* Center in overlay */
+}
+#utmatic-loader-logo {
+  width: 90px;
+  height: 90px;
+  display: block;
+}
+#utmatic-loader-logo .logo-path {
+  /* Animate fill color pulse from #cce1ff to #fff and back */
+  fill: #cce1ff;
+  animation: logo-pulse 2.2s ease-in-out infinite;
+}
+@keyframes logo-pulse {
+  0% { fill: #cce1ff; }
+  50% { fill: #fff; }
+  100% { fill: #cce1ff; }
+}
+
+/* --- REST OF YOUR DASHBOARD CSS BELOW (UNCHANGED) --- */
+
 html, body {
   margin: 0;
   padding: 0;
