@@ -117,6 +117,33 @@
         min-width: 56px;
       }
     }
+
+    /* --- PATCH: Presets Row Alignment Fix --- */
+    .preset-list-row {
+      display: flex;
+      align-items: center !important;    /* Center name+icons in row */
+      min-height: 46px;
+    }
+    .preset-list-content-group {
+      display: flex;
+      flex-direction: column;
+      justify-content: center !important; /* Center name/details vertically in row */
+      padding-left: 15px;
+    }
+    .preset-list-name {
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.4;
+    }
+    .preset-list-details {
+      margin-top: 6px !important;
+    }
+    .preset-list-actions {
+      display: flex;
+      align-items: center !important;
+      height: 46px;
+    }
+    /* --- END PATCH --- */
   </style>
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
