@@ -47,6 +47,64 @@ html, body {
   min-height: 100vh;
 }
 
+/* Loader Overlay Styles */
+#loader-overlay {
+  position: fixed;
+  z-index: 99999;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #222a33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.33s;
+  opacity: 1;
+  pointer-events: all;
+}
+#loader-overlay.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  /* ensures it's centered and large */
+}
+
+#utmatic-loader-icon {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
+
+.loader-path {
+  fill: #cce1ff;
+  filter: drop-shadow(0 0 12px #cce1ff70) drop-shadow(0 0 32px #cce1ff22);
+  /* initial glow */
+  transition: filter 0.3s;
+  animation: loader-pulse 1.8s infinite cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes loader-pulse {
+  0% {
+    fill: #cce1ff;
+    filter: drop-shadow(0 0 12px #cce1ff70) drop-shadow(0 0 32px #cce1ff22);
+  }
+  50% {
+    fill: #fff;
+    filter: drop-shadow(0 0 22px #fff8) drop-shadow(0 0 40px #fff4);
+  }
+  100% {
+    fill: #cce1ff;
+    filter: drop-shadow(0 0 12px #cce1ff70) drop-shadow(0 0 32px #cce1ff22);
+  }
+}
+
 /* Prevent sidebar from moving into header at any screen size */
 @media (max-width: 1200px) {
   .dash-sidebar {
