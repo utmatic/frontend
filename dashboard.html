@@ -118,32 +118,30 @@
       }
     }
 
-    /* --- PATCH: Presets Row Alignment Fix (Updated for details outside row) --- */
+    /* --- PATCH: Presets Row Alignment Fix --- */
     .preset-list-row {
       display: flex;
-      align-items: center;
+      align-items: center !important;    /* Center name+icons in row */
       min-height: 46px;
-      /* Remove position: relative; and margin-bottom hacks */
     }
     .preset-list-content-group {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: center !important; /* Center name/details vertically in row */
       padding-left: 15px;
     }
     .preset-list-name {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       line-height: 1.4;
+    }
+    .preset-list-details {
+      margin-top: 6px !important;
     }
     .preset-list-actions {
       display: flex;
-      align-items: center;
+      align-items: center !important;
       height: 46px;
-    }
-    /* Details row is now outside of the flex row, so no need for margin-top on details */
-    .preset-list-details {
-      margin-top: 0;
     }
     /* --- END PATCH --- */
   </style>
@@ -256,26 +254,6 @@
       </header>
       <main id="dash-main-view">
         <!-- Main content injected by JS (including timesave widget and presets screen) -->
-        <!-- PATCH: Example Presets List with details row outside of .preset-list-row -->
-        <section class="presets-section">
-          <div class="presets-list-container">
-            <div class="presets-list">
-              <!-- Example row -->
-              <div class="preset-list-row">
-                <div class="preset-list-content-group">
-                  <div class="preset-list-name">Sample Preset Name</div>
-                </div>
-                <div class="preset-list-actions">
-                  <!-- Actions here -->
-                </div>
-              </div>
-              <div class="preset-list-details" style="display:none;">
-                <!-- Details go here -->
-              </div>
-              <!-- End example row, repeat for each preset -->
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   </div>
