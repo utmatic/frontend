@@ -19,7 +19,7 @@ let jobs = [];
 let jobsLoaded = false; // Track if jobs are already loaded
 
 // --- Time Save & Counter Logic ---
-const SECONDS_PER_LINK = 45;
+const SECONDS_PER_LINK = 30;
 const UNITS = [
   { name: "minutes", label: "Minutes", factor: 60 },
   { name: "hours", label: "Hours", factor: 3600 },
