@@ -990,16 +990,22 @@ html, body {
   display: flex;
   align-items: center;
   min-height: 46px;
-  /* no stretch, no flex-start */
+  background: none;
+  border-bottom: 1px solid var(--gray-divider);
+  /* ... */
+  cursor: pointer;
 }
-
 .preset-list-details {
   display: none;
-  width: 100%;
-  padding: 0 0 16px 0;
-  margin: 0;
+  padding: 14px 18px;
+  background: #232c39;
+  border-bottom: 1px solid var(--gray-divider);
+  animation: fadein 0.13s;
 }
 .preset-list-row.expanded + .preset-list-details {
   display: block;
-  animation: fadein 0.13s;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
