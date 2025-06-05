@@ -258,6 +258,7 @@ function renderHistory(jobs) {
   `;
 }
 
+// PATCH: Collapsible Presets Section (Accordion)
 function renderPresetsSection(presets) {
   return `
     <section>
@@ -265,15 +266,20 @@ function renderPresetsSection(presets) {
       <div id="presets-list">
         ${presets.length === 0 ? `<div style="color:var(--gray-400);margin-bottom:16px;">No presets yet. Create one below!</div>` : ""}
         ${presets.map((preset, idx) => `
-          <div class="preset-item" data-preset-id="${preset.id}">
-            <div class="preset-summary">
+          <div class="preset-item collapsible-preset" data-preset-id="${preset.id}">
+            <div class="preset-summary-row" tabindex="0" aria-expanded="false">
               <span class="preset-title">${preset.name}</span>
-              <span class="preset-formats">${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}</span>
-              <span class="preset-baseurl">${preset.base_url}</span>
+              <span class="collapsible-arrow" aria-hidden="true">&#9654;</span>
             </div>
-            <div class="preset-actions">
-              <button class="edit-preset-btn" data-preset-id="${preset.id}">Edit</button>
-              <button class="delete-preset-btn" data-preset-id="${preset.id}">Delete</button>
+            <div class="preset-details" style="display:none;">
+              <div class="preset-formats">
+                <strong>Target Formats:</strong> ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+              </div>
+              <div class="preset-baseurl"><strong>Base URL:</strong> ${preset.base_url}</div>
+              <div class="preset-actions">
+                <button class="edit-preset-btn" data-preset-id="${preset.id}">Edit</button>
+                <button class="delete-preset-btn" data-preset-id="${preset.id}">Delete</button>
+              </div>
             </div>
           </div>
         `).join('')}
@@ -415,6 +421,49 @@ async function deletePreset(presetId) {
 
 // --- Preset Form UI Logic ---
 function bindPresetsUI() {
+  // PATCH: Collapsible logic for presets
+  document.querySelectorAll('.preset-summary-row').forEach(summary => {
+    summary.onclick = function (e) {
+      // Only toggle if clicked on summary, not on a child button
+      if (e.target.closest('.preset-actions')) return;
+
+      const item = summary.closest('.collapsible-preset');
+      const details = item.querySelector('.preset-details');
+      const arrow = summary.querySelector('.collapsible-arrow');
+      const expanded = summary.getAttribute('aria-expanded') === 'true';
+
+      // Collapse all others
+      document.querySelectorAll('.preset-summary-row').forEach(otherSummary => {
+        if (otherSummary !== summary) {
+          otherSummary.setAttribute('aria-expanded', 'false');
+          const otherArrow = otherSummary.querySelector('.collapsible-arrow');
+          if (otherArrow) otherArrow.innerHTML = '&#9654;'; // right
+          const otherDetails = otherSummary.parentElement.querySelector('.preset-details');
+          if (otherDetails) otherDetails.style.display = 'none';
+        }
+      });
+
+      // Toggle this one
+      if (!expanded) {
+        summary.setAttribute('aria-expanded', 'true');
+        if (arrow) arrow.innerHTML = '&#9660;'; // down
+        if (details) details.style.display = '';
+      } else {
+        summary.setAttribute('aria-expanded', 'false');
+        if (arrow) arrow.innerHTML = '&#9654;'; // right
+        if (details) details.style.display = 'none';
+      }
+    };
+
+    // Also allow keyboard toggle (optional accessibility)
+    summary.onkeydown = function(e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        summary.onclick(e);
+      }
+    };
+  });
+
   // Handle edit, delete, and form submission
   document.querySelectorAll('.edit-preset-btn').forEach(btn => {
     btn.onclick = function() {
