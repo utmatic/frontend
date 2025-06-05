@@ -1009,12 +1009,14 @@ html, body {
 
 .preset-list-details {
   display: none;
-  position: absolute;
-  left: 0; right: 0;
-  top: 100%;
+  /* position: absolute; */  /* <-- REMOVE */
+  /* left: 0; */             /* <-- REMOVE */
+  /* right: 0; */            /* <-- REMOVE */
+  /* top: 100%; */           /* <-- REMOVE */
   background: none;
-  padding: 16px 26px 16px 32px;
-  z-index: 10;
+  border-radius: 0 0 10px 10px;
+  padding: 16px 26px 16px 16px;
+  /* z-index: 10; */         /* <-- REMOVE if not needed */
   border-bottom: 1px solid #29313a;
 }
 .preset-list-row.expanded .preset-list-details {
