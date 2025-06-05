@@ -18,17 +18,16 @@ firebase.initializeApp(firebaseConfig);
 let jobs = [];
 let jobsLoaded = false; // Track if jobs are already loaded
 
-// loader.js
-
+// --- Loader overlay logic (DO NOT REPLICATE THIS IN ANOTHER FILE) ---
 // Show loader overlay until dashboard is fully loaded
-window.showLoader = function() {
+window.showLoader = function () {
   const loader = document.getElementById('loader-overlay');
   if (loader) {
     loader.classList.remove('hide');
     loader.style.display = 'flex';
   }
 };
-window.hideLoader = function() {
+window.hideLoader = function () {
   const loader = document.getElementById('loader-overlay');
   if (loader) {
     loader.classList.add('hide');
@@ -40,61 +39,6 @@ window.hideLoader = function() {
 
 // Show loader immediately on DOM ready
 document.addEventListener('DOMContentLoaded', window.showLoader);
-
-  // (Keep loader visible on initial load)
-  window.showLoader();
-
-  function setView(view) {
-    mainView.innerHTML = views[view]();
-    document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.view === view);
-    });
-
-    // Bind timesave widget events after rendering dashboard
-    if (view === "dashboard" && jobsLoaded) {
-      bindTimesaveWidgetEvents(jobs);
-      updateTimesaveWidget(jobs, currentUnit.name);
-      const link = document.getElementById("view-full-history");
-      if (link) {
-        link.onclick = function(e) {
-          e.preventDefault();
-          window.setView("history");
-        };
-      }
-    }
-  }
-
-  function fetchJobsOnceAndRender(view = "dashboard") {
-    if (jobsLoaded) {
-      setView(view);
-      window.hideLoader(); // HIDE LOADER once initial jobs are loaded
-      return;
-    }
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        window.location.href = "/login";
-        return;
-      }
-      const idToken = await user.getIdToken();
-      fetch('https://backend-idd.onrender.com/jobs', {
-        headers: { Authorization: "Bearer " + idToken }
-      })
-        .then(res => res.json())
-        .then(data => {
-          jobs = data;
-          jobsLoaded = true;
-          setView(view);
-          window.hideLoader(); // HIDE LOADER here after first dashboard render
-        })
-        .catch(err => {
-          console.error('Error loading jobs:', err);
-          jobs = [];
-          jobsLoaded = true;
-          setView(view);
-          window.hideLoader(); // HIDE LOADER even on failure
-        });
-    });
-  }
 
 // --- Time Save & Counter Logic ---
 const SECONDS_PER_LINK = 45;
@@ -181,15 +125,13 @@ function updateTimesaveWidget(jobs, unitName) {
 
 function bindTimesaveWidgetEvents(jobs) {
   document.querySelectorAll('.timesave-unit-btn').forEach(btn => {
-    btn.onclick = function(e) {
+    btn.onclick = function (e) {
       e.preventDefault();
       const unitName = btn.dataset.unit;
       updateTimesaveWidget(jobs, unitName);
     };
   });
 }
-
-// ---------------------
 
 // (No changes to formatting and history helper functions)
 function formatDate(dateInput) {
@@ -364,13 +306,13 @@ function debounce(fn, ms = 300) {
   };
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const mainView = document.getElementById('dash-main-view');
 
   // Only bind sidebar button listeners once using event delegation
   const sidebar = document.querySelector('.dash-sidebar');
   if (sidebar) {
-    sidebar.addEventListener('click', function(e) {
+    sidebar.addEventListener('click', function (e) {
       const btn = e.target.closest('.dash-sidebar-btn');
       if (btn) {
         e.preventDefault();
@@ -394,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
       updateTimesaveWidget(jobs, currentUnit.name);
       const link = document.getElementById("view-full-history");
       if (link) {
-        link.onclick = function(e) {
+        link.onclick = function (e) {
           e.preventDefault();
           window.setView("history");
         };
@@ -406,9 +348,10 @@ document.addEventListener('DOMContentLoaded', function() {
   function fetchJobsOnceAndRender(view = "dashboard") {
     if (jobsLoaded) {
       setView(view);
+      window.hideLoader(); // HIDE LOADER once initial jobs are loaded
       return;
     }
-    firebase.auth().onAuthStateChanged(async function(user) {
+    firebase.auth().onAuthStateChanged(async function (user) {
       if (!user) {
         window.location.href = "/login";
         return;
@@ -422,18 +365,20 @@ document.addEventListener('DOMContentLoaded', function() {
           jobs = data;
           jobsLoaded = true;
           setView(view);
+          window.hideLoader(); // HIDE LOADER here after first dashboard render
         })
         .catch(err => {
           console.error('Error loading jobs:', err);
           jobs = [];
           jobsLoaded = true;
           setView(view);
+          window.hideLoader(); // HIDE LOADER even on failure
         });
     });
   }
 
   // Debounced version for rapid clicks
-  window.setView = debounce(function(view) {
+  window.setView = debounce(function (view) {
     // Only fetch on first load!
     if (!jobsLoaded) {
       fetchJobsOnceAndRender(view);
@@ -451,11 +396,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Handle click and outside click for dropdown
   if (dropdownBtn && dropdownList) {
     // Show/hide on click
-    dropdownBtn.addEventListener('click', function(e) {
+    dropdownBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       dropdownList.classList.toggle('show');
     });
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
         dropdownList.classList.remove('show');
       }
@@ -465,8 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Sign out logic
   const signoutBtn = document.getElementById('signout-btn');
   if (signoutBtn) {
-    signoutBtn.addEventListener('click', function() {
-      firebase.auth().signOut().then(function() {
+    signoutBtn.addEventListener('click', function () {
+      firebase.auth().signOut().then(function () {
         window.location.href = "/login";
       });
     });
