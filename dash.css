@@ -669,10 +669,6 @@ html, body {
   border-bottom: 1px solid var(--gray-divider);
 }
 .preset-list-row:hover,
-.preset-list-row:focus-within {
-  background: #232c39;
-}
-.preset-list-row.selected {
   background: #232c39;
 }
 
