@@ -980,30 +980,48 @@ html, body {
   margin-top: 14px;
   border-radius: 6px;
 }
-.add-preset-link:hover,
-.add-preset-link:focus {
-  color: #fff;
-  text-decoration: none;
-}
 
 .preset-list-row {
   display: flex;
   align-items: center;
   min-height: 46px;
+  position: relative; /* KEY: for absolute children */
+  z-index: 1;
+  margin-bottom: 0; /* We'll create space with the expanded state */
   background: none;
-  border-bottom: 1px solid var(--gray-divider);
-  /* ... */
-  cursor: pointer;
 }
+.preset-list-row.expanded {
+  margin-bottom: 65px; /* Make space for dropdown below */
+}
+
+.preset-list-content-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 15px;
+}
+
+.preset-list-name {
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+}
+
 .preset-list-details {
   display: none;
-  padding: 14px 18px;
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
   background: #232c39;
-  border-bottom: 1px solid var(--gray-divider);
-  animation: fadein 0.13s;
+  border-radius: 0 0 10px 10px;
+  padding: 16px 26px 16px 32px;
+  z-index: 10;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  border-bottom: 1px solid #29313a;
 }
-.preset-list-row.expanded + .preset-list-details {
+.preset-list-row.expanded .preset-list-details {
   display: block;
+  animation: fadein 0.13s;
 }
 @keyframes fadein {
   from { opacity: 0; }
