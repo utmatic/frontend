@@ -736,23 +736,21 @@ html, body {
   text-align: left;
 }
 .preset-list-detail-value {
-  color: #eaf3ff;
-  font-size: 1.01em;
-  word-break: break-word;
-  margin-bottom: 1em;
-  margin-top: 0;
-  margin-left: 0;
-  text-align: left;
-  hyphens: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em 0.5em;
 }
 .preset-list-detail-value code {
-  background: #181c22;
-  color: #b5d6ff;
-  border-radius: 6px;
-  padding: 1.5px 7px;
-  font-size: 0.92em;
-  font-family: 'Work Sans', monospace;
-  margin-right: 2px;
+  white-space: nowrap;
+  background: none;
+  color: inherit;
+  border-radius: 0;
+  padding: 0;
+  font-size: 1em;
+  font-family: inherit;
+  margin-right: 0;
+  hyphens: none;
+  word-break: normal;
 }
 
 .preset-list-actions {
