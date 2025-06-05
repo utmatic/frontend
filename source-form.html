@@ -65,6 +65,14 @@
                 <option value="add_links_with_utm">Add links with UTM</option>
               </select>
             </div>
+            <!-- Presets dropdown: conditionally displayed via JS -->
+            <div class="field-group" id="presets-dropdown-group" style="display: none;">
+              <label for="preset_select">Presets (optional):</label>
+              <select id="preset_select" name="preset_select">
+                <option value="" selected>— Select a preset —</option>
+                <!-- JS populates user's presets here -->
+              </select>
+            </div>
             <div id="link-fields" class="field-row-wrapper" style="display:none;">
               <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
               <div id="target-base-rows"></div>
