@@ -1034,54 +1034,123 @@ html, body {
   background: none !important; /* or any color you want */
 }
 
-.history-table td:last-child,
-.history-table th:last-child {
-  width: 1%;
-  white-space: nowrap;
-  padding-left: 0;
-  padding-right: 6px;  /* Add a little right padding */
-  text-align: center;   /* Center the button, or use left */
+/* Make the table layout fixed for even column spacing and control */
+.history-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.history-delete-btn {
-  margin-left: 0;
-  margin-right: 0;
-  /* Optionally, add a left margin to pull it away from the edge */
-  /* margin-left: 4px; */
+/* Apply consistent padding to all cells for even spacing */
+.history-table th,
+.history-table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+  /* Optional: font-size and color for consistency */
 }
 
-/* Make the File Type column narrow */
+/* Set specific widths for each column based on typical content */
+.history-table th:nth-child(1),
+.history-table td:nth-child(1) { /* Date */
+  width: 200px;
+  min-width: 150px;
+  max-width: 220px;
+}
+
 .history-table th:nth-child(2),
-.history-table td:nth-child(2) {
-  width: 70px;      /* Adjust as needed, e.g. 60-90px */
-  min-width: 50px;
-  max-width: 90px;
+.history-table td:nth-child(2) { /* File Type */
+  width: 96px;
+  min-width: 80px;
+  max-width: 110px;
   text-align: center;
-  padding-left: 0;
-  padding-right: 0;
-  white-space: nowrap;
 }
 
-/* Make the Document Name column wider */
 .history-table th:nth-child(3),
-.history-table td:nth-child(3) {
-  width: 260px;     /* Increase as needed */
-  min-width: 160px;
-  max-width: 420px;
-  /* Allow text ellipsis if needed */
+.history-table td:nth-child(3) { /* Document Name */
+  width: 320px;
+  min-width: 180px;
+  max-width: 450px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Make the Delete button column as narrow as possible and keep button away from edge */
-.history-table th:last-child,
-.history-table td:last-child {
-  width: 1%;
-  min-width: 32px;
+.history-table th:nth-child(4),
+.history-table td:nth-child(4) { /* Job Type */
+  width: 140px;
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.history-table th:nth-child(5),
+.history-table td:nth-child(5) { /* Downloads */
+  width: 110px;
+  min-width: 90px;
+  max-width: 150px;
+  text-align: center;
+}
+
+.history-table th:nth-child(6),
+.history-table td:nth-child(6) { /* Delete button */
+  width: 36px;
+  min-width: 28px;
   max-width: 40px;
   text-align: center;
   padding-left: 0;
-  padding-right: 8px; /* slight space from the edge */
-  white-space: nowrap;
+  padding-right: 0;
+}
+
+/* Spacing between columns for visual separation */
+.history-table th,
+.history-table td {
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.history-table th:last-child,
+.history-table td:last-child {
+  border-right: none;
+}
+
+/* Adjust delete button style to be compact and vertically centered */
+.history-delete-btn {
+  background: none;
+  border: none;
+  color: #c00;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.16s;
+}
+
+.history-delete-btn:hover,
+.history-delete-btn:focus {
+  color: #f55;
+}
+
+/* Responsive tweaks for smaller screens */
+@media (max-width: 900px) {
+  .history-table th,
+  .history-table td {
+    padding: 8px 8px;
+    font-size: 0.97em;
+  }
+  .history-table th:nth-child(3),
+  .history-table td:nth-child(3) {
+    width: 180px;
+    min-width: 80px;
+    max-width: 220px;
+  }
+}
+
+/* Optional: If you want a subtle background on hover */
+.history-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
 }
