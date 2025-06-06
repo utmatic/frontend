@@ -406,7 +406,7 @@ const views = {
   `,
   history: () => `
     <section>
-      <div class="section-title">Processed Jobs History</div>
+      <div class="section-title">History</div>
       ${renderHistory(jobs)}
     </section>
   `,
