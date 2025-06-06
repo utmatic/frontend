@@ -1582,7 +1582,7 @@ select option:disabled {
   width: 100%;
   box-sizing: border-box;
   position: relative;
-  z-index: 5;
+  z-index: 2000;
   margin-bottom: 24px;
 }
 .header-actions {
