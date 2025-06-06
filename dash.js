@@ -147,7 +147,7 @@ function renderHistorySnapshot(jobs) {
         </a>
       </td>
       <td>
-        <button class="history-delete-btn" data-job-id="${job.id}" title="Delete document" aria-label="Delete document">&times;</button>
+        <button class="history-delete-btn" data-job-id="${job.file_name}" title="Delete document" aria-label="Delete document">&times;</button>
       </td>
     </tr>
   `).join("");
@@ -217,14 +217,25 @@ function renderHistory(jobs) {
 }
 
 // PATCH: Bind delete button listeners for history tables
-async function deleteJobFirestore(jobId) {
+async function deleteJobFirestore(job) {
   try {
-    const user = firebase.auth().currentUser;
-    if (!user) throw new Error("No user");
-    const jobsRef = firebase.firestore().collection('userJobs').doc(user.uid).collection('jobs');
-    await jobsRef.doc(jobId).delete();
-    // Remove job from local jobs array
-    jobs = jobs.filter(j => j.id !== jobId);
+    // Decide which collection to use based on filetype
+    let collection = null;
+    if (job.filetype && job.filetype.toUpperCase() === "INDD") {
+      collection = "inddJobs";
+    } else if (job.filetype && job.filetype.toUpperCase() === "PDF") {
+      collection = "pdfJobs";
+    }
+    if (!collection) throw new Error("Unknown filetype for deletion.");
+
+    // Use file_name as the document ID
+    const docId = job.file_name;
+    if (!docId) throw new Error("Missing file_name for deletion.");
+
+    await firebase.firestore().collection(collection).doc(docId).delete();
+
+    // Optionally: remove from jobs array if you keep local state
+    jobs = jobs.filter(j => !(j.filetype === job.filetype && j.file_name === job.file_name));
   } catch (err) {
     throw err;
   }
@@ -237,14 +248,26 @@ function bindHistoryDeleteButtons() {
       const jobId = btn.dataset.jobId;
       if (!jobId) return;
       if (!window.confirm('Delete this document from your history?')) return;
-      // Remove row from DOM
+
+      // Find the job object for this row
       const row = btn.closest('tr');
+      let job = null;
+      // Find by job id, or by matching file_name
+      // If you use job.id as file_name, this will work:
+      job = jobs.find(j => j.id === jobId || j.file_name === jobId);
+
+      if (!job) {
+        alert("Could not find job data for deletion.");
+        return;
+      }
+
+      // Remove row from DOM right away for UX
       if (row) row.remove();
-      // Delete from Firestore and local jobs array
+
       try {
-        await deleteJobFirestore(jobId);
+        await deleteJobFirestore(job);
       } catch (err) {
-        alert("Failed to delete. Please refresh or try again.");
+        alert("Failed to delete: " + (err && err.message ? err.message : err));
       }
     };
   });
