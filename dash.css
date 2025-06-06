@@ -1105,7 +1105,7 @@ html, body {
 /* Spacing between columns for visual separation */
 .history-table th,
 .history-table td {
-  border-right: 1px solid rgba(255,255,255,0.07);
+  border-right: none;
 }
 .history-table th:last-child,
 .history-table td:last-child {
