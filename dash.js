@@ -147,7 +147,7 @@ function renderHistorySnapshot(jobs) {
         </a>
       </td>
       <td>
-        <button class="history-delete-btn" data-job-id="${job.id}" title="Delete document" aria-label="Delete document">&times;</button>
+        <button class="history-delete-btn" data-job-id="${job.id}" data-job-type="${job.filetype}" title="Delete document" aria-label="Delete document">&times;</button>
       </td>
     </tr>
   `).join("");
@@ -191,7 +191,7 @@ function renderHistory(jobs) {
         </a>
       </td>
       <td>
-        <button class="history-delete-btn" data-job-id="${job.id}" title="Delete document" aria-label="Delete document">&times;</button>
+        <button class="history-delete-btn" data-job-id="${job.id}" data-job-type="${job.filetype}" title="Delete document" aria-label="Delete document">&times;</button>
       </td>
     </tr>
   `).join("");
@@ -216,35 +216,53 @@ function renderHistory(jobs) {
   `;
 }
 
-// PATCH: Bind delete button listeners for history tables
-async function deleteJobFirestore(jobId) {
-  try {
-    const user = firebase.auth().currentUser;
-    if (!user) throw new Error("No user");
-    const jobsRef = firebase.firestore().collection('userJobs').doc(user.uid).collection('jobs');
-    await jobsRef.doc(jobId).delete();
-    // Remove job from local jobs array
-    jobs = jobs.filter(j => j.id !== jobId);
-  } catch (err) {
-    throw err;
+// PATCH: Delete job via backend API (not Firestore SDK)
+async function deleteJobBackend(jobId, jobType) {
+  // jobType: "INDD" or "PDF" (case-insensitive)
+  const user = firebase.auth().currentUser;
+  if (!user) throw new Error("No user");
+  // Determine correct type for backend API
+  let typeParam = "";
+  if (jobType && typeof jobType === "string") {
+    const t = jobType.trim().toLowerCase();
+    if (t === "indd") typeParam = "indd";
+    else if (t === "pdf") typeParam = "pdf";
+    else throw new Error("Unknown job type");
+  } else {
+    throw new Error("Missing job type");
   }
+  const idToken = await user.getIdToken();
+  const response = await fetch(`https://backend-idd.onrender.com/jobs/${typeParam}/${encodeURIComponent(jobId)}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + idToken
+    }
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("Failed to delete job: " + errorText);
+  }
+  // Remove job from local jobs array
+  jobs = jobs.filter(j => j.id !== jobId);
 }
 
+// PATCH: Bind delete button listeners for history tables
 function bindHistoryDeleteButtons() {
   document.querySelectorAll('.history-delete-btn').forEach(btn => {
     btn.onclick = async function(e) {
       e.preventDefault();
       const jobId = btn.dataset.jobId;
-      if (!jobId) return;
+      const jobType = btn.dataset.jobType;
+      if (!jobId || !jobType) return;
       if (!window.confirm('Delete this document from your history?')) return;
-      // Remove row from DOM
+      // Remove row from DOM immediately (optimistic UI)
       const row = btn.closest('tr');
       if (row) row.remove();
-      // Delete from Firestore and local jobs array
+      // Delete from backend & local jobs array
       try {
-        await deleteJobFirestore(jobId);
+        await deleteJobBackend(jobId, jobType);
       } catch (err) {
-        alert("Failed to delete. Please refresh or try again.");
+        alert("Failed to delete. Please refresh or try again.\n\n" + (err.message || err));
       }
     };
   });
@@ -564,7 +582,11 @@ document.addEventListener('DOMContentLoaded', function() {
       })
         .then(res => res.json())
         .then(data => {
-          jobs = data;
+          // PATCH: Add an ID to each job for deletion logic
+          jobs = data.map(job => ({
+            ...job,
+            id: job.document // Use document name as unique ID (matches jobId/file_name)
+          }));
           jobsLoaded = true;
           jobsDone = true;
           tryHideOverlayAndShowDashboard();
