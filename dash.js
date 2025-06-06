@@ -113,7 +113,8 @@ function beautifyJobType(str) {
   if (s === "add_utm" || s === "utm_only" || s === "utm only" || s === "add utm") return "UTM only";
   if (
     s === "add_links_and_utm" || s === "links_and_utm" ||
-    s === "add_links_and_utm" || s === "add links and utm" || s === "links and utm"
+    s === "add_links_and_utm" || s === "add links and utm" || s === "links and utm" ||
+    s === "add_links_with_utm" || s === "add links with utm"
   ) return "Links and UTM";
   const fallback = s.replace(/_/g, " ").replace(/\b\w/g, (l, i) => (i === 0 ? l.toUpperCase() : l));
   return fallback;
