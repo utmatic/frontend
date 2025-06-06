@@ -125,12 +125,14 @@ function fileTypeChip(filetype) {
   if (type === "INDD") return `<span class="file-type-chip indd">${type}</span>`;
   return `<span class="file-type-chip">${filetype}</span>`;
 }
+
+// PATCH: Add delete button to each row and bind logic
 function renderHistorySnapshot(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
   }
   const rows = jobs.slice(0, 5).map(job => `
-    <tr>
+    <tr data-job-id="${job.id}">
       <td>${formatDate(job.date)}</td>
       <td>${fileTypeChip(job.filetype)}</td>
       <td>${job.document ?? "{{job.document}}"}</td>
@@ -142,6 +144,9 @@ function renderHistorySnapshot(jobs) {
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download title="Download report">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
         </a>
+      </td>
+      <td>
+        <button class="history-delete-btn" data-job-id="${job.id}" title="Delete document" aria-label="Delete document">&times;</button>
       </td>
     </tr>
   `).join("");
@@ -155,6 +160,7 @@ function renderHistorySnapshot(jobs) {
             <th>Document Name</th>
             <th>Job Type</th>
             <th>Downloads</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -164,12 +170,13 @@ function renderHistorySnapshot(jobs) {
     </div>
   `;
 }
+
 function renderHistory(jobs) {
   if (!jobs || jobs.length === 0) {
     return `<div class="history-list"><div style="text-align:center; font-style:italic; color:var(--gray-400); padding:30px 0;">No history available yet</div></div>`;
   }
   const rows = jobs.map(job => `
-    <tr>
+    <tr data-job-id="${job.id}">
       <td>${formatDate(job.date)}</td>
       <td>${fileTypeChip(job.filetype)}</td>
       <td>${job.document ?? "{{job.document}}"}</td>
@@ -181,6 +188,9 @@ function renderHistory(jobs) {
         <a href="${job.changelogUrl ?? '#'}" class="download-link" download title="Download report">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" class="download-icon" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
         </a>
+      </td>
+      <td>
+        <button class="history-delete-btn" data-job-id="${job.id}" title="Delete document" aria-label="Delete document">&times;</button>
       </td>
     </tr>
   `).join("");
@@ -194,6 +204,7 @@ function renderHistory(jobs) {
             <th>Document Name</th>
             <th>Job Type</th>
             <th>Downloads</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -202,6 +213,40 @@ function renderHistory(jobs) {
       </table>
     </div>
   `;
+}
+
+// PATCH: Bind delete button listeners for history tables
+async function deleteJobFirestore(jobId) {
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) throw new Error("No user");
+    const jobsRef = firebase.firestore().collection('userJobs').doc(user.uid).collection('jobs');
+    await jobsRef.doc(jobId).delete();
+    // Remove job from local jobs array
+    jobs = jobs.filter(j => j.id !== jobId);
+  } catch (err) {
+    throw err;
+  }
+}
+
+function bindHistoryDeleteButtons() {
+  document.querySelectorAll('.history-delete-btn').forEach(btn => {
+    btn.onclick = async function(e) {
+      e.preventDefault();
+      const jobId = btn.dataset.jobId;
+      if (!jobId) return;
+      if (!window.confirm('Delete this document from your history?')) return;
+      // Remove row from DOM
+      const row = btn.closest('tr');
+      if (row) row.remove();
+      // Delete from Firestore and local jobs array
+      try {
+        await deleteJobFirestore(jobId);
+      } catch (err) {
+        alert("Failed to delete. Please refresh or try again.");
+      }
+    };
+  });
 }
 
 function renderPresetsSection(presets) {
@@ -583,6 +628,10 @@ document.addEventListener('DOMContentLoaded', function() {
           window.setView("history");
         };
       }
+      bindHistoryDeleteButtons();
+    }
+    if (view === "history" && jobsLoaded) {
+      bindHistoryDeleteButtons();
     }
     if (view === "presets" && presetsLoaded) {
       bindPresetsUI();
