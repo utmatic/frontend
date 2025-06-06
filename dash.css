@@ -1033,3 +1033,30 @@ html, body {
 .preset-list-details {
   background: none !important; /* or any color you want */
 }
+
+.history-table td:last-child,
+.history-table th:last-child {
+  width: 1%;
+  white-space: nowrap;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: right;
+}
+
+.history-delete-btn {
+  background: none;
+  border: none;
+  color: #c00;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 6px;
+  min-width: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.16s;
+}
