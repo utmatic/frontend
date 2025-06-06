@@ -1,10 +1,10 @@
-body {
-  
+html, body {
   background: #1c232b;
-    }
-    .field-row-wrapper {
-      margin-bottom: 1em;
-    }
+  min-height: 100vh;
+}
+.field-row-wrapper {
+  margin-bottom: 1em;
+}
 .form-header-logo svg {
   width: 40px;
   height: 40px;
