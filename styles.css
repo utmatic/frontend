@@ -242,13 +242,6 @@ html, body {
   transition: color 0.18s;
 }
 
-.startnew-link .startnew-icon,
-.result-return-link .startnew-icon {
-  margin-left: 0.4em;
-  vertical-align: middle;
-  transition: color 0.17s;
-}
-
 .result-report-link:hover,
 .result-report-link:focus,
 .startnew-link:hover,
