@@ -1,6 +1,21 @@
-html, body {
-  background: #1c232b;
+body, html {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-wrapper {
+  flex: 1 0 auto;
+  width: 100%;
+}
+.site-footer {
+  background: #181e25;
+  color: #cce1ff;
+  text-align: center;
+  padding: 1em 0;
+  font-size: 0.97em;
+  position: relative;
+  z-index: 20;
+  letter-spacing: 0.01em;
 }
 .field-row-wrapper {
   margin-bottom: 1em;
