@@ -2,12 +2,6 @@ html, body {
   background: #1c232b;
   min-height: 100vh;
 }
-.page-wrapper {
-  flex: 1 0 auto;
-}
-.site-footer {
-  flex-shrink: 0;
-}
 .field-row-wrapper {
   margin-bottom: 1em;
 }
@@ -1787,16 +1781,4 @@ select option:disabled {
 .new-dropdown-list .dropdown-item:hover {
   background: #29313a;
   color: #fff;
-}
-
-body, html {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-.page-wrapper {
-  flex: 1 0 auto;
-}
-.site-footer {
-  flex-shrink: 0;
 }
