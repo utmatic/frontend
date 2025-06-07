@@ -840,6 +840,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   function fetchAllDataOnLoad() {
+    let jobsDone = false, presetsDone = false, securityDone = false;
+
     firebase.auth().onAuthStateChanged(async function(user) {
       if (!user) {
         window.location.href = "/login";
@@ -888,10 +890,44 @@ document.addEventListener('DOMContentLoaded', function() {
         presetsDone = true;
         tryHideOverlayAndShowDashboard();
       }
+
+      // --- Fetch security settings ---
+      try {
+        const uid = user.uid;
+        const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
+        const doc = await settingsRef.get();
+        if (doc.exists) {
+          const data = doc.data();
+          userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
+          userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
+        } else {
+          userSecuritySettings.autoDeleteDays = 0;
+          userSecuritySettings.sessionTimeoutMinutes = 0;
+        }
+        userSecurityLoaded = true;
+        securityDone = true;
+        tryHideOverlayAndShowDashboard();
+        setupSessionTimeoutWatcher();
+      } catch (e) {
+        console.error('Error loading security settings:', e);
+        userSecuritySettings.autoDeleteDays = 0;
+        userSecuritySettings.sessionTimeoutMinutes = 0;
+        userSecurityLoaded = true;
+        securityDone = true;
+        tryHideOverlayAndShowDashboard();
+        setupSessionTimeoutWatcher();
+      }
     });
+
+    function tryHideOverlayAndShowDashboard() {
+      if (jobsDone && presetsDone && securityDone) {
+        setView("dashboard");
+        hideLoadingOverlay();
+      }
+    }
   }
 
-  // --- Call both at page load ---
+  // --- Call all at page load ---
   fetchAllDataOnLoad();
 
   // --- Sidebar and setView logic ---
