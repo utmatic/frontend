@@ -23,8 +23,11 @@ let presetsLoaded = false;
 // PATCH: Security/Retention settings
 let userSecuritySettings = {
   autoDeleteDays: null, // null means not loaded
+  sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
+let sessionTimeoutTimer = null;
+let sessionTimeoutWarningTimer = null;
 
 const SECONDS_PER_LINK = 30;
 const UNITS = [
