@@ -633,6 +633,12 @@ function setupSessionTimeoutWatcher() {
   }
   let lastActivity = Date.now();
 
+  window.resetSessionTimeoutWatcher = function() {
+    lastActivity = Date.now();
+    hideSessionTimeoutWarning();
+    scheduleTimers();
+  };
+  
   if (!window.__utmaticSessionListenersBound) {
     ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
       window.addEventListener(evt, resetSessionTimeoutWatcher, true)
@@ -688,7 +694,7 @@ function setupSessionTimeoutWatcher() {
       }
       warningEl.style.display = "block";
       warningEl.innerHTML =
-        `<span>⚠️ You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
+        `<span>You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
       sessionTimeoutWarningTimer = setTimeout(update, 1000);
     }
     update();
@@ -705,13 +711,7 @@ function setupSessionTimeoutWatcher() {
       sessionTimeoutWarningTimer = null;
     }
   }
-
-  window.resetSessionTimeoutWatcher = function() {
-    lastActivity = Date.now();
-    hideSessionTimeoutWarning();
-    scheduleTimers();
-  };
-
+  
   scheduleTimers();
 }
 
