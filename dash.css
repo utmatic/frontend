@@ -439,7 +439,6 @@ html, body {
 .timesave-unit-btn:hover {
   background: #1c232b;
   opacity: 1;
-  color: #fff;
 }
 
 @media (max-width: 600px) {
