@@ -1782,3 +1782,15 @@ select option:disabled {
   background: #29313a;
   color: #fff;
 }
+
+body, html {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-wrapper {
+  flex: 1 0 auto;
+}
+.site-footer {
+  flex-shrink: 0;
+}
