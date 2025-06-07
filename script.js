@@ -31,6 +31,80 @@ const tabContents = document.getElementById("tab-contents");
 const fileList = document.getElementById("file-list");
 const processBtn = document.getElementById("process-btn");
 
+// --- HEADER BAR LOGIC (from INDD processor) ---
+document.addEventListener('DOMContentLoaded', function() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    const nameEl = document.getElementById('profile-name');
+    if (!nameEl) return;
+    if (!user) {
+      nameEl.textContent = "";
+    } else if (user.displayName) {
+      nameEl.textContent = user.displayName;
+    } else if (user.email) {
+      nameEl.textContent = user.email;
+    } else {
+      nameEl.textContent = "User";
+    }
+
+    // Set profile icon image if available
+    const profileIcon = document.getElementById('profile-icon');
+    if (profileIcon) {
+      if (user && user.photoURL) {
+        profileIcon.innerHTML = `<img src="${user.photoURL}" alt="user" style="width:100%;height:100%;border-radius:50%;">`;
+      } else {
+        profileIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#cce1ff"><path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" /></svg>`;
+      }
+    }
+  });
+
+  // Header dropdown logic
+  const dropdownBtn = document.getElementById('new-dropdown-btn');
+  const dropdownList = document.getElementById('new-dropdown-list');
+  if (dropdownBtn && dropdownList) {
+    dropdownBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dropdownList.classList.toggle('show');
+    });
+    document.addEventListener('click', function(e) {
+      if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
+        dropdownList.classList.remove('show');
+      }
+    });
+  }
+
+  // Sign out logic
+  const signoutBtn = document.getElementById('signout-btn');
+  if (signoutBtn) {
+    signoutBtn.addEventListener('click', function() {
+      firebase.auth().signOut().then(function() {
+        window.location.href = "/login";
+      });
+    });
+  }
+});
+
+// --- LOADING OVERLAY LOGIC (from INDD processor) ---
+function showPageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
+}
+function hidePageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  showPageLoadingOverlay();
+  setTimeout(hidePageLoadingOverlay, 600); // Simulate async setup. Adjust as needed for your load time.
+});
+
 // Track per-tab last saved state for Save/Dirty logic
 let tabLastSavedState = {};
 
