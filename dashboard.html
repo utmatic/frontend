@@ -69,7 +69,6 @@
         </span>
         <span class="btn-label">History</span>
       </button>
-      <!-- PATCH: Replace Settings with Presets -->
       <button data-view="presets" class="dash-sidebar-btn">
         <span class="btn-icon">
           <!-- Presets Icon (new SVG) -->
@@ -79,7 +78,6 @@
         </span>
         <span class="btn-label">Presets</span>
       </button>
-      <!-- PATCH: Add Security Sidebar Item -->
       <button data-view="security" class="dash-sidebar-btn">
         <span class="btn-icon">
           <!-- Security Icon -->
@@ -123,7 +121,48 @@
         </div>
       </header>
       <main id="dash-main-view">
-        <!-- Main content injected by JS (including timesave widget and presets screen) -->
+        <!-- Main content injected by JS (including timesave widget, security page, presets screen, etc) -->
+        <!-- PATCH: Security page reference markup for devs/designers, rendered by JS (IDs must match for JS logic) -->
+        <section class="security-section" style="display:none" id="security-section-static-markup">
+          <div class="section-title">Security & Data Retention</div>
+          <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
+            <div class="field-group">
+              <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
+              <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
+                <option value="1">1 hour</option>
+                <option value="24">24 hours</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days</option>
+                <option value="2160">90 days</option>
+                <option value="0">Never</option>
+              </select>
+              <div style="color:var(--gray-400);margin-top:8px;">
+                Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
+                <b>Warning:</b> This cannot be undone.
+              </div>
+            </div>
+            <div class="field-group" style="margin-top:22px;">
+              <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
+              <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="180">3 hours</option>
+                <option value="360">6 hours</option>
+                <option value="0">Never</option>
+              </select>
+              <div style="color:var(--gray-400);margin-top:8px;">
+                You'll be automatically logged out if you're inactive for the selected time.<br>
+                <b>Note:</b> This helps protect your account if you leave your device unattended.
+              </div>
+            </div>
+            <button type="submit" class="process-btn" style="margin-top:22px;">Save</button>
+          </form>
+          <div id="security-settings-message" style="margin-top:10px;color:var(--gray-400);"></div>
+          <div id="session-timeout-warning">
+            <!-- This will be populated by JS if user's session is close to expiring -->
+          </div>
+        </section>
         <!-- PATCH: Example Presets List with details row outside of .preset-list-row -->
         <section class="presets-section">
           <div class="presets-list">
