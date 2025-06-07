@@ -1231,3 +1231,147 @@ html, body {
   color: #b3b9c5;
   min-height: 21px;
 }
+
+/* -- DASHBOARD CSS TRANSFER -- /*
+
+    /* --- Timesave Counter Styles --- */
+    .timesave-widget {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      background: #222a33;
+      border-radius: 12px;
+      margin: 5px 0 24px 0;
+      padding: 28px 36px 24px 36px;
+      min-width: 260px;
+      max-width: 100%;
+      box-shadow: none;
+    }
+    .timesave-label {
+      font-size: 1.12rem;
+      font-weight: 500;
+      color: #cce1ff;
+      margin-bottom: 10px;
+    }
+    .timesave-main {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+    .timesave-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      min-width: 90px;
+    }
+    .timesave-unit-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 6px;
+    }
+    .timesave-unit-btn {
+      background: none;
+      border: none;
+      color: #cce1ff;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      opacity: 0.75;
+      transition: opacity 0.18s;
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+    .timesave-unit-btn.active,
+    .timesave-unit-btn:hover {
+      background: none;
+      opacity: 1;
+    }
+    @media (max-width: 600px) {
+      .timesave-widget {
+        padding: 18px 12px 18px 12px;
+        margin: 20px 0 10px 0;
+      }
+      .timesave-value {
+        font-size: 1.5rem;
+        min-width: 56px;
+      }
+    }
+
+    /* --- PATCH: Presets List Styles --- */
+    .presets-list {
+      width: 100%;
+      max-width: 900px;
+      margin: 25px 0px;
+      border-radius: 12px;
+      background: none;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.11);
+    }
+    .preset-list-row {
+      display: flex;
+      align-items: center;
+      min-height: 46px;
+      cursor: pointer;
+      background: #232a33;
+      border-bottom: 1px solid #29313a;
+      transition: background 0.13s;
+      padding: 40px 24px;
+      user-select: none;
+    }
+    .preset-list-row:hover, .preset-list-row.active {
+      background: #232c39;
+    }
+    .preset-list-name {
+      font-weight: 600;
+      color: #e5edfa;
+      font-size: 1.08em;
+      letter-spacing: 0.01em;
+      flex: 1;
+      margin: 12px;
+      padding: 0;
+      line-height: 1.4;
+    }
+    .preset-list-actions {
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .preset-list-details {
+      display: none;
+      background: #253043;
+      padding: 0px 32px;
+      font-size: 1.01em;
+      border-bottom: none;
+      animation: fadein 0.13s;
+    }
+    .preset-list-details.show {
+      display: block;
+    }
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .add-preset-btn {
+      margin: 24px 0 0 24px;
+      background: var(--brand-blue, #4d89f9);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 26px;
+      font-size: 1.07rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+      box-shadow: 0 2px 8px 0 rgba(44, 63, 114, 0.09);
+      display: block;
+      outline: none;
+      width: auto;
+    }
+    .add-preset-btn:hover,
+    .add-preset-btn:focus {
+      background: var(--brand-blue-hover, #3474e0);
+      color: #fff;
+    }
