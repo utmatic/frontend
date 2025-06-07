@@ -1164,30 +1164,34 @@ html, body {
   margin-bottom: 32px;
   box-shadow: 0 4px 16px 0 rgba(44, 63, 114, 0.10);
   width: 100%;
-  max-width: 540px;
+  max-width: 700px; /* PATCH: make wider */
 }
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .security-section {
+    max-width: 98vw;
     padding: 18px 8px 18px 8px;
   }
 }
 
 #security-settings-form .field-group {
-  margin-bottom: 22px;
+  margin-bottom: 32px; /* PATCH: more space between groups */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 }
 
 #security-settings-form label {
   color: #cce1ff;
-  font-size: 1.08em;
-  font-weight: 500;
+  font-size: 1.12em;
+  font-weight: 600;
   margin-bottom: 8px;
+  max-width: 600px; /* PATCH: wider labels */
 }
 
-#auto-delete-select {
+#auto-delete-select,
+#session-timeout-select {
   background: #181c22;
   border: 1.2px solid #2d384b;
   color: #eaf3ff;
@@ -1199,11 +1203,22 @@ html, body {
   margin-top: 7px;
   margin-bottom: 2px;
   transition: border 0.15s, box-shadow 0.14s;
+  width: 100%;
+  max-width: 430px; /* PATCH: make selects wider */
 }
 
-#auto-delete-select:focus {
+#auto-delete-select:focus,
+#session-timeout-select:focus {
   border-color: #5d8fff;
   box-shadow: 0 0 0 2px #4d89f980;
+}
+
+.security-section .field-group > div {
+  color: #c9deff;
+  margin-top: 10px;
+  line-height: 1.6;
+  font-size: 1.04em;
+  max-width: 650px; /* PATCH: make help text wider */
 }
 
 #security-settings-form button[type="submit"] {
@@ -1212,7 +1227,7 @@ html, body {
   border: none;
   border-radius: 8px;
   padding: 12px 32px;
-  font-size: 1.1rem;
+  font-size: 1.13rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.16s, color 0.16s;
@@ -1227,9 +1242,26 @@ html, body {
 
 #security-settings-message {
   margin-top: 16px;
-  font-size: 1.08em;
+  font-size: 1.11em;
   color: #b3b9c5;
   min-height: 21px;
+}
+
+/* PATCH: Style for session timeout warning */
+#session-timeout-warning {
+  margin-top: 25px;
+  background: #2a3d59;
+  color: #ffe9b6;
+  border-radius: 7px;
+  padding: 14px 24px;
+  font-size: 1.13em;
+  font-weight: 500;
+  box-shadow: 0 2px 14px 0 rgba(80, 100, 160, 0.09);
+  display: none;
+  max-width: 600px;
+  /* visually striking for warning */
+  border: 1.5px solid #ffb94d;
+  letter-spacing: 0.01em;
 }
 
 /* -- DASHBOARD CSS TRANSFER -- /*
