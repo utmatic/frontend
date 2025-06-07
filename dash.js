@@ -37,6 +37,24 @@ const UNITS = [
 ];
 let currentUnit = UNITS[0];
 
+function debounce(fn, ms = 300) {
+  let timer;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450);
+  }
+}
+
 function computeTimeSaved(jobs, unitObj = currentUnit) {
   if (!Array.isArray(jobs)) return 0;
   const totalLinks = jobs.reduce((sum, job) => sum + (parseInt(job.linkCount) || 0), 0);
@@ -468,7 +486,7 @@ function bindPresetsUI() {
   }
 }
 
-// PATCH: Updated Security Screen with Session Timeout
+// --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
   const { autoDeleteDays, sessionTimeoutMinutes } = securitySettings;
   // Auto-delete options (in hours/days)
@@ -523,12 +541,9 @@ function renderSecuritySection(securitySettings = {}) {
     </section>
   `;
 }
-
-// PATCH: Bind security UI with session timeout
 function bindSecurityUI() {
   const form = document.getElementById('security-settings-form');
   if (!form) return;
-
   form.onsubmit = async function(e) {
     e.preventDefault();
     const autoDeleteSelect = document.getElementById('auto-delete-select');
@@ -554,11 +569,8 @@ function bindSecurityUI() {
       }
     }
   };
-  // (Re-)setup session timeout watcher in case changed from this page
   setupSessionTimeoutWatcher();
 }
-
-// PATCH: Save both auto-delete and session timeout
 async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
   if (!uid) throw new Error("Not logged in");
@@ -568,8 +580,6 @@ async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes 
     { merge: true }
   );
 }
-
-// PATCH: Load both auto-delete and session timeout from Firestore
 async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
   if (userSecurityLoaded) {
     setView(view);
@@ -608,7 +618,6 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
 
 // --- PATCH: Session Timeout Logic ---
 function setupSessionTimeoutWatcher() {
-  // Remove any previous timers
   if (sessionTimeoutTimer) {
     clearTimeout(sessionTimeoutTimer);
     sessionTimeoutTimer = null;
@@ -617,8 +626,6 @@ function setupSessionTimeoutWatcher() {
     clearTimeout(sessionTimeoutWarningTimer);
     sessionTimeoutWarningTimer = null;
   }
-
-  // Only run if logged in and setting is enabled
   const min = userSecuritySettings.sessionTimeoutMinutes;
   if (!firebase.auth().currentUser || !min || min === 0) {
     hideSessionTimeoutWarning();
@@ -626,7 +633,6 @@ function setupSessionTimeoutWatcher() {
   }
   let lastActivity = Date.now();
 
-  // Attach activity listeners (single global instance)
   if (!window.__utmaticSessionListenersBound) {
     ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
       window.addEventListener(evt, resetSessionTimeoutWatcher, true)
@@ -638,7 +644,7 @@ function setupSessionTimeoutWatcher() {
     return lastActivity + min * 60 * 1000;
   }
   function getWarningTime() {
-    return getExpireTime() - 5 * 60 * 1000; // 5 minutes before expiry
+    return getExpireTime() - 5 * 60 * 1000;
   }
 
   function scheduleTimers() {
@@ -649,15 +655,12 @@ function setupSessionTimeoutWatcher() {
     const timeToExpire = getExpireTime() - now;
     const timeToWarning = getWarningTime() - now;
 
-    // Show warning 5 minutes before timeout
     if (timeToWarning > 0) {
       sessionTimeoutWarningTimer = setTimeout(showSessionTimeoutWarning, timeToWarning);
     } else if (timeToExpire > 0) {
-      // If already inside warning window, show now
       showSessionTimeoutWarning();
     }
 
-    // Logout at expiry
     sessionTimeoutTimer = setTimeout(() => {
       hideSessionTimeoutWarning();
       firebase.auth().signOut().then(() => {
@@ -703,24 +706,19 @@ function setupSessionTimeoutWatcher() {
     }
   }
 
-  // Expose for global access
   window.resetSessionTimeoutWatcher = function() {
     lastActivity = Date.now();
     hideSessionTimeoutWarning();
     scheduleTimers();
   };
 
-  // Start timers
   scheduleTimers();
 }
 
-// PATCH: Startup: always setup watcher after login
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    // When user loaded, always setup timeout watcher if settings loaded
     if (userSecurityLoaded) setupSessionTimeoutWatcher();
   } else {
-    // Not logged in, clear timers/warning
     if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
     if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
     hideSessionTimeoutWarning();
@@ -732,8 +730,6 @@ function getCurrentUserUid() {
   const user = firebase.auth().currentUser;
   return user ? user.uid : null;
 }
-
-/* ...rest of your code unchanged... */
 
 // --- PATCH: Add to views map ---
 const views = {
@@ -758,11 +754,8 @@ const views = {
     </section>
   `,
   presets: () => renderPresetsSection(presets),
-  // PATCH: Security screen
   security: () => renderSecuritySection(userSecuritySettings)
 };
-
-/* ...dashboard init logic unchanged... */
 
 function debounce(fn, ms = 300) {
   let timer;
@@ -771,7 +764,6 @@ function debounce(fn, ms = 300) {
     timer = setTimeout(() => fn.apply(this, args), ms);
   };
 }
-
 function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
@@ -782,10 +774,64 @@ function hideLoadingOverlay() {
   }
 }
 
+async function fetchPresetsOnceAndRender(view = "presets") {
+  if (presetsLoaded) {
+    setView(view);
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const uid = user.uid;
+      const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+      const snapshot = await presetsRef.get();
+      presets = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      presetsLoaded = true;
+      setView(view);
+    } catch (e) {
+      console.error('Error loading presets:', e);
+      presets = [];
+      presetsLoaded = true;
+      setView(view);
+    }
+  });
+}
+async function savePreset({ id, name, target_formats, base_url }) {
+  const uid = getCurrentUserUid();
+  if (!uid) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  if (id) {
+    await presetsRef.doc(id).set({
+      name,
+      target_formats,
+      base_url,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } else {
+    await presetsRef.add({
+      name,
+      target_formats,
+      base_url,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+async function deletePreset(presetId) {
+  const uid = getCurrentUserUid();
+  if (!uid || !presetId) return;
+  const presetsRef = firebase.firestore().collection('userPresets').doc(uid).collection('presets');
+  await presetsRef.doc(presetId).delete();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const mainView = document.getElementById('dash-main-view');
   const sidebar = document.querySelector('.dash-sidebar');
-  // --- NEW LOADING COORDINATOR ---
   let jobsDone = false, presetsDone = false;
   function tryHideOverlayAndShowDashboard() {
     if (jobsDone && presetsDone) {
