@@ -20,6 +20,12 @@ let jobsLoaded = false;
 let presets = [];
 let presetsLoaded = false;
 
+// PATCH: Security/Retention settings
+let userSecuritySettings = {
+  autoDeleteDays: null, // null means not loaded
+};
+let userSecurityLoaded = false;
+
 const SECONDS_PER_LINK = 45;
 const UNITS = [
   { name: "minutes", label: "Minutes", factor: 60 },
@@ -459,6 +465,113 @@ function bindPresetsUI() {
   }
 }
 
+// --- PATCH: Security/Privacy Screen ---
+function renderSecuritySection(securitySettings = {}) {
+  const { autoDeleteDays } = securitySettings;
+  // Define available options
+  const options = [
+    { value: 0, label: "Never (keep my jobs forever)" },
+    { value: 7, label: "7 days" },
+    { value: 14, label: "14 days" },
+    { value: 30, label: "30 days" },
+    { value: 90, label: "90 days" }
+  ];
+  // Determine the selected value
+  const selectedValue = (typeof autoDeleteDays === "number") ? autoDeleteDays : 0;
+
+  return `
+    <section class="security-section">
+      <div class="section-title">Security & Data Retention</div>
+      <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
+        <div class="field-group">
+          <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
+          <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
+            ${options.map(opt => `<option value="${opt.value}"${selectedValue === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
+          </select>
+          <div style="color:var(--gray-400);margin-top:8px;">
+            Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
+            <b>Warning:</b> This cannot be undone.
+          </div>
+        </div>
+        <button type="submit" class="process-btn" style="margin-top:22px;">Save</button>
+      </form>
+      <div id="security-settings-message" style="margin-top:10px;color:var(--gray-400);"></div>
+    </section>
+  `;
+}
+
+function bindSecurityUI() {
+  const form = document.getElementById('security-settings-form');
+  if (!form) return;
+
+  form.onsubmit = async function(e) {
+    e.preventDefault();
+    const select = document.getElementById('auto-delete-select');
+    if (!select) return;
+    const value = parseInt(select.value, 10);
+    const msg = document.getElementById('security-settings-message');
+    try {
+      await saveUserSecuritySettings({ autoDeleteDays: value });
+      userSecuritySettings.autoDeleteDays = value;
+      if (msg) {
+        msg.textContent = "Saved! Your data retention setting has been updated.";
+        msg.style.color = "#4d89f9";
+        setTimeout(() => { msg.textContent = ""; }, 2500);
+      }
+    } catch (err) {
+      if (msg) {
+        msg.textContent = "Failed to save your settings. Please try again.";
+        msg.style.color = "#e74c3c";
+      }
+    }
+  };
+}
+
+// PATCH: Firestore user settings helpers
+function getCurrentUserUid() {
+  const user = firebase.auth().currentUser;
+  return user ? user.uid : null;
+}
+
+async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
+  if (userSecurityLoaded) {
+    setView(view);
+    return;
+  }
+  firebase.auth().onAuthStateChanged(async function(user) {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const uid = user.uid;
+      const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
+      const doc = await settingsRef.get();
+      if (doc.exists) {
+        const data = doc.data();
+        userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
+      } else {
+        userSecuritySettings.autoDeleteDays = 0;
+      }
+      userSecurityLoaded = true;
+      setView(view);
+    } catch (e) {
+      console.error('Error loading security settings:', e);
+      userSecuritySettings.autoDeleteDays = 0;
+      userSecurityLoaded = true;
+      setView(view);
+    }
+  });
+}
+
+async function saveUserSecuritySettings({ autoDeleteDays }) {
+  const uid = getCurrentUserUid();
+  if (!uid) throw new Error("Not logged in");
+  const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
+  await settingsRef.set({ autoDeleteDays: autoDeleteDays }, { merge: true });
+}
+
+// --- PATCH: Add to views map ---
 const views = {
   dashboard: () => `
     <section>
@@ -480,7 +593,9 @@ const views = {
       <div style="color:var(--gray-400);">Settings options will go here.</div>
     </section>
   `,
-  presets: () => renderPresetsSection(presets)
+  presets: () => renderPresetsSection(presets),
+  // PATCH: Security screen
+  security: () => renderSecuritySection(userSecuritySettings)
 };
 
 function debounce(fn, ms = 300) {
@@ -498,10 +613,6 @@ function hideLoadingOverlay() {
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
     }, 450);
   }
-}
-function getCurrentUserUid() {
-  const user = firebase.auth().currentUser;
-  return user ? user.uid : null;
 }
 async function fetchPresetsOnceAndRender(view = "presets") {
   if (presetsLoaded) {
@@ -631,7 +742,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (btn) {
         e.preventDefault();
         if (!btn.classList.contains('active')) {
-          window.setView(btn.dataset.view);
+          if (btn.dataset.view === "security" && !userSecurityLoaded) {
+            fetchUserSecuritySettingsOnceAndRender("security");
+          } else if (btn.dataset.view === "presets" && !presetsLoaded) {
+            fetchPresetsOnceAndRender("presets");
+          } else if (btn.dataset.view === "dashboard" && !jobsLoaded) {
+            setView("dashboard");
+          } else {
+            setView(btn.dataset.view);
+          }
         }
       }
     });
@@ -659,12 +778,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (view === "presets" && presetsLoaded) {
       bindPresetsUI();
     }
+    if (view === "security" && userSecurityLoaded) {
+      bindSecurityUI();
+    }
   }
   window.setView = debounce(function(view) {
-    if (view === "presets" && !presetsLoaded) {
+    if (view === "security" && !userSecurityLoaded) {
+      fetchUserSecuritySettingsOnceAndRender(view);
+    } else if (view === "presets" && !presetsLoaded) {
       fetchPresetsOnceAndRender(view);
     } else if (view === "dashboard" && !jobsLoaded) {
-      // fetchJobsOnceAndRender(view); // Now loaded on page load
+      setView(view);
     } else {
       setView(view);
     }
