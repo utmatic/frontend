@@ -206,7 +206,7 @@ html, body {
 
 /* --- HEADER --- */
 .dash-header {
-  background: var(--background-alt);
+  background: none;
   padding: 0 36px;
   display: flex;
   align-items: center;
