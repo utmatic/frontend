@@ -1,6 +1,13 @@
-html, body {
-  background: #1c232b;
+body, html {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-wrapper {
+  flex: 1 0 auto;
+}
+.site-footer {
+  flex-shrink: 0;
 }
 .field-row-wrapper {
   margin-bottom: 1em;
