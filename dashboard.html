@@ -7,31 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
-  <!-- ADD: Timeout modal CSS -->
-  <link rel="stylesheet" href="timeout.css" />
 
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <!-- ADD: Timeout modal JS -->
-  <script src="timeout.js"></script>
-  <script>
-    // --- Firebase config (replace with your real config if needed) ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
-      authDomain: "utmatic.firebaseapp.com",
-      projectId: "utmatic",
-      storageBucket: "utmatic.firebasestorage.app",
-      messagingSenderId: "106080752806",
-      appId: "1:106080752806:web:217a463a446a850cf71067",
-      measurementId: "G-7JD0EVYF7M"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    // ADD: Start inactivity timeout logic for all users
-    fetchSessionTimeoutAndStart();
-  </script>
 </head>
 <body>
   <!-- Loading Overlay: Pulsing logo icon on #1c232b background -->
