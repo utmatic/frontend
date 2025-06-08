@@ -22,7 +22,6 @@ let presetsLoaded = false;
 
 // PATCH: Security/Retention settings
 let userSecuritySettings = {
-  autoDeleteDays: null, // null means not loaded
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
@@ -288,6 +287,19 @@ function bindHistoryDeleteButtons() {
       // Delete from backend & local jobs array
       try {
         await deleteJobBackend(jobId, jobType);
+
+        // --- Log the deletion in Firestore ---
+        const user = firebase.auth().currentUser;
+        if (user) {
+          const db = firebase.firestore();
+          await db.collection('deletedDocsLog').add({
+            jobId: jobId,
+            jobType: jobType,
+            deletedByUid: user.uid,
+            deletedByEmail: user.email,
+            deletedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
       } catch (err) {
         alert("Failed to delete. Please refresh or try again.\n\n" + (err.message || err));
       }
@@ -364,140 +376,9 @@ function renderPresetsSection(presets) {
   `;
 }
 
-function bindPresetsUI() {
-  // Add new link logic (top of list)
-  const addPresetLink = document.getElementById('add-preset-link');
-  const formWrapper = document.getElementById('preset-form-wrapper');
-  if (addPresetLink && formWrapper) {
-    addPresetLink.onclick = function(e) {
-      e.preventDefault(); // Prevent default link action if <a> tag is used
-      formWrapper.style.display = '';
-      const presetForm = document.getElementById('preset-form');
-      if (presetForm) presetForm.reset();
-      const saveBtn = document.getElementById('save-preset-btn');
-      if (saveBtn) saveBtn.textContent = "Save Preset";
-      const cancelBtn = document.getElementById('cancel-edit-preset-btn');
-      if (cancelBtn) cancelBtn.style.display = 'none';
-      const presetIdInput = document.getElementById('preset-id');
-      if (presetIdInput) presetIdInput.value = '';
-      setTimeout(() => {
-        const nameInput = document.getElementById('preset-name');
-        if (nameInput) nameInput.focus();
-      }, 50);
-    };
-  }
-
-  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
-  document.querySelectorAll('.preset-list-row').forEach(row => {
-    row.addEventListener('click', function(e) {
-      if (e.target.closest('.preset-list-action-btn')) return;
-      const details = row.querySelector('.preset-list-details');
-      const expanded = row.classList.contains('expanded');
-      document.querySelectorAll('.preset-list-row').forEach(r => {
-        r.classList.remove('expanded');
-        r.classList.add('collapsed');
-        const d = r.querySelector('.preset-list-details');
-        if (d) d.style.display = 'none';
-      });
-      if (!expanded) {
-        row.classList.add('expanded');
-        row.classList.remove('collapsed');
-        if (details) details.style.display = 'block';
-      }
-    });
-    row.addEventListener('keydown', function(e) {
-      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-        e.preventDefault();
-        row.click();
-      }
-    });
-  });
-
-  document.querySelectorAll('.preset-list-action-btn.edit').forEach(btn => {
-    btn.onclick = function(e) {
-      e.stopPropagation();
-      const presetId = btn.dataset.presetId;
-      const preset = presets.find(p => p.id === presetId);
-      if (preset) {
-        document.getElementById('preset-form-wrapper').style.display = '';
-        document.getElementById('preset-name').value = preset.name;
-        document.getElementById('preset-target-formats').value = preset.target_formats.join(', ');
-        document.getElementById('preset-base-url').value = preset.base_url;
-        document.getElementById('preset-id').value = preset.id;
-        document.getElementById('cancel-edit-preset-btn').style.display = '';
-        document.getElementById('save-preset-btn').textContent = "Update Preset";
-        document.getElementById('preset-name').focus();
-      }
-    };
-  });
-  document.querySelectorAll('.preset-list-action-btn.delete').forEach(btn => {
-    btn.onclick = async function(e) {
-      e.stopPropagation();
-      const presetId = btn.dataset.presetId;
-      if (window.confirm("Delete this preset?")) {
-        await deletePreset(presetId);
-        presetsLoaded = false;
-        await fetchPresetsOnceAndRender("presets");
-      }
-    };
-  });
-  const presetForm = document.getElementById('preset-form');
-  if (presetForm) {
-    presetForm.onsubmit = async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('preset-name').value.trim();
-      const targetFormatsStr = document.getElementById('preset-target-formats').value.trim();
-      const target_formats = targetFormatsStr.split(',').map(s => s.trim()).filter(Boolean);
-      const base_url = document.getElementById('preset-base-url').value.trim();
-      const id = document.getElementById('preset-id').value;
-      if (!name || !target_formats.length || !base_url) {
-        alert("Please provide all fields.");
-        return;
-      }
-      await savePreset({ id, name, target_formats, base_url });
-      presetsLoaded = false;
-      await fetchPresetsOnceAndRender("presets");
-      presetForm.reset();
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('preset-form-wrapper').style.display = 'none';
-    };
-  }
-  const cancelBtn = document.getElementById('cancel-edit-preset-btn');
-  if (cancelBtn) {
-    cancelBtn.onclick = function() {
-      document.getElementById('preset-form').reset();
-      cancelBtn.style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('preset-form-wrapper').style.display = 'none';
-    };
-  }
-  const closeBtn = document.getElementById('preset-form-close-btn');
-  if (closeBtn && formWrapper) {
-    closeBtn.onclick = function() {
-      formWrapper.style.display = 'none';
-      document.getElementById('preset-form').reset();
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-    };
-  }
-  if (formWrapper) {
-    formWrapper.style.display = 'none';
-  }
-}
-
 // --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
-  const { autoDeleteDays, sessionTimeoutMinutes } = securitySettings;
-  // Auto-delete options (in hours/days)
-  const autoDeleteOptions = [
-    { value: 1, label: "1 hour" },
-    { value: 24, label: "24 hours" },
-    { value: 168, label: "7 days" },
-    { value: 720, label: "30 days" },
-    { value: 2160, label: "90 days" },
-    { value: 0, label: "Never" }
-  ];
+  const { sessionTimeoutMinutes } = securitySettings;
   // Session timeout options (in minutes)
   const sessionTimeoutOptions = [
     { value: 15, label: "15 minutes" },
@@ -507,7 +388,6 @@ function renderSecuritySection(securitySettings = {}) {
     { value: 360, label: "6 hours" },
     { value: 0, label: "Never" }
   ];
-  const selectedAutoDelete = typeof autoDeleteDays === "number" ? autoDeleteDays : 0;
   const selectedSessionTimeout = typeof sessionTimeoutMinutes === "number" ? sessionTimeoutMinutes : 0;
 
   return `
@@ -515,16 +395,6 @@ function renderSecuritySection(securitySettings = {}) {
       <div class="section-title">Security & Data Retention</div>
       <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
         <div class="field-group">
-          <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
-          <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
-            ${autoDeleteOptions.map(opt => `<option value="${opt.value}"${selectedAutoDelete === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
-          </select>
-          <div style="color:var(--gray-400);margin-top:8px;">
-            Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
-            <b>Warning:</b> This cannot be undone.
-          </div>
-        </div>
-        <div class="field-group" style="margin-top:22px;">
           <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
           <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
             ${sessionTimeoutOptions.map(opt => `<option value="${opt.value}"${selectedSessionTimeout === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
@@ -546,15 +416,12 @@ function bindSecurityUI() {
   if (!form) return;
   form.onsubmit = async function(e) {
     e.preventDefault();
-    const autoDeleteSelect = document.getElementById('auto-delete-select');
     const sessionTimeoutSelect = document.getElementById('session-timeout-select');
-    if (!autoDeleteSelect || !sessionTimeoutSelect) return;
-    const autoDeleteValue = parseInt(autoDeleteSelect.value, 10);
+    if (!sessionTimeoutSelect) return;
     const sessionTimeoutValue = parseInt(sessionTimeoutSelect.value, 10);
     const msg = document.getElementById('security-settings-message');
     try {
-      await saveUserSecuritySettings({ autoDeleteDays: autoDeleteValue, sessionTimeoutMinutes: sessionTimeoutValue });
-      userSecuritySettings.autoDeleteDays = autoDeleteValue;
+      await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
       setupSessionTimeoutWatcher();
       if (msg) {
@@ -571,12 +438,12 @@ function bindSecurityUI() {
   };
   setupSessionTimeoutWatcher();
 }
-async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes }) {
+async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
   if (!uid) throw new Error("Not logged in");
   const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
   await settingsRef.set(
-    { autoDeleteDays: autoDeleteDays, sessionTimeoutMinutes: sessionTimeoutMinutes },
+    { sessionTimeoutMinutes: sessionTimeoutMinutes },
     { merge: true }
   );
 }
@@ -596,10 +463,8 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       const doc = await settingsRef.get();
       if (doc.exists) {
         const data = doc.data();
-        userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
         userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
       } else {
-        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
       }
       userSecurityLoaded = true;
@@ -607,7 +472,6 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       setupSessionTimeoutWatcher();
     } catch (e) {
       console.error('Error loading security settings:', e);
-      userSecuritySettings.autoDeleteDays = 0;
       userSecuritySettings.sessionTimeoutMinutes = 0;
       userSecurityLoaded = true;
       setView(view);
@@ -898,10 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const doc = await settingsRef.get();
         if (doc.exists) {
           const data = doc.data();
-          userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
           userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
         } else {
-          userSecuritySettings.autoDeleteDays = 0;
           userSecuritySettings.sessionTimeoutMinutes = 0;
         }
         userSecurityLoaded = true;
@@ -910,7 +772,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSessionTimeoutWatcher();
       } catch (e) {
         console.error('Error loading security settings:', e);
-        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
         userSecurityLoaded = true;
         securityDone = true;
