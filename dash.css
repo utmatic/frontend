@@ -514,7 +514,7 @@ html, body {
 }
 .history-table th:first-child,
 .history-table td:first-child {
-  width: 110px; /* Or whatever you prefer */
+  width: 80px; /* Or whatever you prefer */
   min-width: 80px;
   max-width: 140px;
   white-space: nowrap;
