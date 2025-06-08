@@ -45,47 +45,43 @@ function showInactivityModal() {
 
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
-  inactivityModal.style.zIndex = "99999"; // Ensure it's on top
 
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  const title = document.createElement('h3');
-  title.textContent = "Session Inactivity Warning";
-  modalBox.appendChild(title);
+  // Modal heading: Automatic logout in
+  const heading = document.createElement('h3');
+  heading.textContent = "Session expires in";
+  modalBox.appendChild(heading);
 
-  const timeMsg = document.createElement('p');
-  timeMsg.className = "inactivity-modal-timer";
-  modalBox.appendChild(timeMsg);
+  // Big timer value
+  const timerBig = document.createElement('div');
+  timerBig.className = "inactivity-modal-timer-big";
+  modalBox.appendChild(timerBig);
 
-  const instr = document.createElement('p');
-  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
-  modalBox.appendChild(instr);
+  // Action row
+  const actions = document.createElement('div');
+  actions.className = 'inactivity-modal-actions';
 
-  const btnDiv = document.createElement('div');
-  btnDiv.className = "inactivity-modal-actions";
-
+  // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
-  continueBtn.textContent = "Continue Session";
+  continueBtn.textContent = "Continue working";
+  actions.appendChild(continueBtn);
 
-  const logoutBtn = document.createElement('button');
-  logoutBtn.className = "logout-btn";
-  logoutBtn.textContent = "Log Out";
-
-  btnDiv.appendChild(continueBtn);
-  btnDiv.appendChild(logoutBtn);
-  modalBox.appendChild(btnDiv);
+  modalBox.appendChild(actions);
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
 
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // Timer logic (5 min countdown)
-  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  // Timer logic (countdown)
+  let secondsLeft = inactivityWarningMs / 1000;
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
+    timerBig.textContent = `${min}:${String(sec).padStart(2, "0")}`;
   }
   updateCountdown();
 
@@ -106,12 +102,6 @@ function showInactivityModal() {
     // Restart inactivity timer
     startInactivityTimer();
   };
-
-  logoutBtn.onclick = function () {
-    clearInterval(inactivityInterval);
-    handleLogoutFromInactivity();
-  };
-}
 
 function handleLogoutFromInactivity() {
   if (inactivityModal) {
