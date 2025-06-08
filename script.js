@@ -174,7 +174,6 @@ function handleLogoutFromInactivity() {
       });
     });
   }
-});
 
 // --- LOADING OVERLAY LOGIC (from INDD processor) ---
 function showPageLoadingOverlay() {
