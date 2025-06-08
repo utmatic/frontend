@@ -159,9 +159,9 @@ function showInactivityModal() {
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // "Your session is about to expire"
+  // "Automatic logout in"
   const heading = document.createElement('h3');
-  heading.textContent = "Your session is about to expire";
+  heading.textContent = "Automatic logout in";
   modalBox.appendChild(heading);
 
   // (TIMER VALUE) - emphasized
