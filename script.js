@@ -95,29 +95,27 @@ const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 window.addEventListener('DOMContentLoaded', async () => {
   showPageLoadingOverlay();
 
-  // Gating logic if needed (add your ensureLoggedInAndProBusiness here if required)
-  // ensureLoggedInAndProBusiness();
+  ensureLoggedInAndProBusiness();
 
-  // --- Hide overlays after load (simulate async setup) ---
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
   setTimeout(hidePageLoadingOverlay, 600);
 
   // --- INACTIVITY TIMER START ---
-  // Fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
-  // This example assumes you have a function getUserInactivityTimeout() that fetches it from Firestore
-  let userInactivityTimeoutMinutes = 30; // default fallback
-  if (typeof getUserInactivityTimeout === 'function') {
-    try {
-      const pref = await getUserInactivityTimeout();
-      if (typeof pref === 'number') {
-        userInactivityTimeoutMinutes = pref;
-      }
-    } catch (e) {
-      // fallback to default
-    }
-  } else if (window.userInactivityTimeoutMinutes !== undefined) {
-    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
-  }
-
+  // Always fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
+  let userInactivityTimeoutMinutes = await getUserInactivityTimeout();
   if (userInactivityTimeoutMinutes > 0) {
     window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
     window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
@@ -128,21 +126,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
-
-  let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
-  if (warningDelay <= 0) {
-    // If warning delay is zero or negative, show warning earlier (fallback to 1 second)
-    warningDelay = 1000;
-  }
-  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
 
   // Only reset timer on activity if modal is NOT open
   function activityHandler() {
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
-      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
-      if (warningDelay <= 0) warningDelay = 1000;
-      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
     }
   }
 
@@ -155,8 +145,10 @@ function startInactivityTimer() {
 }
 
 function showInactivityModal() {
+  // Prevent multiple modals
   if (inactivityModal) return;
 
+  // Build modal
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
 
@@ -218,6 +210,7 @@ function showInactivityModal() {
     document.body.removeChild(inactivityModal);
     inactivityModal = null;
     inactivityCountdown = null;
+    // Restart inactivity timer
     startInactivityTimer();
   };
 
@@ -233,6 +226,7 @@ function handleLogoutFromInactivity() {
     inactivityModal = null;
   }
   inactivityCountdown = null;
+  // Remove event listeners to prevent memory leaks
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
