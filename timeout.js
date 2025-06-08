@@ -1,10 +1,6 @@
-// ---- Inactivity Timeout Modal Logic with Cross-tab "Continue Working" Sync ----
-
-// CONFIGURE if your login fallback page is different:
 const INACTIVITY_LOGOUT_REDIRECT = "/login";
 const INACTIVITY_MODAL_CSS = "/timeout.css";
 
-// --- Inject stylesheet if not present ---
 (function ensureInactivityModalCss() {
   if (!document.querySelector('link[data-inactivity-modal-css]')) {
     const link = document.createElement('link');
@@ -15,7 +11,6 @@ const INACTIVITY_MODAL_CSS = "/timeout.css";
   }
 })();
 
-// --- Modal state ---
 let inactivityModal = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
@@ -25,11 +20,13 @@ let inactivityLimitMs = null;
 let inactivityWarningMs = null;
 let inactivitySyncLock = false;
 
-// --- Multi-tab sync events ---
 const MODAL_EVENT_KEY = "inactivity-modal-event-v1";
 const LOGOUT_EVENT_KEY = "inactivity-logout-event-v1";
 
-// --- Main starter ---
+function log(...args) {
+  console.log("[timeout.js]", ...args);
+}
+
 function fetchSessionTimeoutAndStart() {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (!user) return;
@@ -37,7 +34,7 @@ function fetchSessionTimeoutAndStart() {
     try {
       const db = firebase.firestore();
       const doc = await db.collection('userSecurity').doc(user.uid).get();
-      let min = 6; // Default 6 min for testing
+      let min = 6;
       if (doc.exists) {
         const data = doc.data();
         if (typeof data.sessionTimeoutMinutes === "number") {
@@ -45,12 +42,14 @@ function fetchSessionTimeoutAndStart() {
         }
       }
       inactivitySessionTimeoutMinutes = min;
-      if (!min || min === 0) return; // "Never" timeout, don't start inactivity watcher
+      if (!min || min === 0) return;
       inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
       inactivityLimitMs = min * 60 * 1000;
       inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
+      log("Session: " + min + "min, warning in: " + inactivityWarningMinutes + "min");
       startInactivityTimer();
-    } catch {
+    } catch (e) {
+      log("Failed to fetch sessionTimeoutMinutes, using fallback. Error:", e);
       inactivitySessionTimeoutMinutes = 6;
       inactivityWarningMinutes = 5;
       inactivityLimitMs = 6 * 60 * 1000;
@@ -60,8 +59,8 @@ function fetchSessionTimeoutAndStart() {
   });
 }
 
-// --- Timer logic ---
 function clearAllInactivityTimers() {
+  log("Clearing all inactivity timers.");
   clearTimeout(inactivityTimeout);
   inactivityTimeout = null;
   clearInterval(inactivityInterval);
@@ -69,20 +68,22 @@ function clearAllInactivityTimers() {
 }
 
 function startInactivityTimer() {
+  log("Starting inactivity timer.");
   clearAllInactivityTimers();
 
   function activityHandler() {
-    // Only reset timer if modal is not showing
     if (!inactivityModal) {
+      log("Activity detected, resetting inactivity timer.");
       clearAllInactivityTimers();
       inactivityTimeout = setTimeout(() => {
+        log("Inactivity period reached, showing modal.");
         broadcastModalShow();
         showInactivityModal();
       }, inactivityLimitMs - inactivityWarningMs);
     }
   }
 
-  // Remove any previous handlers first
+  // Remove previous
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
@@ -94,14 +95,15 @@ function startInactivityTimer() {
   startInactivityTimer._activityHandler = activityHandler;
 
   inactivityTimeout = setTimeout(() => {
+    log("Inactivity period reached (no activity), showing modal.");
     broadcastModalShow();
     showInactivityModal();
   }, inactivityLimitMs - inactivityWarningMs);
 }
 
-// --- Modal display logic ---
 function showInactivityModal(secondsOverride) {
   if (inactivityModal) return;
+  log("Showing inactivity modal.");
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
 
@@ -141,6 +143,7 @@ function showInactivityModal(secondsOverride) {
   inactivityInterval = setInterval(() => {
     secondsLeft--;
     if (secondsLeft <= 0) {
+      log("Timer hit 0 in modal. Logging out now!");
       clearAllInactivityTimers();
       broadcastLogout();
       handleLogoutFromInactivity();
@@ -150,33 +153,35 @@ function showInactivityModal(secondsOverride) {
   }, 1000);
 
   continueBtn.onclick = function () {
-    // 1. Hide the modal and clear ALL timers in THIS tab immediately
+    log("Continue working clicked.");
     closeInactivityModal();
     clearAllInactivityTimers();
-    // 2. Notify other tabs (who will hide their modal via storage event)
     broadcastModalContinue();
-    // 3. Reset inactivity timer in this tab (fresh start)
+    log("Restarting inactivity timer after continue.");
     startInactivityTimer();
   };
 }
 
-// --- Modal state sync between tabs ---
 window.addEventListener("storage", function(e) {
   if (e.key === MODAL_EVENT_KEY && e.newValue) {
     try {
       const data = JSON.parse(e.newValue);
       if (!data || !data.type) return;
       if (data.type === "show") {
+        log("Received MODAL_EVENT_KEY: show");
         if (!inactivityModal) showInactivityModal(data.secondsLeft);
       } else if (data.type === "continue") {
-        // Hide the modal and reset the timer in all tabs
+        log("Received MODAL_EVENT_KEY: continue");
         closeInactivityModal();
         clearAllInactivityTimers();
         startInactivityTimer();
       }
-    } catch {}
+    } catch (err) {
+      log("Error in storage event:", err);
+    }
   }
   if (e.key === LOGOUT_EVENT_KEY && e.newValue) {
+    log("Received LOGOUT_EVENT_KEY, logging out in this tab.");
     handleLogoutFromInactivity();
   }
 });
@@ -184,6 +189,7 @@ window.addEventListener("storage", function(e) {
 function broadcastModalShow() {
   if (inactivitySyncLock) return;
   inactivitySyncLock = true;
+  log("Broadcasting modal show.");
   localStorage.setItem(MODAL_EVENT_KEY, JSON.stringify({
     type: "show",
     timestamp: Date.now(),
@@ -193,6 +199,7 @@ function broadcastModalShow() {
 }
 
 function broadcastModalContinue() {
+  log("Broadcasting modal continue.");
   localStorage.setItem(MODAL_EVENT_KEY, JSON.stringify({
     type: "continue",
     timestamp: Date.now()
@@ -200,11 +207,12 @@ function broadcastModalContinue() {
 }
 
 function broadcastLogout() {
+  log("Broadcasting logout.");
   localStorage.setItem(LOGOUT_EVENT_KEY, Date.now().toString());
 }
 
-// --- Modal close helper ---
 function closeInactivityModal() {
+  log("Closing inactivity modal.");
   clearInterval(inactivityInterval);
   inactivityInterval = null;
   if (inactivityModal) {
@@ -215,14 +223,13 @@ function closeInactivityModal() {
   }
 }
 
-// --- Log out handler, runs in all tabs ---
 function handleLogoutFromInactivity() {
+  log("Logged out due to inactivity.");
   closeInactivityModal();
   clearAllInactivityTimers();
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
-  // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
       window.location.href = INACTIVITY_LOGOUT_REDIRECT;
@@ -232,7 +239,4 @@ function handleLogoutFromInactivity() {
   }
 }
 
-// --- Export (for ES modules or window global) ---
 window.fetchSessionTimeoutAndStart = fetchSessionTimeoutAndStart;
-
-// ---- END Inactivity Timeout Modal Logic ----
