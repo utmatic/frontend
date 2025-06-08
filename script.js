@@ -95,22 +95,10 @@ const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 window.addEventListener('DOMContentLoaded', async () => {
   showPageLoadingOverlay();
 
-  ensureLoggedInAndProBusiness();
+  // Gating logic if needed (add your ensureLoggedInAndProBusiness here if required)
+  // ensureLoggedInAndProBusiness();
 
-  // --- Make sure conditional fields are hidden on load ---
-  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
-  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
-  lastValidFile = null;
-  const span = document.getElementById('file-filename');
-  if (span) span.textContent = "No file chosen";
-  bindValidationListeners();
-  updateJobTypeFields();
-  validateForm();
-
-  // --- PRESETS (NEW) ---
-  initPresetDropdown();
-
-  // Hide the overlay once everything's loaded (simulate async setup)
+  // --- Hide overlays after load (simulate async setup) ---
   setTimeout(hidePageLoadingOverlay, 600);
 
   // --- INACTIVITY TIMER START ---
@@ -140,13 +128,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
-  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+
+  let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
+  if (warningDelay <= 0) {
+    // If warning delay is zero or negative, show warning earlier (fallback to 1 second)
+    warningDelay = 1000;
+  }
+  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
 
   // Only reset timer on activity if modal is NOT open
   function activityHandler() {
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
+      if (warningDelay <= 0) warningDelay = 1000;
+      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
     }
   }
 
@@ -159,10 +155,8 @@ function startInactivityTimer() {
 }
 
 function showInactivityModal() {
-  // Prevent multiple modals
   if (inactivityModal) return;
 
-  // Build modal
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
 
@@ -224,7 +218,6 @@ function showInactivityModal() {
     document.body.removeChild(inactivityModal);
     inactivityModal = null;
     inactivityCountdown = null;
-    // Restart inactivity timer
     startInactivityTimer();
   };
 
@@ -240,7 +233,6 @@ function handleLogoutFromInactivity() {
     inactivityModal = null;
   }
   inactivityCountdown = null;
-  // Remove event listeners to prevent memory leaks
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
@@ -254,7 +246,7 @@ function handleLogoutFromInactivity() {
   }
 }
 
-// --- LOADING OVERLAY LOGIC (from INDD processor) ---
+// --- Loading Overlay Logic ---
 function showPageLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
