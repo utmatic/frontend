@@ -82,38 +82,6 @@ let inactivityModal = null;
 let inactivityCountdown = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
-const INACTIVITY_LIMIT_MINUTES = 30;
-const INACTIVITY_WARNING_MINUTES = 5;
-const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
-const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
-
-// Start inactivity timer logic on DOMContentLoaded
-window.addEventListener('DOMContentLoaded', () => {
-  showPageLoadingOverlay();
-
-  ensureLoggedInAndProBusiness();
-
-  // --- Make sure conditional fields are hidden on load ---
-  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
-  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
-  lastValidFile = null;
-  const span = document.getElementById('file-filename');
-  if (span) span.textContent = "No file chosen";
-  bindValidationListeners();
-  updateJobTypeFields();
-  validateForm();
-
-  // --- PRESETS (NEW) ---
-  initPresetDropdown();
-
-  // Hide the overlay once everything's loaded (simulate async setup)
-  setTimeout(hidePageLoadingOverlay, 600);
-
-// ---- Inactivity Timeout Modal Logic ----
-let inactivityModal = null;
-let inactivityCountdown = null;
-let inactivityInterval = null;
-let inactivityTimeout = null;
 const INACTIVITY_WARNING_MINUTES = 5;
 const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
