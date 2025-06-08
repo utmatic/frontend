@@ -1,8 +1,8 @@
-// ---- Inactivity Timeout Modal Logic with Cross-tab "Continue Working" Sync ----
+// ---- Reusable Inactivity Timeout Modal Logic (Big Timer Style, Cross-tab Sync, External CSS) ----
 
-// CONFIGURE if your login fallback page is different:
-const INACTIVITY_LOGOUT_REDIRECT = "/auth.html";
-const INACTIVITY_MODAL_CSS = "/timeout.css";
+// CONFIGURE this if your login fallback page is different:
+const INACTIVITY_LOGOUT_REDIRECT = "/login";
+const INACTIVITY_MODAL_CSS = "/timeout.css"; // <-- Path to your CSS file
 
 // --- Inject stylesheet if not present ---
 (function ensureInactivityModalCss() {
@@ -37,7 +37,7 @@ function fetchSessionTimeoutAndStart() {
     try {
       const db = firebase.firestore();
       const doc = await db.collection('userSecurity').doc(user.uid).get();
-      let min = 6; // Default 6 min for testing
+      let min = 6;
       if (doc.exists) {
         const data = doc.data();
         if (typeof data.sessionTimeoutMinutes === "number") {
@@ -45,7 +45,7 @@ function fetchSessionTimeoutAndStart() {
         }
       }
       inactivitySessionTimeoutMinutes = min;
-      if (!min || min === 0) return; // "Never" timeout, don't start inactivity watcher
+      if (!min || min === 0) return;
       inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
       inactivityLimitMs = min * 60 * 1000;
       inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
@@ -60,7 +60,6 @@ function fetchSessionTimeoutAndStart() {
   });
 }
 
-// --- Timer logic ---
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
@@ -86,7 +85,6 @@ function startInactivityTimer() {
   }, inactivityLimitMs - inactivityWarningMs);
 }
 
-// --- Modal display logic ---
 function showInactivityModal(secondsOverride) {
   if (inactivityModal) return;
   inactivityModal = document.createElement('div');
@@ -136,11 +134,15 @@ function showInactivityModal(secondsOverride) {
 
   continueBtn.onclick = function () {
     broadcastModalContinue();
-    // The rest will be handled by the event listener in all tabs (including this one)
+    clearInterval(inactivityInterval);
+    if (inactivityModal) {
+      document.body.removeChild(inactivityModal);
+      inactivityModal = null;
+    }
+    startInactivityTimer();
   };
 }
 
-// --- Modal state sync between tabs ---
 window.addEventListener("storage", function(e) {
   if (e.key === MODAL_EVENT_KEY && e.newValue) {
     try {
@@ -149,7 +151,6 @@ window.addEventListener("storage", function(e) {
       if (data.type === "show") {
         if (!inactivityModal) showInactivityModal(data.secondsLeft);
       } else if (data.type === "continue") {
-        // Hide the modal and reset the timer in all tabs, including the one where the button was clicked
         closeInactivityModal();
         startInactivityTimer();
       }
@@ -182,7 +183,6 @@ function broadcastLogout() {
   localStorage.setItem(LOGOUT_EVENT_KEY, Date.now().toString());
 }
 
-// --- Modal close helper ---
 function closeInactivityModal() {
   clearInterval(inactivityInterval);
   if (inactivityModal) {
@@ -191,13 +191,11 @@ function closeInactivityModal() {
   }
 }
 
-// --- Log out handler, runs in all tabs ---
 function handleLogoutFromInactivity() {
   closeInactivityModal();
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
-  // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
       window.location.href = INACTIVITY_LOGOUT_REDIRECT;
@@ -207,7 +205,5 @@ function handleLogoutFromInactivity() {
   }
 }
 
-// --- Export (for ES modules or window global) ---
 window.fetchSessionTimeoutAndStart = fetchSessionTimeoutAndStart;
-
 // ---- END Inactivity Timeout Modal Logic ----
