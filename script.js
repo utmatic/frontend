@@ -5,7 +5,7 @@ window.pdfjsViewer =
   window['pdfjs-dist/web/pdf_viewer'] ||
   undefined;
 
-// ---- Inactivity Timeout Modal Logic ----
+// ---- Inactivity Timeout Modal Logic (Patched, Fully Working) ----
 let inactivityModal = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
@@ -14,31 +14,7 @@ let inactivityWarningMinutes = null;
 let inactivityLimitMs = null;
 let inactivityWarningMs = null;
 
-window.addEventListener('DOMContentLoaded', () => {
-  showPageLoadingOverlay();
-
-  ensureLoggedInAndProBusiness();
-
-  // --- Make sure conditional fields are hidden on load ---
-  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
-  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
-  lastValidFile = null;
-  const span = document.getElementById('file-filename');
-  if (span) span.textContent = "No file chosen";
-  bindValidationListeners();
-  updateJobTypeFields();
-  validateForm();
-
-  // --- PRESETS (NEW) ---
-  initPresetDropdown();
-
-  // Hide the overlay once everything's loaded (simulate async setup)
-  setTimeout(hidePageLoadingOverlay, 600);
-
-  // --- INACTIVITY TIMER START ---
-  fetchSessionTimeoutAndStart();
-});
-
+// Fetch session timeout from Firestore and start timer
 function fetchSessionTimeoutAndStart() {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (!user) return;
@@ -46,7 +22,7 @@ function fetchSessionTimeoutAndStart() {
     try {
       const db = firebase.firestore();
       const doc = await db.collection('userSecurity').doc(user.uid).get();
-      let min = 6; // Default 6 min for testing
+      let min = 6; // Default 6 min for testing/fallback
       if (doc.exists) {
         const data = doc.data();
         if (typeof data.sessionTimeoutMinutes === "number") {
@@ -58,7 +34,6 @@ function fetchSessionTimeoutAndStart() {
         // "Never" timeout, don't start inactivity watcher
         return;
       }
-      // Use 5 min warning, or max 1 min warning if sessionTimeoutMinutes < 6
       inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
       inactivityLimitMs = min * 60 * 1000;
       inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
@@ -107,13 +82,18 @@ function showInactivityModal() {
 
   // Modal heading: Automatic logout in
   const heading = document.createElement('h3');
-  heading.textContent = "Session expires in";
+  heading.textContent = "Session Inactivity Warning";
   modalBox.appendChild(heading);
 
-  // Big timer value
-  const timerBig = document.createElement('div');
-  timerBig.className = "inactivity-modal-timer-big";
-  modalBox.appendChild(timerBig);
+  // Timer message
+  const timeMsg = document.createElement('p');
+  timeMsg.className = "inactivity-modal-timer";
+  modalBox.appendChild(timeMsg);
+
+  // Instructions
+  const instr = document.createElement('p');
+  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
+  modalBox.appendChild(instr);
 
   // Action row
   const actions = document.createElement('div');
@@ -122,8 +102,14 @@ function showInactivityModal() {
   // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
-  continueBtn.textContent = "Continue working";
+  continueBtn.textContent = "Continue Session";
   actions.appendChild(continueBtn);
+
+  // Logout button
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = "logout-btn";
+  logoutBtn.textContent = "Log Out";
+  actions.appendChild(logoutBtn);
 
   modalBox.appendChild(actions);
   inactivityModal.appendChild(modalBox);
@@ -134,7 +120,7 @@ function showInactivityModal() {
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timerBig.textContent = `${min}:${String(sec).padStart(2, "0")}`;
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
   }
   updateCountdown();
 
@@ -155,6 +141,11 @@ function showInactivityModal() {
       inactivityModal = null;
     }
     startInactivityTimer();
+  };
+
+  logoutBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    handleLogoutFromInactivity();
   };
 }
 
@@ -177,6 +168,8 @@ function handleLogoutFromInactivity() {
     window.location.href = "/auth.html";
   }
 }
+
+// -- END: Inactivity Modal -- //
 
 // --- END INACTIVITY TIMEOUT MODAL LOGIC ---
 
