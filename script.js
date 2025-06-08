@@ -95,19 +95,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   // ... your other DOMContentLoaded logic ...
 
   // --- INACTIVITY TIMER START ---
-  let userInactivityTimeoutMinutes = 30; // Default fallback
-  if (typeof getUserInactivityTimeout === 'function') {
-    try {
-      const pref = await getUserInactivityTimeout();
-      if (typeof pref === 'number') {
-        userInactivityTimeoutMinutes = pref;
-      }
-    } catch (e) {
-      // fallback to default
-    }
-  } else if (window.userInactivityTimeoutMinutes !== undefined) {
-    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
-  }
+// Use the user's security preference
+let userInactivityTimeoutMinutes = userSecuritySettings.sessionTimeoutMinutes;
+// Fallback in case it's not set yet, but this should almost never happen
+if (typeof userInactivityTimeoutMinutes !== 'number' || userInactivityTimeoutMinutes <= 0) {
+  userInactivityTimeoutMinutes = 30;
+}
 
   if (userInactivityTimeoutMinutes > 0) {
     window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
