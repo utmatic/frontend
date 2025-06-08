@@ -101,7 +101,6 @@ window.addEventListener('DOMContentLoaded', () => {
   lastValidFile = null;
   const span = document.getElementById('file-filename');
   if (span) span.textContent = "No file chosen";
-  bindValidationListeners();
   updateJobTypeFields();
   validateForm();
 
