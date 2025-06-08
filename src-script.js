@@ -77,168 +77,158 @@ function hidePageLoadingOverlay() {
   }
 }
 
-// --- PATCH: Session Timeout Modal Logic ---
-let sessionTimeoutModal = null;
-let sessionTimeoutModalInterval = null;
-let sessionTimeoutModalTimer = null;
-let sessionTimeoutModalWarningTimer = null;
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_LIMIT_MINUTES = 30;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
-function setupSessionTimeoutModalWatcher() {
-  if (sessionTimeoutModalTimer) {
-    clearTimeout(sessionTimeoutModalTimer);
-    sessionTimeoutModalTimer = null;
-  }
-  if (sessionTimeoutModalWarningTimer) {
-    clearTimeout(sessionTimeoutModalWarningTimer);
-    sessionTimeoutModalWarningTimer = null;
-  }
-  if (sessionTimeoutModalInterval) {
-    clearInterval(sessionTimeoutModalInterval);
-    sessionTimeoutModalInterval = null;
-  }
-  const min = userSecuritySettings.sessionTimeoutMinutes;
-  if (!firebase.auth().currentUser || !min || min === 0) {
-    return;
-  }
-  let lastActivity = Date.now();
+// Start inactivity timer logic on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+  showPageLoadingOverlay();
 
-  // Only reset the timer if modal is NOT open!
-  window.resetSessionTimeoutModalWatcher = function() {
-    if (!sessionTimeoutModal) {
-      lastActivity = Date.now();
-      scheduleSessionTimeoutTimers();
-    }
-  };
+  ensureLoggedInAndProBusiness();
 
-  if (!window.__utmaticSessionModalListenersBound) {
-    ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
-      window.addEventListener(evt, window.resetSessionTimeoutModalWatcher, true)
-    );
-    window.__utmaticSessionModalListenersBound = true;
-  }
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
 
-  function getExpireTime() {
-    return lastActivity + min * 60 * 1000;
-  }
-  function getWarningTime() {
-    return getExpireTime() - 5 * 60 * 1000;
-  }
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
 
-  function scheduleSessionTimeoutTimers() {
-    if (sessionTimeoutModalTimer) clearTimeout(sessionTimeoutModalTimer);
-    if (sessionTimeoutModalWarningTimer) clearTimeout(sessionTimeoutModalWarningTimer);
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600);
 
-    const now = Date.now();
-    const timeToExpire = getExpireTime() - now;
-    const timeToWarning = getWarningTime() - now;
+  // --- INACTIVITY TIMER START ---
+  startInactivityTimer();
+});
 
-    if (timeToWarning > 0) {
-      sessionTimeoutModalWarningTimer = setTimeout(showSessionTimeoutModal, timeToWarning);
-    } else if (timeToExpire > 0) {
-      showSessionTimeoutModal();
-    }
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
 
-    sessionTimeoutModalTimer = setTimeout(() => {
-      removeSessionTimeoutModal();
-      firebase.auth().signOut().then(() => {
-        window.location.href = "/login?timeout=1";
-      });
-    }, timeToExpire);
-  }
-
-  function showSessionTimeoutModal() {
-    if (sessionTimeoutModal) return;
-
-    sessionTimeoutModal = document.createElement('div');
-    sessionTimeoutModal.id = "inactivity-modal";
-    // Styling handled by CSS only
-
-    const modalBox = document.createElement('div');
-    modalBox.className = "inactivity-modal-box";
-
-    // Title: "Automatic logout in"
-    const title = document.createElement('div');
-    title.className = "inactivity-modal-title";
-    title.textContent = "Automatic logout in";
-    modalBox.appendChild(title);
-
-    // The time value (big)
-    const timeValue = document.createElement('div');
-    timeValue.className = "inactivity-modal-timer";
-    modalBox.appendChild(timeValue);
-
-    // Subtext: "Do you want to extend the session?"
-    const instr = document.createElement('div');
-    instr.className = "inactivity-modal-instr";
-    instr.textContent = "Do you want to extend the session?";
-    modalBox.appendChild(instr);
-
-    // Continue Button
-    const continueBtn = document.createElement('button');
-    continueBtn.className = "continue-session-btn";
-    continueBtn.textContent = "Continue";
-    modalBox.appendChild(continueBtn);
-
-    sessionTimeoutModal.appendChild(modalBox);
-    document.body.appendChild(sessionTimeoutModal);
-
-    // Timer logic (5 min countdown)
-    let secondsLeft = 5 * 60;
-    function updateCountdown() {
-      let min = Math.floor(secondsLeft / 60);
-      let sec = Math.floor(secondsLeft % 60);
-      // Format as MM:SS, bold/large handled by CSS class
-      timeValue.textContent = `${min}:${String(sec).padStart(2, "0")}`;
-    }
-    updateCountdown();
-
-    sessionTimeoutModalInterval = setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft <= 0) {
-        clearInterval(sessionTimeoutModalInterval);
-        removeSessionTimeoutModal();
-        firebase.auth().signOut().then(() => {
-          window.location.href = "/login?timeout=1";
-        });
-        return;
-      }
-      updateCountdown();
-    }, 1000);
-
-    continueBtn.onclick = function () {
-      clearInterval(sessionTimeoutModalInterval);
-      removeSessionTimeoutModal();
-      window.resetSessionTimeoutModalWatcher();
-    };
-  }
-
-  function removeSessionTimeoutModal() {
-    if (sessionTimeoutModal) {
-      document.body.removeChild(sessionTimeoutModal);
-      sessionTimeoutModal = null;
-    }
-    if (sessionTimeoutModalInterval) {
-      clearInterval(sessionTimeoutModalInterval);
-      sessionTimeoutModalInterval = null;
+  // Only reset timer on activity if modal is NOT open
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
     }
   }
 
-  scheduleSessionTimeoutTimers();
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  // Store for cleanup if needed
+  startInactivityTimer._activityHandler = activityHandler;
 }
 
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    if (userSecurityLoaded) setupSessionTimeoutModalWatcher();
-  } else {
-    if (sessionTimeoutModalTimer) clearTimeout(sessionTimeoutModalTimer);
-    if (sessionTimeoutModalWarningTimer) clearTimeout(sessionTimeoutModalWarningTimer);
-    if (sessionTimeoutModalInterval) clearInterval(sessionTimeoutModalInterval);
-    if (sessionTimeoutModal) {
-      document.body.removeChild(sessionTimeoutModal);
-      sessionTimeoutModal = null;
-    }
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (inactivityModal) return;
+
+  // Build modal
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+
+  const modalBox = document.createElement('div');
+  modalBox.className = "inactivity-modal-box";
+
+  const title = document.createElement('h3');
+  title.textContent = "Session Inactivity Warning";
+  modalBox.appendChild(title);
+
+  const timeMsg = document.createElement('p');
+  timeMsg.className = "inactivity-modal-timer";
+  modalBox.appendChild(timeMsg);
+
+  const instr = document.createElement('p');
+  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
+  modalBox.appendChild(instr);
+
+  // Actions
+  const btnDiv = document.createElement('div');
+  btnDiv.className = "inactivity-modal-actions";
+
+  const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
+  continueBtn.textContent = "Continue Session";
+
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = "logout-btn";
+  logoutBtn.textContent = "Log Out";
+
+  btnDiv.appendChild(continueBtn);
+  btnDiv.appendChild(logoutBtn);
+  modalBox.appendChild(btnDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // Timer logic (5 min countdown)
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
   }
-});
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    // Restart inactivity timer
+    startInactivityTimer();
+  };
+
+  logoutBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    handleLogoutFromInactivity();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  // Remove event listeners to prevent memory leaks
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
+}
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
 let previousSubmissionData = null;
