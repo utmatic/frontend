@@ -439,7 +439,8 @@ html, body {
 }
 .timesave-unit-btn.active,
 .timesave-unit-btn:hover {
-  background: none;           /* From second block */
+  background: none;  
+  color: #fff;
   opacity: 1;
 }
 
