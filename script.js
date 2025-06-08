@@ -5,30 +5,84 @@ window.pdfjsViewer =
   window['pdfjs-dist/web/pdf_viewer'] ||
   undefined;
 
-// --- INACTIVITY TIMEOUT MODAL LOGIC ---
+// ---- Inactivity Timeout Modal Logic ----
 let inactivityModal = null;
-let inactivityTimeout = null;
 let inactivityInterval = null;
-const INACTIVITY_LIMIT_MINUTES = 6;   // total inactivity time before logout (minutes)
-const INACTIVITY_WARNING_MINUTES = 5; // show modal with countdown this many minutes before logout
-const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
-const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+let inactivityTimeout = null;
+let inactivitySessionTimeoutMinutes = null; // fetched from user preference
+let inactivityWarningMinutes = null;
+let inactivityLimitMs = null;
+let inactivityWarningMs = null;
 
-// Start inactivity timer logic on DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
-  startInactivityTimer();
+  showPageLoadingOverlay();
+
+  ensureLoggedInAndProBusiness();
+
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600);
+
+  // --- INACTIVITY TIMER START ---
+  fetchSessionTimeoutAndStart();
 });
+
+function fetchSessionTimeoutAndStart() {
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (!user) return;
+    if (typeof firebase.firestore !== "function") return;
+    try {
+      const db = firebase.firestore();
+      const doc = await db.collection('userSecurity').doc(user.uid).get();
+      let min = 6; // Default 6 min for testing
+      if (doc.exists) {
+        const data = doc.data();
+        if (typeof data.sessionTimeoutMinutes === "number") {
+          min = data.sessionTimeoutMinutes;
+        }
+      }
+      inactivitySessionTimeoutMinutes = min;
+      if (!min || min === 0) {
+        // "Never" timeout, don't start inactivity watcher
+        return;
+      }
+      // Use 5 min warning, or max 1 min warning if sessionTimeoutMinutes < 6
+      inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
+      inactivityLimitMs = min * 60 * 1000;
+      inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
+      startInactivityTimer();
+    } catch (e) {
+      // If error, just default to 6 min as fallback
+      inactivitySessionTimeoutMinutes = 6;
+      inactivityWarningMinutes = 5;
+      inactivityLimitMs = 6 * 60 * 1000;
+      inactivityWarningMs = 5 * 60 * 1000;
+      startInactivityTimer();
+    }
+  });
+}
 
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
-  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
 
   // Only reset timer on activity if modal is NOT open
   function activityHandler() {
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+      inactivityTimeout = setTimeout(showInactivityModal, inactivityLimitMs - inactivityWarningMs);
     }
   }
 
@@ -36,56 +90,51 @@ function startInactivityTimer() {
   window.addEventListener('keydown', activityHandler);
   window.addEventListener('click', activityHandler);
 
-  // Store for cleanup if needed
   startInactivityTimer._activityHandler = activityHandler;
+
+  inactivityTimeout = setTimeout(showInactivityModal, inactivityLimitMs - inactivityWarningMs);
 }
 
 function showInactivityModal() {
+  // Prevent multiple modals
   if (inactivityModal) return;
 
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
-  inactivityModal.style.zIndex = "99999"; // Ensure it's on top
 
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  const title = document.createElement('h3');
-  title.textContent = "Session Inactivity Warning";
-  modalBox.appendChild(title);
+  // Modal heading: Automatic logout in
+  const heading = document.createElement('h3');
+  heading.textContent = "Session expires in";
+  modalBox.appendChild(heading);
 
-  const timeMsg = document.createElement('p');
-  timeMsg.className = "inactivity-modal-timer";
-  modalBox.appendChild(timeMsg);
+  // Big timer value
+  const timerBig = document.createElement('div');
+  timerBig.className = "inactivity-modal-timer-big";
+  modalBox.appendChild(timerBig);
 
-  const instr = document.createElement('p');
-  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
-  modalBox.appendChild(instr);
+  // Action row
+  const actions = document.createElement('div');
+  actions.className = 'inactivity-modal-actions';
 
-  const btnDiv = document.createElement('div');
-  btnDiv.className = "inactivity-modal-actions";
-
+  // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
-  continueBtn.textContent = "Continue Session";
+  continueBtn.textContent = "Continue working";
+  actions.appendChild(continueBtn);
 
-  const logoutBtn = document.createElement('button');
-  logoutBtn.className = "logout-btn";
-  logoutBtn.textContent = "Log Out";
-
-  btnDiv.appendChild(continueBtn);
-  btnDiv.appendChild(logoutBtn);
-  modalBox.appendChild(btnDiv);
-
+  modalBox.appendChild(actions);
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // Timer logic (5 min countdown)
-  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  // Timer logic (countdown)
+  let secondsLeft = inactivityWarningMs / 1000;
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
+    timerBig.textContent = `${min}:${String(sec).padStart(2, "0")}`;
   }
   updateCountdown();
 
@@ -101,15 +150,11 @@ function showInactivityModal() {
 
   continueBtn.onclick = function () {
     clearInterval(inactivityInterval);
-    document.body.removeChild(inactivityModal);
-    inactivityModal = null;
-    // Restart inactivity timer
+    if (inactivityModal) {
+      document.body.removeChild(inactivityModal);
+      inactivityModal = null;
+    }
     startInactivityTimer();
-  };
-
-  logoutBtn.onclick = function () {
-    clearInterval(inactivityInterval);
-    handleLogoutFromInactivity();
   };
 }
 
@@ -122,6 +167,7 @@ function handleLogoutFromInactivity() {
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
+
   // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
