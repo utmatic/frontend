@@ -403,7 +403,6 @@ html, body {
   font-weight: 500;
   color: #cce1ff;
   margin-bottom: 10px;
-  text-align: center;
 }
 .timesave-main {
   display: flex;
@@ -414,7 +413,6 @@ html, body {
   font-size: 2.5rem;
   font-weight: 700;
   color: #fff;
-  text-align: center;
   letter-spacing: 0px;
   width: 110px;           /* Adjust as needed for your largest value */
   display: inline-block;  /* Ensures width is respected */
