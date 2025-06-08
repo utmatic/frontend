@@ -1,7 +1,19 @@
-// ---- Reusable Inactivity Timeout Modal Logic (Big Timer Style, Cross-tab Sync) ----
+// ---- Reusable Inactivity Timeout Modal Logic (Big Timer Style, Cross-tab Sync, External CSS) ----
 
 // CONFIGURE this if your login fallback page is different:
-const INACTIVITY_LOGOUT_REDIRECT = "/auth.html";
+const INACTIVITY_LOGOUT_REDIRECT = "/login";
+const INACTIVITY_MODAL_CSS = "/timeout.css"; // <-- Path to your CSS file
+
+// --- Inject stylesheet if not present ---
+(function ensureInactivityModalCss() {
+  if (!document.querySelector('link[data-inactivity-modal-css]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = INACTIVITY_MODAL_CSS;
+    link.setAttribute('data-inactivity-modal-css', '1');
+    document.head.appendChild(link);
+  }
+})();
 
 // --- Modal state ---
 let inactivityModal = null;
@@ -25,7 +37,7 @@ function fetchSessionTimeoutAndStart() {
     try {
       const db = firebase.firestore();
       const doc = await db.collection('userSecurity').doc(user.uid).get();
-      let min = 6; // Default 6 min for testing
+      let min = 6;
       if (doc.exists) {
         const data = doc.data();
         if (typeof data.sessionTimeoutMinutes === "number") {
@@ -33,7 +45,7 @@ function fetchSessionTimeoutAndStart() {
         }
       }
       inactivitySessionTimeoutMinutes = min;
-      if (!min || min === 0) return; // "Never" timeout, don't start inactivity watcher
+      if (!min || min === 0) return;
       inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
       inactivityLimitMs = min * 60 * 1000;
       inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
@@ -48,7 +60,6 @@ function fetchSessionTimeoutAndStart() {
   });
 }
 
-// --- Timer logic ---
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
@@ -74,46 +85,20 @@ function startInactivityTimer() {
   }, inactivityLimitMs - inactivityWarningMs);
 }
 
-// --- Modal display logic ---
 function showInactivityModal(secondsOverride) {
   if (inactivityModal) return;
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
-  inactivityModal.style.position = "fixed";
-  inactivityModal.style.top = 0;
-  inactivityModal.style.left = 0;
-  inactivityModal.style.width = "100vw";
-  inactivityModal.style.height = "100vh";
-  inactivityModal.style.background = "rgba(0,0,0,0.42)";
-  inactivityModal.style.zIndex = "10000";
-  inactivityModal.style.display = "flex";
-  inactivityModal.style.alignItems = "center";
-  inactivityModal.style.justifyContent = "center";
 
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
-  modalBox.style.background = "#fff";
-  modalBox.style.borderRadius = "10px";
-  modalBox.style.padding = "38px 38px 32px 38px";
-  modalBox.style.boxShadow = "0 6px 32px rgba(0,0,0,0.14)";
-  modalBox.style.textAlign = "center";
-  modalBox.style.maxWidth = "320px";
-  modalBox.style.minWidth = "230px";
 
   const heading = document.createElement('h3');
   heading.textContent = "Session expires in";
-  heading.style.fontWeight = "600";
-  heading.style.fontSize = "1.31em";
-  heading.style.margin = "0 0 10px 0";
   modalBox.appendChild(heading);
 
   const timerBig = document.createElement('div');
   timerBig.className = "inactivity-modal-timer-big";
-  timerBig.style.fontSize = "2.7em";
-  timerBig.style.fontWeight = "bold";
-  timerBig.style.margin = "20px 0 12px 0";
-  timerBig.style.letterSpacing = "1px";
-  timerBig.style.color = "#174ea6";
   modalBox.appendChild(timerBig);
 
   const actions = document.createElement('div');
@@ -122,22 +107,12 @@ function showInactivityModal(secondsOverride) {
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
   continueBtn.textContent = "Continue working";
-  continueBtn.style.fontSize = "1.08em";
-  continueBtn.style.padding = "11px 32px";
-  continueBtn.style.marginTop = "14px";
-  continueBtn.style.background = "#1a73e8";
-  continueBtn.style.color = "#fff";
-  continueBtn.style.border = "none";
-  continueBtn.style.borderRadius = "4px";
-  continueBtn.style.fontWeight = "600";
-  continueBtn.style.cursor = "pointer";
   actions.appendChild(continueBtn);
 
   modalBox.appendChild(actions);
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // Timer logic (countdown)
   let secondsLeft = typeof secondsOverride === "number" ? secondsOverride : (inactivityWarningMs / 1000);
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
@@ -168,7 +143,6 @@ function showInactivityModal(secondsOverride) {
   };
 }
 
-// --- Modal state sync between tabs ---
 window.addEventListener("storage", function(e) {
   if (e.key === MODAL_EVENT_KEY && e.newValue) {
     try {
@@ -190,7 +164,6 @@ window.addEventListener("storage", function(e) {
 function broadcastModalShow() {
   if (inactivitySyncLock) return;
   inactivitySyncLock = true;
-  // Broadcast the modal show event with the seconds left (syncs timer approx)
   localStorage.setItem(MODAL_EVENT_KEY, JSON.stringify({
     type: "show",
     timestamp: Date.now(),
@@ -210,7 +183,6 @@ function broadcastLogout() {
   localStorage.setItem(LOGOUT_EVENT_KEY, Date.now().toString());
 }
 
-// --- Modal close helper ---
 function closeInactivityModal() {
   clearInterval(inactivityInterval);
   if (inactivityModal) {
@@ -219,13 +191,11 @@ function closeInactivityModal() {
   }
 }
 
-// --- Log out handler, runs in all tabs ---
 function handleLogoutFromInactivity() {
   closeInactivityModal();
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
-  // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
       window.location.href = INACTIVITY_LOGOUT_REDIRECT;
@@ -235,7 +205,5 @@ function handleLogoutFromInactivity() {
   }
 }
 
-// --- Export (for ES modules or window global) ---
 window.fetchSessionTimeoutAndStart = fetchSessionTimeoutAndStart;
-
 // ---- END Inactivity Timeout Modal Logic ----
