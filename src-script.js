@@ -45,7 +45,6 @@ async function ensureLoggedInAndProBusiness() {
       if (formBlockedMsg) formBlockedMsg.remove();
       const form = document.getElementById('iddForm');
       if (form) form.style.display = '';
-      hidePageLoadingOverlay(); // PATCH: Hide loading overlay on allowed
     } else {
       let upgradeLink = '/pricing';
       blockForm(`
@@ -54,11 +53,9 @@ async function ensureLoggedInAndProBusiness() {
         <a href="${upgradeLink}" style="color:#0070f3;text-decoration:underline;">Upgrade your plan</a> 
         or <a href="/dashboard" style="color:#0070f3;text-decoration:underline;">return to dashboard</a>.
       `);
-      hidePageLoadingOverlay(); // PATCH: Hide loading overlay if gating fails
     }
   } catch (e) {
     blockForm("Error checking your account. Please refresh or contact support.");
-    hidePageLoadingOverlay(); // PATCH: Hide loading overlay on error
   }
 }
 
@@ -80,134 +77,154 @@ function hidePageLoadingOverlay() {
   }
 }
 
-// --- New Single-Source Inactivity Timeout Logic ---
-let sessionTimeoutTimer = null;
-let sessionTimeoutWarningTimer = null;
-let sessionTimeoutMinutes = null;
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
-// Patch: Use claim for session timeout minutes if available. Default/fallback to 30min.
-function getUserSessionTimeoutMinutes() {
-  // You may want to expose this preference from user claims or Firestore. For now fallback:
-  const user = firebase.auth().currentUser;
-  if (user && user.claims && typeof user.claims.sessionTimeoutMinutes === 'number') {
-    return user.claims.sessionTimeoutMinutes;
-  }
-  // Optionally, look up this value from Firestore as you do elsewhere.
-  return 30;
-}
+window.addEventListener('DOMContentLoaded', async () => {
+  // ... your other DOMContentLoaded logic ...
 
-function setupSessionTimeoutWatcher() {
-  if (sessionTimeoutTimer) {
-    clearTimeout(sessionTimeoutTimer);
-    sessionTimeoutTimer = null;
-  }
-  if (sessionTimeoutWarningTimer) {
-    clearTimeout(sessionTimeoutWarningTimer);
-    sessionTimeoutWarningTimer = null;
+  // --- INACTIVITY TIMER START ---
+  let userInactivityTimeoutMinutes = 30; // Default fallback
+  if (typeof getUserInactivityTimeout === 'function') {
+    try {
+      const pref = await getUserInactivityTimeout();
+      if (typeof pref === 'number') {
+        userInactivityTimeoutMinutes = pref;
+      }
+    } catch (e) {
+      // fallback to default
+    }
+  } else if (window.userInactivityTimeoutMinutes !== undefined) {
+    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
   }
 
-  const min = sessionTimeoutMinutes;
-  if (!firebase.auth().currentUser || !min || min === 0) {
-    hideSessionTimeoutWarning();
+  if (userInactivityTimeoutMinutes > 0) {
+    window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+    window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+    startInactivityTimer();
+  }
+});
+
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+
+  let inactivityLimit = window.INACTIVITY_LIMIT_MS;
+  let warningDelay = inactivityLimit - INACTIVITY_WARNING_MS;
+
+  // If the warning delay is negative or zero, skip the modal and just logout after inactivityLimit
+  if (warningDelay <= 0) {
+    inactivityTimeout = setTimeout(handleLogoutFromInactivity, inactivityLimit > 0 ? inactivityLimit : 300000); // fallback 5min
     return;
   }
-  let lastActivity = Date.now();
+  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
 
-  window.resetSessionTimeoutWatcher = function() {
-    lastActivity = Date.now();
-    hideSessionTimeoutWarning();
-    scheduleTimers();
-  };
-
-  if (!window.__utmaticSessionListenersBound) {
-    ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
-      window.addEventListener(evt, resetSessionTimeoutWatcher, true)
-    );
-    window.__utmaticSessionListenersBound = true;
-  }
-
-  function getExpireTime() {
-    return lastActivity + min * 60 * 1000;
-  }
-  function getWarningTime() {
-    return getExpireTime() - 5 * 60 * 1000;
-  }
-
-  function scheduleTimers() {
-    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
-    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
-
-    const now = Date.now();
-    const timeToExpire = getExpireTime() - now;
-    const timeToWarning = getWarningTime() - now;
-
-    if (timeToWarning > 0) {
-      sessionTimeoutWarningTimer = setTimeout(showSessionTimeoutWarning, timeToWarning);
-    } else if (timeToExpire > 0) {
-      showSessionTimeoutWarning();
-    }
-
-    sessionTimeoutTimer = setTimeout(() => {
-      hideSessionTimeoutWarning();
-      firebase.auth().signOut().then(() => {
-        window.location.href = "/login?timeout=1";
-      });
-    }, timeToExpire);
-  }
-
-  function showSessionTimeoutWarning() {
-    let warningEl = document.getElementById('session-timeout-warning');
-    if (!warningEl) {
-      warningEl = document.createElement('div');
-      warningEl.id = 'session-timeout-warning';
-      warningEl.style.position = "fixed";
-      warningEl.style.bottom = "25px";
-      warningEl.style.right = "25px";
-      warningEl.style.background = "#fff7f7";
-      warningEl.style.color = "#c00";
-      warningEl.style.zIndex = "10001";
-      warningEl.style.padding = "18px 24px";
-      warningEl.style.fontWeight = "bold";
-      warningEl.style.textAlign = "center";
-      warningEl.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
-      warningEl.style.borderRadius = "10px";
-      document.body.appendChild(warningEl);
-    }
-    const now = Date.now();
-    const expireAt = getExpireTime();
-    let remaining = Math.max(0, Math.floor((expireAt - now) / 1000));
-    function format(n) {
-      const m = Math.floor(n / 60);
-      const s = n % 60;
-      return `${m}:${s < 10 ? "0" : ""}${s}`;
-    }
-    function update() {
-      remaining = Math.max(0, Math.floor((expireAt - Date.now()) / 1000));
-      if (remaining <= 0) {
-        warningEl.style.display = "none";
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
+      if (warningDelay <= 0) {
+        inactivityTimeout = setTimeout(handleLogoutFromInactivity, window.INACTIVITY_LIMIT_MS > 0 ? window.INACTIVITY_LIMIT_MS : 300000);
         return;
       }
-      warningEl.style.display = "block";
-      warningEl.innerHTML =
-        `<span>You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
-      sessionTimeoutWarningTimer = setTimeout(update, 1000);
-    }
-    update();
-  }
-
-  function hideSessionTimeoutWarning() {
-    const warningEl = document.getElementById('session-timeout-warning');
-    if (warningEl) {
-      warningEl.style.display = "none";
-      warningEl.innerHTML = "";
-    }
-    if (sessionTimeoutWarningTimer) {
-      clearTimeout(sessionTimeoutWarningTimer);
-      sessionTimeoutWarningTimer = null;
+      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
     }
   }
 
-  scheduleTimers();
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  startInactivityTimer._activityHandler = activityHandler;
+}
+
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (document.getElementById('inactivity-modal')) return;
+
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+
+  const modalBox = document.createElement('div');
+  modalBox.className = "inactivity-modal-box";
+
+  // "Automatic logout"
+  const heading = document.createElement('h3');
+  heading.textContent = "Automatic logout in";
+  modalBox.appendChild(heading);
+
+  // (TIMER VALUE) - emphasized
+  const timeMsg = document.createElement('div');
+  timeMsg.className = "inactivity-modal-timer-big";
+  modalBox.appendChild(timeMsg);
+
+  // "Do you want to extend this session?"
+  const prompt = document.createElement('p');
+  prompt.textContent = "Do you want to extend this session?";
+  modalBox.appendChild(prompt);
+
+  // Continue button
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = "inactivity-modal-actions";
+  const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
+  continueBtn.textContent = "Continue";
+  actionsDiv.appendChild(continueBtn);
+  modalBox.appendChild(actionsDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // 5 min countdown
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `<span>${min}:${String(sec).padStart(2, "0")}</span>`;
+  }
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    startInactivityTimer();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
 }
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
@@ -790,24 +807,3 @@ async function pollStatus(fileName) {
   }
   check();
 }
-
-// --- Page boot: show loading overlay, ensure auth, and setup inactivity watcher ---
-window.addEventListener('DOMContentLoaded', async () => {
-  showPageLoadingOverlay();
-
-  // Auth + gating for pro/business
-  await ensureLoggedInAndProBusiness();
-
-  // Set session timeout minutes from user preference or fallback
-  sessionTimeoutMinutes = getUserSessionTimeoutMinutes();
-  setupSessionTimeoutWatcher();
-
-  // Init presets dropdown
-  initPresetDropdown();
-
-  // Bind validation listeners
-  bindValidationListeners();
-
-  // Initial validation
-  validateForm();
-});
