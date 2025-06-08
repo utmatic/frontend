@@ -936,7 +936,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
   function setView(view) {
     mainView.innerHTML = views[view]();
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
