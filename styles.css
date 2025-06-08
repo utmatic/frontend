@@ -7,9 +7,7 @@ body, html {
   flex: 1 0 auto;
   width: 100%;
 }
-
 .site-footer {
-    /* Your existing styles */
     background: none;
     color: #7a859780;
     text-align: center;
@@ -18,8 +16,6 @@ body, html {
     position: relative;
     z-index: 20;
     letter-spacing: 0.01em;
-    /* Sticky footer trick: */
-    margin-top: auto;
 }
 .field-row-wrapper {
   margin-bottom: 1em;
