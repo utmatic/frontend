@@ -25,8 +25,8 @@ let userSecuritySettings = {
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
-let sessionTimeoutTimer = null;
-let sessionTimeoutWarningTimer = null;
+
+// Removed: sessionTimeoutTimer, sessionTimeoutWarningTimer
 
 const SECONDS_PER_LINK = 30;
 const UNITS = [
@@ -544,7 +544,7 @@ function bindSecurityUI() {
     try {
       await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
-      setupSessionTimeoutWatcher();
+      // REMOVED: setupSessionTimeoutWatcher();
       if (msg) {
         msg.textContent = "Saved! Your security settings have been updated.";
         msg.style.color = "#4d89f9";
@@ -557,7 +557,7 @@ function bindSecurityUI() {
       }
     }
   };
-  setupSessionTimeoutWatcher();
+  // REMOVED: setupSessionTimeoutWatcher();
 }
 async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
@@ -590,126 +590,24 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       }
       userSecurityLoaded = true;
       setView(view);
-      setupSessionTimeoutWatcher();
+      // REMOVED: setupSessionTimeoutWatcher();
     } catch (e) {
       console.error('Error loading security settings:', e);
       userSecuritySettings.autoDeleteDays = 0;
       userSecuritySettings.sessionTimeoutMinutes = 0;
       userSecurityLoaded = true;
       setView(view);
-      setupSessionTimeoutWatcher();
+      // REMOVED: setupSessionTimeoutWatcher();
     }
   });
 }
 
 // --- PATCH: Session Timeout Logic ---
-function setupSessionTimeoutWatcher() {
-  if (sessionTimeoutTimer) {
-    clearTimeout(sessionTimeoutTimer);
-    sessionTimeoutTimer = null;
-  }
-  if (sessionTimeoutWarningTimer) {
-    clearTimeout(sessionTimeoutWarningTimer);
-    sessionTimeoutWarningTimer = null;
-  }
-  const min = userSecuritySettings.sessionTimeoutMinutes;
-  if (!firebase.auth().currentUser || !min || min === 0) {
-    hideSessionTimeoutWarning();
-    return;
-  }
-  let lastActivity = Date.now();
+// REMOVE ALL: Session timeout logic, timers, watchers, warning display, etc.
 
-  window.resetSessionTimeoutWatcher = function() {
-    lastActivity = Date.now();
-    hideSessionTimeoutWarning();
-    scheduleTimers();
-  };
-  
-  if (!window.__utmaticSessionListenersBound) {
-    ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
-      window.addEventListener(evt, resetSessionTimeoutWatcher, true)
-    );
-    window.__utmaticSessionListenersBound = true;
-  }
+// REMOVED: setupSessionTimeoutWatcher, showSessionTimeoutWarning, hideSessionTimeoutWarning
 
-  function getExpireTime() {
-    return lastActivity + min * 60 * 1000;
-  }
-  function getWarningTime() {
-    return getExpireTime() - 5 * 60 * 1000;
-  }
-
-  function scheduleTimers() {
-    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
-    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
-
-    const now = Date.now();
-    const timeToExpire = getExpireTime() - now;
-    const timeToWarning = getWarningTime() - now;
-
-    if (timeToWarning > 0) {
-      sessionTimeoutWarningTimer = setTimeout(showSessionTimeoutWarning, timeToWarning);
-    } else if (timeToExpire > 0) {
-      showSessionTimeoutWarning();
-    }
-
-    sessionTimeoutTimer = setTimeout(() => {
-      hideSessionTimeoutWarning();
-      firebase.auth().signOut().then(() => {
-        window.location.href = "/login?timeout=1";
-      });
-    }, timeToExpire);
-  }
-
-  function showSessionTimeoutWarning() {
-    const warningEl = document.getElementById('session-timeout-warning');
-    if (!warningEl) return;
-    const now = Date.now();
-    const expireAt = getExpireTime();
-    let remaining = Math.max(0, Math.floor((expireAt - now) / 1000));
-    function format(n) {
-      const m = Math.floor(n / 60);
-      const s = n % 60;
-      return `${m}:${s < 10 ? "0" : ""}${s}`;
-    }
-    function update() {
-      remaining = Math.max(0, Math.floor((expireAt - Date.now()) / 1000));
-      if (remaining <= 0) {
-        warningEl.style.display = "none";
-        return;
-      }
-      warningEl.style.display = "block";
-      warningEl.innerHTML =
-        `<span>You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
-      sessionTimeoutWarningTimer = setTimeout(update, 1000);
-    }
-    update();
-  }
-
-  function hideSessionTimeoutWarning() {
-    const warningEl = document.getElementById('session-timeout-warning');
-    if (warningEl) {
-      warningEl.style.display = "none";
-      warningEl.innerHTML = "";
-    }
-    if (sessionTimeoutWarningTimer) {
-      clearTimeout(sessionTimeoutWarningTimer);
-      sessionTimeoutWarningTimer = null;
-    }
-  }
-  
-  scheduleTimers();
-}
-
-firebase.auth().onAuthStateChanged(function(user) {
-  if (user) {
-    if (userSecurityLoaded) setupSessionTimeoutWatcher();
-  } else {
-    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
-    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
-    hideSessionTimeoutWarning();
-  }
-});
+// REMOVED: firebase.auth().onAuthStateChanged for session timeout logic
 
 // PATCH: Firestore user settings helpers
 function getCurrentUserUid() {
@@ -893,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        setupSessionTimeoutWatcher();
+        // REMOVED: setupSessionTimeoutWatcher();
       } catch (e) {
         console.error('Error loading security settings:', e);
         userSecuritySettings.autoDeleteDays = 0;
@@ -901,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        setupSessionTimeoutWatcher();
+        // REMOVED: setupSessionTimeoutWatcher();
       }
     });
 
