@@ -22,7 +22,6 @@ let presetsLoaded = false;
 
 // PATCH: Security/Retention settings
 let userSecuritySettings = {
-  autoDeleteDays: null, // null means not loaded
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
@@ -500,16 +499,7 @@ function bindPresetsUI() {
 
 // --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
-  const { autoDeleteDays, sessionTimeoutMinutes } = securitySettings;
-  // Auto-delete options (in hours/days)
-  const autoDeleteOptions = [
-    { value: 1, label: "1 hour" },
-    { value: 24, label: "24 hours" },
-    { value: 168, label: "7 days" },
-    { value: 720, label: "30 days" },
-    { value: 2160, label: "90 days" },
-    { value: 0, label: "Never" }
-  ];
+  const { sessionTimeoutMinutes } = securitySettings;
   // Session timeout options (in minutes)
   const sessionTimeoutOptions = [
     { value: 15, label: "15 minutes" },
@@ -519,7 +509,6 @@ function renderSecuritySection(securitySettings = {}) {
     { value: 360, label: "6 hours" },
     { value: 0, label: "Never" }
   ];
-  const selectedAutoDelete = typeof autoDeleteDays === "number" ? autoDeleteDays : 0;
   const selectedSessionTimeout = typeof sessionTimeoutMinutes === "number" ? sessionTimeoutMinutes : 0;
 
   return `
@@ -527,16 +516,6 @@ function renderSecuritySection(securitySettings = {}) {
       <div class="section-title">Security & Data Retention</div>
       <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
         <div class="field-group">
-          <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
-          <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
-            ${autoDeleteOptions.map(opt => `<option value="${opt.value}"${selectedAutoDelete === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
-          </select>
-          <div style="color:var(--gray-400);margin-top:8px;">
-            Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
-            <b>Warning:</b> This cannot be undone.
-          </div>
-        </div>
-        <div class="field-group" style="margin-top:22px;">
           <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
           <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
             ${sessionTimeoutOptions.map(opt => `<option value="${opt.value}"${selectedSessionTimeout === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
@@ -558,15 +537,12 @@ function bindSecurityUI() {
   if (!form) return;
   form.onsubmit = async function(e) {
     e.preventDefault();
-    const autoDeleteSelect = document.getElementById('auto-delete-select');
     const sessionTimeoutSelect = document.getElementById('session-timeout-select');
-    if (!autoDeleteSelect || !sessionTimeoutSelect) return;
-    const autoDeleteValue = parseInt(autoDeleteSelect.value, 10);
+    if (!sessionTimeoutSelect) return;
     const sessionTimeoutValue = parseInt(sessionTimeoutSelect.value, 10);
     const msg = document.getElementById('security-settings-message');
     try {
-      await saveUserSecuritySettings({ autoDeleteDays: autoDeleteValue, sessionTimeoutMinutes: sessionTimeoutValue });
-      userSecuritySettings.autoDeleteDays = autoDeleteValue;
+      await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
       setupSessionTimeoutWatcher();
       if (msg) {
@@ -583,12 +559,12 @@ function bindSecurityUI() {
   };
   setupSessionTimeoutWatcher();
 }
-async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes }) {
+async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
   if (!uid) throw new Error("Not logged in");
   const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
   await settingsRef.set(
-    { autoDeleteDays: autoDeleteDays, sessionTimeoutMinutes: sessionTimeoutMinutes },
+    { sessionTimeoutMinutes: sessionTimeoutMinutes },
     { merge: true }
   );
 }
@@ -608,10 +584,8 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       const doc = await settingsRef.get();
       if (doc.exists) {
         const data = doc.data();
-        userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
         userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
       } else {
-        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
       }
       userSecurityLoaded = true;
