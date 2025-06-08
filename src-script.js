@@ -179,7 +179,7 @@ function showInactivityModal() {
 
   // Modal heading: Automatic logout in
   const heading = document.createElement('h3');
-  heading.textContent = "Automatic logout in";
+  heading.textContent = "Session expires in";
   modalBox.appendChild(heading);
 
   // Big timer value
