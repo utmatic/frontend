@@ -135,8 +135,12 @@ function showInactivityModal(secondsOverride) {
   }, 1000);
 
   continueBtn.onclick = function () {
+    // 1. Hide the modal in THIS tab immediately
+    closeInactivityModal();
+    // 2. Notify other tabs (who will hide their modal via storage event)
     broadcastModalContinue();
-    // The rest will be handled by the event listener in all tabs (including this one)
+    // 3. Reset inactivity timer in this tab
+    startInactivityTimer();
   };
 }
 
@@ -149,7 +153,7 @@ window.addEventListener("storage", function(e) {
       if (data.type === "show") {
         if (!inactivityModal) showInactivityModal(data.secondsLeft);
       } else if (data.type === "continue") {
-        // Hide the modal and reset the timer in all tabs, including the one where the button was clicked
+        // Hide the modal and reset the timer in all tabs except the one where the button was clicked (which must already have handled it)
         closeInactivityModal();
         startInactivityTimer();
       }
