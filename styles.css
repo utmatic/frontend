@@ -1809,3 +1809,83 @@ select option:disabled {
   background: #29313a;
   color: #fff;
 }
+
+/* --- Inactivity Modal Styles --- */
+#inactivity-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.65);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inactivity-modal-box {
+  background: #222a33;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 410px;
+  width: 94vw;
+  text-align: center;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.13);
+  color: #f4f6fa;
+}
+
+.inactivity-modal-box h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #cce1ff;
+  margin-bottom: 10px;
+}
+
+.inactivity-modal-box p {
+  color: #e3e7f0;
+  margin: 8px 0 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.inactivity-modal-box .inactivity-modal-timer {
+  color: #f44336;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.inactivity-modal-box .inactivity-modal-actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.inactivity-modal-box button {
+  padding: 8px 22px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.17s, opacity 0.15s;
+}
+
+.inactivity-modal-box .continue-session-btn {
+  background: #1a73e8;
+  color: #fff;
+}
+
+.inactivity-modal-box .continue-session-btn:hover {
+  background: #296bd1;
+}
+
+.inactivity-modal-box .logout-btn {
+  background: #f44336;
+  color: #fff;
+}
+
+.inactivity-modal-box .logout-btn:hover {
+  background: #c62828;
+}
