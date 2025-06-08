@@ -1814,7 +1814,7 @@ select option:disabled {
 #inactivity-modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.55);
+  background: #131920d9;
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -1823,7 +1823,7 @@ select option:disabled {
 
 /* Modal box styling */
 .inactivity-modal-box {
-  background: #fff;
+  background: #222a33;
   border-radius: 12px;
   padding: 32px 28px 28px 28px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.13);
@@ -1836,8 +1836,8 @@ select option:disabled {
 /* Modal heading */
 .inactivity-modal-box h3 {
   font-size: 1.23em;
-  font-weight: 700;
-  color: #17385e;
+  font-weight: 500;
+  color: #cce1ff;
   margin-bottom: 22px;
   margin-top: 0;
   letter-spacing: 0.01em;
@@ -1845,18 +1845,18 @@ select option:disabled {
 
 /* Big timer display */
 .inactivity-modal-timer-big {
-  font-size: 2.7em;
+  font-size: 4em;
   font-weight: 700;
-  color: #2162e6;
+  color: #fff;
   margin: 0 0 17px 0;
-  letter-spacing: 0.03em;
+  letter-spacing: 0em;
   line-height: 1.1;
 }
 
 /* Prompt text */
 .inactivity-modal-box p {
   font-size: 1.08em;
-  color: #1c232b;
+  color: #cbd5e1;
   margin-top: 0;
   margin-bottom: 26px;
 }
@@ -1864,7 +1864,7 @@ select option:disabled {
 .inactivity-modal-actions {
   display: flex;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 38px;
 }
 
 .continue-session-btn {
