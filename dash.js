@@ -25,6 +25,8 @@ let userSecuritySettings = {
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
+let sessionTimeoutTimer = null;
+let sessionTimeoutWarningTimer = null;
 
 const SECONDS_PER_LINK = 30;
 const UNITS = [
@@ -304,8 +306,196 @@ function bindHistoryDeleteButtons() {
   });
 }
 
-function renderPresetsSection(presets) { /* ... unchanged ... */ }
-// ... (rest of presets unchanged for brevity) ...
+function renderPresetsSection(presets) {
+  return `
+    <section class="presets-section">
+      <div class="section-title" style="margin-bottom: 18px;">Presets</div>
+      <div class="presets-list-container">
+        <div class="add-preset-link-row">
+          <a class="add-preset-link" id="add-preset-link" href="#">+ Add new</a>
+        </div>
+        <div class="presets-list">
+          ${
+            presets.length === 0
+              ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one above!</div>`
+              : presets
+                  .map(
+                    (preset) => `
+            <div class="preset-list-row collapsed" data-preset-id="${preset.id}" tabindex="0">
+              <div class="preset-list-content-group">
+                <div class="preset-list-name">${preset.name}</div>
+                <div class="preset-list-details" style="display:none;">
+                  <div class="preset-list-detail-label">Target Formats</div>
+                  <div class="preset-list-detail-value">
+                    ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
+                  </div>
+                  <div class="preset-list-detail-label">Base URL</div>
+                  <div class="preset-list-detail-value">${preset.base_url}</div>
+                </div>
+              </div>
+              <div class="preset-list-actions">
+                <button class="preset-list-action-btn edit" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
+                </button>
+                <button class="preset-list-action-btn delete" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                </button>
+              </div>
+            </div>
+            `
+                  )
+                  .join('')
+          }
+        </div>
+      </div>
+      <div class="preset-form-wrapper" id="preset-form-wrapper" style="display:none;">
+        <button type="button" class="preset-form-close" id="preset-form-close-btn" title="Close">&times;</button>
+        <div class="section-title new-preset-title">New Preset</div>
+        <form id="preset-form">
+          <div class="field-group">
+            <label for="preset-name">Preset Name</label>
+            <input type="text" id="preset-name" name="preset-name" required autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label for="preset-target-formats">Target Formats</label>
+            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label for="preset-base-url">Base URL</label>
+            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.example.com/store/" autocomplete="off">
+          </div>
+          <input type="hidden" id="preset-id" name="preset-id">
+          <div class="form-actions">
+            <button type="submit" id="save-preset-btn" class="process-btn">Save Preset</button>
+            <button type="button" id="cancel-edit-preset-btn" style="display:none;margin-left:10px;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  `;
+}
+
+function bindPresetsUI() {
+  // Add new link logic (top of list)
+  const addPresetLink = document.getElementById('add-preset-link');
+  const formWrapper = document.getElementById('preset-form-wrapper');
+  if (addPresetLink && formWrapper) {
+    addPresetLink.onclick = function(e) {
+      e.preventDefault(); // Prevent default link action if <a> tag is used
+      formWrapper.style.display = '';
+      const presetForm = document.getElementById('preset-form');
+      if (presetForm) presetForm.reset();
+      const saveBtn = document.getElementById('save-preset-btn');
+      if (saveBtn) saveBtn.textContent = "Save Preset";
+      const cancelBtn = document.getElementById('cancel-edit-preset-btn');
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      const presetIdInput = document.getElementById('preset-id');
+      if (presetIdInput) presetIdInput.value = '';
+      setTimeout(() => {
+        const nameInput = document.getElementById('preset-name');
+        if (nameInput) nameInput.focus();
+      }, 50);
+    };
+  }
+
+  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
+  document.querySelectorAll('.preset-list-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('.preset-list-action-btn')) return;
+      const details = row.querySelector('.preset-list-details');
+      const expanded = row.classList.contains('expanded');
+      document.querySelectorAll('.preset-list-row').forEach(r => {
+        r.classList.remove('expanded');
+        r.classList.add('collapsed');
+        const d = r.querySelector('.preset-list-details');
+        if (d) d.style.display = 'none';
+      });
+      if (!expanded) {
+        row.classList.add('expanded');
+        row.classList.remove('collapsed');
+        if (details) details.style.display = 'block';
+      }
+    });
+    row.addEventListener('keydown', function(e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        row.click();
+      }
+    });
+  });
+
+  document.querySelectorAll('.preset-list-action-btn.edit').forEach(btn => {
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      const presetId = btn.dataset.presetId;
+      const preset = presets.find(p => p.id === presetId);
+      if (preset) {
+        document.getElementById('preset-form-wrapper').style.display = '';
+        document.getElementById('preset-name').value = preset.name;
+        document.getElementById('preset-target-formats').value = preset.target_formats.join(', ');
+        document.getElementById('preset-base-url').value = preset.base_url;
+        document.getElementById('preset-id').value = preset.id;
+        document.getElementById('cancel-edit-preset-btn').style.display = '';
+        document.getElementById('save-preset-btn').textContent = "Update Preset";
+        document.getElementById('preset-name').focus();
+      }
+    };
+  });
+  document.querySelectorAll('.preset-list-action-btn.delete').forEach(btn => {
+    btn.onclick = async function(e) {
+      e.stopPropagation();
+      const presetId = btn.dataset.presetId;
+      if (window.confirm("Delete this preset?")) {
+        await deletePreset(presetId);
+        presetsLoaded = false;
+        await fetchPresetsOnceAndRender("presets");
+      }
+    };
+  });
+  const presetForm = document.getElementById('preset-form');
+  if (presetForm) {
+    presetForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('preset-name').value.trim();
+      const targetFormatsStr = document.getElementById('preset-target-formats').value.trim();
+      const target_formats = targetFormatsStr.split(',').map(s => s.trim()).filter(Boolean);
+      const base_url = document.getElementById('preset-base-url').value.trim();
+      const id = document.getElementById('preset-id').value;
+      if (!name || !target_formats.length || !base_url) {
+        alert("Please provide all fields.");
+        return;
+      }
+      await savePreset({ id, name, target_formats, base_url });
+      presetsLoaded = false;
+      await fetchPresetsOnceAndRender("presets");
+      presetForm.reset();
+      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('preset-form-wrapper').style.display = 'none';
+    };
+  }
+  const cancelBtn = document.getElementById('cancel-edit-preset-btn');
+  if (cancelBtn) {
+    cancelBtn.onclick = function() {
+      document.getElementById('preset-form').reset();
+      cancelBtn.style.display = 'none';
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+      document.getElementById('preset-form-wrapper').style.display = 'none';
+    };
+  }
+  const closeBtn = document.getElementById('preset-form-close-btn');
+  if (closeBtn && formWrapper) {
+    closeBtn.onclick = function() {
+      formWrapper.style.display = 'none';
+      document.getElementById('preset-form').reset();
+      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
+      document.getElementById('save-preset-btn').textContent = "Save Preset";
+    };
+  }
+  if (formWrapper) {
+    formWrapper.style.display = 'none';
+  }
+}
 
 // --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
@@ -320,6 +510,7 @@ function renderSecuritySection(securitySettings = {}) {
     { value: 0, label: "Never" }
   ];
   const selectedSessionTimeout = typeof sessionTimeoutMinutes === "number" ? sessionTimeoutMinutes : 0;
+
   return `
     <section class="security-section">
       <div class="section-title">Security & Data Retention</div>
@@ -337,6 +528,7 @@ function renderSecuritySection(securitySettings = {}) {
         <button type="submit" class="process-btn" style="margin-top:22px;">Save</button>
       </form>
       <div id="security-settings-message" style="margin-top:10px;color:var(--gray-400);"></div>
+      <div id="session-timeout-warning"></div>
     </section>
   `;
 }
@@ -352,7 +544,7 @@ function bindSecurityUI() {
     try {
       await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
-      setupSessionTimeoutModalWatcher();
+      setupSessionTimeoutWatcher();
       if (msg) {
         msg.textContent = "Saved! Your security settings have been updated.";
         msg.style.color = "#4d89f9";
@@ -365,7 +557,7 @@ function bindSecurityUI() {
       }
     }
   };
-  setupSessionTimeoutModalWatcher();
+  setupSessionTimeoutWatcher();
 }
 async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
@@ -398,54 +590,46 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       }
       userSecurityLoaded = true;
       setView(view);
-      setupSessionTimeoutModalWatcher();
+      setupSessionTimeoutWatcher();
     } catch (e) {
       console.error('Error loading security settings:', e);
       userSecuritySettings.autoDeleteDays = 0;
       userSecuritySettings.sessionTimeoutMinutes = 0;
       userSecurityLoaded = true;
       setView(view);
-      setupSessionTimeoutModalWatcher();
+      setupSessionTimeoutWatcher();
     }
   });
 }
 
-// --- PATCH: Session Timeout Modal Logic ---
-let sessionTimeoutModal = null;
-let sessionTimeoutModalInterval = null;
-let sessionTimeoutModalTimer = null;
-let sessionTimeoutModalWarningTimer = null;
-
-function setupSessionTimeoutModalWatcher() {
-  if (sessionTimeoutModalTimer) {
-    clearTimeout(sessionTimeoutModalTimer);
-    sessionTimeoutModalTimer = null;
+// --- PATCH: Session Timeout Logic ---
+function setupSessionTimeoutWatcher() {
+  if (sessionTimeoutTimer) {
+    clearTimeout(sessionTimeoutTimer);
+    sessionTimeoutTimer = null;
   }
-  if (sessionTimeoutModalWarningTimer) {
-    clearTimeout(sessionTimeoutModalWarningTimer);
-    sessionTimeoutModalWarningTimer = null;
-  }
-  if (sessionTimeoutModalInterval) {
-    clearInterval(sessionTimeoutModalInterval);
-    sessionTimeoutModalInterval = null;
+  if (sessionTimeoutWarningTimer) {
+    clearTimeout(sessionTimeoutWarningTimer);
+    sessionTimeoutWarningTimer = null;
   }
   const min = userSecuritySettings.sessionTimeoutMinutes;
   if (!firebase.auth().currentUser || !min || min === 0) {
+    hideSessionTimeoutWarning();
     return;
   }
   let lastActivity = Date.now();
 
-  window.resetSessionTimeoutModalWatcher = function() {
+  window.resetSessionTimeoutWatcher = function() {
     lastActivity = Date.now();
-    if (sessionTimeoutModal) removeSessionTimeoutModal();
-    scheduleSessionTimeoutTimers();
+    hideSessionTimeoutWarning();
+    scheduleTimers();
   };
-
-  if (!window.__utmaticSessionModalListenersBound) {
+  
+  if (!window.__utmaticSessionListenersBound) {
     ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
-      window.addEventListener(evt, resetSessionTimeoutModalWatcher, true)
+      window.addEventListener(evt, resetSessionTimeoutWatcher, true)
     );
-    window.__utmaticSessionModalListenersBound = true;
+    window.__utmaticSessionListenersBound = true;
   }
 
   function getExpireTime() {
@@ -455,146 +639,75 @@ function setupSessionTimeoutModalWatcher() {
     return getExpireTime() - 5 * 60 * 1000;
   }
 
-  function scheduleSessionTimeoutTimers() {
-    if (sessionTimeoutModalTimer) clearTimeout(sessionTimeoutModalTimer);
-    if (sessionTimeoutModalWarningTimer) clearTimeout(sessionTimeoutModalWarningTimer);
+  function scheduleTimers() {
+    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
 
     const now = Date.now();
     const timeToExpire = getExpireTime() - now;
     const timeToWarning = getWarningTime() - now;
 
     if (timeToWarning > 0) {
-      sessionTimeoutModalWarningTimer = setTimeout(showSessionTimeoutModal, timeToWarning);
+      sessionTimeoutWarningTimer = setTimeout(showSessionTimeoutWarning, timeToWarning);
     } else if (timeToExpire > 0) {
-      showSessionTimeoutModal();
+      showSessionTimeoutWarning();
     }
 
-    sessionTimeoutModalTimer = setTimeout(() => {
-      removeSessionTimeoutModal();
+    sessionTimeoutTimer = setTimeout(() => {
+      hideSessionTimeoutWarning();
       firebase.auth().signOut().then(() => {
         window.location.href = "/login?timeout=1";
       });
     }, timeToExpire);
   }
 
-  function showSessionTimeoutModal() {
-    if (sessionTimeoutModal) return;
-
-    sessionTimeoutModal = document.createElement('div');
-    sessionTimeoutModal.id = "inactivity-modal";
-    sessionTimeoutModal.style.position = "fixed";
-    sessionTimeoutModal.style.left = 0;
-    sessionTimeoutModal.style.top = 0;
-    sessionTimeoutModal.style.width = "100vw";
-    sessionTimeoutModal.style.height = "100vh";
-    sessionTimeoutModal.style.background = "rgba(0,0,0,0.65)";
-    sessionTimeoutModal.style.zIndex = "10003";
-    sessionTimeoutModal.style.display = "flex";
-    sessionTimeoutModal.style.alignItems = "center";
-    sessionTimeoutModal.style.justifyContent = "center";
-
-    const modalBox = document.createElement('div');
-    modalBox.className = "inactivity-modal-box";
-    modalBox.style.background = "#fff";
-    modalBox.style.borderRadius = "8px";
-    modalBox.style.padding = "32px";
-    modalBox.style.maxWidth = "410px";
-    modalBox.style.textAlign = "center";
-    modalBox.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
-
-    const title = document.createElement('h3');
-    title.textContent = "Session Inactivity Warning";
-    modalBox.appendChild(title);
-
-    const timeMsg = document.createElement('p');
-    timeMsg.className = "inactivity-modal-timer";
-    modalBox.appendChild(timeMsg);
-
-    const instr = document.createElement('p');
-    instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
-    modalBox.appendChild(instr);
-
-    // Actions
-    const btnDiv = document.createElement('div');
-    btnDiv.className = "inactivity-modal-actions";
-
-    const continueBtn = document.createElement('button');
-    continueBtn.className = "continue-session-btn";
-    continueBtn.textContent = "Continue Session";
-
-    const logoutBtn = document.createElement('button');
-    logoutBtn.className = "logout-btn";
-    logoutBtn.textContent = "Log Out";
-
-    btnDiv.appendChild(continueBtn);
-    btnDiv.appendChild(logoutBtn);
-    modalBox.appendChild(btnDiv);
-
-    sessionTimeoutModal.appendChild(modalBox);
-    document.body.appendChild(sessionTimeoutModal);
-
-    // Timer logic (5 min countdown)
-    let secondsLeft = 5 * 60;
-    function updateCountdown() {
-      let min = Math.floor(secondsLeft / 60);
-      let sec = Math.floor(secondsLeft % 60);
-      timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
+  function showSessionTimeoutWarning() {
+    const warningEl = document.getElementById('session-timeout-warning');
+    if (!warningEl) return;
+    const now = Date.now();
+    const expireAt = getExpireTime();
+    let remaining = Math.max(0, Math.floor((expireAt - now) / 1000));
+    function format(n) {
+      const m = Math.floor(n / 60);
+      const s = n % 60;
+      return `${m}:${s < 10 ? "0" : ""}${s}`;
     }
-    updateCountdown();
-
-    sessionTimeoutModalInterval = setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft <= 0) {
-        clearInterval(sessionTimeoutModalInterval);
-        removeSessionTimeoutModal();
-        firebase.auth().signOut().then(() => {
-          window.location.href = "/login?timeout=1";
-        });
+    function update() {
+      remaining = Math.max(0, Math.floor((expireAt - Date.now()) / 1000));
+      if (remaining <= 0) {
+        warningEl.style.display = "none";
         return;
       }
-      updateCountdown();
-    }, 1000);
-
-    continueBtn.onclick = function () {
-      clearInterval(sessionTimeoutModalInterval);
-      removeSessionTimeoutModal();
-      window.resetSessionTimeoutModalWatcher();
-    };
-
-    logoutBtn.onclick = function () {
-      clearInterval(sessionTimeoutModalInterval);
-      removeSessionTimeoutModal();
-      firebase.auth().signOut().then(() => {
-        window.location.href = "/login?timeout=1";
-      });
-    };
+      warningEl.style.display = "block";
+      warningEl.innerHTML =
+        `<span>You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
+      sessionTimeoutWarningTimer = setTimeout(update, 1000);
+    }
+    update();
   }
 
-  function removeSessionTimeoutModal() {
-    if (sessionTimeoutModal) {
-      document.body.removeChild(sessionTimeoutModal);
-      sessionTimeoutModal = null;
+  function hideSessionTimeoutWarning() {
+    const warningEl = document.getElementById('session-timeout-warning');
+    if (warningEl) {
+      warningEl.style.display = "none";
+      warningEl.innerHTML = "";
     }
-    if (sessionTimeoutModalInterval) {
-      clearInterval(sessionTimeoutModalInterval);
-      sessionTimeoutModalInterval = null;
+    if (sessionTimeoutWarningTimer) {
+      clearTimeout(sessionTimeoutWarningTimer);
+      sessionTimeoutWarningTimer = null;
     }
   }
-
-  scheduleSessionTimeoutTimers();
+  
+  scheduleTimers();
 }
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    if (userSecurityLoaded) setupSessionTimeoutModalWatcher();
+    if (userSecurityLoaded) setupSessionTimeoutWatcher();
   } else {
-    if (sessionTimeoutModalTimer) clearTimeout(sessionTimeoutModalTimer);
-    if (sessionTimeoutModalWarningTimer) clearTimeout(sessionTimeoutModalWarningTimer);
-    if (sessionTimeoutModalInterval) clearInterval(sessionTimeoutModalInterval);
-    if (sessionTimeoutModal) {
-      document.body.removeChild(sessionTimeoutModal);
-      sessionTimeoutModal = null;
-    }
+    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
+    hideSessionTimeoutWarning();
   }
 });
 
@@ -780,7 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        setupSessionTimeoutModalWatcher();
+        setupSessionTimeoutWatcher();
       } catch (e) {
         console.error('Error loading security settings:', e);
         userSecuritySettings.autoDeleteDays = 0;
@@ -788,7 +901,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        setupSessionTimeoutModalWatcher();
+        setupSessionTimeoutWatcher();
       }
     });
 
@@ -823,6 +936,180 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // ... your other DOMContentLoaded logic ...
+
+  // --- INACTIVITY TIMER START ---
+  let userInactivityTimeoutMinutes = 30; // Default fallback
+  if (typeof getUserInactivityTimeout === 'function') {
+    try {
+      const pref = await getUserInactivityTimeout();
+      if (typeof pref === 'number') {
+        userInactivityTimeoutMinutes = pref;
+      }
+    } catch (e) {
+      // fallback to default
+    }
+  } else if (window.userInactivityTimeoutMinutes !== undefined) {
+    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
+  }
+
+  if (userInactivityTimeoutMinutes > 0) {
+    window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+    window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+    startInactivityTimer();
+  }
+});
+
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+
+  let inactivityLimit = window.INACTIVITY_LIMIT_MS;
+  let warningDelay = inactivityLimit - INACTIVITY_WARNING_MS;
+
+  // If the warning delay is negative or zero, skip the modal and just logout after inactivityLimit
+  if (warningDelay <= 0) {
+    inactivityTimeout = setTimeout(handleLogoutFromInactivity, inactivityLimit > 0 ? inactivityLimit : 300000); // fallback 5min
+    return;
+  }
+  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
+      if (warningDelay <= 0) {
+        inactivityTimeout = setTimeout(handleLogoutFromInactivity, window.INACTIVITY_LIMIT_MS > 0 ? window.INACTIVITY_LIMIT_MS : 300000);
+        return;
+      }
+      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+    }
+  }
+
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  startInactivityTimer._activityHandler = activityHandler;
+}
+
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (document.getElementById('inactivity-modal')) return;
+
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+
+  const modalBox = document.createElement('div');
+  modalBox.className = "inactivity-modal-box";
+
+  // Heading: "Your session is about to expire"
+  const heading = document.createElement('h3');
+  heading.textContent = "Your session is about to expire";
+  modalBox.appendChild(heading);
+
+  // (TIMER VALUE) - emphasized
+  const timeMsg = document.createElement('div');
+  timeMsg.className = "inactivity-modal-timer-big";
+  modalBox.appendChild(timeMsg);
+
+  // Prompt
+  const prompt = document.createElement('p');
+  prompt.textContent = "Do you want to extend this session?";
+  modalBox.appendChild(prompt);
+
+  // Continue button
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = "inactivity-modal-actions";
+  const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
+  continueBtn.textContent = "Continue";
+  actionsDiv.appendChild(continueBtn);
+  modalBox.appendChild(actionsDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // Focus the button for accessibility
+  continueBtn.focus();
+
+  // 5 min countdown
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `<span>${min}:${String(sec).padStart(2, "0")}</span>`;
+  }
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    clearTimeout(inactivityTimeout);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    startInactivityTimer();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
+}
+// --- Loading Overlay Logic ---
+function showPageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
+}
+function hidePageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+}
+  
   function setView(view) {
     mainView.innerHTML = views[view]();
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
