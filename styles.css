@@ -1846,7 +1846,7 @@ select option:disabled {
 /* Big timer display */
 .inactivity-modal-timer-big {
   font-size: 4em;
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
   margin: 0 0 17px 0;
   letter-spacing: 0em;
