@@ -61,16 +61,20 @@ function fetchSessionTimeoutAndStart() {
 }
 
 // --- Timer logic ---
-function startInactivityTimer() {
+function clearAllInactivityTimers() {
   clearTimeout(inactivityTimeout);
   inactivityTimeout = null;
   clearInterval(inactivityInterval);
   inactivityInterval = null;
+}
+
+function startInactivityTimer() {
+  clearAllInactivityTimers();
 
   function activityHandler() {
     // Only reset timer if modal is not showing
     if (!inactivityModal) {
-      clearTimeout(inactivityTimeout);
+      clearAllInactivityTimers();
       inactivityTimeout = setTimeout(() => {
         broadcastModalShow();
         showInactivityModal();
@@ -78,7 +82,7 @@ function startInactivityTimer() {
     }
   }
 
-  // Remove any previous handlers first to avoid stacking
+  // Remove any previous handlers first
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
@@ -133,13 +137,11 @@ function showInactivityModal(secondsOverride) {
   }
   updateCountdown();
 
-  // Clear any previous interval before starting a new one
   clearInterval(inactivityInterval);
   inactivityInterval = setInterval(() => {
     secondsLeft--;
     if (secondsLeft <= 0) {
-      clearInterval(inactivityInterval);
-      inactivityInterval = null;
+      clearAllInactivityTimers();
       broadcastLogout();
       handleLogoutFromInactivity();
       return;
@@ -148,11 +150,12 @@ function showInactivityModal(secondsOverride) {
   }, 1000);
 
   continueBtn.onclick = function () {
-    // 1. Hide the modal in THIS tab immediately (and clear its interval)
+    // 1. Hide the modal and clear ALL timers in THIS tab immediately
     closeInactivityModal();
+    clearAllInactivityTimers();
     // 2. Notify other tabs (who will hide their modal via storage event)
     broadcastModalContinue();
-    // 3. Reset inactivity timer in this tab
+    // 3. Reset inactivity timer in this tab (fresh start)
     startInactivityTimer();
   };
 }
@@ -166,8 +169,9 @@ window.addEventListener("storage", function(e) {
       if (data.type === "show") {
         if (!inactivityModal) showInactivityModal(data.secondsLeft);
       } else if (data.type === "continue") {
-        // Hide the modal and reset the timer in all tabs except the one where the button was clicked (which must already have handled it)
+        // Hide the modal and reset the timer in all tabs
         closeInactivityModal();
+        clearAllInactivityTimers();
         startInactivityTimer();
       }
     } catch {}
@@ -201,10 +205,8 @@ function broadcastLogout() {
 
 // --- Modal close helper ---
 function closeInactivityModal() {
-  if (inactivityInterval) {
-    clearInterval(inactivityInterval);
-    inactivityInterval = null;
-  }
+  clearInterval(inactivityInterval);
+  inactivityInterval = null;
   if (inactivityModal) {
     if (inactivityModal.parentNode) {
       inactivityModal.parentNode.removeChild(inactivityModal);
@@ -216,6 +218,7 @@ function closeInactivityModal() {
 // --- Log out handler, runs in all tabs ---
 function handleLogoutFromInactivity() {
   closeInactivityModal();
+  clearAllInactivityTimers();
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
   window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
