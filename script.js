@@ -5,59 +5,30 @@ window.pdfjsViewer =
   window['pdfjs-dist/web/pdf_viewer'] ||
   undefined;
 
-// ---- Inactivity Timeout Modal Logic (Patched, Fully Working) ----
+// --- INACTIVITY TIMEOUT MODAL LOGIC ---
 let inactivityModal = null;
-let inactivityInterval = null;
 let inactivityTimeout = null;
-let inactivitySessionTimeoutMinutes = null; // fetched from user preference
-let inactivityWarningMinutes = null;
-let inactivityLimitMs = null;
-let inactivityWarningMs = null;
+let inactivityInterval = null;
+const INACTIVITY_LIMIT_MINUTES = 6;   // total inactivity time before logout (minutes)
+const INACTIVITY_WARNING_MINUTES = 5; // show modal with countdown this many minutes before logout
+const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
-// Fetch session timeout from Firestore and start timer
-function fetchSessionTimeoutAndStart() {
-  firebase.auth().onAuthStateChanged(async (user) => {
-    if (!user) return;
-    if (typeof firebase.firestore !== "function") return;
-    try {
-      const db = firebase.firestore();
-      const doc = await db.collection('userSecurity').doc(user.uid).get();
-      let min = 6; // Default 6 min for testing/fallback
-      if (doc.exists) {
-        const data = doc.data();
-        if (typeof data.sessionTimeoutMinutes === "number") {
-          min = data.sessionTimeoutMinutes;
-        }
-      }
-      inactivitySessionTimeoutMinutes = min;
-      if (!min || min === 0) {
-        // "Never" timeout, don't start inactivity watcher
-        return;
-      }
-      inactivityWarningMinutes = min > 5 ? 5 : (min > 1 ? 1 : 0);
-      inactivityLimitMs = min * 60 * 1000;
-      inactivityWarningMs = inactivityWarningMinutes * 60 * 1000;
-      startInactivityTimer();
-    } catch (e) {
-      // If error, just default to 6 min as fallback
-      inactivitySessionTimeoutMinutes = 6;
-      inactivityWarningMinutes = 5;
-      inactivityLimitMs = 6 * 60 * 1000;
-      inactivityWarningMs = 5 * 60 * 1000;
-      startInactivityTimer();
-    }
-  });
-}
+// Start inactivity timer logic on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+  startInactivityTimer();
+});
 
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
 
   // Only reset timer on activity if modal is NOT open
   function activityHandler() {
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(showInactivityModal, inactivityLimitMs - inactivityWarningMs);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
     }
   }
 
@@ -65,58 +36,52 @@ function startInactivityTimer() {
   window.addEventListener('keydown', activityHandler);
   window.addEventListener('click', activityHandler);
 
+  // Store for cleanup if needed
   startInactivityTimer._activityHandler = activityHandler;
-
-  inactivityTimeout = setTimeout(showInactivityModal, inactivityLimitMs - inactivityWarningMs);
 }
 
 function showInactivityModal() {
-  // Prevent multiple modals
   if (inactivityModal) return;
 
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
+  inactivityModal.style.zIndex = "99999"; // Ensure it's on top
 
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // Modal heading: Automatic logout in
-  const heading = document.createElement('h3');
-  heading.textContent = "Session Inactivity Warning";
-  modalBox.appendChild(heading);
+  const title = document.createElement('h3');
+  title.textContent = "Session Inactivity Warning";
+  modalBox.appendChild(title);
 
-  // Timer message
   const timeMsg = document.createElement('p');
   timeMsg.className = "inactivity-modal-timer";
   modalBox.appendChild(timeMsg);
 
-  // Instructions
   const instr = document.createElement('p');
   instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
   modalBox.appendChild(instr);
 
-  // Action row
-  const actions = document.createElement('div');
-  actions.className = 'inactivity-modal-actions';
+  const btnDiv = document.createElement('div');
+  btnDiv.className = "inactivity-modal-actions";
 
-  // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
   continueBtn.textContent = "Continue Session";
-  actions.appendChild(continueBtn);
 
-  // Logout button
   const logoutBtn = document.createElement('button');
   logoutBtn.className = "logout-btn";
   logoutBtn.textContent = "Log Out";
-  actions.appendChild(logoutBtn);
 
-  modalBox.appendChild(actions);
+  btnDiv.appendChild(continueBtn);
+  btnDiv.appendChild(logoutBtn);
+  modalBox.appendChild(btnDiv);
+
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // Timer logic (countdown)
-  let secondsLeft = inactivityWarningMs / 1000;
+  // Timer logic (5 min countdown)
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
@@ -136,10 +101,9 @@ function showInactivityModal() {
 
   continueBtn.onclick = function () {
     clearInterval(inactivityInterval);
-    if (inactivityModal) {
-      document.body.removeChild(inactivityModal);
-      inactivityModal = null;
-    }
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    // Restart inactivity timer
     startInactivityTimer();
   };
 
@@ -158,7 +122,6 @@ function handleLogoutFromInactivity() {
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
-
   // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
@@ -168,8 +131,6 @@ function handleLogoutFromInactivity() {
     window.location.href = "/auth.html";
   }
 }
-
-// -- END: Inactivity Modal -- //
 
 // --- END INACTIVITY TIMEOUT MODAL LOGIC ---
 
