@@ -936,6 +936,180 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // ... your other DOMContentLoaded logic ...
+
+  // --- INACTIVITY TIMER START ---
+  let userInactivityTimeoutMinutes = 30; // Default fallback
+  if (typeof getUserInactivityTimeout === 'function') {
+    try {
+      const pref = await getUserInactivityTimeout();
+      if (typeof pref === 'number') {
+        userInactivityTimeoutMinutes = pref;
+      }
+    } catch (e) {
+      // fallback to default
+    }
+  } else if (window.userInactivityTimeoutMinutes !== undefined) {
+    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
+  }
+
+  if (userInactivityTimeoutMinutes > 0) {
+    window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+    window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+    startInactivityTimer();
+  }
+});
+
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+
+  let inactivityLimit = window.INACTIVITY_LIMIT_MS;
+  let warningDelay = inactivityLimit - INACTIVITY_WARNING_MS;
+
+  // If the warning delay is negative or zero, skip the modal and just logout after inactivityLimit
+  if (warningDelay <= 0) {
+    inactivityTimeout = setTimeout(handleLogoutFromInactivity, inactivityLimit > 0 ? inactivityLimit : 300000); // fallback 5min
+    return;
+  }
+  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
+      if (warningDelay <= 0) {
+        inactivityTimeout = setTimeout(handleLogoutFromInactivity, window.INACTIVITY_LIMIT_MS > 0 ? window.INACTIVITY_LIMIT_MS : 300000);
+        return;
+      }
+      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+    }
+  }
+
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  startInactivityTimer._activityHandler = activityHandler;
+}
+
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (document.getElementById('inactivity-modal')) return;
+
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+
+  const modalBox = document.createElement('div');
+  modalBox.className = "inactivity-modal-box";
+
+  // Heading: "Your session is about to expire"
+  const heading = document.createElement('h3');
+  heading.textContent = "Your session is about to expire";
+  modalBox.appendChild(heading);
+
+  // (TIMER VALUE) - emphasized
+  const timeMsg = document.createElement('div');
+  timeMsg.className = "inactivity-modal-timer-big";
+  modalBox.appendChild(timeMsg);
+
+  // Prompt
+  const prompt = document.createElement('p');
+  prompt.textContent = "Do you want to extend this session?";
+  modalBox.appendChild(prompt);
+
+  // Continue button
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = "inactivity-modal-actions";
+  const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
+  continueBtn.textContent = "Continue";
+  actionsDiv.appendChild(continueBtn);
+  modalBox.appendChild(actionsDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // Focus the button for accessibility
+  continueBtn.focus();
+
+  // 5 min countdown
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `<span>${min}:${String(sec).padStart(2, "0")}</span>`;
+  }
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    clearTimeout(inactivityTimeout);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    startInactivityTimer();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
+}
+// --- Loading Overlay Logic ---
+function showPageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
+}
+function hidePageLoadingOverlay() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+}
+  
   function setView(view) {
     mainView.innerHTML = views[view]();
     document.querySelectorAll('.dash-sidebar-btn').forEach(btn => {
