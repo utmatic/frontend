@@ -1,7 +1,7 @@
 // ---- Inactivity Timeout Modal Logic with Cross-tab "Continue Working" Sync ----
 
 // CONFIGURE if your login fallback page is different:
-const INACTIVITY_LOGOUT_REDIRECT = "/auth.html";
+const INACTIVITY_LOGOUT_REDIRECT = "/login";
 const INACTIVITY_MODAL_CSS = "/timeout.css";
 
 // --- Inject stylesheet if not present ---
@@ -63,9 +63,12 @@ function fetchSessionTimeoutAndStart() {
 // --- Timer logic ---
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
+  inactivityTimeout = null;
   clearInterval(inactivityInterval);
+  inactivityInterval = null;
 
   function activityHandler() {
+    // Only reset timer if modal is not showing
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
       inactivityTimeout = setTimeout(() => {
@@ -75,11 +78,17 @@ function startInactivityTimer() {
     }
   }
 
+  // Remove any previous handlers first to avoid stacking
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
+  window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
+
   window.addEventListener('mousemove', activityHandler);
   window.addEventListener('keydown', activityHandler);
   window.addEventListener('click', activityHandler);
 
   startInactivityTimer._activityHandler = activityHandler;
+
   inactivityTimeout = setTimeout(() => {
     broadcastModalShow();
     showInactivityModal();
@@ -116,6 +125,7 @@ function showInactivityModal(secondsOverride) {
   document.body.appendChild(inactivityModal);
 
   let secondsLeft = typeof secondsOverride === "number" ? secondsOverride : (inactivityWarningMs / 1000);
+
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
@@ -123,10 +133,13 @@ function showInactivityModal(secondsOverride) {
   }
   updateCountdown();
 
+  // Clear any previous interval before starting a new one
+  clearInterval(inactivityInterval);
   inactivityInterval = setInterval(() => {
     secondsLeft--;
     if (secondsLeft <= 0) {
       clearInterval(inactivityInterval);
+      inactivityInterval = null;
       broadcastLogout();
       handleLogoutFromInactivity();
       return;
@@ -135,7 +148,7 @@ function showInactivityModal(secondsOverride) {
   }, 1000);
 
   continueBtn.onclick = function () {
-    // 1. Hide the modal in THIS tab immediately
+    // 1. Hide the modal in THIS tab immediately (and clear its interval)
     closeInactivityModal();
     // 2. Notify other tabs (who will hide their modal via storage event)
     broadcastModalContinue();
@@ -188,9 +201,14 @@ function broadcastLogout() {
 
 // --- Modal close helper ---
 function closeInactivityModal() {
-  clearInterval(inactivityInterval);
+  if (inactivityInterval) {
+    clearInterval(inactivityInterval);
+    inactivityInterval = null;
+  }
   if (inactivityModal) {
-    document.body.removeChild(inactivityModal);
+    if (inactivityModal.parentNode) {
+      inactivityModal.parentNode.removeChild(inactivityModal);
+    }
     inactivityModal = null;
   }
 }
@@ -198,9 +216,9 @@ function closeInactivityModal() {
 // --- Log out handler, runs in all tabs ---
 function handleLogoutFromInactivity() {
   closeInactivityModal();
-  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
-  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
-  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler || (() => {}));
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler || (() => {}));
+  window.removeEventListener('click', startInactivityTimer._activityHandler || (() => {}));
   // Log out Firebase, then redirect
   if (window.firebase && firebase.auth) {
     firebase.auth().signOut().then(function () {
