@@ -512,13 +512,6 @@ html, body {
   color: var(--gray-300);
   font-weight: 600;
 }
-.history-table th:first-child,
-.history-table td:first-child {
-  width: 80px; /* Or whatever you prefer */
-  min-width: 80px;
-  max-width: 140px;
-  white-space: nowrap;
-}
 .history-table tr:last-child td {
   border-bottom: none;
 }
@@ -1047,23 +1040,31 @@ html, body {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 24px 0; /* Even horizontal gaps between columns */
 }
 
-/* Apply consistent padding to all cells for even spacing */
+/* Wrap the table for horizontal scrolling if needed */
+.history-list {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Apply consistent padding to all cells for even spacing, but only vertical padding */
 .history-table th,
 .history-table td {
-  padding: 12px 16px;
+  padding: 12px 0; /* Top/bottom padding, no left/right */
   text-align: left;
   vertical-align: middle;
-  /* Optional: font-size and color for consistency */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Set specific widths for each column based on typical content */
 .history-table th:nth-child(1),
 .history-table td:nth-child(1) { /* Date */
-  width: 200px;
-  min-width: 150px;
+  width: 150px;
+  min-width: 120px;
   max-width: 220px;
 }
 
@@ -1080,9 +1081,6 @@ html, body {
   width: 320px;
   min-width: 180px;
   max-width: 450px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .history-table th:nth-child(4),
@@ -1110,14 +1108,31 @@ html, body {
   padding-right: 0;
 }
 
-/* Spacing between columns for visual separation */
-.history-table th,
-.history-table td {
-  border-right: none;
-}
+/* Remove right border on last column (if you had borders) */
 .history-table th:last-child,
 .history-table td:last-child {
   border-right: none;
+}
+
+/* Make the table horizontally scrollable on small screens */
+@media (max-width: 900px) {
+  .history-table th,
+  .history-table td {
+    min-width: 90px;
+    font-size: 0.97em;
+  }
+  .history-list {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .history-table th,
+  .history-table td {
+    min-width: 70px;
+    font-size: 0.92em;
+    padding: 9px 0;
+  }
 }
 
 /* Adjust delete button style to be compact and vertically centered */
