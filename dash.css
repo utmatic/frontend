@@ -1114,6 +1114,16 @@ html, body {
   border-right: none;
 }
 
+/* Add a line under each row using box-shadow to fix border loss caused by border-spacing */
+.history-table tbody tr {
+  box-shadow: 0 1px 0 0 #e0e0e0;
+}
+
+/* Optional: Remove last row's shadow for a clean look */
+.history-table tbody tr:last-child {
+  box-shadow: none;
+}
+
 /* Make the table horizontally scrollable on small screens */
 @media (max-width: 900px) {
   .history-table th,
@@ -1164,12 +1174,6 @@ html, body {
   .history-table td {
     padding: 8px 8px;
     font-size: 0.97em;
-  }
-  .history-table th:nth-child(3),
-  .history-table td:nth-child(3) {
-    width: 180px;
-    min-width: 80px;
-    max-width: 220px;
   }
 }
 
