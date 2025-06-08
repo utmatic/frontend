@@ -108,22 +108,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   setTimeout(hidePageLoadingOverlay, 600);
 
   // --- INACTIVITY TIMER START ---
-  // Fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
-  // This example assumes you have a function getUserInactivityTimeout() that fetches it from Firestore
-  let userInactivityTimeoutMinutes = 30; // default fallback
-  if (typeof getUserInactivityTimeout === 'function') {
-    try {
-      const pref = await getUserInactivityTimeout();
-      if (typeof pref === 'number') {
-        userInactivityTimeoutMinutes = pref;
-      }
-    } catch (e) {
-      // fallback to default
-    }
-  } else if (window.userInactivityTimeoutMinutes !== undefined) {
-    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
-  }
-
+  // Always fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
+  let userInactivityTimeoutMinutes = await getUserInactivityTimeout();
   if (userInactivityTimeoutMinutes > 0) {
     window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
     window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
