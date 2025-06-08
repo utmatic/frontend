@@ -88,13 +88,11 @@ let inactivityModal = null;
 let inactivityCountdown = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
-const INACTIVITY_LIMIT_MINUTES = 30;
 const INACTIVITY_WARNING_MINUTES = 5;
-const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
 const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
 // Start inactivity timer logic on DOMContentLoaded
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   showPageLoadingOverlay();
 
   ensureLoggedInAndProBusiness();
@@ -115,16 +113,29 @@ window.addEventListener('DOMContentLoaded', () => {
   // Hide the overlay once everything's loaded (simulate async setup)
   setTimeout(hidePageLoadingOverlay, 600);
 
-// --- INACTIVITY TIMER START ---
-if (typeof userInactivityTimeoutMinutes === 'number' && userInactivityTimeoutMinutes > 0) {
-  window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
-  window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
-  // INACTIVITY_WARNING_MINUTES can remain hardcoded or be made user-configurable if you prefer
-  window.INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
-  startInactivityTimer();
-}
+  // --- INACTIVITY TIMER START ---
+  // Fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
+  // This example assumes you have a function getUserInactivityTimeout() that fetches it from Firestore
+  let userInactivityTimeoutMinutes = 30; // default fallback
+  if (typeof getUserInactivityTimeout === 'function') {
+    try {
+      const pref = await getUserInactivityTimeout();
+      if (typeof pref === 'number') {
+        userInactivityTimeoutMinutes = pref;
+      }
+    } catch (e) {
+      // fallback to default
+    }
+  } else if (window.userInactivityTimeoutMinutes !== undefined) {
+    userInactivityTimeoutMinutes = Number(window.userInactivityTimeoutMinutes);
+  }
 
-// ...rest of your code...
+  if (userInactivityTimeoutMinutes > 0) {
+    window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+    window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+    startInactivityTimer();
+  }
+});
 
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
