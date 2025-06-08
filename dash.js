@@ -20,7 +20,7 @@ let jobsLoaded = false;
 let presets = [];
 let presetsLoaded = false;
 
-// ---- Inactivity Timeout Modal Logic (Patched, Fully Working) ----
+// ---- Inactivity Timeout Modal Logic (Big Timer Style, Source Form Style) ----
 let inactivityModal = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
@@ -95,20 +95,18 @@ function showInactivityModal() {
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // Modal heading: Automatic logout in
+  // Modal heading: Session expires in
   const heading = document.createElement('h3');
-  heading.textContent = "Session Inactivity Warning";
+  heading.textContent = "Session expires in";
   modalBox.appendChild(heading);
 
-  // Timer message
-  const timeMsg = document.createElement('p');
-  timeMsg.className = "inactivity-modal-timer";
-  modalBox.appendChild(timeMsg);
-
-  // Instructions
-  const instr = document.createElement('p');
-  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
-  modalBox.appendChild(instr);
+  // Big timer value
+  const timerBig = document.createElement('div');
+  timerBig.className = "inactivity-modal-timer-big";
+  timerBig.style.fontSize = "2.6em";
+  timerBig.style.fontWeight = "bold";
+  timerBig.style.margin = "18px 0 12px 0";
+  modalBox.appendChild(timerBig);
 
   // Action row
   const actions = document.createElement('div');
@@ -117,14 +115,11 @@ function showInactivityModal() {
   // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
-  continueBtn.textContent = "Continue Session";
+  continueBtn.textContent = "Continue working";
+  continueBtn.style.fontSize = "1.08em";
+  continueBtn.style.padding = "11px 32px";
+  continueBtn.style.marginTop = "14px";
   actions.appendChild(continueBtn);
-
-  // Logout button
-  const logoutBtn = document.createElement('button');
-  logoutBtn.className = "logout-btn";
-  logoutBtn.textContent = "Log Out";
-  actions.appendChild(logoutBtn);
 
   modalBox.appendChild(actions);
   inactivityModal.appendChild(modalBox);
@@ -135,7 +130,7 @@ function showInactivityModal() {
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
+    timerBig.textContent = `${min}:${String(sec).padStart(2, "0")}`;
   }
   updateCountdown();
 
@@ -156,11 +151,6 @@ function showInactivityModal() {
       inactivityModal = null;
     }
     startInactivityTimer();
-  };
-
-  logoutBtn.onclick = function () {
-    clearInterval(inactivityInterval);
-    handleLogoutFromInactivity();
   };
 }
 
@@ -183,8 +173,7 @@ function handleLogoutFromInactivity() {
     window.location.href = "/auth.html";
   }
 }
-
-// -- END: Inactivity Modal -- // 
+// ---- END Inactivity Timeout Modal Logic ----
 
 // PATCH: Security/Retention settings
 let userSecuritySettings = {
