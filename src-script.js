@@ -141,64 +141,33 @@ function showInactivityModal() {
   // Build modal
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
-  inactivityModal.style.position = "fixed";
-  inactivityModal.style.left = 0;
-  inactivityModal.style.top = 0;
-  inactivityModal.style.width = "100vw";
-  inactivityModal.style.height = "100vh";
-  inactivityModal.style.background = "rgba(0,0,0,0.65)";
-  inactivityModal.style.zIndex = "10001";
-  inactivityModal.style.display = "flex";
-  inactivityModal.style.alignItems = "center";
-  inactivityModal.style.justifyContent = "center";
 
   const modalBox = document.createElement('div');
-  modalBox.style.background = "#fff";
-  modalBox.style.borderRadius = "8px";
-  modalBox.style.padding = "32px";
-  modalBox.style.maxWidth = "410px";
-  modalBox.style.textAlign = "center";
-  modalBox.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
+  modalBox.className = "inactivity-modal-box";
 
   const title = document.createElement('h3');
   title.textContent = "Session Inactivity Warning";
   modalBox.appendChild(title);
 
   const timeMsg = document.createElement('p');
-  timeMsg.style.fontSize = "17px";
-  timeMsg.style.fontWeight = "bold";
-  timeMsg.style.marginTop = "8px";
+  timeMsg.className = "inactivity-modal-timer";
   modalBox.appendChild(timeMsg);
 
   const instr = document.createElement('p');
   instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
-  instr.style.margin = "16px 0 0 0";
   modalBox.appendChild(instr);
 
   // Actions
   const btnDiv = document.createElement('div');
-  btnDiv.style.marginTop = "24px";
+  btnDiv.className = "inactivity-modal-actions";
 
   const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
   continueBtn.textContent = "Continue Session";
-  continueBtn.style.marginRight = "12px";
-  continueBtn.style.padding = "8px 22px";
-  continueBtn.style.background = "#1a73e8";
-  continueBtn.style.color = "#fff";
-  continueBtn.style.border = "none";
-  continueBtn.style.borderRadius = "4px";
-  continueBtn.style.fontSize = "16px";
-  continueBtn.style.cursor = "pointer";
 
   const logoutBtn = document.createElement('button');
+  logoutBtn.className = "logout-btn";
   logoutBtn.textContent = "Log Out";
-  logoutBtn.style.padding = "8px 22px";
-  logoutBtn.style.background = "#f44336";
-  logoutBtn.style.color = "#fff";
-  logoutBtn.style.border = "none";
-  logoutBtn.style.borderRadius = "4px";
-  logoutBtn.style.fontSize = "16px";
-  logoutBtn.style.cursor = "pointer";
 
   btnDiv.appendChild(continueBtn);
   btnDiv.appendChild(logoutBtn);
@@ -212,7 +181,7 @@ function showInactivityModal() {
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timeMsg.innerHTML = `Your session will expire due to inactivity in <span style="color:#c00;">${min}:${String(sec).padStart(2, "0")}</span>.`;
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
   }
   updateCountdown();
 
