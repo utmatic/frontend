@@ -86,7 +86,6 @@
       font-weight: bold;
       text-align: center;
     }
-    
   </style>
   <!-- Firebase SDKs: MUST be before script.js -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -296,7 +295,6 @@
 
   <script src="script.js"></script>
   <script>
-    // --- HEADER BAR LOGIC (copied from INDD) ---
       firebase.auth().onAuthStateChanged(function(user) {
         const nameEl = document.getElementById('profile-name');
         if (!nameEl) return;
@@ -345,7 +343,6 @@
           });
         });
       }
-    });
 
     // --- LOADING OVERLAY LOGIC (copied from INDD) ---
     function showPageLoadingOverlay() {
