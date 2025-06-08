@@ -126,22 +126,8 @@
         <section class="security-section" style="display:none" id="security-section-static-markup">
           <div class="section-title">Security & Data Retention</div>
           <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
+            <!-- Auto-delete jobs field group removed -->
             <div class="field-group">
-              <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
-              <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
-                <option value="1">1 hour</option>
-                <option value="24">24 hours</option>
-                <option value="168">7 days</option>
-                <option value="720">30 days</option>
-                <option value="2160">90 days</option>
-                <option value="0">Never</option>
-              </select>
-              <div style="color:var(--gray-400);margin-top:8px;">
-                Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
-                <b>Warning:</b> This cannot be undone.
-              </div>
-            </div>
-            <div class="field-group" style="margin-top:22px;">
               <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
               <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
                 <option value="15">15 minutes</option>
