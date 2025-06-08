@@ -7,11 +7,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
+  <link rel="stylesheet" href="timeout.css">
 
-  <!-- Firebase SDKs (must be loaded before dash.js) -->
+  <!-- Firebase SDKs (must be loaded before dash.js and timeout.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Inactivity Timeout Modal Logic -->
+  <script src="timeout.js"></script>
+  <script>
+    // --- Firebase config (replace with your real config if needed) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2Z6UcvqkwBPYzoFMhxc7JFeJHeeNpr3U",
+      authDomain: "utmatic.firebaseapp.com",
+      projectId: "utmatic",
+      storageBucket: "utmatic.firebasestorage.app",
+      messagingSenderId: "106080752806",
+      appId: "1:106080752806:web:217a463a446a850cf71067",
+      measurementId: "G-7JD0EVYF7M"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Start inactivity modal logic for ALL pages
+    fetchSessionTimeoutAndStart();
+
+    // Auth gating: block main content if not signed in
+    function getRedirectUrl() {
+      return window.location.pathname;
+    }
+    function blockForm(msg) {
+      if (!document.getElementById("blocked-msg")) {
+        const formBlockedMsg = document.createElement('div');
+        formBlockedMsg.id = "blocked-msg";
+        formBlockedMsg.innerHTML = msg;
+        document.body.appendChild(formBlockedMsg);
+      }
+      const mainContent = document.querySelector('.dash-root');
+      if (mainContent) mainContent.style.display = 'none';
+    }
+    async function ensureLoggedIn() {
+      await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+        return;
+      }
+      const mainContent = document.querySelector('.dash-root');
+      if (mainContent) mainContent.style.display = '';
+      const blocked = document.getElementById("blocked-msg");
+      if (blocked) blocked.remove();
+    }
+    document.addEventListener('DOMContentLoaded', ensureLoggedIn);
+  </script>
+  <style>
+    #blocked-msg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw;
+      background: #fff7f7;
+      color: #c00;
+      z-index: 10000;
+      padding: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <!-- Loading Overlay: Pulsing logo icon on #1c232b background -->
@@ -127,7 +186,6 @@
         <section class="security-section" style="display:none" id="security-section-static-markup">
           <div class="section-title">Security & Data Retention</div>
           <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
-            <!-- Auto-delete jobs field group removed -->
             <div class="field-group">
               <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
               <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
@@ -199,7 +257,6 @@
         } else {
           nameEl.textContent = "User";
         }
-
         // Set profile icon image if available
         const profileIcon = document.getElementById('profile-icon');
         if (profileIcon) {
@@ -214,15 +271,12 @@
 
     // PATCH: Preset details show/hide logic
     function toggleDetails(row) {
-      // Optionally: close all details except the clicked one
       document.querySelectorAll('.preset-list-row').forEach(r => r.classList.remove('active'));
       document.querySelectorAll('.preset-list-details').forEach(d => d.classList.remove('show'));
-
       row.classList.toggle('active');
       const details = row.nextElementSibling;
       if (details && details.classList.contains('preset-list-details')) {
         details.classList.toggle('show');
-        // Optionally: keep row active only if details are open
         if (!details.classList.contains('show')) row.classList.remove('active');
       }
     }
