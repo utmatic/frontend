@@ -159,9 +159,9 @@ function showInactivityModal() {
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // "Automatic logout in"
+  // Heading: "Your session is about to expire"
   const heading = document.createElement('h3');
-  heading.textContent = "Automatic logout in";
+  heading.textContent = "Your session is about to expire";
   modalBox.appendChild(heading);
 
   // (TIMER VALUE) - emphasized
@@ -169,7 +169,7 @@ function showInactivityModal() {
   timeMsg.className = "inactivity-modal-timer-big";
   modalBox.appendChild(timeMsg);
 
-  // "Do you want to extend this session?"
+  // Prompt
   const prompt = document.createElement('p');
   prompt.textContent = "Do you want to extend this session?";
   modalBox.appendChild(prompt);
@@ -185,6 +185,9 @@ function showInactivityModal() {
 
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
+
+  // Focus the button for accessibility
+  continueBtn.focus();
 
   // 5 min countdown
   let secondsLeft = INACTIVITY_WARNING_MS / 1000;
@@ -207,6 +210,7 @@ function showInactivityModal() {
 
   continueBtn.onclick = function () {
     clearInterval(inactivityInterval);
+    clearTimeout(inactivityTimeout);
     document.body.removeChild(inactivityModal);
     inactivityModal = null;
     inactivityCountdown = null;
@@ -215,6 +219,8 @@ function showInactivityModal() {
 }
 
 function handleLogoutFromInactivity() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
   if (inactivityModal) {
     document.body.removeChild(inactivityModal);
     inactivityModal = null;
