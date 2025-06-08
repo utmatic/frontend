@@ -83,6 +83,166 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_LIMIT_MINUTES = 30;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+
+// Start inactivity timer logic on DOMContentLoaded
+window.addEventListener('DOMContentLoaded', () => {
+  showPageLoadingOverlay();
+
+  ensureLoggedInAndProBusiness();
+
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600);
+
+// --- INACTIVITY TIMER START ---
+if (typeof userInactivityTimeoutMinutes === 'number' && userInactivityTimeoutMinutes > 0) {
+  window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+  window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+  // INACTIVITY_WARNING_MINUTES can remain hardcoded or be made user-configurable if you prefer
+  window.INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+  startInactivityTimer();
+}
+
+// ...rest of your code...
+
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+
+  // Only reset timer on activity if modal is NOT open
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+    }
+  }
+
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  // Store for cleanup if needed
+  startInactivityTimer._activityHandler = activityHandler;
+}
+
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (inactivityModal) return;
+
+  // Build modal
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+
+  const modalBox = document.createElement('div');
+  modalBox.className = "inactivity-modal-box";
+
+  const title = document.createElement('h3');
+  title.textContent = "Session Inactivity Warning";
+  modalBox.appendChild(title);
+
+  const timeMsg = document.createElement('p');
+  timeMsg.className = "inactivity-modal-timer";
+  modalBox.appendChild(timeMsg);
+
+  const instr = document.createElement('p');
+  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
+  modalBox.appendChild(instr);
+
+  // Actions
+  const btnDiv = document.createElement('div');
+  btnDiv.className = "inactivity-modal-actions";
+
+  const continueBtn = document.createElement('button');
+  continueBtn.className = "continue-session-btn";
+  continueBtn.textContent = "Continue Session";
+
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = "logout-btn";
+  logoutBtn.textContent = "Log Out";
+
+  btnDiv.appendChild(continueBtn);
+  btnDiv.appendChild(logoutBtn);
+  modalBox.appendChild(btnDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // Timer logic (5 min countdown)
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
+  }
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    // Restart inactivity timer
+    startInactivityTimer();
+  };
+
+  logoutBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    handleLogoutFromInactivity();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  // Remove event listeners to prevent memory leaks
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
+}
+
 // --- LOADING OVERLAY LOGIC (from INDD processor) ---
 function showPageLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
