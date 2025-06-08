@@ -297,7 +297,6 @@
   <script src="script.js"></script>
   <script>
     // --- HEADER BAR LOGIC (copied from INDD) ---
-    document.addEventListener('DOMContentLoaded', function() {
       firebase.auth().onAuthStateChanged(function(user) {
         const nameEl = document.getElementById('profile-name');
         if (!nameEl) return;
