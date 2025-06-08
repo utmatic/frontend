@@ -77,10 +77,20 @@ function hidePageLoadingOverlay() {
   }
 }
 
+// ---- Inactivity Timeout Modal Logic ----
+let inactivityModal = null;
+let inactivityCountdown = null;
+let inactivityInterval = null;
+let inactivityTimeout = null;
+const INACTIVITY_LIMIT_MINUTES = 30;
+const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+
+// Start inactivity timer logic on DOMContentLoaded
 window.addEventListener('DOMContentLoaded', () => {
   showPageLoadingOverlay();
 
-  // Always ensure auth and gating happens first
   ensureLoggedInAndProBusiness();
 
   // --- Make sure conditional fields are hidden on load ---
@@ -97,8 +107,159 @@ window.addEventListener('DOMContentLoaded', () => {
   initPresetDropdown();
 
   // Hide the overlay once everything's loaded (simulate async setup)
-  setTimeout(hidePageLoadingOverlay, 600); // or call once your async setup is done
+  setTimeout(hidePageLoadingOverlay, 600);
+
+  // --- INACTIVITY TIMER START ---
+  startInactivityTimer();
 });
+
+function startInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  clearInterval(inactivityInterval);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+
+  // Only reset timer on activity if modal is NOT open
+  function activityHandler() {
+    if (!inactivityModal) {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
+    }
+  }
+
+  window.addEventListener('mousemove', activityHandler);
+  window.addEventListener('keydown', activityHandler);
+  window.addEventListener('click', activityHandler);
+
+  // Store for cleanup if needed
+  startInactivityTimer._activityHandler = activityHandler;
+}
+
+function showInactivityModal() {
+  // Prevent multiple modals
+  if (inactivityModal) return;
+
+  // Build modal
+  inactivityModal = document.createElement('div');
+  inactivityModal.id = "inactivity-modal";
+  inactivityModal.style.position = "fixed";
+  inactivityModal.style.left = 0;
+  inactivityModal.style.top = 0;
+  inactivityModal.style.width = "100vw";
+  inactivityModal.style.height = "100vh";
+  inactivityModal.style.background = "rgba(0,0,0,0.65)";
+  inactivityModal.style.zIndex = "10001";
+  inactivityModal.style.display = "flex";
+  inactivityModal.style.alignItems = "center";
+  inactivityModal.style.justifyContent = "center";
+
+  const modalBox = document.createElement('div');
+  modalBox.style.background = "#fff";
+  modalBox.style.borderRadius = "8px";
+  modalBox.style.padding = "32px";
+  modalBox.style.maxWidth = "410px";
+  modalBox.style.textAlign = "center";
+  modalBox.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
+
+  const title = document.createElement('h3');
+  title.textContent = "Session Inactivity Warning";
+  modalBox.appendChild(title);
+
+  const timeMsg = document.createElement('p');
+  timeMsg.style.fontSize = "17px";
+  timeMsg.style.fontWeight = "bold";
+  timeMsg.style.marginTop = "8px";
+  modalBox.appendChild(timeMsg);
+
+  const instr = document.createElement('p');
+  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
+  instr.style.margin = "16px 0 0 0";
+  modalBox.appendChild(instr);
+
+  // Actions
+  const btnDiv = document.createElement('div');
+  btnDiv.style.marginTop = "24px";
+
+  const continueBtn = document.createElement('button');
+  continueBtn.textContent = "Continue Session";
+  continueBtn.style.marginRight = "12px";
+  continueBtn.style.padding = "8px 22px";
+  continueBtn.style.background = "#1a73e8";
+  continueBtn.style.color = "#fff";
+  continueBtn.style.border = "none";
+  continueBtn.style.borderRadius = "4px";
+  continueBtn.style.fontSize = "16px";
+  continueBtn.style.cursor = "pointer";
+
+  const logoutBtn = document.createElement('button');
+  logoutBtn.textContent = "Log Out";
+  logoutBtn.style.padding = "8px 22px";
+  logoutBtn.style.background = "#f44336";
+  logoutBtn.style.color = "#fff";
+  logoutBtn.style.border = "none";
+  logoutBtn.style.borderRadius = "4px";
+  logoutBtn.style.fontSize = "16px";
+  logoutBtn.style.cursor = "pointer";
+
+  btnDiv.appendChild(continueBtn);
+  btnDiv.appendChild(logoutBtn);
+  modalBox.appendChild(btnDiv);
+
+  inactivityModal.appendChild(modalBox);
+  document.body.appendChild(inactivityModal);
+
+  // Timer logic (5 min countdown)
+  let secondsLeft = INACTIVITY_WARNING_MS / 1000;
+  function updateCountdown() {
+    let min = Math.floor(secondsLeft / 60);
+    let sec = Math.floor(secondsLeft % 60);
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span style="color:#c00;">${min}:${String(sec).padStart(2, "0")}</span>.`;
+  }
+  updateCountdown();
+
+  inactivityInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      clearInterval(inactivityInterval);
+      handleLogoutFromInactivity();
+      return;
+    }
+    updateCountdown();
+  }, 1000);
+
+  continueBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+    inactivityCountdown = null;
+    // Restart inactivity timer
+    startInactivityTimer();
+  };
+
+  logoutBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    handleLogoutFromInactivity();
+  };
+}
+
+function handleLogoutFromInactivity() {
+  if (inactivityModal) {
+    document.body.removeChild(inactivityModal);
+    inactivityModal = null;
+  }
+  inactivityCountdown = null;
+  // Remove event listeners to prevent memory leaks
+  window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
+  window.removeEventListener('keydown', startInactivityTimer._activityHandler);
+  window.removeEventListener('click', startInactivityTimer._activityHandler);
+  // Log out Firebase, then redirect
+  if (window.firebase && firebase.auth) {
+    firebase.auth().signOut().then(function () {
+      window.location.href = "/auth.html";
+    });
+  } else {
+    window.location.href = "/auth.html";
+  }
+}
 
 // --- Save and Restore Form State for "Return to your submission" functionality ---
 let previousSubmissionData = null;
@@ -573,13 +734,31 @@ form.onsubmit = async (e) => {
       }
     });
 
-    const res = await resp.json();
-    if (resp.ok && res.file_name) {
+    // PATCH: handle backend 429 and show message for existing active job
+    let res;
+    let isJson = false;
+    try {
+      res = await resp.clone().json();
+      isJson = true;
+    } catch (_) {
+      // Not JSON, fallback to text
+      res = await resp.text();
+    }
+    if (resp.status === 429 && isJson && res.detail) {
+      hideLoader();
+      mainFormWrapper.style.pointerEvents = "";
+      // Show modal, not alert
+      showBackendErrorModal(res.detail);
+      submitBtn.disabled = false;
+      return;
+    }
+
+    if (resp.ok && isJson && res.file_name) {
       pollStatus(res.file_name);
     } else {
       hideLoader();
       mainFormWrapper.style.pointerEvents = "";
-      statusDiv.textContent = "Error: " + (res.error || "Unknown error");
+      statusDiv.textContent = "Error: " + (isJson ? (res.error || res.detail || "Unknown error") : res);
       submitBtn.disabled = false;
     }
   } catch (err) {
@@ -589,6 +768,60 @@ form.onsubmit = async (e) => {
     submitBtn.disabled = false;
   }
 };
+
+function showBackendErrorModal(msg) {
+  // Remove existing if any
+  let existing = document.getElementById('backend-error-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'backend-error-modal';
+  modal.style.position = "fixed";
+  modal.style.left = 0;
+  modal.style.top = 0;
+  modal.style.width = "100vw";
+  modal.style.height = "100vh";
+  modal.style.background = "rgba(0,0,0,0.65)";
+  modal.style.zIndex = "10003";
+  modal.style.display = "flex";
+  modal.style.alignItems = "center";
+  modal.style.justifyContent = "center";
+
+  const box = document.createElement('div');
+  box.style.background = "#fff";
+  box.style.borderRadius = "8px";
+  box.style.padding = "32px";
+  box.style.maxWidth = "410px";
+  box.style.textAlign = "center";
+  box.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
+
+  const title = document.createElement('h3');
+  title.textContent = "Job In Progress";
+  box.appendChild(title);
+
+  const msgP = document.createElement('p');
+  msgP.textContent = msg;
+  msgP.style.margin = "16px 0 0 0";
+  box.appendChild(msgP);
+
+  const okBtn = document.createElement('button');
+  okBtn.textContent = "OK";
+  okBtn.style.padding = "8px 22px";
+  okBtn.style.background = "#1a73e8";
+  okBtn.style.color = "#fff";
+  okBtn.style.border = "none";
+  okBtn.style.borderRadius = "4px";
+  okBtn.style.fontSize = "16px";
+  okBtn.style.marginTop = "24px";
+  okBtn.style.cursor = "pointer";
+  okBtn.onclick = function () {
+    modal.remove();
+  };
+
+  box.appendChild(okBtn);
+  modal.appendChild(box);
+  document.body.appendChild(modal);
+}
 
 async function pollStatus(fileName) {
   async function check() {
