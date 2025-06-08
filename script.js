@@ -88,11 +88,13 @@ let inactivityModal = null;
 let inactivityCountdown = null;
 let inactivityInterval = null;
 let inactivityTimeout = null;
+const INACTIVITY_LIMIT_MINUTES = 30;
 const INACTIVITY_WARNING_MINUTES = 5;
+const INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
 const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
 // Start inactivity timer logic on DOMContentLoaded
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
   showPageLoadingOverlay();
 
   ensureLoggedInAndProBusiness();
@@ -113,15 +115,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Hide the overlay once everything's loaded (simulate async setup)
   setTimeout(hidePageLoadingOverlay, 600);
 
-  // --- INACTIVITY TIMER START ---
-  // Always fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
-  let userInactivityTimeoutMinutes = await getUserInactivityTimeout();
-  if (userInactivityTimeoutMinutes > 0) {
-    window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
-    window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
-    startInactivityTimer();
-  }
-});
+// --- INACTIVITY TIMER START ---
+if (typeof userInactivityTimeoutMinutes === 'number' && userInactivityTimeoutMinutes > 0) {
+  window.INACTIVITY_LIMIT_MINUTES = userInactivityTimeoutMinutes;
+  window.INACTIVITY_LIMIT_MS = INACTIVITY_LIMIT_MINUTES * 60 * 1000;
+  // INACTIVITY_WARNING_MINUTES can remain hardcoded or be made user-configurable if you prefer
+  window.INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
+  startInactivityTimer();
+}
+
+// ...rest of your code...
 
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
@@ -240,7 +243,7 @@ function handleLogoutFromInactivity() {
   }
 }
 
-// --- Loading Overlay Logic ---
+// --- LOADING OVERLAY LOGIC (from INDD processor) ---
 function showPageLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
