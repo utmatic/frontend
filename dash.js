@@ -285,9 +285,21 @@ function bindHistoryDeleteButtons() {
       // Remove row from DOM immediately (optimistic UI)
       const row = btn.closest('tr');
       if (row) row.remove();
-      // Delete from backend & local jobs array
       try {
         await deleteJobBackend(jobId, jobType);
+      
+        // --- Log the deletion in Firestore ---
+        const user = firebase.auth().currentUser;
+        if (user) {
+          const db = firebase.firestore();
+          await db.collection('deletedDocsLog').add({
+            jobId: jobId,
+            jobType: jobType,
+            deletedByUid: user.uid,
+            deletedByEmail: user.email,
+            deletedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
       } catch (err) {
         alert("Failed to delete. Please refresh or try again.\n\n" + (err.message || err));
       }
