@@ -95,8 +95,6 @@ let inactivityWarningMs = null;
 window.addEventListener('DOMContentLoaded', () => {
   showPageLoadingOverlay();
 
-  ensureLoggedInAndProBusiness();
-
   // --- Make sure conditional fields are hidden on load ---
   if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
   if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
