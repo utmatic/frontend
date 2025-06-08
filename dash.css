@@ -413,9 +413,11 @@ html, body {
   font-size: 2.5rem;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 2px;
-  min-width: 90px;
-  /* transition: color 0.22s;    Not present in 2nd, add if you want animation */
+  letter-spacing: 0px;
+  width: 110px;           /* Adjust as needed for your largest value */
+  display: inline-block;  /* Ensures width is respected */
+  transition: color 0.22s;
+  /* No need for text-align: right; defaults to left */
 }
 .timesave-unit-toggle {
   display: flex;
