@@ -512,6 +512,13 @@ html, body {
   color: var(--gray-300);
   font-weight: 600;
 }
+.history-table th:first-child,
+.history-table td:first-child {
+  width: 110px; /* Or whatever you prefer */
+  min-width: 80px;
+  max-width: 140px;
+  white-space: nowrap;
+}
 .history-table tr:last-child td {
   border-bottom: none;
 }
