@@ -5,12 +5,15 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>INDD Processor</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="timeout.css">
   <!-- Firebase SDKs: MUST be before src-script.js -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Timeout modal logic (after Firebase) -->
+  <script src="timeout.js"></script>
   <script>
     // --- Firebase config (replace with your real config if needed) ---
     const firebaseConfig = {
@@ -23,6 +26,37 @@
       measurementId: "G-7JD0EVYF7M"
     };
     firebase.initializeApp(firebaseConfig);
+
+    // Start inactivity timeout logic for all users
+    fetchSessionTimeoutAndStart();
+
+    // Auth gating: block form if not signed in (all plans allowed)
+    function getRedirectUrl() {
+      return window.location.pathname;
+    }
+    function blockForm(msg) {
+      if (!document.getElementById("blocked-msg")) {
+        const formBlockedMsg = document.createElement('div');
+        formBlockedMsg.id = "blocked-msg";
+        formBlockedMsg.innerHTML = msg;
+        document.body.appendChild(formBlockedMsg);
+      }
+      const mainForm = document.getElementById('main-form-wrapper');
+      if (mainForm) mainForm.style.display = 'none';
+    }
+    async function ensureLoggedIn() {
+      await new Promise(resolve => firebase.auth().onAuthStateChanged(resolve));
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        window.location.href = "/auth.html?redirect=" + encodeURIComponent(getRedirectUrl());
+        return;
+      }
+      const mainForm = document.getElementById('main-form-wrapper');
+      if (mainForm) mainForm.style.display = '';
+      const blocked = document.getElementById("blocked-msg");
+      if (blocked) blocked.remove();
+    }
+    document.addEventListener('DOMContentLoaded', ensureLoggedIn);
   </script>
   <style>
     html, body {
@@ -49,6 +83,16 @@
       z-index: 20;
       letter-spacing: 0.01em;
       margin-top: auto;
+    }
+    #blocked-msg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw;
+      background: #fff7f7;
+      color: #c00;
+      z-index: 10000;
+      padding: 18px;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
@@ -112,16 +156,15 @@
             <!-- Form Logo and Title -->
             <div class="form-header">
               <span class="form-header-logo" aria-label="Utmatic Logo" style="display:block;">
-              <!-- Inline SVG logo, sized to roughly 40x40px and centered like original -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 69.64 74.34"
-                width="40"
-                height="60"
-                style="display: block;"
-              >
-                <path fill="#cce1ff" d="M59.6,0H10.04C4.5,0,0,4.5,0,10.04v30.61c0,18.58,15.12,33.7,33.7,33.7h2.25c18.58,0,33.7-15.12,33.7-33.7V10.04c0-5.53-4.5-10.04-10.04-10.04ZM61.91,40.65c0,14.32-11.65,25.97-25.97,25.97h-2.25c-14.32,0-25.97-11.65-25.97-25.97v-16.05h13.33v17.31c0,7.59,6.17,13.76,13.76,13.76s13.76-6.17,13.76-13.76v-17.31h13.33v16.05ZM61.91,16.86h-21.06v25.03c0,3.33-2.71,6.03-6.03,6.03s-6.03-2.71-6.03-6.03v-25.03H7.73v-6.83c0-1.27,1.04-2.31,2.31-2.31h49.56c1.27,0,2.31,1.04,2.31,2.31v6.83Z"/>
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 69.64 74.34"
+                  width="40"
+                  height="60"
+                  style="display: block;"
+                >
+                  <path fill="#cce1ff" d="M59.6,0H10.04C4.5,0,0,4.5,0,10.04v30.61c0,18.58,15.12,33.7,33.7,33.7h2.25c18.58,0,33.7-15.12,33.7-33.7V10.04c0-5.53-4.5-10.04-10.04-10.04ZM61.91,40.65c0,14.32-11.65,25.97-25.97,25.97h-2.25c-14.32,0-25.97-11.65-25.97-25.97v-16.05h13.33v17.31c0,7.59,6.17,13.76,13.76,13.76s13.76-6.17,13.76-13.76v-17.31h13.33v16.05ZM61.91,16.86h-21.06v25.03c0,3.33-2.71,6.03-6.03,6.03s-6.03-2.71-6.03-6.03v-25.03H7.73v-6.83c0-1.27,1.04-2.31,2.31-2.31h49.56c1.27,0,2.31,1.04,2.31,2.31v6.83Z"/>
+                </svg>
               </span>
               <h1 class="form-header-title">INDD Processor</h1>
             </div>
@@ -156,7 +199,6 @@
               <button type="button" class="add-new-row-btn" id="add-row-btn">+ Add new</button>
               <div id="target-base-rows"></div>
             </div>
-            <!-- UTM section is now fully wrapped -->
             <div id="utm-section">
               <span class="utm-label" id="utm-label">UTM Parameters</span>
               <div class="utm-row" id="utm-row">
@@ -174,7 +216,6 @@
                 </div>
               </div>
             </div>
-            <!-- Document Name field REMOVED -->
             <div class="form-actions">
               <button type="submit" id="submitBtn" class="process-btn" disabled>Process</button>
             </div>
@@ -195,7 +236,6 @@
         <div class="result-title-text">Your processed files are ready!</div>
       </div>
       <div class="result-btns" id="result-btns"></div>
-      <!-- Return to submission button, matching style to report-link and startnew-link -->
       <a href="#" class="result-return-link" id="result-return-link">
         <span>Return to your submission</span>
       </a>
@@ -204,7 +244,6 @@
       </a>
     </div>
   </div>
-  <!-- Your main JS last -->
   <script src="src-script.js"></script>
   <script>
     // Show user's name/email in profile area after login
@@ -261,8 +300,7 @@
   </script>
 
   <footer class="site-footer">
-  © 2025 Utmatic
-</footer>
-  
+    © 2025 Utmatic
+  </footer>
 </body>
 </html>
