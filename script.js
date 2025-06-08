@@ -69,7 +69,6 @@ function startInactivityTimer() {
 }
 
 function showInactivityModal() {
-  // Prevent multiple modals
   if (inactivityModal) return;
 
   inactivityModal = document.createElement('div');
@@ -78,31 +77,32 @@ function showInactivityModal() {
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // Modal heading: Automatic logout in
   const heading = document.createElement('h3');
   heading.textContent = "Session expires in";
   modalBox.appendChild(heading);
 
-  // Big timer value
   const timerBig = document.createElement('div');
   timerBig.className = "inactivity-modal-timer-big";
+  timerBig.style.fontSize = "2.6em";
+  timerBig.style.fontWeight = "bold";
+  timerBig.style.margin = "18px 0 12px 0";
   modalBox.appendChild(timerBig);
 
-  // Action row
   const actions = document.createElement('div');
   actions.className = 'inactivity-modal-actions';
 
-  // Continue button
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
   continueBtn.textContent = "Continue working";
+  continueBtn.style.fontSize = "1.08em";
+  continueBtn.style.padding = "11px 32px";
+  continueBtn.style.marginTop = "14px";
   actions.appendChild(continueBtn);
 
   modalBox.appendChild(actions);
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // Timer logic (countdown)
   let secondsLeft = inactivityWarningMs / 1000;
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
