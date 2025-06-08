@@ -85,11 +85,32 @@ let inactivityTimeout = null;
 const INACTIVITY_WARNING_MINUTES = 5;
 const INACTIVITY_WARNING_MS = INACTIVITY_WARNING_MINUTES * 60 * 1000;
 
+// Start inactivity timer logic on DOMContentLoaded
 window.addEventListener('DOMContentLoaded', async () => {
-  // ... your other DOMContentLoaded logic ...
+  showPageLoadingOverlay();
+
+  ensureLoggedInAndProBusiness();
+
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600);
 
   // --- INACTIVITY TIMER START ---
-  let userInactivityTimeoutMinutes = 30; // Default fallback
+  // Fetch the user's inactivity timeout preference (in minutes, 0 = never timeout)
+  // This example assumes you have a function getUserInactivityTimeout() that fetches it from Firestore
+  let userInactivityTimeoutMinutes = 30; // default fallback
   if (typeof getUserInactivityTimeout === 'function') {
     try {
       const pref = await getUserInactivityTimeout();
@@ -113,26 +134,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 function startInactivityTimer() {
   clearTimeout(inactivityTimeout);
   clearInterval(inactivityInterval);
+  inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
 
-  let inactivityLimit = window.INACTIVITY_LIMIT_MS;
-  let warningDelay = inactivityLimit - INACTIVITY_WARNING_MS;
-
-  // If the warning delay is negative or zero, skip the modal and just logout after inactivityLimit
-  if (warningDelay <= 0) {
-    inactivityTimeout = setTimeout(handleLogoutFromInactivity, inactivityLimit > 0 ? inactivityLimit : 300000); // fallback 5min
-    return;
-  }
-  inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
-
+  // Only reset timer on activity if modal is NOT open
   function activityHandler() {
     if (!inactivityModal) {
       clearTimeout(inactivityTimeout);
-      let warningDelay = window.INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS;
-      if (warningDelay <= 0) {
-        inactivityTimeout = setTimeout(handleLogoutFromInactivity, window.INACTIVITY_LIMIT_MS > 0 ? window.INACTIVITY_LIMIT_MS : 300000);
-        return;
-      }
-      inactivityTimeout = setTimeout(showInactivityModal, warningDelay);
+      inactivityTimeout = setTimeout(showInactivityModal, INACTIVITY_LIMIT_MS - INACTIVITY_WARNING_MS);
     }
   }
 
@@ -140,52 +148,58 @@ function startInactivityTimer() {
   window.addEventListener('keydown', activityHandler);
   window.addEventListener('click', activityHandler);
 
+  // Store for cleanup if needed
   startInactivityTimer._activityHandler = activityHandler;
 }
 
 function showInactivityModal() {
   // Prevent multiple modals
-  if (document.getElementById('inactivity-modal')) return;
+  if (inactivityModal) return;
 
+  // Build modal
   inactivityModal = document.createElement('div');
   inactivityModal.id = "inactivity-modal";
 
   const modalBox = document.createElement('div');
   modalBox.className = "inactivity-modal-box";
 
-  // "Automatic logout"
-  const heading = document.createElement('h3');
-  heading.textContent = "Automatic logout in";
-  modalBox.appendChild(heading);
+  const title = document.createElement('h3');
+  title.textContent = "Session Inactivity Warning";
+  modalBox.appendChild(title);
 
-  // (TIMER VALUE) - emphasized
-  const timeMsg = document.createElement('div');
-  timeMsg.className = "inactivity-modal-timer-big";
+  const timeMsg = document.createElement('p');
+  timeMsg.className = "inactivity-modal-timer";
   modalBox.appendChild(timeMsg);
 
-  // "Do you want to extend this session?"
-  const prompt = document.createElement('p');
-  prompt.textContent = "Do you want to extend this session?";
-  modalBox.appendChild(prompt);
+  const instr = document.createElement('p');
+  instr.textContent = "Please choose to continue your session or log out. If no action is taken, you will be automatically logged out.";
+  modalBox.appendChild(instr);
 
-  // Continue button
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = "inactivity-modal-actions";
+  // Actions
+  const btnDiv = document.createElement('div');
+  btnDiv.className = "inactivity-modal-actions";
+
   const continueBtn = document.createElement('button');
   continueBtn.className = "continue-session-btn";
-  continueBtn.textContent = "Continue";
-  actionsDiv.appendChild(continueBtn);
-  modalBox.appendChild(actionsDiv);
+  continueBtn.textContent = "Continue Session";
+
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = "logout-btn";
+  logoutBtn.textContent = "Log Out";
+
+  btnDiv.appendChild(continueBtn);
+  btnDiv.appendChild(logoutBtn);
+  modalBox.appendChild(btnDiv);
 
   inactivityModal.appendChild(modalBox);
   document.body.appendChild(inactivityModal);
 
-  // 5 min countdown
+  // Timer logic (5 min countdown)
   let secondsLeft = INACTIVITY_WARNING_MS / 1000;
   function updateCountdown() {
     let min = Math.floor(secondsLeft / 60);
     let sec = Math.floor(secondsLeft % 60);
-    timeMsg.innerHTML = `<span>${min}:${String(sec).padStart(2, "0")}</span>`;
+    timeMsg.innerHTML = `Your session will expire due to inactivity in <span>${min}:${String(sec).padStart(2, "0")}</span>.`;
   }
   updateCountdown();
 
@@ -204,7 +218,13 @@ function showInactivityModal() {
     document.body.removeChild(inactivityModal);
     inactivityModal = null;
     inactivityCountdown = null;
+    // Restart inactivity timer
     startInactivityTimer();
+  };
+
+  logoutBtn.onclick = function () {
+    clearInterval(inactivityInterval);
+    handleLogoutFromInactivity();
   };
 }
 
@@ -214,6 +234,7 @@ function handleLogoutFromInactivity() {
     inactivityModal = null;
   }
   inactivityCountdown = null;
+  // Remove event listeners to prevent memory leaks
   window.removeEventListener('mousemove', startInactivityTimer._activityHandler);
   window.removeEventListener('keydown', startInactivityTimer._activityHandler);
   window.removeEventListener('click', startInactivityTimer._activityHandler);
