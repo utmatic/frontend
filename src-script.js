@@ -77,6 +77,29 @@ function hidePageLoadingOverlay() {
   }
 }
 
+window.addEventListener('DOMContentLoaded', () => {
+  showPageLoadingOverlay();
+
+  // Always ensure auth and gating happens first
+  ensureLoggedInAndProBusiness();
+
+  // --- Make sure conditional fields are hidden on load ---
+  if (typeof utmSection !== "undefined" && utmSection) utmSection.style.display = "none";
+  if (typeof linkFields !== "undefined" && linkFields) linkFields.style.display = "none";
+  lastValidFile = null;
+  const span = document.getElementById('file-filename');
+  if (span) span.textContent = "No file chosen";
+  bindValidationListeners();
+  updateJobTypeFields();
+  validateForm();
+
+  // --- PRESETS (NEW) ---
+  initPresetDropdown();
+
+  // Hide the overlay once everything's loaded (simulate async setup)
+  setTimeout(hidePageLoadingOverlay, 600); // or call once your async setup is done
+});
+
 // --- Save and Restore Form State for "Return to your submission" functionality ---
 let previousSubmissionData = null;
 
@@ -550,31 +573,13 @@ form.onsubmit = async (e) => {
       }
     });
 
-    // PATCH: handle backend 429 and show message for existing active job
-    let res;
-    let isJson = false;
-    try {
-      res = await resp.clone().json();
-      isJson = true;
-    } catch (_) {
-      // Not JSON, fallback to text
-      res = await resp.text();
-    }
-    if (resp.status === 429 && isJson && res.detail) {
-      hideLoader();
-      mainFormWrapper.style.pointerEvents = "";
-      // Show modal, not alert
-      showBackendErrorModal(res.detail);
-      submitBtn.disabled = false;
-      return;
-    }
-
-    if (resp.ok && isJson && res.file_name) {
+    const res = await resp.json();
+    if (resp.ok && res.file_name) {
       pollStatus(res.file_name);
     } else {
       hideLoader();
       mainFormWrapper.style.pointerEvents = "";
-      statusDiv.textContent = "Error: " + (isJson ? (res.error || res.detail || "Unknown error") : res);
+      statusDiv.textContent = "Error: " + (res.error || "Unknown error");
       submitBtn.disabled = false;
     }
   } catch (err) {
@@ -584,60 +589,6 @@ form.onsubmit = async (e) => {
     submitBtn.disabled = false;
   }
 };
-
-function showBackendErrorModal(msg) {
-  // Remove existing if any
-  let existing = document.getElementById('backend-error-modal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'backend-error-modal';
-  modal.style.position = "fixed";
-  modal.style.left = 0;
-  modal.style.top = 0;
-  modal.style.width = "100vw";
-  modal.style.height = "100vh";
-  modal.style.background = "rgba(0,0,0,0.65)";
-  modal.style.zIndex = "10003";
-  modal.style.display = "flex";
-  modal.style.alignItems = "center";
-  modal.style.justifyContent = "center";
-
-  const box = document.createElement('div');
-  box.style.background = "#fff";
-  box.style.borderRadius = "8px";
-  box.style.padding = "32px";
-  box.style.maxWidth = "410px";
-  box.style.textAlign = "center";
-  box.style.boxShadow = "0 4px 32px rgba(0,0,0,0.13)";
-
-  const title = document.createElement('h3');
-  title.textContent = "Job In Progress";
-  box.appendChild(title);
-
-  const msgP = document.createElement('p');
-  msgP.textContent = msg;
-  msgP.style.margin = "16px 0 0 0";
-  box.appendChild(msgP);
-
-  const okBtn = document.createElement('button');
-  okBtn.textContent = "OK";
-  okBtn.style.padding = "8px 22px";
-  okBtn.style.background = "#1a73e8";
-  okBtn.style.color = "#fff";
-  okBtn.style.border = "none";
-  okBtn.style.borderRadius = "4px";
-  okBtn.style.fontSize = "16px";
-  okBtn.style.marginTop = "24px";
-  okBtn.style.cursor = "pointer";
-  okBtn.onclick = function () {
-    modal.remove();
-  };
-
-  box.appendChild(okBtn);
-  modal.appendChild(box);
-  document.body.appendChild(modal);
-}
 
 async function pollStatus(fileName) {
   async function check() {
