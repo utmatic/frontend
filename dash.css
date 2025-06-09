@@ -944,11 +944,12 @@ html, body {
   color: #cce1ff;
   border: none;
   border-radius: 7px;
-  padding: 8px 16px;
+  padding: 8px 46px;
   font-size: 0.97rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.12s;
+  margin-top: 25px;
 }
 #cancel-edit-preset-btn:hover {
   background: #384356;
