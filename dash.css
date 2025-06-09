@@ -1213,7 +1213,7 @@ html, body {
   margin-bottom: 2px;
   transition: border 0.15s, box-shadow 0.14s;
   width: 100%;
-  max-width: 430px; /* PATCH: make selects wider */
+  max-width: 530px; /* PATCH: make selects wider */
 }
 
 #auto-delete-select:focus,
