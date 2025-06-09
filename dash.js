@@ -503,7 +503,7 @@ function renderSecuritySection(securitySettings = {}) {
   return `
     <section class="security-section">
       <div class="section-title">Security</div>
-      <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
+      <form id="security-settings-form" style="max-width:630px;margin:18px 0;">
         <div class="field-group" style="margin-top:22px;">
           <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
           <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
@@ -514,7 +514,7 @@ function renderSecuritySection(securitySettings = {}) {
             <b>Note:</b> This helps protect your account if you leave your device unattended.
           </div>
         </div>
-        <button type="submit" class="process-btn" style="margin-top:22px;">Save</button>
+        <button type="submit" class="process-btn" style="margin-top:12px;">Save</button>
       </form>
       <div id="security-settings-message" style="margin-top:10px;color:var(--gray-400);"></div>
       <div id="session-timeout-warning"></div>
