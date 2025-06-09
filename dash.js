@@ -20,9 +20,8 @@ let jobsLoaded = false;
 let presets = [];
 let presetsLoaded = false;
 
-// PATCH: Security/Retention settings
+// PATCH: Security/Retention settings (autoDeleteDays removed)
 let userSecuritySettings = {
-  autoDeleteDays: null, // null means not loaded
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
@@ -295,209 +294,9 @@ function bindHistoryDeleteButtons() {
   });
 }
 
-function renderPresetsSection(presets) {
-  return `
-    <section class="presets-section">
-      <div class="section-title" style="margin-bottom: 18px;">Presets</div>
-      <div class="presets-list-container">
-        <div class="add-preset-link-row">
-          <a class="add-preset-link" id="add-preset-link" href="#">+ Add new</a>
-        </div>
-        <div class="presets-list">
-          ${
-            presets.length === 0
-              ? `<div style="color:var(--gray-400);text-align:center;font-style:italic;padding:32px 0 18px 0;">No presets yet. Create one above!</div>`
-              : presets
-                  .map(
-                    (preset) => `
-            <div class="preset-list-row collapsed" data-preset-id="${preset.id}" tabindex="0">
-              <div class="preset-list-content-group">
-                <div class="preset-list-name">${preset.name}</div>
-                <div class="preset-list-details" style="display:none;">
-                  <div class="preset-list-detail-label">Target Formats</div>
-                  <div class="preset-list-detail-value">
-                    ${preset.target_formats.map(f => `<code>${f}</code>`).join(', ')}
-                  </div>
-                  <div class="preset-list-detail-label">Base URL</div>
-                  <div class="preset-list-detail-value">${preset.base_url}</div>
-                </div>
-              </div>
-              <div class="preset-list-actions">
-                <button class="preset-list-action-btn edit" data-preset-id="${preset.id}" title="Edit Preset" aria-label="Edit Preset">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>
-                </button>
-                <button class="preset-list-action-btn delete" data-preset-id="${preset.id}" title="Delete Preset" aria-label="Delete Preset">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                </button>
-              </div>
-            </div>
-            `
-                  )
-                  .join('')
-          }
-        </div>
-      </div>
-      <div class="preset-form-wrapper" id="preset-form-wrapper" style="display:none;">
-        <button type="button" class="preset-form-close" id="preset-form-close-btn" title="Close">&times;</button>
-        <div class="section-title new-preset-title">New Preset</div>
-        <form id="preset-form">
-          <div class="field-group">
-            <label for="preset-name">Preset Name</label>
-            <input type="text" id="preset-name" name="preset-name" required autocomplete="off">
-          </div>
-          <div class="field-group">
-            <label for="preset-target-formats">Target Formats</label>
-            <input type="text" id="preset-target-formats" name="preset-target-formats" required placeholder="e.g. NNNN-NNNN, LNNNN-NNNNN, LLLLL-NNN" autocomplete="off">
-          </div>
-          <div class="field-group">
-            <label for="preset-base-url">Base URL</label>
-            <input type="text" id="preset-base-url" name="preset-base-url" required placeholder="e.g. https://www.example.com/store/" autocomplete="off">
-          </div>
-          <input type="hidden" id="preset-id" name="preset-id">
-          <div class="form-actions">
-            <button type="submit" id="save-preset-btn" class="process-btn">Save Preset</button>
-            <button type="button" id="cancel-edit-preset-btn" style="display:none;margin-left:10px;">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </section>
-  `;
-}
-
-function bindPresetsUI() {
-  // Add new link logic (top of list)
-  const addPresetLink = document.getElementById('add-preset-link');
-  const formWrapper = document.getElementById('preset-form-wrapper');
-  if (addPresetLink && formWrapper) {
-    addPresetLink.onclick = function(e) {
-      e.preventDefault(); // Prevent default link action if <a> tag is used
-      formWrapper.style.display = '';
-      const presetForm = document.getElementById('preset-form');
-      if (presetForm) presetForm.reset();
-      const saveBtn = document.getElementById('save-preset-btn');
-      if (saveBtn) saveBtn.textContent = "Save Preset";
-      const cancelBtn = document.getElementById('cancel-edit-preset-btn');
-      if (cancelBtn) cancelBtn.style.display = 'none';
-      const presetIdInput = document.getElementById('preset-id');
-      if (presetIdInput) presetIdInput.value = '';
-      setTimeout(() => {
-        const nameInput = document.getElementById('preset-name');
-        if (nameInput) nameInput.focus();
-      }, 50);
-    };
-  }
-
-  // Collapsible row logic: click row to expand/collapse details (ignore edit/delete button clicks)
-  document.querySelectorAll('.preset-list-row').forEach(row => {
-    row.addEventListener('click', function(e) {
-      if (e.target.closest('.preset-list-action-btn')) return;
-      const details = row.querySelector('.preset-list-details');
-      const expanded = row.classList.contains('expanded');
-      document.querySelectorAll('.preset-list-row').forEach(r => {
-        r.classList.remove('expanded');
-        r.classList.add('collapsed');
-        const d = r.querySelector('.preset-list-details');
-        if (d) d.style.display = 'none';
-      });
-      if (!expanded) {
-        row.classList.add('expanded');
-        row.classList.remove('collapsed');
-        if (details) details.style.display = 'block';
-      }
-    });
-    row.addEventListener('keydown', function(e) {
-      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-        e.preventDefault();
-        row.click();
-      }
-    });
-  });
-
-  document.querySelectorAll('.preset-list-action-btn.edit').forEach(btn => {
-    btn.onclick = function(e) {
-      e.stopPropagation();
-      const presetId = btn.dataset.presetId;
-      const preset = presets.find(p => p.id === presetId);
-      if (preset) {
-        document.getElementById('preset-form-wrapper').style.display = '';
-        document.getElementById('preset-name').value = preset.name;
-        document.getElementById('preset-target-formats').value = preset.target_formats.join(', ');
-        document.getElementById('preset-base-url').value = preset.base_url;
-        document.getElementById('preset-id').value = preset.id;
-        document.getElementById('cancel-edit-preset-btn').style.display = '';
-        document.getElementById('save-preset-btn').textContent = "Update Preset";
-        document.getElementById('preset-name').focus();
-      }
-    };
-  });
-  document.querySelectorAll('.preset-list-action-btn.delete').forEach(btn => {
-    btn.onclick = async function(e) {
-      e.stopPropagation();
-      const presetId = btn.dataset.presetId;
-      if (window.confirm("Delete this preset?")) {
-        await deletePreset(presetId);
-        presetsLoaded = false;
-        await fetchPresetsOnceAndRender("presets");
-      }
-    };
-  });
-  const presetForm = document.getElementById('preset-form');
-  if (presetForm) {
-    presetForm.onsubmit = async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('preset-name').value.trim();
-      const targetFormatsStr = document.getElementById('preset-target-formats').value.trim();
-      const target_formats = targetFormatsStr.split(',').map(s => s.trim()).filter(Boolean);
-      const base_url = document.getElementById('preset-base-url').value.trim();
-      const id = document.getElementById('preset-id').value;
-      if (!name || !target_formats.length || !base_url) {
-        alert("Please provide all fields.");
-        return;
-      }
-      await savePreset({ id, name, target_formats, base_url });
-      presetsLoaded = false;
-      await fetchPresetsOnceAndRender("presets");
-      presetForm.reset();
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('preset-form-wrapper').style.display = 'none';
-    };
-  }
-  const cancelBtn = document.getElementById('cancel-edit-preset-btn');
-  if (cancelBtn) {
-    cancelBtn.onclick = function() {
-      document.getElementById('preset-form').reset();
-      cancelBtn.style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-      document.getElementById('preset-form-wrapper').style.display = 'none';
-    };
-  }
-  const closeBtn = document.getElementById('preset-form-close-btn');
-  if (closeBtn && formWrapper) {
-    closeBtn.onclick = function() {
-      formWrapper.style.display = 'none';
-      document.getElementById('preset-form').reset();
-      document.getElementById('cancel-edit-preset-btn').style.display = 'none';
-      document.getElementById('save-preset-btn').textContent = "Save Preset";
-    };
-  }
-  if (formWrapper) {
-    formWrapper.style.display = 'none';
-  }
-}
-
 // --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
-  const { autoDeleteDays, sessionTimeoutMinutes } = securitySettings;
-  // Auto-delete options (in hours/days)
-  const autoDeleteOptions = [
-    { value: 1, label: "1 hour" },
-    { value: 24, label: "24 hours" },
-    { value: 168, label: "7 days" },
-    { value: 720, label: "30 days" },
-    { value: 2160, label: "90 days" },
-    { value: 0, label: "Never" }
-  ];
+  const { sessionTimeoutMinutes } = securitySettings;
   // Session timeout options (in minutes)
   const sessionTimeoutOptions = [
     { value: 15, label: "15 minutes" },
@@ -507,23 +306,12 @@ function renderSecuritySection(securitySettings = {}) {
     { value: 360, label: "6 hours" },
     { value: 0, label: "Never" }
   ];
-  const selectedAutoDelete = typeof autoDeleteDays === "number" ? autoDeleteDays : 0;
   const selectedSessionTimeout = typeof sessionTimeoutMinutes === "number" ? sessionTimeoutMinutes : 0;
 
   return `
     <section class="security-section">
-      <div class="section-title">Security & Data Retention</div>
+      <div class="section-title">Security</div>
       <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
-        <div class="field-group">
-          <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
-          <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
-            ${autoDeleteOptions.map(opt => `<option value="${opt.value}"${selectedAutoDelete === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
-          </select>
-          <div style="color:var(--gray-400);margin-top:8px;">
-            Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
-            <b>Warning:</b> This cannot be undone.
-          </div>
-        </div>
         <div class="field-group" style="margin-top:22px;">
           <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
           <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
@@ -546,15 +334,12 @@ function bindSecurityUI() {
   if (!form) return;
   form.onsubmit = async function(e) {
     e.preventDefault();
-    const autoDeleteSelect = document.getElementById('auto-delete-select');
     const sessionTimeoutSelect = document.getElementById('session-timeout-select');
-    if (!autoDeleteSelect || !sessionTimeoutSelect) return;
-    const autoDeleteValue = parseInt(autoDeleteSelect.value, 10);
+    if (!sessionTimeoutSelect) return;
     const sessionTimeoutValue = parseInt(sessionTimeoutSelect.value, 10);
     const msg = document.getElementById('security-settings-message');
     try {
-      await saveUserSecuritySettings({ autoDeleteDays: autoDeleteValue, sessionTimeoutMinutes: sessionTimeoutValue });
-      userSecuritySettings.autoDeleteDays = autoDeleteValue;
+      await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
       setupSessionTimeoutWatcher();
       if (msg) {
@@ -571,12 +356,12 @@ function bindSecurityUI() {
   };
   setupSessionTimeoutWatcher();
 }
-async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes }) {
+async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
   if (!uid) throw new Error("Not logged in");
   const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
   await settingsRef.set(
-    { autoDeleteDays: autoDeleteDays, sessionTimeoutMinutes: sessionTimeoutMinutes },
+    { sessionTimeoutMinutes: sessionTimeoutMinutes },
     { merge: true }
   );
 }
@@ -596,10 +381,8 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       const doc = await settingsRef.get();
       if (doc.exists) {
         const data = doc.data();
-        userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
         userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
       } else {
-        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
       }
       userSecurityLoaded = true;
@@ -607,7 +390,6 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       setupSessionTimeoutWatcher();
     } catch (e) {
       console.error('Error loading security settings:', e);
-      userSecuritySettings.autoDeleteDays = 0;
       userSecuritySettings.sessionTimeoutMinutes = 0;
       userSecurityLoaded = true;
       setView(view);
@@ -898,10 +680,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const doc = await settingsRef.get();
         if (doc.exists) {
           const data = doc.data();
-          userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
           userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
         } else {
-          userSecuritySettings.autoDeleteDays = 0;
           userSecuritySettings.sessionTimeoutMinutes = 0;
         }
         userSecurityLoaded = true;
@@ -910,7 +690,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSessionTimeoutWatcher();
       } catch (e) {
         console.error('Error loading security settings:', e);
-        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
         userSecurityLoaded = true;
         securityDone = true;
