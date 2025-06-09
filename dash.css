@@ -1167,11 +1167,11 @@ html, body {
 
 /* --- SECURITY / PRIVACY SECTION --- */
 .security-section {
-  background: #232a33;
+  background: none;
   border-radius: 14px;
   padding: 38px 44px 32px 44px;
   margin-bottom: 32px;
-  box-shadow: 0 4px 16px 0 rgba(44, 63, 114, 0.10);
+  box-shadow: none;
   width: 100%;
   max-width: 700px; /* PATCH: make wider */
 }
