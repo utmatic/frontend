@@ -22,11 +22,12 @@ let presetsLoaded = false;
 
 // PATCH: Security/Retention settings
 let userSecuritySettings = {
+  autoDeleteDays: null, // null means not loaded
   sessionTimeoutMinutes: null // PATCH: session timeout value in minutes (null = not loaded)
 };
 let userSecurityLoaded = false;
-
-// Removed: sessionTimeoutTimer, sessionTimeoutWarningTimer
+let sessionTimeoutTimer = null;
+let sessionTimeoutWarningTimer = null;
 
 const SECONDS_PER_LINK = 30;
 const UNITS = [
@@ -284,21 +285,9 @@ function bindHistoryDeleteButtons() {
       // Remove row from DOM immediately (optimistic UI)
       const row = btn.closest('tr');
       if (row) row.remove();
+      // Delete from backend & local jobs array
       try {
         await deleteJobBackend(jobId, jobType);
-      
-        // --- Log the deletion in Firestore ---
-        const user = firebase.auth().currentUser;
-        if (user) {
-          const db = firebase.firestore();
-          await db.collection('deletedDocsLog').add({
-            jobId: jobId,
-            jobType: jobType,
-            deletedByUid: user.uid,
-            deletedByEmail: user.email,
-            deletedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
       } catch (err) {
         alert("Failed to delete. Please refresh or try again.\n\n" + (err.message || err));
       }
@@ -499,16 +488,26 @@ function bindPresetsUI() {
 
 // --- PATCH: Security/Privacy Screen ---
 function renderSecuritySection(securitySettings = {}) {
-  const { sessionTimeoutMinutes } = securitySettings;
+  const { autoDeleteDays, sessionTimeoutMinutes } = securitySettings;
+  // Auto-delete options (in hours/days)
+  const autoDeleteOptions = [
+    { value: 1, label: "1 hour" },
+    { value: 24, label: "24 hours" },
+    { value: 168, label: "7 days" },
+    { value: 720, label: "30 days" },
+    { value: 2160, label: "90 days" },
+    { value: 0, label: "Never" }
+  ];
   // Session timeout options (in minutes)
   const sessionTimeoutOptions = [
-    { value: 6, label: "15 minutes" },
+    { value: 15, label: "15 minutes" },
     { value: 30, label: "30 minutes" },
     { value: 60, label: "1 hour" },
     { value: 180, label: "3 hours" },
     { value: 360, label: "6 hours" },
     { value: 0, label: "Never" }
   ];
+  const selectedAutoDelete = typeof autoDeleteDays === "number" ? autoDeleteDays : 0;
   const selectedSessionTimeout = typeof sessionTimeoutMinutes === "number" ? sessionTimeoutMinutes : 0;
 
   return `
@@ -516,6 +515,16 @@ function renderSecuritySection(securitySettings = {}) {
       <div class="section-title">Security & Data Retention</div>
       <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
         <div class="field-group">
+          <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
+          <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
+            ${autoDeleteOptions.map(opt => `<option value="${opt.value}"${selectedAutoDelete === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
+          </select>
+          <div style="color:var(--gray-400);margin-top:8px;">
+            Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
+            <b>Warning:</b> This cannot be undone.
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:22px;">
           <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
           <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
             ${sessionTimeoutOptions.map(opt => `<option value="${opt.value}"${selectedSessionTimeout === opt.value ? " selected" : ""}>${opt.label}</option>`).join('')}
@@ -537,14 +546,17 @@ function bindSecurityUI() {
   if (!form) return;
   form.onsubmit = async function(e) {
     e.preventDefault();
+    const autoDeleteSelect = document.getElementById('auto-delete-select');
     const sessionTimeoutSelect = document.getElementById('session-timeout-select');
-    if (!sessionTimeoutSelect) return;
+    if (!autoDeleteSelect || !sessionTimeoutSelect) return;
+    const autoDeleteValue = parseInt(autoDeleteSelect.value, 10);
     const sessionTimeoutValue = parseInt(sessionTimeoutSelect.value, 10);
     const msg = document.getElementById('security-settings-message');
     try {
-      await saveUserSecuritySettings({ sessionTimeoutMinutes: sessionTimeoutValue });
+      await saveUserSecuritySettings({ autoDeleteDays: autoDeleteValue, sessionTimeoutMinutes: sessionTimeoutValue });
+      userSecuritySettings.autoDeleteDays = autoDeleteValue;
       userSecuritySettings.sessionTimeoutMinutes = sessionTimeoutValue;
-      // REMOVED: setupSessionTimeoutWatcher();
+      setupSessionTimeoutWatcher();
       if (msg) {
         msg.textContent = "Saved! Your security settings have been updated.";
         msg.style.color = "#4d89f9";
@@ -557,14 +569,14 @@ function bindSecurityUI() {
       }
     }
   };
-  // REMOVED: setupSessionTimeoutWatcher();
+  setupSessionTimeoutWatcher();
 }
-async function saveUserSecuritySettings({ sessionTimeoutMinutes }) {
+async function saveUserSecuritySettings({ autoDeleteDays, sessionTimeoutMinutes }) {
   const uid = getCurrentUserUid();
   if (!uid) throw new Error("Not logged in");
   const settingsRef = firebase.firestore().collection('userSecurity').doc(uid);
   await settingsRef.set(
-    { sessionTimeoutMinutes: sessionTimeoutMinutes },
+    { autoDeleteDays: autoDeleteDays, sessionTimeoutMinutes: sessionTimeoutMinutes },
     { merge: true }
   );
 }
@@ -584,30 +596,134 @@ async function fetchUserSecuritySettingsOnceAndRender(view = "security") {
       const doc = await settingsRef.get();
       if (doc.exists) {
         const data = doc.data();
+        userSecuritySettings.autoDeleteDays = typeof data.autoDeleteDays === "number" ? data.autoDeleteDays : 0;
         userSecuritySettings.sessionTimeoutMinutes = typeof data.sessionTimeoutMinutes === "number" ? data.sessionTimeoutMinutes : 0;
       } else {
+        userSecuritySettings.autoDeleteDays = 0;
         userSecuritySettings.sessionTimeoutMinutes = 0;
       }
       userSecurityLoaded = true;
       setView(view);
-      // REMOVED: setupSessionTimeoutWatcher();
+      setupSessionTimeoutWatcher();
     } catch (e) {
       console.error('Error loading security settings:', e);
       userSecuritySettings.autoDeleteDays = 0;
       userSecuritySettings.sessionTimeoutMinutes = 0;
       userSecurityLoaded = true;
       setView(view);
-      // REMOVED: setupSessionTimeoutWatcher();
+      setupSessionTimeoutWatcher();
     }
   });
 }
 
 // --- PATCH: Session Timeout Logic ---
-// REMOVE ALL: Session timeout logic, timers, watchers, warning display, etc.
+function setupSessionTimeoutWatcher() {
+  if (sessionTimeoutTimer) {
+    clearTimeout(sessionTimeoutTimer);
+    sessionTimeoutTimer = null;
+  }
+  if (sessionTimeoutWarningTimer) {
+    clearTimeout(sessionTimeoutWarningTimer);
+    sessionTimeoutWarningTimer = null;
+  }
+  const min = userSecuritySettings.sessionTimeoutMinutes;
+  if (!firebase.auth().currentUser || !min || min === 0) {
+    hideSessionTimeoutWarning();
+    return;
+  }
+  let lastActivity = Date.now();
 
-// REMOVED: setupSessionTimeoutWatcher, showSessionTimeoutWarning, hideSessionTimeoutWarning
+  window.resetSessionTimeoutWatcher = function() {
+    lastActivity = Date.now();
+    hideSessionTimeoutWarning();
+    scheduleTimers();
+  };
+  
+  if (!window.__utmaticSessionListenersBound) {
+    ["mousemove", "mousedown", "keydown", "scroll", "touchstart"].forEach(evt =>
+      window.addEventListener(evt, resetSessionTimeoutWatcher, true)
+    );
+    window.__utmaticSessionListenersBound = true;
+  }
 
-// REMOVED: firebase.auth().onAuthStateChanged for session timeout logic
+  function getExpireTime() {
+    return lastActivity + min * 60 * 1000;
+  }
+  function getWarningTime() {
+    return getExpireTime() - 5 * 60 * 1000;
+  }
+
+  function scheduleTimers() {
+    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
+
+    const now = Date.now();
+    const timeToExpire = getExpireTime() - now;
+    const timeToWarning = getWarningTime() - now;
+
+    if (timeToWarning > 0) {
+      sessionTimeoutWarningTimer = setTimeout(showSessionTimeoutWarning, timeToWarning);
+    } else if (timeToExpire > 0) {
+      showSessionTimeoutWarning();
+    }
+
+    sessionTimeoutTimer = setTimeout(() => {
+      hideSessionTimeoutWarning();
+      firebase.auth().signOut().then(() => {
+        window.location.href = "/login?timeout=1";
+      });
+    }, timeToExpire);
+  }
+
+  function showSessionTimeoutWarning() {
+    const warningEl = document.getElementById('session-timeout-warning');
+    if (!warningEl) return;
+    const now = Date.now();
+    const expireAt = getExpireTime();
+    let remaining = Math.max(0, Math.floor((expireAt - now) / 1000));
+    function format(n) {
+      const m = Math.floor(n / 60);
+      const s = n % 60;
+      return `${m}:${s < 10 ? "0" : ""}${s}`;
+    }
+    function update() {
+      remaining = Math.max(0, Math.floor((expireAt - Date.now()) / 1000));
+      if (remaining <= 0) {
+        warningEl.style.display = "none";
+        return;
+      }
+      warningEl.style.display = "block";
+      warningEl.innerHTML =
+        `<span>You will be logged out in <b>${format(remaining)}</b> due to inactivity.</span>`;
+      sessionTimeoutWarningTimer = setTimeout(update, 1000);
+    }
+    update();
+  }
+
+  function hideSessionTimeoutWarning() {
+    const warningEl = document.getElementById('session-timeout-warning');
+    if (warningEl) {
+      warningEl.style.display = "none";
+      warningEl.innerHTML = "";
+    }
+    if (sessionTimeoutWarningTimer) {
+      clearTimeout(sessionTimeoutWarningTimer);
+      sessionTimeoutWarningTimer = null;
+    }
+  }
+  
+  scheduleTimers();
+}
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    if (userSecurityLoaded) setupSessionTimeoutWatcher();
+  } else {
+    if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+    if (sessionTimeoutWarningTimer) clearTimeout(sessionTimeoutWarningTimer);
+    hideSessionTimeoutWarning();
+  }
+});
 
 // PATCH: Firestore user settings helpers
 function getCurrentUserUid() {
@@ -791,7 +907,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        // REMOVED: setupSessionTimeoutWatcher();
+        setupSessionTimeoutWatcher();
       } catch (e) {
         console.error('Error loading security settings:', e);
         userSecuritySettings.autoDeleteDays = 0;
@@ -799,7 +915,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userSecurityLoaded = true;
         securityDone = true;
         tryHideOverlayAndShowDashboard();
-        // REMOVED: setupSessionTimeoutWatcher();
+        setupSessionTimeoutWatcher();
       }
     });
 
