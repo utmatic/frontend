@@ -2,18 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard</title>
+  <title>Utmatic Dash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dash.css" />
-  <link rel="stylesheet" href="timeout.css">
 
   <!-- Firebase SDKs (must be loaded before dash.js) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <!-- Timeout modal logic (after Firebase) -->
-  <script src="timeout.js"></script>
 </head>
 <body>
   <!-- Loading Overlay: Pulsing logo icon on #1c232b background -->
@@ -103,8 +100,8 @@
               <span class="new-dropdown-label">New</span>
             </button>
             <div class="new-dropdown-list" id="new-dropdown-list">
-              <a href="https://app.utmatic.com/pdf-form" target="_blank" rel="noopener" class="dropdown-item">PDF Processor</a>
-              <a href="https://app.utmatic.com/indd-form" target="_blank" rel="noopener" class="dropdown-item">Indd Processor</a>
+              <a href="https://app.utmatic.com/pdf-form.html" target="_blank" rel="noopener" class="dropdown-item">PDF Processor</a>
+              <a href="https://app.utmatic.com/source-form.html" target="_blank" rel="noopener" class="dropdown-item">Indd Processor</a>
             </div>
           </div>
         </div>
@@ -129,8 +126,22 @@
         <section class="security-section" style="display:none" id="security-section-static-markup">
           <div class="section-title">Security & Data Retention</div>
           <form id="security-settings-form" style="max-width:420px;margin:18px 0;">
-            <!-- Auto-delete jobs field group removed -->
             <div class="field-group">
+              <label for="auto-delete-select" style="font-weight:500;">Auto-delete my jobs after:</label>
+              <select id="auto-delete-select" name="auto-delete-days" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
+                <option value="1">1 hour</option>
+                <option value="24">24 hours</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days</option>
+                <option value="2160">90 days</option>
+                <option value="0">Never</option>
+              </select>
+              <div style="color:var(--gray-400);margin-top:8px;">
+                Jobs will be automatically deleted from your dashboard, cloud storage, and our servers after the selected time. <br>
+                <b>Warning:</b> This cannot be undone.
+              </div>
+            </div>
+            <div class="field-group" style="margin-top:22px;">
               <label for="session-timeout-select" style="font-weight:500;">Log me out after inactivity:</label>
               <select id="session-timeout-select" name="session-timeout-minutes" style="width:100%;margin-top:12px;padding:11px;border-radius:8px;font-size:1.08em;">
                 <option value="15">15 minutes</option>
