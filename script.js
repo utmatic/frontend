@@ -1,3 +1,5 @@
+// main.js
+
 // Guarantee pdfjsViewer is available globally for all UMD/CDN environments (for possible future use)
 window.pdfjsViewer =
   window.pdfjsViewer ||
