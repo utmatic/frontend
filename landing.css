@@ -318,3 +318,10 @@ html, body {
 .hide {
   display: none !important;
 }
+
+/* ---------------------------------
+   Remove underline from all links/text
+--------------------------------- */
+a, a:visited, a:hover, a:active {
+  text-decoration: none !important;
+}
