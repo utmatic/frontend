@@ -205,7 +205,6 @@ html, body {
   min-height: 300px;
   padding-top: 110px;
   padding-bottom: 40px;
-  padding-top: 24px
 }
 
 .hero-section .section-align {
@@ -213,6 +212,7 @@ html, body {
   text-align: center;
   padding-left: 0;
   padding-right: 0;
+  padding-top: 24px;
 }
 
 .hero-title {
