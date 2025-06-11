@@ -1,6 +1,5 @@
 /* ===================================================
   UTMTATIC LANDING PAGE STYLESHEET
-  All variables, layout, and sections
 =================================================== */
 
 /* -----------------------------
@@ -9,11 +8,11 @@
 :root {
   --brand-blue: #4d89f9;
   --brand-blue-hover: #3474e0;
-  --brand-black: #e4e8ef;    /* Main text color on dark */
-  --brand-white: #232a33;    /* Card surface, not true white */
-  --gray-100: #29313a;       /* Input borders, dividers */
-  --gray-300: #b3b9c5;       /* Muted text */
-  --gray-400: #7a8597;       /* More muted text */
+  --brand-black: #e4e8ef;
+  --brand-white: #232a33;
+  --gray-100: #29313a;
+  --gray-300: #b3b9c5;
+  --gray-400: #7a8597;
   --shadow: 0 8px 32px #000a;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
   --background-main: #1c232b;
@@ -178,14 +177,13 @@ html, body {
 }
 
 /* ---------------------------------
-   Section Layout Utility
-   (Keeps sections aligned)
+   Section Alignment Utility
 --------------------------------- */
 .section-align {
   max-width: 900px;
   margin: 0 auto;
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: 36px;
+  padding-right: 36px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -203,7 +201,7 @@ html, body {
    Hero Section
 --------------------------------- */
 .hero-section {
-  /* Inherits .section-align for alignment */
+  /* Use .section-align for alignment */
   min-height: 430px;
   padding-top: 130px;
   padding-bottom: 0;
@@ -244,7 +242,7 @@ html, body {
    About Section
 --------------------------------- */
 .about-section {
-  /* Inherits .section-align for alignment */
+  /* Use .section-align for alignment */
   padding-top: 96px;
   padding-bottom: 44px;
 }
