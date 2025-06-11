@@ -182,7 +182,6 @@ html, body {
 .section-align {
   max-width: 900px;
   margin: 0 auto;
-  /* Even closer to the left: */
   padding-left: 0px;
   padding-right: 24px;
   display: flex;
@@ -203,37 +202,50 @@ html, body {
    Hero Section
 --------------------------------- */
 .hero-section {
-  min-height: 200px;      /* Reduced height */
-  padding-top: 85px;      /* Less padding above */
-  padding-bottom: 0;
+  min-height: 300px;
+  padding-top: 110px;
+  padding-bottom: 40px;
+}
+
+.hero-section .section-align {
+  align-items: center;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .hero-title {
-  font-size: 5vw;         /* Scales on desktop, even larger */
-  font-weight: 900;
-  line-height: 1.04;
+  font-size: 2.9em;
+  font-weight: 800;
+  line-height: 1.08;
   color: #fff;
-  margin-bottom: 0.22em;
+  margin-bottom: 0.27em;
   letter-spacing: 0.01em;
-  max-width: 900px;
+  max-width: 700px;
 }
 
 .hero-subtitle {
-  font-size: 2vw;
-  min-font-size: 1.1em;
+  font-size: 1.35em;
   font-weight: 400;
   color: var(--gray-300);
-  margin-bottom: 0.7em;
-  line-height: 1.32;
+  margin-bottom: 0.9em;
+  line-height: 1.38;
   max-width: 600px;
 }
 
 @media (max-width: 900px) {
+  .hero-section {
+    min-height: 200px;
+    padding-top: 84px;
+    padding-bottom: 28px;
+  }
   .hero-title {
-    font-size: 2.4em;
+    font-size: 2em;
+    max-width: 92vw;
   }
   .hero-subtitle {
-    font-size: 1.15em;
+    font-size: 1.08em;
+    max-width: 88vw;
   }
 }
 @media (max-width: 600px) {
@@ -242,7 +254,7 @@ html, body {
     min-height: 120px;
   }
   .hero-title {
-    font-size: 1.45em;
+    font-size: 1.3em;
   }
   .hero-subtitle {
     font-size: 1em;
