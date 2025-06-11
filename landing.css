@@ -43,7 +43,7 @@ html, body {
   width: 100vw;
   z-index: 1000;
   transition: background 0.23s, box-shadow 0.23s;
-  background: rgba(34, 42, 51, 0.60); /* semi-transparent */
+  background: none;
   box-shadow: none;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
