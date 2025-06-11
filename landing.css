@@ -182,18 +182,20 @@ html, body {
 .section-align {
   max-width: 900px;
   margin: 0 auto;
-  padding-left: 36px;
-  padding-right: 36px;
+  /* Reduce left and right padding for closer-to-left alignment */
+  padding-left: 12px;
+  padding-right: 32px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
   .section-align {
-    max-width: 95vw;
-    padding-left: 2vw;
-    padding-right: 2vw;
+    max-width: 100vw;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 
@@ -201,26 +203,25 @@ html, body {
    Hero Section
 --------------------------------- */
 .hero-section {
-  /* Use .section-align for alignment */
   min-height: 430px;
   padding-top: 130px;
   padding-bottom: 0;
 }
 
 .hero-title {
-  font-size: 2.8em;
-  font-weight: 700;
-  line-height: 1.12;
+  font-size: 3.7em;         /* Bigger text for hero */
+  font-weight: 800;
+  line-height: 1.08;
   color: #fff;
   margin-bottom: 0.27em;
   letter-spacing: 0.01em;
 }
 
 .hero-subtitle {
-  font-size: 1.27em;
+  font-size: 1.55em;        /* Bigger subtitle */
   font-weight: 400;
   color: var(--gray-300);
-  margin-bottom: 0.7em;
+  margin-bottom: 0.9em;
   line-height: 1.38;
   max-width: 600px;
 }
@@ -231,10 +232,10 @@ html, body {
     min-height: 320px;
   }
   .hero-title {
-    font-size: 2em;
+    font-size: 2.1em;
   }
   .hero-subtitle {
-    font-size: 1em;
+    font-size: 1.1em;
   }
 }
 
@@ -242,7 +243,6 @@ html, body {
    About Section
 --------------------------------- */
 .about-section {
-  /* Use .section-align for alignment */
   padding-top: 96px;
   padding-bottom: 44px;
 }
@@ -294,26 +294,4 @@ html, body {
 --------------------------------- */
 .hide {
   display: none !important;
-}
-
-/* ---------------------------------
-   Section Alignment Utility
---------------------------------- */
-.section-align {
-  max-width: 900px;
-  margin: 0 auto;
-  padding-left: 36px;
-  padding-right: 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  box-sizing: border-box;
-}
-
-@media (max-width: 900px) {
-  .section-align {
-    max-width: 100vw;
-    padding-left: 20px;
-    padding-right: 20px;
-  }
 }
