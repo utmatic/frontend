@@ -330,3 +330,110 @@ html, body {
 a, a:visited, a:hover, a:active {
   text-decoration: none !important;
 }
+
+/* ---------------------------------
+   How It Works Section
+--------------------------------- */
+.howitworks-section {
+  padding-top: 54px;
+  padding-bottom: 54px;
+  background: var(--background-alt);
+  border-radius: 18px;
+  margin-top: 36px;
+  margin-bottom: 0;
+  box-shadow: 0 2px 32px #18315b14;
+}
+
+.howitworks-title {
+  color: #fff;
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 0.35em;
+  letter-spacing: 0.01em;
+}
+
+.howitworks-lead {
+  font-size: 1.12em;
+  color: var(--gray-300);
+  margin-bottom: 1.7em;
+  max-width: 600px;
+}
+
+.howitworks-steps {
+  list-style: none;
+  margin: 0 0 1.4em 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 36px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.howitworks-steps li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 150px;
+  max-width: 180px;
+  flex: 1 1 150px;
+  text-align: center;
+}
+
+.howitworks-step-icon {
+  margin-bottom: 0.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.howitworks-step-title {
+  font-size: 1.09em;
+  color: var(--brand-black);
+  font-weight: 600;
+  margin-bottom: 0;
+  letter-spacing: 0.01em;
+}
+
+.howitworks-outro {
+  color: var(--gray-300);
+  font-size: 1.04em;
+  margin-top: 1.6em;
+  max-width: 600px;
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .howitworks-steps {
+    gap: 18px;
+  }
+  .howitworks-section {
+    padding: 36px 0;
+    border-radius: 10px;
+  }
+}
+@media (max-width: 600px) {
+  .howitworks-section {
+    margin-top: 24px;
+    padding: 28px 0;
+    border-radius: 7px;
+  }
+  .howitworks-steps {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .howitworks-steps li {
+    max-width: none;
+    min-width: 0;
+    text-align: left;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+  }
+  .howitworks-step-icon {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+}
