@@ -3,22 +3,46 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Utmatic | High-Volume Content Creation</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Utmatic | Landing Page</title>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="landing.css"/>
 </head>
 <body>
-  <!-- Header / Navbar -->
-  <header class="site-header" id="site-header">
+  <!-- Header Bar -->
+  <header class="header">
     <div class="header-inner">
-      <a href="/" class="logo-link" aria-label="Utmatic Home">
-        <!-- Inline SVG logo (reuse same as your auth page) -->
-        <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184.86 37.84" aria-label="Utmatic Logo" class="header-logo">
-          <defs>
-            <style>
-              .cls-1 { fill: #fff; }
-              .cls-2 { fill: #cce1ff; }
-            </style>
-          </defs>
-          <path class="cls-2" d="M30.34,0H5.11C2.29,0,0,2.29,0,5.11v15.58c0,9.46,7.69,17.15,17.15,17.15h1.14c9.46,0,17.15-7.69,17.15-17.15V5.11c0-2.82-2.29-5.11-5.11-5.11ZM31.51,20.69c0,7.29-5.93,13.22-13.22,13.22h-1.14c-7.29,0-13.22-5.93-13.22-13.22v-8.17h6.78v8.81c0,3.86,3.14,7.01,7.01,7.01s7.01-3.14,7.01-7.01v-8.81h6.78v8.17ZM31.51,8.58h-10.72v12.74c0,1.69-1.38,3.07-3.07,3.07s-3.07-1.38-3.07-3.07v-12.
+      <div class="header-left">
+        <a class="header-logo" href="/">
+          <!-- Inline SVG logo (same as your auth page) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" aria-label="Utmatic Logo" style="height:34px;">
+            <g>
+              <path fill="#cce1ff" d="M30.34,0H5.11C2.29,0,0,2.29,0,5.11v15.58c0,9.46,7.69,17.15,17.15,17.15h1.14c9.46,0,17.15-7.69,17.15-17.15V5.11c0-2.82-2.29-5.11-5.11-5.11ZM31.51,20.69c0,7.29-5.93,13.22-13.22,13.22h-1.14c-7.29,0-13.22-5.93-13.22-13.22v-8.17h6.78v8.81c0,3.86,3.14,7.01,7.01,7.01s7.01-3.14,7.01-7.01v-8.81h6.78v8.17ZM31.51,8.58h-10.72v12.74c0,1.69-1.38,3.07-3.07,3.07s-3.07-1.38-3.07-3.07v-12.74H3.93v-3.47c0-.65.53-1.18,1.18-1.18h25.23c.65,0,1.18.53,1.18,1.18v3.47Z"/>
+            </g>
+          </svg>
+          <span class="header-logo-text">utmatic</span>
+        </a>
+        <nav class="header-nav">
+          <a href="#home">Home</a>
+          <a href="#about">About</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
+      </div>
+      <div class="header-actions">
+        <a href="/login" class="header-btn">Sign in</a>
+        <a href="/signup" class="header-btn header-btn-signup">Sign up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <h1 class="hero-title">Built for High-Volume<br/>Content Creation</h1>
+    <div class="hero-subtitle">
+      Instantly add links and tracking to<br/>
+      the documents you ship.
+    </div>
+  </section>
+
+  <script src="landing.js"></script>
+</body>
+</html>
