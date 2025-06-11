@@ -1,11 +1,19 @@
+/* ===================================================
+  UTMTATIC LANDING PAGE STYLESHEET
+  All variables, layout, and sections
+=================================================== */
+
+/* -----------------------------
+   Root Variables & Base Styling
+----------------------------- */
 :root {
   --brand-blue: #4d89f9;
   --brand-blue-hover: #3474e0;
-  --brand-black: #e4e8ef;
-  --brand-white: #232a33;
-  --gray-100: #29313a;
-  --gray-300: #b3b9c5;
-  --gray-400: #7a8597;
+  --brand-black: #e4e8ef;    /* Main text color on dark */
+  --brand-white: #232a33;    /* Card surface, not true white */
+  --gray-100: #29313a;       /* Input borders, dividers */
+  --gray-300: #b3b9c5;       /* Muted text */
+  --gray-400: #7a8597;       /* More muted text */
   --shadow: 0 8px 32px #000a;
   --font: 'Work Sans', 'Segoe UI', Arial, sans-serif;
   --background-main: #1c232b;
@@ -13,7 +21,10 @@
   --accent-yellow: #ffd33d;
 }
 
-/* GENERAL */
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   height: 100%;
   background: var(--background-main);
@@ -23,7 +34,9 @@ html, body {
   font-size: 18px;
 }
 
-/* HEADER */
+/* ---------------------------------
+   Header Bar / Navigation
+--------------------------------- */
 .header {
   position: fixed;
   top: 0;
@@ -56,7 +69,7 @@ html, body {
   gap: 0.96em;
 }
 
-/* LOGO */
+/* --- Logo --- */
 .header-logo {
   display: flex;
   align-items: center;
@@ -78,7 +91,7 @@ html, body {
   letter-spacing: 0.01em;
 }
 
-/* NAVIGATION */
+/* --- Navigation Links --- */
 .header-nav {
   display: flex;
   align-items: center;
@@ -108,7 +121,7 @@ html, body {
   margin-left: 2.1em;
 }
 
-/* BUTTONS */
+/* --- Header Buttons --- */
 .header-btn {
   background: none;
   border: none;
@@ -164,16 +177,36 @@ html, body {
   }
 }
 
-/* HERO SECTION */
-.hero-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 430px;
-  padding: 130px 0 0 0;
-  align-items: flex-start;
+/* ---------------------------------
+   Section Layout Utility
+   (Keeps sections aligned)
+--------------------------------- */
+.section-align {
   max-width: 900px;
   margin: 0 auto;
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .section-align {
+    max-width: 95vw;
+    padding-left: 2vw;
+    padding-right: 2vw;
+  }
+}
+
+/* ---------------------------------
+   Hero Section
+--------------------------------- */
+.hero-section {
+  /* Inherits .section-align for alignment */
+  min-height: 430px;
+  padding-top: 130px;
+  padding-bottom: 0;
 }
 
 .hero-title {
@@ -198,7 +231,6 @@ html, body {
   .hero-section {
     padding-top: 96px;
     min-height: 320px;
-    max-width: 95vw;
   }
   .hero-title {
     font-size: 2em;
@@ -208,52 +240,60 @@ html, body {
   }
 }
 
-/* Utility */
-.hide {
-  display: none !important;
-}
-
-/* ABOUT SECTION */
-
-.hero-section,
+/* ---------------------------------
+   About Section
+--------------------------------- */
 .about-section {
-  max-width: 900px;
-  margin: 0 auto;
-  padding-left: 0;
-  padding-right: 0;
-  padding-top: 130px; /* hero only; will override below for about */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.hero-section {
-  min-height: 430px;
-  padding-bottom: 0;
-  padding-top: 130px;
-}
-
-.about-section {
+  /* Inherits .section-align for alignment */
   padding-top: 96px;
   padding-bottom: 44px;
 }
 
-@media (max-width: 900px) {
-  .hero-section,
-  .about-section {
-    max-width: 95vw;
-    padding-left: 2vw;
-    padding-right: 2vw;
-  }
+.about-title {
+  font-size: 2em;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3em;
+  line-height: 1.18;
+  letter-spacing: 0.01em;
+}
+
+.about-lead {
+  font-size: 1.15em;
+  color: var(--gray-300);
+  margin-bottom: 1.2em;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.about-list {
+  list-style: disc inside;
+  color: var(--brand-black);
+  font-size: 1.04em;
+  padding-left: 1.1em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.57em;
 }
 
 @media (max-width: 600px) {
-  .hero-section {
-    padding-top: 96px;
-    min-height: 320px;
-  }
   .about-section {
     padding-top: 60px;
     padding-bottom: 30px;
   }
+  .about-title {
+    font-size: 1.25em;
+  }
+  .about-lead,
+  .about-list {
+    font-size: 1em;
+  }
+}
+
+/* ---------------------------------
+   Utility Classes
+--------------------------------- */
+.hide {
+  display: none !important;
 }
