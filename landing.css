@@ -295,3 +295,25 @@ html, body {
 .hide {
   display: none !important;
 }
+
+/* ---------------------------------
+   Section Alignment Utility
+--------------------------------- */
+.section-align {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-left: 36px;
+  padding-right: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .section-align {
+    max-width: 100vw;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
