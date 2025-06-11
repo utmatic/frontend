@@ -48,7 +48,7 @@ html, body {
 }
 
 .header.scrolled {
-  background: var(--background-alt);
+  background: #405c8b2b;
   box-shadow: 0 1.5px 10px #10162220;
 }
 
@@ -183,7 +183,7 @@ html, body {
   max-width: 900px;
   margin: 0 auto;
   padding-left: 0px;
-  padding-right: 24px;
+  padding: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -204,7 +204,7 @@ html, body {
 .hero-section {
   min-height: 300px;
   padding-top: 110px;
-  padding-bottom: 40px;
+  padding-bottom: 100px;
 }
 
 .hero-section .section-align {
@@ -269,6 +269,7 @@ html, body {
 .about-section {
   padding-top: 54px;
   padding-bottom: 32px;
+  background: #222a33;
 }
 
 .about-title {
