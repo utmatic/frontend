@@ -262,7 +262,7 @@ html, body {
 --------------------------------- */
 .about-section {
   padding-top: 54px;
-  padding-bottom: 125px;
+  padding-bottom: 128px;
   background: #222a33;
 }
 
@@ -513,8 +513,8 @@ a, a:visited, a:hover, a:active {
 .two-row-two-column-section {
   max-width: 1250px;
   margin: 0 auto;
-  padding-top: 125px;
-  padding-bottom: 125px;
+  padding-top: 128px;
+  padding-bottom: 128px;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -571,7 +571,7 @@ a, a:visited, a:hover, a:active {
   width: 100vw;
   margin-left: 50%;
   transform: translateX(-50%);
-  background: var(--background-alt, #191e34);
+  background: #1c232b;
   padding: 110px 0 120px 0;
 }
 
@@ -812,7 +812,7 @@ html, body {
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  padding: 64px 0; /* Padding now sits inside the colored background */
+  padding: 128px 0; /* Padding now sits inside the colored background */
 }
 
 .pricing-header {
@@ -1096,14 +1096,3 @@ html, body {
   }
 }
 
-.scroll-animate {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s cubic-bezier(.39,.58,.57,1), transform 0.7s cubic-bezier(.39,.58,.57,1);
-  will-change: opacity, transform;
-}
-
-.scroll-animate.in-view {
-  opacity: 1;
-  transform: none;
-}
