@@ -801,7 +801,7 @@ html, body {
   margin: 0;
   box-shadow: 0 8px 32px #0012;
   font-family: var(--font);
-  background: #222a33;
+  color: var(--brand-black);
 }
 
 .pricing-wrapper {
