@@ -1096,3 +1096,17 @@ html, body {
   }
 }
 
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.7s cubic-bezier(.39,.58,.57,1),
+    transform 0.7s cubic-bezier(.39,.58,.57,1);
+  will-change: opacity, transform;
+}
+
+.scroll-animate.in-view {
+  opacity: 1;
+  transform: none;
+  transition-delay: var(--scroll-delay, 0ms);
+}
