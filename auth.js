@@ -24,26 +24,50 @@ const signupForm = document.getElementById('signup-form');
 const signinStatus = document.getElementById('signin-status');
 const signupStatus = document.getElementById('signup-status');
 
-function showSignin() {
+function showSignin(pushState = true) {
   tabSignin.classList.add('active');
   tabSignup.classList.remove('active');
   signinForm.style.display = '';
   signupForm.style.display = 'none';
   if (signinStatus) signinStatus.textContent = '';
   if (signupStatus) signupStatus.textContent = '';
+  // Update URL to /login if not already at /login
+  if (pushState && window.location.pathname !== '/login') {
+    history.pushState({}, '', '/login');
+  }
 }
 
-function showSignup() {
+function showSignup(pushState = true) {
   tabSignin.classList.remove('active');
   tabSignup.classList.add('active');
   signinForm.style.display = 'none';
   signupForm.style.display = '';
   if (signinStatus) signinStatus.textContent = '';
   if (signupStatus) signupStatus.textContent = '';
+  // Update URL to /signup if not already at /signup
+  if (pushState && window.location.pathname !== '/signup') {
+    history.pushState({}, '', '/signup');
+  }
 }
 
-tabSignin.addEventListener('click', showSignin);
-tabSignup.addEventListener('click', showSignup);
+tabSignin.addEventListener('click', function(e) {
+  e.preventDefault();
+  showSignin(true);
+});
+tabSignup.addEventListener('click', function(e) {
+  e.preventDefault();
+  showSignup(true);
+});
+
+// --- SPA-style URL sync: toggle form on browser navigation ---
+window.addEventListener('popstate', function() {
+  if (window.location.pathname === '/signup') showSignup(false);
+  else showSignin(false);
+});
+
+// On initial page load: show correct form based on URL
+if (window.location.pathname === '/signup') showSignup(false);
+else showSignin(false);
 
 // --- Sign up: Validate, create user, then call backend for Stripe checkout ---
 signupForm.addEventListener('submit', async function(e) {
