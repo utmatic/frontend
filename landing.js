@@ -48,6 +48,26 @@ function flashPrices() {
   });
 }
 
+function animateOnScroll() {
+  const observer = new window.IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        obs.unobserve(entry.target); // Animate only once
+      }
+    });
+  }, {
+    threshold: 0.15
+  });
+
+  document.querySelectorAll('.scroll-animate').forEach(el => {
+    observer.observe(el);
+  });
+}
+
+// Run on page load
+window.addEventListener('DOMContentLoaded', animateOnScroll);
+
 function updatePricing(options = { animate: false }) {
   const prices = yearly ? pricingData.yearly : pricingData.monthly;
   const billedEls = [
