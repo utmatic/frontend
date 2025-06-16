@@ -26,9 +26,6 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Start inactivity modal logic for ALL pages
-    fetchSessionTimeoutAndStart();
-
     // Auth gating: block form if not signed in (all plans allowed)
     function getRedirectUrl() {
       // Always redirect back to this page after login
