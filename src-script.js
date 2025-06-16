@@ -512,7 +512,7 @@ function showResultScreen(processedUrl, reportUrl) {
     startNewLink.onclick = function(e) {
       e.preventDefault();
       resetForm();
-      window.location.href = "https://app.utmatic.com/source-form.html";
+      window.location.href = "https://www.utmatic.com/indd-form";
     };
   }
 }
