@@ -474,7 +474,7 @@ function showResultScreen(processedUrl, reportUrl) {
     <a href="#" class="result-return-link" id="result-return-link">
       <span>Return to your submission</span>
     </a>
-    <a href="https://app.utmatic.com/source-form.html" class="startnew-link" id="start-new-link">
+    <a href="https://www.utmatic.com/indd-form" class="startnew-link" id="start-new-link">
       <span>Start new submission</span>
     </a>
   `;
