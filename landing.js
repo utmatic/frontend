@@ -282,9 +282,17 @@ window.addEventListener('popstate', function() {
   else showSignin({ pushState: false });
 });
 
-// On initial page load: show correct form based on URL
-if (window.location.pathname === '/signup') showSignup({ pushState: false });
-else showSignin({ pushState: false });
+// --- On initial page load: show correct form and modal based on URL ---
+window.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('auth-overlay');
+  if (window.location.pathname === '/signup') {
+    if (typeof window.showAuthOverlay === 'function') window.showAuthOverlay('signup');
+  } else if (window.location.pathname === '/login') {
+    if (typeof window.showAuthOverlay === 'function') window.showAuthOverlay('signin');
+  } else {
+    if (typeof showSignin === 'function') showSignin({ pushState: false });
+  }
+});
 
 // --- Sign up: Validate, create user, then call backend for Stripe checkout ---
 if (signupForm) {
