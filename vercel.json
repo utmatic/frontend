@@ -3,7 +3,7 @@
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/indd-form", "destination": "/source-form.html" },
     { "source": "/pdf-form", "destination": "/pdf-form.html" },
-    { "source": "/login", "destination": "/auth.html" },
+    { "source": "/login", "destination": "/index.html" },
     { "source": "/signup", "destination": "/index.html" },
     { "source": "/", "destination": "/index.html" }
   ]
