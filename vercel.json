@@ -4,6 +4,7 @@
     { "source": "/indd-form", "destination": "/source-form.html" },
     { "source": "/pdf-form", "destination": "/pdf-form.html" },
     { "source": "/login", "destination": "/auth.html" },
+    { "source": "/signup", "destination": "/index.html" },           // <-- Add this line
     { "source": "/", "destination": "/index.html" }
   ]
 }
