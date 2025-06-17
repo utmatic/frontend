@@ -189,12 +189,22 @@
     <div class="loader-text">Processing your file...</div>
     <div class="loader-subtext">Thanks for your patience! Large documents may take a couple of minutes to process.</div>
   </div>
-  <div id="result-screen">
+  <div id="result-screen" style="display:none;">
     <div class="result-content">
+      <!-- This content will be replaced dynamically by JS showResultScreen().
+           The initial template is for fallback/no-JS support only. -->
       <div class="result-heading">
-        <div class="result-title-text">Your processed files are ready!</div>
+        <div class="result-title-text">Congrats! You saved approximately:</div>
+        <div class="minutes-saved-big">
+          0<span class="minutes-label">minutes</span>
+        </div>
+        <div class="links-count-subtle">
+          Processed <b>0</b> links
+        </div>
       </div>
-      <div class="result-btns" id="result-btns"></div>
+      <div class="result-btns" id="result-btns">
+        <!-- Download button appended by JS -->
+      </div>
       <!-- Return to submission button, matching style to report-link and startnew-link -->
       <a href="#" class="result-return-link" id="result-return-link">
         <span>Return to your submission</span>
