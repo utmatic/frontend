@@ -166,6 +166,9 @@ const utmCampaign = document.getElementById('utm_campaign');
 
 let lastValidFile = null;
 
+// Store the latest link count for the result modal
+let latestLinkCount = null;
+
 const fileInput = document.getElementById('file');
 fileInput.addEventListener('change', function() {
   const span = document.getElementById('file-filename');
@@ -456,7 +459,12 @@ function resetForm() {
   validateForm();
 }
 
-function showResultScreen(processedUrl, reportUrl) {
+/**
+ * Show the result modal with time saved and link count
+ * @param {string} processedUrl 
+ * @param {number} linkCount 
+ */
+function showResultScreen(processedUrl, linkCount) {
   mainFormWrapper.style.display = 'none';
   resultScreen.style.display = 'flex';
 
@@ -466,9 +474,22 @@ function showResultScreen(processedUrl, reportUrl) {
     resultContent.className = 'result-content';
     resultScreen.appendChild(resultContent);
   }
+
+  // Calculate time saved
+  let minutesSaved = 0;
+  if (typeof linkCount === "number" && !isNaN(linkCount) && linkCount > 0) {
+    minutesSaved = Math.round((linkCount * 30) / 60);
+  }
+
   resultContent.innerHTML = `
     <div class="result-heading">
-      <div class="result-title-text">Your processed file is ready!</div>
+      <div class="result-title-text">Congrats! You saved approximately:</div>
+      <div class="minutes-saved-big" style="font-size:3em;font-weight:800;margin-top:0.3em;margin-bottom:0.15em;line-height:1.1;">
+        ${minutesSaved}<span style="font-size:0.45em;font-weight:500;margin-left:0.15em;">minutes</span>
+      </div>
+      <div class="links-count-subtle" style="font-size:1em;color:#7a8597BB; font-weight:500; margin-bottom:1.1em;">
+        Processed <b>${linkCount}</b> links
+      </div>
     </div>
     <div class="result-btns" id="result-btns"></div>
     <a href="#" class="result-return-link" id="result-return-link">
@@ -488,14 +509,7 @@ function showResultScreen(processedUrl, reportUrl) {
     btn.innerHTML = '<button class="process-btn">Download now</button>';
     resultBtns.appendChild(btn);
   }
-  if (reportUrl) {
-    const reportLink = document.createElement('a');
-    reportLink.href = reportUrl;
-    reportLink.download = "";
-    reportLink.className = 'result-report-link';
-    reportLink.textContent = 'See change log';
-    resultBtns.appendChild(reportLink);
-  }
+  // No changelog/report download button anymore
 
   const returnLink = resultContent.querySelector('#result-return-link');
   if (returnLink) {
@@ -575,7 +589,9 @@ form.onsubmit = async (e) => {
 
     const res = await resp.json();
     if (resp.ok && res.file_name) {
-      pollStatus(res.file_name);
+      // Try to get link count from response (fallback to null)
+      latestLinkCount = typeof res.link_count === "number" ? res.link_count : null;
+      pollStatus(res.file_name, latestLinkCount);
     } else {
       hideLoader();
       mainFormWrapper.style.pointerEvents = "";
@@ -590,14 +606,24 @@ form.onsubmit = async (e) => {
   }
 };
 
-async function pollStatus(fileName) {
+/**
+ * Poll job status and show result modal when ready, including link count if possible
+ * @param {string} fileName 
+ * @param {number} initialLinkCount 
+ */
+async function pollStatus(fileName, initialLinkCount) {
+  let linkCount = initialLinkCount;
   async function check() {
     try {
       const resp = await fetch(`https://backend-idd.onrender.com/job_status/${fileName}`);
       const res = await resp.json();
+      // Try to get link_count from job_status endpoint if present
+      if (typeof res.link_count === "number") {
+        linkCount = res.link_count;
+      }
       if ((res.processed_ready || res.report_ready) && (res.processed_url || res.report_url)) {
         hideLoader();
-        showResultScreen(res.processed_url, res.report_url);
+        showResultScreen(res.processed_url, linkCount || 0);
         submitBtn.disabled = false;
         mainFormWrapper.style.pointerEvents = "";
         return;
