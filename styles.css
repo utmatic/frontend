@@ -233,7 +233,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* --- NEW: Big animated minutes saved number --- */
+/* --- Big minutes saved number, now stacked with label below (no pop animation) --- */
 #result-screen .minutes-saved-big {
   font-size: 3em;
   font-weight: 800;
@@ -243,20 +243,35 @@ body {
   margin-bottom: 0.15em;
   letter-spacing: -0.01em;
   text-align: center;
-  transition: color 0.22s;
-  /* For animation */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Remove pop animation, no transition needed */
   will-change: contents;
 }
-#result-screen .minutes-saved-big .minutes-label {
-  font-size: 0.45em;
-  font-weight: 500;
-  margin-left: 0.15em;
-  color: #fff;
-  opacity: 0.8;
-  vertical-align: middle;
+
+#result-screen .minutes-saved-big #minutes-counter {
+  display: block;
+  font-size: 1em;
+  width: 100%;
 }
 
-/* --- NEW: Subtle processed links count --- */
+/* "minutes" label is always below the number and centered */
+#result-screen .minutes-label {
+  display: block;
+  font-size: 0.45em;
+  font-weight: 500;
+  color: #fff;
+  opacity: 0.8;
+  margin-top: 0.15em;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 0.06em;
+  margin-left: 0;
+  vertical-align: baseline;
+}
+
+/* --- Subtle processed links count --- */
 #result-screen .links-count-subtle {
   font-size: 1em;
   color: #7a8597BB;
@@ -335,24 +350,8 @@ body {
   }
 }
 
-/* --- Animation for counter (optional) --- */
-@keyframes countup-pop {
-  0% {
-    transform: scale(0.8) translateY(10px);
-    opacity: 0.1;
-  }
-  70% {
-    transform: scale(1.12) translateY(-4px);
-    opacity: 0.95;
-  }
-  100% {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-}
-#result-screen .minutes-saved-big.animated {
-  animation: countup-pop 0.9s cubic-bezier(.43,1.85,.77,1.04);
-}
+/* --- REMOVE pop animation for counter --- */
+/* (No @keyframes or .animated class, pop effect is gone) */
     .container {
       display: flex;
       justify-content: center;
