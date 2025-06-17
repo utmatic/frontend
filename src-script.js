@@ -525,14 +525,10 @@ function showResultScreen(processedUrl, linkCount) {
     </a>
   `;
 
-  // Animate the counter ONCE and add the animated class at the end for pop effect!
+  // Animate the counter, but do not pop/grow it
   const minutesCounter = resultContent.querySelector('#minutes-counter');
-  const minutesBig = resultContent.querySelector('.minutes-saved-big');
-  if (minutesCounter && minutesBig) {
-    minutesBig.classList.remove("animated");
-    animateCounter(minutesCounter, minutesSaved, 1200, function() {
-      minutesBig.classList.add("animated");
-    });
+  if (minutesCounter) {
+    animateCounter(minutesCounter, minutesSaved, 1200);
   }
 
   const resultBtns = resultContent.querySelector('#result-btns');
@@ -544,7 +540,6 @@ function showResultScreen(processedUrl, linkCount) {
     btn.innerHTML = '<button class="process-btn">Download now</button>';
     resultBtns.appendChild(btn);
   }
-  // No changelog/report download button anymore
 
   const returnLink = resultContent.querySelector('#result-return-link');
   if (returnLink) {
@@ -658,15 +653,19 @@ async function pollStatus(fileName, initialLinkCount) {
       if (typeof res.link_count === "number") {
         linkCount = res.link_count;
       }
+      // Log for debugging
+      // console.log("Polling:", {processed_ready: res.processed_ready, report_ready: res.report_ready, linkCount, res});
       if ((res.processed_ready || res.report_ready) && (res.processed_url || res.report_url)) {
         hideLoader();
-        showResultScreen(res.processed_url, linkCount || 0);
+        showResultScreen(res.processed_url, typeof linkCount === "number" ? linkCount : 0);
         submitBtn.disabled = false;
         mainFormWrapper.style.pointerEvents = "";
         shown = true;
         return;
       }
     } catch (e) {
+      // Optionally, log error
+      // console.error("Error in pollStatus:", e);
     }
     setTimeout(check, 4000);
   }
