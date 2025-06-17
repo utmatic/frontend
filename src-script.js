@@ -509,7 +509,8 @@ function showResultScreen(processedUrl, linkCount) {
     <div class="result-heading">
       <div class="result-title-text">Congrats! You saved approximately:</div>
       <div class="minutes-saved-big">
-        <span id="minutes-counter">0</span><span class="minutes-label">minutes</span>
+        <span id="minutes-counter">0</span>
+        <div class="minutes-label">minutes</div>
       </div>
       <div class="links-count-subtle">
         Processed <b>${linkCount}</b> links
