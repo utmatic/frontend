@@ -220,7 +220,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.7em;
 }
 
 #result-screen .result-title-text {
@@ -262,7 +261,6 @@ body {
   font-size: 1em;
   color: #7a8597BB;
   font-weight: 500;
-  margin-bottom: 1.1em;
   text-align: center;
 }
 
