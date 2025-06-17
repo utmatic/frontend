@@ -234,6 +234,38 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* --- NEW: Big animated minutes saved number --- */
+#result-screen .minutes-saved-big {
+  font-size: 3em;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-top: 0.3em;
+  margin-bottom: 0.15em;
+  letter-spacing: -0.01em;
+  text-align: center;
+  transition: color 0.22s;
+  /* For animation */
+  will-change: contents;
+}
+#result-screen .minutes-saved-big .minutes-label {
+  font-size: 0.45em;
+  font-weight: 500;
+  margin-left: 0.15em;
+  color: #fff;
+  opacity: 0.8;
+  vertical-align: middle;
+}
+
+/* --- NEW: Subtle processed links count --- */
+#result-screen .links-count-subtle {
+  font-size: 1em;
+  color: #7a8597BB;
+  font-weight: 500;
+  margin-bottom: 1.1em;
+  text-align: center;
+}
+
 #result-screen .result-btns {
   display: flex;
   flex-direction: row;
@@ -303,6 +335,25 @@ body {
   #result-screen .result-title-text {
     font-size: 1.05em;
   }
+}
+
+/* --- Animation for counter (optional) --- */
+@keyframes countup-pop {
+  0% {
+    transform: scale(0.8) translateY(10px);
+    opacity: 0.1;
+  }
+  70% {
+    transform: scale(1.12) translateY(-4px);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+#result-screen .minutes-saved-big.animated {
+  animation: countup-pop 0.9s cubic-bezier(.43,1.85,.77,1.04);
 }
     .container {
       display: flex;
