@@ -484,10 +484,10 @@ function showResultScreen(processedUrl, linkCount) {
   resultContent.innerHTML = `
     <div class="result-heading">
       <div class="result-title-text">Congrats! You saved approximately:</div>
-      <div class="minutes-saved-big" style="font-size:3em;font-weight:800;margin-top:0.3em;margin-bottom:0.15em;line-height:1.1;">
-        ${minutesSaved}<span style="font-size:0.45em;font-weight:500;margin-left:0.15em;">minutes</span>
+      <div class="minutes-saved-big animated">
+        <span id="minutes-counter">0</span><span class="minutes-label">minutes</span>
       </div>
-      <div class="links-count-subtle" style="font-size:1em;color:#7a8597BB; font-weight:500; margin-bottom:1.1em;">
+      <div class="links-count-subtle">
         Processed <b>${linkCount}</b> links
       </div>
     </div>
@@ -499,6 +499,12 @@ function showResultScreen(processedUrl, linkCount) {
       <span>Start new submission</span>
     </a>
   `;
+
+  // Animate the counter!
+  const minutesCounter = resultContent.querySelector('#minutes-counter');
+  if (minutesCounter) {
+    animateCounter(minutesCounter, minutesSaved, 1200);
+  }
 
   const resultBtns = resultContent.querySelector('#result-btns');
   resultBtns.innerHTML = '';
