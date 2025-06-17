@@ -460,6 +460,30 @@ function resetForm() {
 }
 
 /**
+ * Animate a counter from 0 to the given value in the element.
+ * Optionally, call onDone when finished.
+ */
+function animateCounter(element, to, duration = 1200, onDone) {
+  const start = 0;
+  const end = Number(to);
+  const range = end - start;
+  const startTime = performance.now();
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = Math.round(start + range * progress);
+    element.textContent = value;
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      element.textContent = end; // Ensure exact final value
+      if (typeof onDone === "function") onDone();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+/**
  * Show the result modal with time saved and link count
  * @param {string} processedUrl 
  * @param {number} linkCount 
@@ -484,7 +508,7 @@ function showResultScreen(processedUrl, linkCount) {
   resultContent.innerHTML = `
     <div class="result-heading">
       <div class="result-title-text">Congrats! You saved approximately:</div>
-      <div class="minutes-saved-big animated">
+      <div class="minutes-saved-big">
         <span id="minutes-counter">0</span><span class="minutes-label">minutes</span>
       </div>
       <div class="links-count-subtle">
@@ -500,10 +524,14 @@ function showResultScreen(processedUrl, linkCount) {
     </a>
   `;
 
-  // Animate the counter!
+  // Animate the counter ONCE and add the animated class at the end for pop effect!
   const minutesCounter = resultContent.querySelector('#minutes-counter');
-  if (minutesCounter) {
-    animateCounter(minutesCounter, minutesSaved, 1200);
+  const minutesBig = resultContent.querySelector('.minutes-saved-big');
+  if (minutesCounter && minutesBig) {
+    minutesBig.classList.remove("animated");
+    animateCounter(minutesCounter, minutesSaved, 1200, function() {
+      minutesBig.classList.add("animated");
+    });
   }
 
   const resultBtns = resultContent.querySelector('#result-btns');
@@ -619,7 +647,9 @@ form.onsubmit = async (e) => {
  */
 async function pollStatus(fileName, initialLinkCount) {
   let linkCount = initialLinkCount;
+  let shown = false;
   async function check() {
+    if (shown) return; // Stop if already shown
     try {
       const resp = await fetch(`https://backend-idd.onrender.com/job_status/${fileName}`);
       const res = await resp.json();
@@ -632,6 +662,7 @@ async function pollStatus(fileName, initialLinkCount) {
         showResultScreen(res.processed_url, linkCount || 0);
         submitBtn.disabled = false;
         mainFormWrapper.style.pointerEvents = "";
+        shown = true;
         return;
       }
     } catch (e) {
