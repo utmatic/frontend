@@ -537,7 +537,7 @@ function showResultScreen(processedUrl, linkCount) {
     const btn = document.createElement('a');
     btn.href = processedUrl;
     btn.download = "";
-    btn.innerHTML = '<button class="process-btn">Download now</button>';
+    btn.innerHTML = '<button class="process-btn">Download file</button>';
     resultBtns.appendChild(btn);
   }
 
