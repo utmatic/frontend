@@ -688,7 +688,7 @@ html, body {
 .preset-list-row:last-child {
   border-bottom: 1px solid var(--gray-divider);
 }
-.preset-list-row:hover,
+.preset-list-row:hover {
   background: #232c39;
 }
 
