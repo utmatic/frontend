@@ -2,13 +2,13 @@
 
 const pricingData = {
   monthly: [
-    { price: "$49", billed: "billed monthly" },
-    { price: "$249", billed: "billed monthly" },
+    { price: "$149", billed: "billed monthly" },
+    { price: "$279", billed: "billed monthly" },
     { price: "$399", billed: "billed monthly" }
   ],
   yearly: [
-    { price: "$39", billed: "billed yearly" },
-    { price: "$209", billed: "billed yearly" },
+    { price: "$119", billed: "billed yearly" },
+    { price: "$229", billed: "billed yearly" },
     { price: "$329", billed: "billed yearly" }
   ]
 };
