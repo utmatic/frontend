@@ -914,10 +914,10 @@ html, body {
 }
 
 .plan-desc {
-  margin-bottom: 1.55em;
+  margin-bottom: 0.80em;
   margin-top: 0.10em;
   color: var(--gray-300);
-  font-size: 1.13em;
+  font-size: 1.0em;
   text-align: center;
   min-height: 2.2em;
   line-height: 1.5;
@@ -957,7 +957,6 @@ html, body {
   list-style: none;
   padding: 0;
   margin: 0;
-  margin-bottom: 0.8em;
   width: 100%;
   text-align: center;
   color: var(--brand-black);
